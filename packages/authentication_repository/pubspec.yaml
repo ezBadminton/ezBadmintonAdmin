@@ -1,0 +1,13 @@
+name: authentication_repository
+description: Dart package which manages the authentication domain.
+publish_to: none
+
+environment:
+  sdk: '>=2.19.6 <3.0.0'
+
+dependencies:
+  pocketbase_provider:
+    path: ../pocketbase_provider
+
+dev_dependencies:
+  very_good_analysis: ^3.1.0

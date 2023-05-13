@@ -1,0 +1,12 @@
+name: pocketbase_provider
+description: Dart package which acts as a PocketBase data provider by exposing singleton.
+publish_to: none
+
+environment:
+  sdk: '>=2.19.6 <3.0.0'
+
+dependencies:
+ pocketbase: ^0.9.1
+
+dev_dependencies:
+  very_good_analysis: ^3.1.0

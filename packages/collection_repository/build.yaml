@@ -1,0 +1,29 @@
+targets:
+  $default:
+    builders:
+      source_gen|combining_builder:
+        generate_for:
+          - lib/src/models/**.dart
+        options:
+          build_extensions:
+            '^lib/src/models/{{}}.dart': 'lib/src/models/generated/{{}}.g.dart'
+      freezed|freezed:
+        enabled: true
+        options:
+          build_extensions:
+            '^lib/src/models/{{}}.dart': 'lib/src/models/generated/{{}}.freezed.dart'
+      json_serializable:
+        options:
+          explicit_to_json: true # Enable nested json serialization
+          any_map: false # Everyting down here are default values
+          checked: false
+          constructor: ""
+          create_factory: true
+          create_field_map: false
+          create_per_field_to_json: false
+          create_to_json: true
+          disallow_unrecognized_keys: false
+          field_rename: none
+          generic_argument_factories: false
+          ignore_unannotated: false
+          include_if_null: true

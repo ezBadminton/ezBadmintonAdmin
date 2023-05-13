@@ -1,0 +1,24 @@
+name: collection_repository
+description: Dart package which manages the data collections of the pocketbase backend
+publish_to: none
+
+environment:
+  sdk: '>=2.19.6 <3.0.0'
+
+dependencies:
+  const_date_time: ^1.0.2
+  equatable: ^2.0.3
+  flutter:
+    sdk: flutter
+  freezed_annotation: ^2.2.0
+  json_annotation: ^4.8.1
+  pocketbase: ^0.9.1
+  pocketbase_provider:
+    path: ../pocketbase_provider
+  recase: ^4.1.0
+
+dev_dependencies:
+  build_runner: ^2.3.3
+  freezed: ^2.3.3
+  json_serializable: ^6.6.2
+  very_good_analysis: ^4.0.0
