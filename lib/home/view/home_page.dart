@@ -5,6 +5,7 @@ import 'package:ez_badminton_admin_app/home/widgets/navigation_tab.dart';
 import 'package:ez_badminton_admin_app/player_management/view/player_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -38,8 +39,8 @@ class _HomePageState extends State<HomePage>
       index: 2,
       label: 'Felder',
       root: Placeholder(),
-      unselectedIcon: BadmintonIcons.badminton_court_outline,
-      selectedIcon: BadmintonIcons.badminton_court,
+      unselectedIcon: BadmintonIcons.badminton_court_with_net_outline,
+      selectedIcon: BadmintonIcons.badminton_court_with_net,
     ),
     NavigationTab(
       index: 3,
@@ -113,8 +114,8 @@ class _HomePageState extends State<HomePage>
                     context.read<TabNavigationCubit>().tabChanged(index),
                 destinations: tabs
                     .map((tab) => NavigationRailDestination(
-                          icon: Icon(tab.unselectedIcon),
-                          selectedIcon: Icon(tab.selectedIcon),
+                          icon: FaIcon(tab.unselectedIcon),
+                          selectedIcon: FaIcon(tab.selectedIcon),
                           label: Text(tab.label),
                         ))
                     .toList(),

@@ -27,10 +27,16 @@ class BadmintonIcons {
       IconData(0xe800, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData badminton_racket =
       IconData(0xe801, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData badminton_net =
+      IconData(0xe802, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData badminton_rackets_crossed_outline =
       IconData(0xe803, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData badminton_rackets_crossed =
       IconData(0xe804, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData badminton_court_with_net =
+      IconData(0xe805, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData badminton_court_with_net_outline =
+      IconData(0xe806, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData badminton_shuttlecock =
       IconData(0xe808, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData badminton_shuttlecock_outline =
