@@ -24,5 +24,15 @@
   "menAbbreviated": "H",
   "playerSearchHint": "Name/Verein suchen",
   "competitionType": "{type, select, doubles{Doppel} mixed{Mixed} singles{Einzel} other{Sonstige}}",
-  "competitionAbbreviated": "{type, select, doubles{D} mixed{MX} singles{E} other{Sonst.}}"
+  "competitionAbbreviated": "{type, select, doubles{D} mixed{MX} singles{E} other{Sonst.}}",
+  "add" : "Hinzufügen",
+  "firstName": "Vorname",
+  "lastName": "Nachname",
+  "player": "Spieler",
+  "playerManagement": "Spieler verwalten",
+  "birthday": "Geburtstag",
+  "addPlayer": "Spieler hinzufügen",
+  "editPlayer": "Spieler bearbeiten",
+  "personalData": "Zur Person",
+  "registeredCompetitions": "Gemeldete Disziplinen"
 }

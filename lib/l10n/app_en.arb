@@ -24,5 +24,15 @@
   "menAbbreviated": "M",
   "playerSearchHint": "Search name/club",
   "competitionType": "{type, select, doubles{doubles} mixed{mixed} singles{singles} other{other}}",
-  "competitionTypeAbbreviated": "{type, select, doubles{D} mixed{MX} singles{S} other{other}}"
+  "competitionTypeAbbreviated": "{type, select, doubles{D} mixed{MX} singles{S} other{other}}",
+  "add" : "Add",
+  "firstName": "first name",
+  "lastName": "last name",
+  "player": "player",
+  "playerManagement": "Manage players",
+  "birthday": "birthday",
+  "addPlayer": "Add player",
+  "editPlayer": "Edit player",
+  "personalData": "Personal",
+  "registeredCompetitions": "Registered competitions"
 }

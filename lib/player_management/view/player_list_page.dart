@@ -12,20 +12,19 @@ class PlayerListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AppLocalizations l10n = AppLocalizations.of(context)!;
     return BlocProvider(
       create: (_) => ListFilterCubit(),
       child: Scaffold(
-        appBar: AppBar(title: const Text('Spieler')),
-        body: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Column(
-              children: const [
-                PlayerFilter(),
-                _PlayerList(),
-              ],
-            ),
-          ],
+        appBar: AppBar(title: Text(l10n.playerManagement)),
+        body: Align(
+          alignment: Alignment.topCenter,
+          child: Column(
+            children: const [
+              PlayerFilter(),
+              _PlayerList(),
+            ],
+          ),
         ),
         floatingActionButton: Padding(
           padding: const EdgeInsets.fromLTRB(0, 0, 80, 40),
@@ -34,7 +33,7 @@ class PlayerListPage extends StatelessWidget {
               Navigator.of(context).push(PlayerEditingForm.route());
             },
             icon: const Icon(Icons.person_add_alt_1),
-            label: const Text('Hinzufügen'),
+            label: Text(l10n.add),
           ),
         ),
       ),
