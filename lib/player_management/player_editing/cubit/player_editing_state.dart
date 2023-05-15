@@ -12,8 +12,6 @@ class PlayerEditingState {
     required this.playingLevel,
     required this.playingLevels,
     required this.clubs,
-    required this.clubSuggestions,
-    required this.clubSuggestionCompleter,
   });
 
   PlayerEditingState.fromPlayer({
@@ -21,7 +19,6 @@ class PlayerEditingState {
     this.player = Player.newPlayer,
     this.playingLevels = const [],
     this.clubs = const [],
-    this.clubSuggestions = const [],
   })  : firstName = NonEmptyInput.pure(player.firstName),
         lastName = NonEmptyInput.pure(player.lastName),
         clubName = NonEmptyInput.pure(player.club.name),
@@ -33,8 +30,7 @@ class PlayerEditingState {
                     .formatCompactDate(player.dateOfBirth),
               )
             : DateInput.pure(context: context),
-        playingLevel = player.playingLevel,
-        clubSuggestionCompleter = Completer();
+        playingLevel = player.playingLevel;
 
   final Player player;
   final NonEmptyInput firstName;
@@ -46,8 +42,6 @@ class PlayerEditingState {
 
   final List<PlayingLevel> playingLevels;
   final List<Club> clubs;
-  final Iterable<String> clubSuggestions;
-  final Completer<Iterable<String>> clubSuggestionCompleter;
 
   PlayerEditingState copyWith({
     NonEmptyInput? firstName,
@@ -58,8 +52,6 @@ class PlayerEditingState {
     PlayingLevel? playingLevel,
     List<PlayingLevel>? playingLevels,
     List<Club>? clubs,
-    Iterable<String>? clubSuggestions,
-    Completer<Iterable<String>>? clubSuggestionCompleter,
   }) =>
       PlayerEditingState(
         player: player,
@@ -71,8 +63,5 @@ class PlayerEditingState {
         playingLevel: playingLevel ?? this.playingLevel,
         playingLevels: playingLevels ?? this.playingLevels,
         clubs: clubs ?? this.clubs,
-        clubSuggestions: clubSuggestions ?? this.clubSuggestions,
-        clubSuggestionCompleter:
-            clubSuggestionCompleter ?? this.clubSuggestionCompleter,
       );
 }

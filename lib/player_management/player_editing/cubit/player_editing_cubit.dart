@@ -41,12 +41,7 @@ class PlayerEditingCubit extends Cubit<PlayerEditingState> {
 
   void _populateClubList() async {
     var clubs = await _clubRepository.getList();
-    var suggestions = clubs.map((c) => c.name);
-    state.clubSuggestionCompleter.complete(suggestions);
-    var newState = state.copyWith(
-      clubs: clubs,
-      clubSuggestions: suggestions,
-    );
+    var newState = state.copyWith(clubs: clubs);
     emit(newState);
   }
 
@@ -66,37 +61,8 @@ class PlayerEditingCubit extends Cubit<PlayerEditingState> {
   }
 
   void clubNameChanged(String clubName) {
-    var suggestions = _createClubSuggestions(clubName);
-    state.clubSuggestionCompleter.complete(suggestions);
-    var newState = state.copyWith(
-      clubName: NonEmptyInput.dirty(clubName),
-      clubSuggestions: suggestions,
-      clubSuggestionCompleter: Completer(),
-    );
+    var newState = state.copyWith(clubName: NonEmptyInput.dirty(clubName));
     emit(newState);
-  }
-
-  void clubSuggestionBootstrap() {
-    var newState = state.copyWith(clubSuggestionCompleter: Completer());
-    emit(newState);
-  }
-
-  List<String> _createClubSuggestions(String clubName) {
-    var allClubNames = state.clubs.map((c) => c.name);
-    if (clubName.isEmpty) {
-      return allClubNames.toList();
-    }
-    var begins = allClubNames.where(
-      (n) => n.toLowerCase().startsWith(clubName.toLowerCase()),
-    );
-    var contains = allClubNames.where(
-      (n) =>
-          n.toLowerCase().contains(clubName.toLowerCase()) &&
-          !begins.contains(n),
-    );
-
-    var suggestions = begins.toList()..addAll(contains);
-    return suggestions;
   }
 
   void dateOfBirthChanged(String dateOfBirth) {

@@ -177,16 +177,14 @@ class _ClubInput extends StatelessWidget {
         builder: (context, constraints) =>
             BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
           buildWhen: (previous, current) =>
-              previous.clubSuggestionCompleter !=
-              current.clubSuggestionCompleter,
+              previous.clubName != current.clubName ||
+              previous.clubs != current.clubs,
           builder: (context, state) {
             return ConstrainedAutocomplete<String>(
-              optionsBuilder: (_) {
-                if (state.clubSuggestionCompleter.isCompleted) {
-                  context.read<PlayerEditingCubit>().clubSuggestionBootstrap();
-                }
-                return state.clubSuggestionCompleter.future;
-              },
+              optionsBuilder: (clubName) => _createClubSuggestions(
+                clubName.text,
+                state.clubs.map((c) => c.name),
+              ),
               constraints: constraints,
               fieldViewBuilder: (context, textEditingController, focusNode,
                       onFieldSubmitted) =>
@@ -201,6 +199,26 @@ class _ClubInput extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  List<String> _createClubSuggestions(
+    String clubName,
+    Iterable<String> allClubNames,
+  ) {
+    if (clubName.isEmpty) {
+      return allClubNames.toList();
+    }
+    var begins = allClubNames.where(
+      (n) => n.toLowerCase().startsWith(clubName.toLowerCase()),
+    );
+    var contains = allClubNames.where(
+      (n) =>
+          n.toLowerCase().contains(clubName.toLowerCase()) &&
+          !begins.contains(n),
+    );
+
+    var suggestions = begins.toList()..addAll(contains);
+    return suggestions;
   }
 }
 
