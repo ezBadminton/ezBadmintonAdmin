@@ -3,8 +3,7 @@ import 'dart:async';
 import 'package:authentication_repository/authentication_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:ez_badminton_admin_app/login/models/password.dart';
-import 'package:ez_badminton_admin_app/login/models/username.dart';
+import 'package:ez_badminton_admin_app/input_models/non_empty.dart';
 import 'package:formz/formz.dart';
 
 part 'login_event.dart';
@@ -27,7 +26,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     LoginUsernameChanged event,
     Emitter<LoginState> emit,
   ) {
-    final username = Username.dirty(event.username);
+    final username = NonEmptyInput.dirty(event.username);
     emit(state.copyWith(
       username: username,
       validated: Formz.validate([state.password, username]),
@@ -38,7 +37,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     LoginPasswordChanged event,
     Emitter<LoginState> emit,
   ) {
-    final password = Password.dirty(event.password);
+    final password = NonEmptyInput.dirty(event.password);
     emit(state.copyWith(
       password: password,
       validated: Formz.validate([password, state.username]),

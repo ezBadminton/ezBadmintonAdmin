@@ -1,5 +1,6 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:collection_repository/src/models/model_converter.dart';
+import 'package:const_date_time/const_date_time.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 // ignore: unused_import
 import 'package:flutter/foundation.dart';
@@ -16,8 +17,8 @@ class Player extends Model with _$Player {
     required DateTime updated,
     required String firstName,
     required String lastName,
-    required Gender gender,
-    required DateTime dateOfBirth,
+    @Default(Gender.none) Gender gender,
+    @Default(ConstDateTime(0)) DateTime dateOfBirth,
     @Default('') String eMail,
     @Default(Club.clubless) Club club,
     @Default(PlayingLevel.unrated) PlayingLevel playingLevel,
@@ -25,6 +26,14 @@ class Player extends Model with _$Player {
 
   factory Player.fromJson(Map<String, dynamic> json) =>
       _$PlayerFromJson(ModelConverter.convertExpansions(json, expandedFields));
+
+  static const Player newPlayer = Player(
+    id: '',
+    created: ConstDateTime(0),
+    updated: ConstDateTime(0),
+    firstName: '',
+    lastName: '',
+  );
 
   static const List<ExpandedField> expandedFields = [
     ExpandedField(
@@ -57,7 +66,4 @@ class Player extends Model with _$Player {
   }
 }
 
-enum Gender {
-  female,
-  male,
-}
+enum Gender { female, male, none }

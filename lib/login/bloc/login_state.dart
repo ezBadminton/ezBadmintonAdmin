@@ -6,24 +6,24 @@ class LoginState extends Equatable {
     this.validated = false,
     this.showValidationErrors = false,
     this.loginStatusCode = '',
-    this.username = const Username.pure(),
-    this.password = const Password.pure(),
+    this.username = const NonEmptyInput.pure(),
+    this.password = const NonEmptyInput.pure(),
   });
 
   final FormzSubmissionStatus status;
   final bool validated;
   final bool showValidationErrors;
   final String loginStatusCode;
-  final Username username;
-  final Password password;
+  final NonEmptyInput username;
+  final NonEmptyInput password;
 
   LoginState copyWith({
     FormzSubmissionStatus? status,
     bool? validated,
     bool? showValidationErrors,
     String? loginStatusCode,
-    Username? username,
-    Password? password,
+    NonEmptyInput? username,
+    NonEmptyInput? password,
   }) {
     return LoginState(
       status: status ?? this.status,

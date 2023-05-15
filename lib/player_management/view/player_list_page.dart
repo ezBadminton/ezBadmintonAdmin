@@ -1,7 +1,7 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/list_filter/cubit/list_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_list_cubit.dart';
-import 'package:ez_badminton_admin_app/player_management/view/player_editing_form.dart';
+import 'package:ez_badminton_admin_app/player_management/player_editing/view/player_editing_form.dart';
 import 'package:ez_badminton_admin_app/player_management/view/player_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

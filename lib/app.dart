@@ -22,6 +22,8 @@ class _AppState extends State<App> {
   late final CollectionRepository<Player> _playerRepository;
   late final CollectionRepository<Competition> _competitionRepository;
   late final CollectionRepository<PlayingLevel> _playingLevelRepository;
+  late final CollectionRepository<Team> _teamRepository;
+  late final CollectionRepository<Club> _clubRepository;
 
   @override
   void initState() {
@@ -31,6 +33,8 @@ class _AppState extends State<App> {
     _playerRepository = CollectionRepository(Player.fromJson);
     _competitionRepository = CollectionRepository(Competition.fromJson);
     _playingLevelRepository = CollectionRepository(PlayingLevel.fromJson);
+    _teamRepository = CollectionRepository(Team.fromJson);
+    _clubRepository = CollectionRepository(Club.fromJson);
   }
 
   @override
@@ -47,6 +51,8 @@ class _AppState extends State<App> {
         RepositoryProvider.value(value: _playerRepository),
         RepositoryProvider.value(value: _competitionRepository),
         RepositoryProvider.value(value: _playingLevelRepository),
+        RepositoryProvider.value(value: _teamRepository),
+        RepositoryProvider.value(value: _clubRepository),
       ],
       child: BlocProvider(
         create: (_) => AuthenticationBloc(
