@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 
-class ConstrainedAutocomplete<T extends Object> extends Autocomplete<T> {
+class ConstrainedAutocomplete<T extends Object> extends RawAutocomplete<T> {
   const ConstrainedAutocomplete._({
     super.key,
     required super.optionsBuilder,
+    required super.optionsViewBuilder,
     super.displayStringForOption,
     super.fieldViewBuilder,
-    super.optionsViewBuilder,
     super.onSelected,
-    super.optionsMaxHeight,
     super.initialValue,
+    super.focusNode,
+    super.textEditingController,
   });
 
   factory ConstrainedAutocomplete({
@@ -21,7 +22,10 @@ class ConstrainedAutocomplete<T extends Object> extends Autocomplete<T> {
     AutocompleteOnSelected<T>? onSelected,
     double optionsMaxHeight = 200.0,
     TextEditingValue? initialValue,
+    FocusNode? focusNode,
+    TextEditingController? textEditingController,
   }) {
+    assert((focusNode == null) == (textEditingController == null));
     return ConstrainedAutocomplete._(
       optionsBuilder: optionsBuilder,
       optionsViewBuilder: (context, onSelected, options) =>
@@ -36,8 +40,9 @@ class ConstrainedAutocomplete<T extends Object> extends Autocomplete<T> {
       displayStringForOption: displayStringForOption,
       fieldViewBuilder: fieldViewBuilder,
       onSelected: onSelected,
-      optionsMaxHeight: optionsMaxHeight,
       initialValue: initialValue,
+      focusNode: focusNode,
+      textEditingController: textEditingController,
     );
   }
 

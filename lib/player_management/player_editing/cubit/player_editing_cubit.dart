@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:bloc/bloc.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
@@ -71,6 +69,13 @@ class PlayerEditingCubit extends Cubit<PlayerEditingState> {
         context: _context,
         value: dateOfBirth,
       ),
+    );
+    emit(newState);
+  }
+
+  void playingLevelChanged(PlayingLevel? playingLevel) {
+    var newState = state.copyWith(
+      playingLevel: SelectionInput.dirty(playingLevel),
     );
     emit(newState);
   }

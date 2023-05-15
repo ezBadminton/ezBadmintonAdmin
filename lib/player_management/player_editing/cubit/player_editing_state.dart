@@ -30,7 +30,10 @@ class PlayerEditingState {
                     .formatCompactDate(player.dateOfBirth),
               )
             : DateInput.pure(context: context),
-        playingLevel = player.playingLevel;
+        playingLevel = SelectionInput.pure(
+            player.playingLevel == PlayingLevel.unrated
+                ? null
+                : player.playingLevel);
 
   final Player player;
   final NonEmptyInput firstName;
@@ -38,7 +41,7 @@ class PlayerEditingState {
   final NonEmptyInput clubName;
   final EMailInput eMail;
   final DateInput dateOfBirth;
-  final PlayingLevel playingLevel;
+  final SelectionInput<PlayingLevel> playingLevel;
 
   final List<PlayingLevel> playingLevels;
   final List<Club> clubs;
@@ -49,7 +52,7 @@ class PlayerEditingState {
     NonEmptyInput? clubName,
     EMailInput? eMail,
     DateInput? dateOfBirth,
-    PlayingLevel? playingLevel,
+    SelectionInput<PlayingLevel>? playingLevel,
     List<PlayingLevel>? playingLevels,
     List<Club>? clubs,
   }) =>

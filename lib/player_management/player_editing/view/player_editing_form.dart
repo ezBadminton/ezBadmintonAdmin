@@ -28,51 +28,10 @@ class PlayerEditingForm extends StatelessWidget {
               context.read<CollectionRepository<Competition>>(),
           teamRepository: context.read<CollectionRepository<Team>>(),
         ),
-        child: Align(
+        child: const Align(
           child: SizedBox(
             width: 600,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  l10n.personalData,
-                  style: const TextStyle(fontSize: 22),
-                ),
-                const Divider(height: 25, indent: 20, endIndent: 20),
-                Row(
-                  children: [
-                    _NameInput(
-                        maxWidth: 220.0, labelText: '${l10n.firstName}*'),
-                    const SizedBox(width: 25),
-                    _NameInput(maxWidth: 220.0, labelText: '${l10n.lastName}*'),
-                  ],
-                ),
-                const SizedBox(height: 25),
-                Row(
-                  children: const [
-                    _DateOfBirthInput(),
-                    SizedBox(width: 25),
-                    _EMailInput(),
-                  ],
-                ),
-                const SizedBox(height: 25),
-                Row(
-                  children: const [
-                    _ClubInput(),
-                    SizedBox(width: 25),
-                    _PlayingLevelInput(),
-                  ],
-                ),
-                const SizedBox(height: 60),
-                Text(
-                  l10n.registeredCompetitions,
-                  style: const TextStyle(fontSize: 22),
-                ),
-                const Divider(height: 25, indent: 20, endIndent: 20),
-                const _CompetitionInput(),
-              ],
-            ),
+            child: _PlayerEditingFormFields(),
           ),
         ),
       ),
@@ -80,59 +39,183 @@ class PlayerEditingForm extends StatelessWidget {
   }
 }
 
+class _PlayerEditingFormFields extends StatelessWidget {
+  const _PlayerEditingFormFields();
+
+  @override
+  Widget build(BuildContext context) {
+    AppLocalizations l10n = AppLocalizations.of(context)!;
+    var cubit = context.read<PlayerEditingCubit>();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          l10n.personalData,
+          style: const TextStyle(fontSize: 22),
+        ),
+        const Divider(height: 25, indent: 20, endIndent: 20),
+        Row(
+          children: [
+            _NameInput(
+              labelText: '${l10n.firstName}*',
+              onChanged: cubit.firstNameChanged,
+              initialValue: cubit.state.firstName.value,
+            ),
+            const SizedBox(width: 25),
+            _NameInput(
+              labelText: '${l10n.lastName}*',
+              onChanged: cubit.lastNameChanged,
+              initialValue: cubit.state.lastName.value,
+            ),
+          ],
+        ),
+        const SizedBox(height: 25),
+        Row(
+          children: [
+            _DateOfBirthInput(
+              onChanged: cubit.dateOfBirthChanged,
+              initialValue: cubit.state.dateOfBirth.value,
+            ),
+            const SizedBox(width: 25),
+            _EMailInput(
+              onChanged: cubit.eMailChanged,
+              initialValue: cubit.state.eMail.value,
+            ),
+          ],
+        ),
+        const SizedBox(height: 25),
+        Row(
+          children: [
+            _ClubInput(
+              onChanged: cubit.clubNameChanged,
+              initialValue: cubit.state.clubName.value,
+            ),
+            const SizedBox(width: 25),
+            _PlayingLevelInput(onChanged: cubit.playingLevelChanged),
+          ],
+        ),
+        const SizedBox(height: 60),
+        Text(
+          l10n.registeredCompetitions,
+          style: const TextStyle(fontSize: 22),
+        ),
+        const Divider(height: 25, indent: 20, endIndent: 20),
+        const _CompetitionInput(),
+      ],
+    );
+  }
+}
+
 class _EMailInput extends StatelessWidget {
-  const _EMailInput();
+  _EMailInput({
+    required this.onChanged,
+    required String initialValue,
+  }) {
+    _controller.text = initialValue;
+  }
+
+  final void Function(String value) onChanged;
+  final _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     AppLocalizations l10n = AppLocalizations.of(context)!;
     return Expanded(
-      child: TextField(
-        decoration: InputDecoration(label: Text(l10n.eMail)),
+      child: BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
+        builder: (context, state) {
+          return TextField(
+            onChanged: onChanged,
+            controller: _controller,
+            decoration: InputDecoration(label: Text(l10n.eMail)),
+          );
+        },
       ),
     );
   }
 }
 
 class _DateOfBirthInput extends StatelessWidget {
-  const _DateOfBirthInput();
+  _DateOfBirthInput({
+    required this.onChanged,
+    required String initialValue,
+  }) {
+    _controller.text = initialValue;
+  }
+
+  final void Function(String value) onChanged;
+  final _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     AppLocalizations l10n = AppLocalizations.of(context)!;
     return Expanded(
-      child: TextField(
-        decoration: InputDecoration(
-          label: Text(l10n.birthday),
-          hintText: MaterialLocalizations.of(context)
-              .dateHelpText, // DateFormat.yMd()
-          suffixIcon: IconButton(
-            onPressed: () => showDatePicker(
-              context: context,
-              initialDate: DateTime.now(),
-              firstDate: DateTime(1900),
-              lastDate: DateTime.now(),
+      child: BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
+        builder: (context, state) {
+          return TextField(
+            onChanged: onChanged,
+            controller: _controller,
+            decoration: InputDecoration(
+              label: Text(l10n.birthday),
+              hintText: MaterialLocalizations.of(context)
+                  .dateHelpText, // DateFormat.yMd()
+              suffixIcon: IconButton(
+                onPressed: () => showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(1900),
+                  lastDate: DateTime.now(),
+                ),
+                icon: const Icon(Icons.calendar_month_outlined),
+              ),
             ),
-            icon: const Icon(Icons.calendar_month_outlined),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
 }
 
 class _PlayingLevelInput extends StatelessWidget {
-  const _PlayingLevelInput();
+  _PlayingLevelInput({
+    required this.onChanged,
+  });
+
+  final void Function(PlayingLevel? value) onChanged;
+  final FocusNode _focusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
     AppLocalizations l10n = AppLocalizations.of(context)!;
     return Expanded(
-      child: DropdownButtonFormField(
-        value: null,
-        onChanged: (value) {},
-        items: const [DropdownMenuItem(child: Text('- Keine -'))],
-        decoration: InputDecoration(label: Text(l10n.playingLevel)),
+      child: BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
+        builder: (context, state) {
+          return DropdownButtonFormField<PlayingLevel>(
+            value: state.playingLevel.value,
+            onChanged: onChanged,
+            items: state.playingLevels
+                .map((level) => DropdownMenuItem(
+                      value: level,
+                      child: Text(level.name),
+                    ))
+                .toList(),
+            focusNode: _focusNode,
+            decoration: InputDecoration(
+              label: Text(l10n.playingLevel),
+              suffixIcon: state.playingLevel.value == null
+                  ? null
+                  : IconButton(
+                      tooltip:
+                          MaterialLocalizations.of(context).deleteButtonTooltip,
+                      onPressed: () {
+                        onChanged(null);
+                        _focusNode.unfocus();
+                      },
+                      icon: const Icon(Icons.highlight_remove),
+                    ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -167,7 +250,16 @@ class _CompetitionInput extends StatelessWidget {
 }
 
 class _ClubInput extends StatelessWidget {
-  const _ClubInput();
+  _ClubInput({
+    required this.onChanged,
+    required String initialValue,
+  }) {
+    _controller.text = initialValue;
+  }
+
+  final void Function(String value) onChanged;
+  final _controller = TextEditingController();
+  final _focus = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -191,9 +283,13 @@ class _ClubInput extends StatelessWidget {
                   TextField(
                 controller: textEditingController,
                 focusNode: focusNode,
-                decoration: InputDecoration(label: Text(l10n.club)),
-                onChanged: context.read<PlayerEditingCubit>().clubNameChanged,
+                decoration: InputDecoration(
+                  label: Text(l10n.club),
+                ),
+                onChanged: onChanged,
               ),
+              focusNode: _focus,
+              textEditingController: _controller,
             );
           },
         ),
@@ -201,7 +297,7 @@ class _ClubInput extends StatelessWidget {
     );
   }
 
-  List<String> _createClubSuggestions(
+  static List<String> _createClubSuggestions(
     String clubName,
     Iterable<String> allClubNames,
   ) {
@@ -223,19 +319,29 @@ class _ClubInput extends StatelessWidget {
 }
 
 class _NameInput extends StatelessWidget {
-  const _NameInput({
-    required this.maxWidth,
+  _NameInput({
     required this.labelText,
-  });
+    required this.onChanged,
+    required String initialValue,
+  }) {
+    _controller.text = initialValue;
+  }
 
-  final double maxWidth;
   final String labelText;
+  final void Function(String value) onChanged;
+  final _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return Flexible(
-      child: TextField(
-        decoration: InputDecoration(labelText: labelText),
+    return Expanded(
+      child: BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
+        builder: (context, state) {
+          return TextField(
+            controller: _controller,
+            decoration: InputDecoration(labelText: labelText),
+            onChanged: onChanged,
+          );
+        },
       ),
     );
   }
