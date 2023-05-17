@@ -7,6 +7,7 @@ import 'package:ez_badminton_admin_app/login/view/login_page.dart';
 import 'package:ez_badminton_admin_app/splash/splash.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pocketbase_provider/pocketbase_provider.dart';
 import 'package:user_repository/user_repository.dart';
 
 class App extends StatefulWidget {
@@ -17,6 +18,7 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
+  late final PocketBaseProvider _pocketBaseProvider;
   late final AuthenticationRepository _authenticationRepository;
   late final UserRepository _userRepository;
   late final CollectionRepository<Player> _playerRepository;
@@ -28,13 +30,33 @@ class _AppState extends State<App> {
   @override
   void initState() {
     super.initState();
-    _authenticationRepository = AuthenticationRepository();
-    _userRepository = UserRepository();
-    _playerRepository = CollectionRepository(Player.fromJson);
-    _competitionRepository = CollectionRepository(Competition.fromJson);
-    _playingLevelRepository = CollectionRepository(PlayingLevel.fromJson);
-    _teamRepository = CollectionRepository(Team.fromJson);
-    _clubRepository = CollectionRepository(Club.fromJson);
+    _pocketBaseProvider = PocketBaseProvider();
+    _authenticationRepository = AuthenticationRepository(
+      pocketBaseProvider: _pocketBaseProvider,
+    );
+    _userRepository = UserRepository(
+      pocketBaseProvider: _pocketBaseProvider,
+    );
+    _playerRepository = CollectionRepository(
+      modelConstructor: Player.fromJson,
+      pocketBaseProvider: _pocketBaseProvider,
+    );
+    _competitionRepository = CollectionRepository(
+      modelConstructor: Competition.fromJson,
+      pocketBaseProvider: _pocketBaseProvider,
+    );
+    _playingLevelRepository = CollectionRepository(
+      modelConstructor: PlayingLevel.fromJson,
+      pocketBaseProvider: _pocketBaseProvider,
+    );
+    _teamRepository = CollectionRepository(
+      modelConstructor: Team.fromJson,
+      pocketBaseProvider: _pocketBaseProvider,
+    );
+    _clubRepository = CollectionRepository(
+      modelConstructor: Club.fromJson,
+      pocketBaseProvider: _pocketBaseProvider,
+    );
   }
 
   @override

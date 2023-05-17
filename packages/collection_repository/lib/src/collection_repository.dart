@@ -7,19 +7,24 @@ import 'package:recase/recase.dart';
 class CollectionRepository<R extends Model> {
   /// A repository for interfacing the business logic with the database.
   ///
-  /// The repository handles all CRUD operations for one model. When retrieving
-  /// data the model object is instanciated by passing the json map
+  /// The repository handles all CRUD operations for one model via pocketbase.
+  /// The pocketbase connection comes from a [pocketBaseProvider]. When
+  /// retrieving data the model object is instanciated by passing the json map
   /// to the [modelConstructor]. The modelConstructor is usually `fromJson`.
   ///
-  /// Example: `var playerRepository = CollectionRepository(Player.fromJson)`
-  CollectionRepository(
-      R Function(Map<String, dynamic> recordModelMap) modelConstructor)
-      : _modelConstructor = modelConstructor,
+  /// Example: `var playerRepository = CollectionRepository(modelConstructor: Player.fromJson, pocketBaseProvider: ...)`
+  CollectionRepository({
+    required R Function(Map<String, dynamic> recordModelMap) modelConstructor,
+    required PocketBaseProvider pocketBaseProvider,
+  })  : _modelConstructor = modelConstructor,
+        _pocketBaseProvider = pocketBaseProvider,
+        _pocketBase = pocketBaseProvider.pocketBase,
         // All model classes have a corresponding collection name
         _collectionName = R.toString().snakeCase + 's';
 
   // The pocketbase SDK abstracts all the DB querying
-  final _pocketBase = PocketBaseProvider().pocketBase;
+  final PocketBaseProvider _pocketBaseProvider;
+  final PocketBase _pocketBase;
   final String _collectionName;
   final R Function(Map<String, dynamic> recordModelMap) _modelConstructor;
 

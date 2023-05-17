@@ -6,11 +6,13 @@ enum AuthenticationStatus { unknown, authenticated, unauthenticated }
 
 class AuthenticationRepository {
   final _controller = StreamController<AuthenticationStatus>();
-  final _pocketBaseRepository = PocketBaseProvider();
-  final pocketBase = PocketBaseProvider().pocketBase;
+  final PocketBaseProvider _pocketBaseProvider;
+  final PocketBase pocketBase;
 
-  AuthenticationRepository() {
-    _pocketBaseRepository.whenAvailable
+  AuthenticationRepository({required PocketBaseProvider pocketBaseProvider})
+      : _pocketBaseProvider = pocketBaseProvider,
+        pocketBase = pocketBaseProvider.pocketBase {
+    _pocketBaseProvider.whenAvailable
         .then((_) => _controller.add(AuthenticationStatus.unauthenticated));
   }
 
