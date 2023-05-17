@@ -10,6 +10,12 @@ part 'generated/court.g.dart';
 @freezed
 class Court extends Model with _$Court {
   const Court._();
+
+  /// A badminton court with a specified [location] usually the hall where it
+  /// is and a [name].
+  ///
+  /// The [positionX], [positionY] and [rotation] are for saving the court's
+  /// position on the drag and drop interface for mapping the courts of a hall.
   const factory Court({
     required String id,
     required DateTime created,

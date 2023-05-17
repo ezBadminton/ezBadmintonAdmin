@@ -10,6 +10,11 @@ part 'generated/playing_level.g.dart';
 @freezed
 class PlayingLevel extends Model with _$PlayingLevel {
   const PlayingLevel._();
+
+  /// The playing level of a player.
+  ///
+  /// The higher the index the stronger the player. Each tournament can define
+  /// its own playing levels to make competitions more balanced.
   const factory PlayingLevel({
     required String id,
     required DateTime created,

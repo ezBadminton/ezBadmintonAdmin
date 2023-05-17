@@ -9,6 +9,12 @@ part 'generated/competition.g.dart';
 @freezed
 class Competition extends Model with _$Competition {
   const Competition._();
+
+  /// A competition within a badminton tournament.
+  ///
+  /// Competitions are categorized by [teamSize] (singles, or doubles),
+  /// [gender], [age] and playing level ([minLevel],[maxLevel]). The competiton
+  /// also holds all partipating Teams as [registrations].
   const factory Competition({
     required String id,
     required DateTime created,
@@ -22,67 +28,22 @@ class Competition extends Model with _$Competition {
     required List<Team> registrations,
   }) = _Competition;
 
-  static const Competition singles = Competition(
-    id: 'singles',
-    created: ConstDateTime(0),
-    updated: ConstDateTime(0),
-    teamSize: 1,
-    gender: GenderCategory.any,
-    ageRestriction: AgeRestriction.none,
-    minLevel: PlayingLevel.unrated,
-    maxLevel: PlayingLevel.unrated,
-    registrations: const [],
-  );
-
-  static const Competition doubles = Competition(
-    id: 'doubles',
-    created: ConstDateTime(0),
-    updated: ConstDateTime(0),
-    teamSize: 2,
-    gender: GenderCategory.any,
-    ageRestriction: AgeRestriction.none,
-    minLevel: PlayingLevel.unrated,
-    maxLevel: PlayingLevel.unrated,
-    registrations: const [],
-  );
-
-  static const Competition mixed = Competition(
-    id: 'mixed',
-    created: ConstDateTime(0),
-    updated: ConstDateTime(0),
-    teamSize: 2,
-    gender: GenderCategory.mixed,
-    ageRestriction: AgeRestriction.none,
-    minLevel: PlayingLevel.unrated,
-    maxLevel: PlayingLevel.unrated,
-    registrations: const [],
-  );
-
-  static const Competition other = Competition(
-    id: 'other',
-    created: ConstDateTime(0),
-    updated: ConstDateTime(0),
-    teamSize: 999,
-    gender: GenderCategory.any,
-    ageRestriction: AgeRestriction.none,
-    minLevel: PlayingLevel.unrated,
-    maxLevel: PlayingLevel.unrated,
-    registrations: const [],
-  );
-
   factory Competition.fromJson(Map<String, dynamic> json) =>
       _$CompetitionFromJson(
           ModelConverter.convertExpansions(json, expandedFields));
 
-  Competition getCompetitionType() {
+  /// Method for discering a Competition into the basic competition types
+  /// of doubles, mixed or singles. If none of these are applicable it returns
+  /// `CompetitionType.other`.
+  CompetitionType getCompetitionType() {
     if (teamSize == 1) {
-      return Competition.singles;
+      return CompetitionType.singles;
     } else if (teamSize == 2 && gender != GenderCategory.any) {
       return gender == GenderCategory.mixed
-          ? Competition.mixed
-          : Competition.doubles;
+          ? CompetitionType.mixed
+          : CompetitionType.doubles;
     } else {
-      return Competition.other;
+      return CompetitionType.other;
     }
   }
 
@@ -117,3 +78,5 @@ class Competition extends Model with _$Competition {
 enum GenderCategory { female, male, mixed, any }
 
 enum AgeRestriction { under, over, none }
+
+enum CompetitionType { doubles, singles, mixed, other }

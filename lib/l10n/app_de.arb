@@ -31,8 +31,11 @@
   "player": "Spieler",
   "playerManagement": "Spieler verwalten",
   "birthday": "Geburtstag",
+  "dateOfBirth": "Geburtsdatum",
   "addPlayer": "Spieler hinzufügen",
   "editPlayer": "Spieler bearbeiten",
   "personalData": "Zur Person",
-  "registeredCompetitions": "Gemeldete Disziplinen"
+  "registeredCompetitions": "Gemeldete Disziplinen",
+  "pleaseFillIn": "Bitte ausfüllen",
+  "formatError": "Ungültiges Format"
 }

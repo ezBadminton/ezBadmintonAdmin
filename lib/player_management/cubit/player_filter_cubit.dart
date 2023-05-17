@@ -119,7 +119,7 @@ class PlayerFilterCubit extends Cubit<PlayerFilterState> {
     emit(newState.copyWithPredicate(filterPredicate: predicate));
   }
 
-  void competitionToggled(Competition competition) {
+  void competitionToggled(CompetitionType competition) {
     var competitions = List.of(state.competitions);
     FilterPredicate predicate;
     if (competitions.contains(competition)) {
@@ -132,7 +132,7 @@ class PlayerFilterCubit extends Cubit<PlayerFilterState> {
       predicate = FilterPredicate(
         competitionFilter,
         Competition,
-        competition.id,
+        competition.name,
         competition,
         competitionConjunction,
       );

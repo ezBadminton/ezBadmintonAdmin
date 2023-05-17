@@ -121,11 +121,11 @@ class _CompetitionFilterForm extends StatelessWidget {
     AppLocalizations l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: competitionTypes.keys
+      children: CompetitionType.values
           .map(
             (competitionType) => _CompetitionCheckbox(
-              competition: competitionTypes[competitionType]!,
-              label: l10n.competitionType(competitionType),
+              competition: competitionType,
+              label: l10n.competitionType(competitionType.name),
               filterCubit: backgroudContext.read<PlayerFilterCubit>(),
             ),
           )
@@ -179,7 +179,7 @@ class _CompetitionCheckbox extends StatelessWidget {
     required this.filterCubit,
   });
 
-  final Competition competition;
+  final CompetitionType competition;
   final String label;
   final PlayerFilterCubit filterCubit;
 

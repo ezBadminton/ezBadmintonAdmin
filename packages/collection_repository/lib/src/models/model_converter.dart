@@ -7,6 +7,12 @@ class ModelConverter {
   /// Convert a [RecordModel] into a Map without expansions
   static Map<String, dynamic> modelToMap(RecordModel recordModel) {
     Map<String, dynamic> map = recordModel.data;
+    for (var key in map.keys) {
+      // The json from db never returns null. Instead it returns an empty string.
+      if (map[key] is String && (map[key] as String).isEmpty) {
+        map[key] = null;
+      }
+    }
     map.putIfAbsent('id', () => recordModel.id);
     map.putIfAbsent('created', () => recordModel.created);
     map.putIfAbsent('updated', () => recordModel.updated);
@@ -21,7 +27,8 @@ class ModelConverter {
       Map<String, dynamic> json, List<ExpandedField> expandedFields) {
     for (ExpandedField expandedField in expandedFields) {
       String key = expandedField.key;
-      // The json from db never returns null. Instead it returns an empty string.
+      // When a field is not expanded it contains the id of the relation as a
+      // string.
       if (!expandedField.isRequired && json[key] is String) {
         json[key] = null;
       }

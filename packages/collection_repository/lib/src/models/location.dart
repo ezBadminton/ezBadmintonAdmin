@@ -9,6 +9,8 @@ part 'generated/location.g.dart';
 @freezed
 class Location extends Model with _$Location {
   const Location._();
+
+  /// A location of a tournament (usually a gym hall) containing [Court]s.
   const factory Location({
     required String id,
     required DateTime created,

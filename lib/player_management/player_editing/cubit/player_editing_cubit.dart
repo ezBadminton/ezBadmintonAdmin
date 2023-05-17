@@ -1,7 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
+import 'package:ez_badminton_admin_app/input_models/no_validation.dart';
 import 'package:flutter/material.dart';
+import 'package:formz/formz.dart';
 
 part 'player_editing_state.dart';
 
@@ -54,12 +56,17 @@ class PlayerEditingCubit extends Cubit<PlayerEditingState> {
   }
 
   void eMailChanged(String eMail) {
-    var newState = state.copyWith(eMail: EMailInput.dirty(eMail));
+    var newState = state.copyWith(
+      eMail: EMailInput.dirty(emptyAllowed: true, value: eMail),
+    );
     emit(newState);
   }
 
   void clubNameChanged(String clubName) {
-    var newState = state.copyWith(clubName: NonEmptyInput.dirty(clubName));
+    var newState = state.copyWith(
+        clubName: NoValidationInput.dirty(
+      clubName,
+    ));
     emit(newState);
   }
 
@@ -67,6 +74,7 @@ class PlayerEditingCubit extends Cubit<PlayerEditingState> {
     var newState = state.copyWith(
       dateOfBirth: DateInput.dirty(
         context: _context,
+        emptyAllowed: true,
         value: dateOfBirth,
       ),
     );
@@ -75,8 +83,37 @@ class PlayerEditingCubit extends Cubit<PlayerEditingState> {
 
   void playingLevelChanged(PlayingLevel? playingLevel) {
     var newState = state.copyWith(
-      playingLevel: SelectionInput.dirty(playingLevel),
+      playingLevel: SelectionInput.dirty(
+        emptyAllowed: true,
+        value: playingLevel,
+      ),
     );
     emit(newState);
+  }
+
+  void formSubmitted() async {
+    if (state.isValid) {
+      var newState = state.copyWith(
+        formStatus: FormzSubmissionStatus.inProgress,
+      );
+      emit(newState);
+      Player editedPlayer = _applyChanges();
+      Player createdPlayer = (await _playerRepository.create(editedPlayer))!;
+      newState = state.copyWith(
+        formStatus: FormzSubmissionStatus.success,
+      );
+    } else {
+      var newState = state.copyWith(formStatus: FormzSubmissionStatus.failure);
+      emit(newState);
+    }
+  }
+
+  Player _applyChanges() {
+    return state.player.copyWith(
+      firstName: state.firstName.value,
+      lastName: state.lastName.value,
+      eMail: state.eMail.value,
+      playingLevel: state.playingLevel.value ?? PlayingLevel.unrated,
+    );
   }
 }

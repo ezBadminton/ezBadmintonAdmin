@@ -31,8 +31,11 @@
   "player": "player",
   "playerManagement": "Manage players",
   "birthday": "birthday",
+  "dateOfBirth": "date of birth",
   "addPlayer": "Add player",
   "editPlayer": "Edit player",
   "personalData": "Personal",
-  "registeredCompetitions": "Registered competitions"
+  "registeredCompetitions": "Registered competitions",
+  "pleaseFillIn": "Please fill in",
+  "formatError": "Format error"
 }

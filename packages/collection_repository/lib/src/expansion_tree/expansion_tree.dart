@@ -2,15 +2,47 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:collection_repository/src/models/model_converter.dart';
 
 class ExpansionTree {
+  /// A tree of ExpandedFields representing the relations (and nested relations)
+  /// of a data class (or 'model').
+  ///
+  /// During DB querying the ExpansionTree is passed to specify which relations
+  /// should be added to the query result. A tree with just the [rootFields]
+  /// just retrieves the top level relations.
+  ///
+  /// Example: A model called 'Car' having two top level relations to models of
+  /// type Engine and Color has an expansion tree with two leaves. If the Engine
+  /// itself also has relations they are added as children of the engine leaf.
+  /// A query can now be made with the full ExpansionTree to get the car model
+  /// with all its (nested) relations present. If some relations are unneeded a
+  /// partial tree can be used for the query.
   ExpansionTree(List<ExpandedField> rootFields)
       : _root = _ExpansionNode.root(rootFields);
 
   final _ExpansionNode _root;
 
+  /// Add a level of relations to the tree
+  ///
+  /// The relations of type [model] inside the [expand] fields are expanded from
+  /// existing leaf nodes in the tree.
+  ///
+  /// Example:
+  /// `ExpansionTree(Car.expandedFields)..expandWith(Engine, Engine.expandedFields)`
+  /// would create the Car ExpansionTree with one extra level for the Engine's
+  /// relations. If `Car.expandedFields` contains no field that holds a relation
+  /// of type Engine, the `expandWith` call does nothing.
   void expandWith(Type model, List<ExpandedField> expand) {
     _root.expandWith(model, expand);
   }
 
+  /// The expansion query string that is sent to the pocketbase DB.
+  ///
+  /// This string encodes the relation expansions that this ExpansionTree
+  /// represents.
+  ///
+  /// Example: A model named 'Car' with relations of type Engine and Color would
+  /// yield: 'engine,color' - given the fields of the Car class are named that
+  /// way. If the engine's nested relations were added to the tree it would be
+  /// 'engine.horsepower,engine.fueltype,color'.
   String get expandString {
     List<List<String>> expansionStrings = [];
     _root.expansionStringDown(expansionStrings);

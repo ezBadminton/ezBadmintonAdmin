@@ -20,7 +20,7 @@ class PlayerFilterState {
   final Age underAge;
   final Gender? gender;
   final List<PlayingLevel> playingLevels;
-  final List<Competition> competitions;
+  final List<CompetitionType> competitions;
   final SearchTerm searchTerm;
 
   final List<PlayingLevel> allPlayingLevels;
@@ -33,7 +33,7 @@ class PlayerFilterState {
     Age? underAge,
     Gender? Function()? gender,
     List<PlayingLevel>? playingLevels,
-    List<Competition>? competitions,
+    List<CompetitionType>? competitions,
     SearchTerm? searchTerm,
     List<PlayingLevel>? allPlayingLevels,
   }) =>

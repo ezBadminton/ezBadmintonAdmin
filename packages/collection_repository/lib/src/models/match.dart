@@ -10,6 +10,15 @@ part 'generated/match.g.dart';
 @freezed
 class Match extends Model with _$Match {
   const Match._();
+
+  /// A badminton match between [team1] and [team2].
+  ///
+  /// The match is being played in a [competition] on a [court]. The [status] of
+  /// the Match dictates the administrative stage it is in. Eventually
+  /// the [winner] will be saved to the Match object. If one of the players
+  /// decides to upload a photo of the handwritten [resultCard] via the app its
+  /// filepath is also included here. This would save a walk to the
+  /// tournament admin desk.
   const factory Match({
     required String id,
     required DateTime created,

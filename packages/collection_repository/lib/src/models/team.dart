@@ -10,6 +10,12 @@ part 'generated/team.g.dart';
 @freezed
 class Team extends Model with _$Team {
   const Team._();
+
+  /// A team of [players].
+  ///
+  /// For singles competitions the Teams only have one player. Two in doubles.
+  /// Should a team not be able to complete their games in a competition they
+  /// are marked as [resigned].
   const factory Team({
     required String id,
     required DateTime created,

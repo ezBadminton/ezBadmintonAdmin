@@ -157,8 +157,8 @@ class _PlayerList extends StatelessWidget {
   ) {
     List<String> abbreviations = [];
     for (var competition in competitions) {
-      String competitionAbbreviation =
-          l10n.competitionTypeAbbreviated(competition.getCompetitionType().id);
+      String competitionAbbreviation = l10n
+          .competitionTypeAbbreviated(competition.getCompetitionType().name);
       if (competition.gender == GenderCategory.mixed ||
           competition.gender == GenderCategory.any) {
         abbreviations.add(competitionAbbreviation);

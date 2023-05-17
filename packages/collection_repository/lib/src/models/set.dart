@@ -11,6 +11,12 @@ part 'generated/set.g.dart';
 @freezed
 class Set extends Model with _$Set {
   const Set._();
+
+  /// One set in a badminton [Match]
+  ///
+  /// A badminton [match] usually consists of 2-3 sets with the winning team
+  /// reaching 21 points (2 points clear) first. The [index] signals the order
+  /// of sets in the match.
   const factory Set({
     required String id,
     required DateTime created,

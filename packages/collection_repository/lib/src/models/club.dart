@@ -22,10 +22,11 @@ class Club extends Model with _$Club {
   }) = _Club;
 
   static const Club clubless = Club(
-      id: 'clubless',
-      created: ConstDateTime(0),
-      updated: ConstDateTime(0),
-      name: '');
+    id: 'clubless',
+    created: ConstDateTime(0),
+    updated: ConstDateTime(0),
+    name: '',
+  );
 
   factory Club.fromJson(Map<String, dynamic> json) => _$ClubFromJson(json);
 
