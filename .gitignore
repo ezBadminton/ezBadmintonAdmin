@@ -30,6 +30,9 @@ migrate_working_dir/
 .pub/
 /build/
 
+# Package related
+/packages/*/build
+
 # Symbolication related
 app.*.symbols
 

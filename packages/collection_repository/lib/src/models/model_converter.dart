@@ -1,8 +1,8 @@
 import 'package:pocketbase/pocketbase.dart';
 import 'package:collection/collection.dart';
 
-/// Helper functions to convert PocketBase RecordModel into maps for
-/// constructing specific model instances
+/// Helper functions to convert PocketBase RecordModel into json maps for
+/// constructing data model instances
 class ModelConverter {
   /// Convert a [RecordModel] into a Map without expansions
   static Map<String, dynamic> modelToMap(RecordModel recordModel) {
@@ -90,6 +90,7 @@ class ModelConverter {
       List<Map<String, dynamic>> expandedMaps =
           expansion.value.map(modelToMap).toList();
       map.putIfAbsent(expansion.key, () => expandedMaps);
+      // Recurse with nested relations
       for (final nestedRecord in IterableZip<dynamic>(
         [expansion.value, expandedMaps],
       )) {
@@ -101,6 +102,14 @@ class ModelConverter {
       }
     }
     return map;
+  }
+
+  /// Remove the fields that the database sets before sending a new object
+  /// for create or update.
+  static void clearMetaJsonFields(Map<String, dynamic> json) {
+    for (var key in ['id', 'created', 'updated']) {
+      json.remove(key);
+    }
   }
 }
 

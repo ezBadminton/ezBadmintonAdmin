@@ -43,28 +43,21 @@ class CollectionRepository<R extends Model> {
     return models;
   }
 
-  Future<R?> create(R newModel) async {
+  Future<R> create(R newModel) async {
     Map<String, dynamic> json = newModel.toCollapsedJson();
-    _clearJsonForCreate(json);
+    ModelConverter.clearMetaJsonFields(json);
     RecordModel created =
         await _pocketBase.collection(_collectionName).create(body: json);
     return _modelConstructor(ModelConverter.modelToMap(created));
   }
 
   Future<R> update(R updatedModel) async {
-    RecordModel _ = await _pocketBase
-        .collection('players')
-        .update(updatedModel.id, body: updatedModel.toCollapsedJson());
-    return updatedModel;
-  }
-
-  /// Remove fields that the database sets before sending a new object
-  /// for create or update.
-  static void _clearJsonForCreate(Map<String, dynamic> json) {
-    for (var key in ['id', 'created', 'updated']) {
-      if (json.containsKey(key)) {
-        json.remove(key);
-      }
-    }
+    Map<String, dynamic> json = updatedModel.toCollapsedJson();
+    ModelConverter.clearMetaJsonFields(json);
+    RecordModel updated = await _pocketBase.collection(_collectionName).update(
+          updatedModel.id,
+          body: json,
+        );
+    return _modelConstructor(ModelConverter.modelToMap(updated));
   }
 }

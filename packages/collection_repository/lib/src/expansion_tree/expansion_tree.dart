@@ -15,7 +15,7 @@ class ExpansionTree {
   /// A query can now be made with the full ExpansionTree to get the car model
   /// with all its (nested) relations present. If some relations are unneeded a
   /// partial tree can be used for the query.
-  ExpansionTree(List<ExpandedField> rootFields)
+  ExpansionTree(Iterable<ExpandedField> rootFields)
       : _root = _ExpansionNode.root(rootFields);
 
   final _ExpansionNode _root;
@@ -30,7 +30,7 @@ class ExpansionTree {
   /// would create the Car ExpansionTree with one extra level for the Engine's
   /// relations. If `Car.expandedFields` contains no field that holds a relation
   /// of type Engine, the `expandWith` call does nothing.
-  void expandWith(Type model, List<ExpandedField> expand) {
+  void expandWith(Type model, Iterable<ExpandedField> expand) {
     _root.expandWith(model, expand);
   }
 
@@ -54,7 +54,7 @@ class ExpansionTree {
 
 class _ExpansionNode {
   _ExpansionNode(this.parent, this.expandedField);
-  _ExpansionNode.root(List<ExpandedField> rootFields)
+  _ExpansionNode.root(Iterable<ExpandedField> rootFields)
       : expandedField = ExpandedField(
           model: Model,
           key: '',
@@ -71,7 +71,7 @@ class _ExpansionNode {
 
   bool isLeaf() => children.isEmpty;
 
-  void expandWith(Type model, List<ExpandedField> expand) {
+  void expandWith(Type model, Iterable<ExpandedField> expand) {
     if (this.expandedField.model == model && isLeaf()) {
       _expandWith(expand);
     } else {
@@ -81,7 +81,7 @@ class _ExpansionNode {
     }
   }
 
-  void _expandWith(List<ExpandedField> expand) {
+  void _expandWith(Iterable<ExpandedField> expand) {
     children = expand.map((field) => _ExpansionNode(this, field)).toList();
   }
 
