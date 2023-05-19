@@ -10,6 +10,11 @@ import 'package:formz/formz.dart';
 part 'player_filter_state.dart';
 
 class PlayerFilterCubit extends Cubit<PlayerFilterState> {
+  /// A cubit for emitting [FilterPredicate]s from user input for filtering a
+  /// [Player] list.
+  ///
+  /// The cubit does not store filter state just emits the predicates for
+  /// a [ListFilterCubit] to consume.
   PlayerFilterCubit({
     required CollectionRepository<PlayingLevel> playingLevelRepository,
   })  : _playingLevelRepository = playingLevelRepository,
@@ -24,8 +29,8 @@ class PlayerFilterCubit extends Cubit<PlayerFilterState> {
   static const String overAgeDomain = 'over';
   static const String searchDomain = 'search';
 
-  static const String playingLevelConjunction = 'playingLevel';
-  static const String competitionConjunction = 'competition';
+  static const String playingLevelDisjunction = 'playingLevel';
+  static const String competitionDisjunction = 'competition';
 
   void loadPlayingLevels() async {
     if (state.loadingStatus != LoadingStatus.loading) {
@@ -34,8 +39,11 @@ class PlayerFilterCubit extends Cubit<PlayerFilterState> {
     try {
       List<PlayingLevel> playingLevels =
           await _playingLevelRepository.getList();
-      emit(state.copyWith(
-          allPlayingLevels: playingLevels, loadingStatus: LoadingStatus.done));
+      var newState = state.copyWith(
+        allPlayingLevels: playingLevels,
+        loadingStatus: LoadingStatus.done,
+      );
+      emit(newState);
     } on CollectionFetchException {
       emit(state.copyWith(loadingStatus: LoadingStatus.failed));
     }
@@ -59,11 +67,11 @@ class PlayerFilterCubit extends Cubit<PlayerFilterState> {
         break;
     }
     switch (predicate.disjunction) {
-      case playingLevelConjunction:
+      case playingLevelDisjunction:
         playingLevelToggled(predicate.domain);
         break;
-      case competitionConjunction:
-        competitionToggled(predicate.domain);
+      case competitionDisjunction:
+        competitionTypeToggled(predicate.domain);
         break;
     }
   }
@@ -88,20 +96,25 @@ class PlayerFilterCubit extends Cubit<PlayerFilterState> {
   }
 
   void genderChanged(Gender? gender) {
-    if (state.gender != gender) {
-      PlayerFilterState newState = state.copyWith(gender: () => gender);
-      String filterName = gender == null ? '' : gender.name;
-      genderFilter(Object p) => (p as Player).gender == gender;
-      var predicate = FilterPredicate(
-        gender == null ? null : genderFilter,
-        Player,
-        filterName,
-        genderDomain,
-      );
-      emit(newState.copyWithPredicate(filterPredicate: predicate));
-    } else if (state.gender != null) {
-      genderChanged(null);
+    if (gender == Gender.none || state.gender == gender) {
+      gender = null;
     }
+    if (state.gender == null && gender == null) {
+      return;
+    }
+    Predicate? genderFilter;
+    if (gender != null) {
+      genderFilter = (Object p) => (p as Player).gender == gender;
+    }
+    PlayerFilterState newState = state.copyWith(gender: () => gender);
+    String filterName = gender == null ? '' : gender.name;
+    var predicate = FilterPredicate(
+      genderFilter,
+      Player,
+      filterName,
+      genderDomain,
+    );
+    emit(newState.copyWithPredicate(filterPredicate: predicate));
   }
 
   void playingLevelToggled(PlayingLevel playingLevel) {
@@ -119,7 +132,7 @@ class PlayerFilterCubit extends Cubit<PlayerFilterState> {
         Player,
         playingLevel.name,
         playingLevel,
-        playingLevelConjunction,
+        playingLevelDisjunction,
       );
     }
 
@@ -129,27 +142,27 @@ class PlayerFilterCubit extends Cubit<PlayerFilterState> {
     emit(newState.copyWithPredicate(filterPredicate: predicate));
   }
 
-  void competitionToggled(CompetitionType competition) {
-    var competitions = List.of(state.competitions);
+  void competitionTypeToggled(CompetitionType competitionType) {
+    var competitionTypes = List.of(state.competitionTypes);
     FilterPredicate predicate;
-    if (competitions.contains(competition)) {
-      competitions.remove(competition);
-      predicate = FilterPredicate(null, Competition, '', competition);
+    if (competitionTypes.contains(competitionType)) {
+      competitionTypes.remove(competitionType);
+      predicate = FilterPredicate(null, Competition, '', competitionType);
     } else {
-      competitions.add(competition);
+      competitionTypes.add(competitionType);
       competitionFilter(Object c) =>
-          (c as Competition).getCompetitionType() == competition;
+          (c as Competition).getCompetitionType() == competitionType;
       predicate = FilterPredicate(
         competitionFilter,
         Competition,
-        competition.name,
-        competition,
-        competitionConjunction,
+        competitionType.name,
+        competitionType,
+        competitionDisjunction,
       );
     }
 
     var newState =
-        state.copyWith(competitions: List.unmodifiable(competitions));
+        state.copyWith(competitionTypes: List.unmodifiable(competitionTypes));
     emit(newState.copyWithPredicate(filterPredicate: predicate));
   }
 

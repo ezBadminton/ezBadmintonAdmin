@@ -4,46 +4,46 @@ import 'package:pocketbase/pocketbase.dart';
 import 'package:pocketbase_provider/pocketbase_provider.dart';
 import 'package:recase/recase.dart';
 
-class CollectionRepository<R extends Model> {
+class CollectionRepository<M extends Model> {
   /// A repository for interfacing the business logic with the database.
   ///
-  /// The repository handles all CRUD operations for one model via pocketbase.
+  /// The repository handles all CRUD operations for model [M] via pocketbase.
   /// The pocketbase connection comes from a [pocketBaseProvider]. When
-  /// retrieving data the model object is instanciated by passing the json map
+  /// retrieving data the [M] object is instanciated by passing the json map
   /// to the [modelConstructor]. The modelConstructor is usually `fromJson`.
   ///
   /// Example: `var playerRepository = CollectionRepository(modelConstructor: Player.fromJson, pocketBaseProvider: ...)`
   CollectionRepository({
-    required R Function(Map<String, dynamic> recordModelMap) modelConstructor,
+    required M Function(Map<String, dynamic> recordModelMap) modelConstructor,
     required PocketBaseProvider pocketBaseProvider,
   })  : _modelConstructor = modelConstructor,
         _pocketBaseProvider = pocketBaseProvider,
         _pocketBase = pocketBaseProvider.pocketBase,
         // All model classes have a corresponding collection name
-        _collectionName = R.toString().snakeCase + 's';
+        _collectionName = M.toString().snakeCase + 's';
 
   // The pocketbase SDK abstracts all the DB querying
   final PocketBaseProvider _pocketBaseProvider;
   final PocketBase _pocketBase;
   final String _collectionName;
-  final R Function(Map<String, dynamic> recordModelMap) _modelConstructor;
+  final M Function(Map<String, dynamic> recordModelMap) _modelConstructor;
 
   /// Get the full list of model objects from the database.
   ///
   /// Relations are expanded as defined by the [expand] `ExpansionTree`.
-  Future<List<R>> getList({ExpansionTree? expand}) async {
+  Future<List<M>> getList({ExpansionTree? expand}) async {
     String expandString = expand?.expandString ?? '';
     List<RecordModel> records = await _pocketBase
         .collection(_collectionName)
         .getFullList(expand: expandString);
-    List<R> models = records
-        .map<R>((record) =>
+    List<M> models = records
+        .map<M>((record) =>
             _modelConstructor(ModelConverter.modelToExpandedMap(record)))
         .toList();
     return models;
   }
 
-  Future<R> create(R newModel) async {
+  Future<M> create(M newModel) async {
     Map<String, dynamic> json = newModel.toCollapsedJson();
     ModelConverter.clearMetaJsonFields(json);
     RecordModel created =
@@ -51,7 +51,7 @@ class CollectionRepository<R extends Model> {
     return _modelConstructor(ModelConverter.modelToMap(created));
   }
 
-  Future<R> update(R updatedModel) async {
+  Future<M> update(M updatedModel) async {
     Map<String, dynamic> json = updatedModel.toCollapsedJson();
     ModelConverter.clearMetaJsonFields(json);
     RecordModel updated = await _pocketBase.collection(_collectionName).update(

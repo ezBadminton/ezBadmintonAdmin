@@ -184,12 +184,12 @@ class _CompetitionCheckbox extends StatelessWidget {
         BlocBuilder<PlayerFilterCubit, PlayerFilterState>(
           bloc: filterCubit,
           buildWhen: (previous, current) =>
-              previous.competitions != current.competitions,
+              previous.competitionTypes != current.competitionTypes,
           builder: (context, state) {
             return Checkbox(
-              value: state.competitions.contains(competition),
+              value: state.competitionTypes.contains(competition),
               onChanged: (value) {
-                filterCubit.competitionToggled(competition);
+                filterCubit.competitionTypeToggled(competition);
               },
             );
           },

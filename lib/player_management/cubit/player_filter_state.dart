@@ -4,12 +4,11 @@ part of 'player_filter_cubit.dart';
 class PlayerFilterState {
   const PlayerFilterState({
     this.loadingStatus = LoadingStatus.loading,
-    this.formStatus = FormzSubmissionStatus.initial,
     this.overAge = const Age.pure(),
     this.underAge = const Age.pure(),
     this.gender,
     this.playingLevels = const [],
-    this.competitions = const [],
+    this.competitionTypes = const [],
     this.searchTerm = const SearchTerm.pure(),
     this.allPlayingLevels = const [],
     // The filterPredicate is used to output the filter to a filter state manager
@@ -17,12 +16,11 @@ class PlayerFilterState {
   });
 
   final LoadingStatus loadingStatus;
-  final FormzSubmissionStatus formStatus;
   final Age overAge;
   final Age underAge;
   final Gender? gender;
   final List<PlayingLevel> playingLevels;
-  final List<CompetitionType> competitions;
+  final List<CompetitionType> competitionTypes;
   final SearchTerm searchTerm;
 
   final List<PlayingLevel> allPlayingLevels;
@@ -31,23 +29,21 @@ class PlayerFilterState {
 
   PlayerFilterState copyWith({
     LoadingStatus? loadingStatus,
-    FormzSubmissionStatus? formStatus,
     Age? overAge,
     Age? underAge,
     Gender? Function()? gender,
     List<PlayingLevel>? playingLevels,
-    List<CompetitionType>? competitions,
+    List<CompetitionType>? competitionTypes,
     SearchTerm? searchTerm,
     List<PlayingLevel>? allPlayingLevels,
   }) =>
       PlayerFilterState(
         loadingStatus: loadingStatus ?? this.loadingStatus,
-        formStatus: formStatus ?? this.formStatus,
         overAge: overAge ?? this.overAge,
         underAge: underAge ?? this.underAge,
         gender: gender == null ? this.gender : gender(),
         playingLevels: playingLevels ?? this.playingLevels,
-        competitions: competitions ?? this.competitions,
+        competitionTypes: competitionTypes ?? this.competitionTypes,
         searchTerm: searchTerm ?? this.searchTerm,
         allPlayingLevels: allPlayingLevels ?? this.allPlayingLevels,
         filterPredicate: null,
@@ -58,12 +54,11 @@ class PlayerFilterState {
   }) =>
       PlayerFilterState(
         loadingStatus: loadingStatus,
-        formStatus: formStatus,
         overAge: overAge,
         underAge: underAge,
         gender: gender,
         playingLevels: playingLevels,
-        competitions: competitions,
+        competitionTypes: competitionTypes,
         searchTerm: searchTerm,
         allPlayingLevels: allPlayingLevels,
         filterPredicate: filterPredicate,

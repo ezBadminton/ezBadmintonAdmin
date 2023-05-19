@@ -144,8 +144,9 @@ class ListFilterCubit extends Cubit<ListFilterState> {
 class FilterPredicate extends Equatable {
   /// A predicate describing a single condition of a filter.
   ///
-  /// The [function] is the function taking in an object of a set [type].
-  /// The predicate has an describing [name] aswell as a [domain].
+  /// The [function] is the predicate function taking in an object of a
+  /// set [type].
+  /// The predicate has a describing [name] aswell as a [domain].
   /// A filter can only contain one predicate of a given domain at a
   /// time. It gets overwritten by new entries with the same domain.
   /// All filters (of a type) with a matching [disjunction] string get combined
