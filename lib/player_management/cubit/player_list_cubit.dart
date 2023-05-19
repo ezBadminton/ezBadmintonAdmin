@@ -14,16 +14,7 @@ class PlayerListCubit extends Cubit<PlayerListState> {
   })  : _competitionRepository = competitionRepository,
         _playerRepository = playerRepository,
         super(const PlayerListState()) {
-    Future.wait([
-      _populateCompetitionList(),
-      _populatePlayerList(),
-    ]).then(
-      (_) {
-        if (state.loadingStatus == LoadingStatus.loading) {
-          _mapPlayerCompetitions();
-        }
-      },
-    );
+    loadPlayerData();
   }
 
   final CollectionRepository<Player> _playerRepository;
@@ -31,38 +22,53 @@ class PlayerListCubit extends Cubit<PlayerListState> {
 
   late List<Competition> _competitions;
 
-  Future<void> _populatePlayerList() async {
-    late List<Player> players;
+  void loadPlayerData() {
+    if (state.loadingStatus != LoadingStatus.loading) {
+      emit(state.copyWith(loadingStatus: LoadingStatus.loading));
+    }
+    Future.wait([
+      _fetchPlayerList(),
+      _fetchCompetitionList(),
+    ]).then(
+      (loadingResults) {
+        var players = loadingResults[0] as List<Player>?;
+        var competitions = loadingResults[1] as List<Competition>?;
+        _finishLoading(players, competitions);
+      },
+    );
+  }
+
+  Future<List<Player>?> _fetchPlayerList() async {
+    List<Player> players;
     try {
       players = await _playerRepository.getList(
         expand: ExpansionTree(Player.expandedFields),
       );
-    } on CollectionException {
-      emit(state.copyWith(loadingStatus: LoadingStatus.failed));
-      return;
+    } on CollectionFetchException {
+      return null;
     }
-    players = List.unmodifiable(players);
-    var newState =
-        state.copyWith(allPlayers: players, filteredPlayers: players);
-    emit(newState);
+    return List.unmodifiable(players);
   }
 
-  Future<void> _populateCompetitionList() async {
+  Future<List<Competition>?> _fetchCompetitionList() async {
+    List<Competition> competitions;
     try {
-      _competitions = await _competitionRepository.getList(
+      competitions = await _competitionRepository.getList(
         expand: ExpansionTree(Competition.expandedFields)
           ..expandWith(Team, Team.expandedFields),
       );
-    } on CollectionException {
-      emit(state.copyWith(loadingStatus: LoadingStatus.failed));
+    } on CollectionFetchException {
+      return null;
     }
+    return competitions;
   }
 
-  void _mapPlayerCompetitions() {
-    var playerCompetitions = {
-      for (var p in state.allPlayers) p: <Competition>[]
-    };
-    for (var competition in _competitions) {
+  static Map<Player, List<Competition>> _mapPlayerCompetitions(
+    List<Player> players,
+    List<Competition> competitions,
+  ) {
+    var playerCompetitions = {for (var p in players) p: <Competition>[]};
+    for (var competition in competitions) {
       var teams = competition.registrations;
       var players =
           teams.map((t) => t.players).expand((playerList) => playerList);
@@ -70,13 +76,29 @@ class PlayerListCubit extends Cubit<PlayerListState> {
         playerCompetitions[player]?.add(competition);
       }
     }
-    var newState = state.copyWith(
+    return playerCompetitions;
+  }
+
+  void _finishLoading(List<Player>? players, List<Competition>? competitions) {
+    if (players == null || competitions == null) {
+      emit(state.copyWith(loadingStatus: LoadingStatus.failed));
+    } else {
+      var playerCompetitions = _mapPlayerCompetitions(players, competitions);
+      _competitions = competitions;
+      var newState = state.copyWith(
+        allPlayers: players,
+        filteredPlayers: players,
         playerCompetitions: playerCompetitions,
-        loadingStatus: LoadingStatus.done);
-    emit(newState);
+        loadingStatus: LoadingStatus.done,
+      );
+      emit(newState);
+    }
   }
 
   void filterChanged(Map<Type, Predicate> filters) {
+    if (state.loadingStatus != LoadingStatus.done) {
+      return;
+    }
     var filtered = state.allPlayers;
     List<Player>? filteredByCompetition;
     if (filters.containsKey(Player)) {

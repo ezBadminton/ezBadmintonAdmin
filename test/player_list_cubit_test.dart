@@ -76,13 +76,13 @@ void main() {
   void arrangePlayerFetchThrows() {
     when(
       () => playerRepository.getList(expand: any(named: 'expand')),
-    ).thenAnswer((_) async => throw CollectionException('errorCode'));
+    ).thenAnswer((_) async => throw CollectionFetchException('errorCode'));
   }
 
   void arrangeCompetitionFetchThrows() {
     when(
       () => competitionRepository.getList(expand: any(named: 'expand')),
-    ).thenAnswer((_) async => throw CollectionException('errorCode'));
+    ).thenAnswer((_) async => throw CollectionFetchException('errorCode'));
   }
 
   setUp(() {
@@ -124,9 +124,7 @@ void main() {
           competitionRepository: competitionRepository,
         ),
         expect: () => [
-          // Players fetched
-          HasLoadingStatus(LoadingStatus.loading),
-          // Players mapped to competitions
+          // Players and competitions fetched
           HasLoadingStatus(LoadingStatus.done)
         ],
       );
@@ -153,8 +151,6 @@ void main() {
         ),
         expect: () => [
           // Competition fetching failed
-          HasLoadingStatus(LoadingStatus.failed),
-          // Players maybe fetched but failed status is copied
           HasLoadingStatus(LoadingStatus.failed),
         ],
       );

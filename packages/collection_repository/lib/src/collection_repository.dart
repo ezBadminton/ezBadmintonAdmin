@@ -62,7 +62,7 @@ class CollectionRepository<R extends Model> {
   }
 }
 
-class CollectionException {
-  CollectionException(this.errorCode);
+class CollectionFetchException {
+  CollectionFetchException(this.errorCode);
   final String errorCode;
 }

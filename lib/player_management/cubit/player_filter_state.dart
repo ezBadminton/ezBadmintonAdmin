@@ -3,7 +3,8 @@ part of 'player_filter_cubit.dart';
 @immutable
 class PlayerFilterState {
   const PlayerFilterState({
-    this.status = FormzSubmissionStatus.initial,
+    this.loadingStatus = LoadingStatus.loading,
+    this.formStatus = FormzSubmissionStatus.initial,
     this.overAge = const Age.pure(),
     this.underAge = const Age.pure(),
     this.gender,
@@ -15,7 +16,8 @@ class PlayerFilterState {
     this.filterPredicate,
   });
 
-  final FormzSubmissionStatus status;
+  final LoadingStatus loadingStatus;
+  final FormzSubmissionStatus formStatus;
   final Age overAge;
   final Age underAge;
   final Gender? gender;
@@ -28,7 +30,8 @@ class PlayerFilterState {
   final FilterPredicate? filterPredicate;
 
   PlayerFilterState copyWith({
-    FormzSubmissionStatus? status,
+    LoadingStatus? loadingStatus,
+    FormzSubmissionStatus? formStatus,
     Age? overAge,
     Age? underAge,
     Gender? Function()? gender,
@@ -38,7 +41,8 @@ class PlayerFilterState {
     List<PlayingLevel>? allPlayingLevels,
   }) =>
       PlayerFilterState(
-        status: status ?? this.status,
+        loadingStatus: loadingStatus ?? this.loadingStatus,
+        formStatus: formStatus ?? this.formStatus,
         overAge: overAge ?? this.overAge,
         underAge: underAge ?? this.underAge,
         gender: gender == null ? this.gender : gender(),
@@ -53,7 +57,8 @@ class PlayerFilterState {
     required FilterPredicate filterPredicate,
   }) =>
       PlayerFilterState(
-        status: status,
+        loadingStatus: loadingStatus,
+        formStatus: formStatus,
         overAge: overAge,
         underAge: underAge,
         gender: gender,

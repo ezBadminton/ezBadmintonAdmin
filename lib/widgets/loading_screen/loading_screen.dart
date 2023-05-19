@@ -2,12 +2,21 @@ import 'package:flutter/material.dart';
 
 enum LoadingStatus { loading, failed, done }
 
+LoadingStatus loadingStatusConjunction(List<LoadingStatus> statusList) {
+  if (statusList.contains(LoadingStatus.loading)) {
+    return LoadingStatus.loading;
+  } else if (statusList.contains(LoadingStatus.failed)) {
+    return LoadingStatus.failed;
+  }
+  return LoadingStatus.done;
+}
+
 class LoadingScreen extends StatelessWidget {
   const LoadingScreen({
     super.key,
     required this.loadingStatusGetter,
     this.errorMessage = 'Could not load!',
-    this.retryFunction,
+    this.onRetry,
     this.retryButtonLabel = 'Retry',
     this.loadingIndicator = const CircularProgressIndicator(),
     required this.child,
@@ -15,7 +24,7 @@ class LoadingScreen extends StatelessWidget {
 
   final LoadingStatus Function() loadingStatusGetter;
   final String errorMessage;
-  final void Function()? retryFunction;
+  final void Function()? onRetry;
   final String retryButtonLabel;
   final Widget loadingIndicator;
   final Widget child;
@@ -27,10 +36,10 @@ class LoadingScreen extends StatelessWidget {
         return loadingIndicator;
       case LoadingStatus.failed:
         var column = <Widget>[Text(errorMessage)];
-        if (retryFunction != null) {
+        if (onRetry != null) {
           column.add(
             ElevatedButton(
-              onPressed: retryFunction,
+              onPressed: onRetry,
               child: Text(retryButtonLabel),
             ),
           );

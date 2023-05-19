@@ -3,6 +3,7 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/list_filter/cubit/list_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/models/age.dart';
 import 'package:ez_badminton_admin_app/player_management/models/search_term.dart';
+import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:formz/formz.dart';
 
@@ -13,7 +14,7 @@ class PlayerFilterCubit extends Cubit<PlayerFilterState> {
     required CollectionRepository<PlayingLevel> playingLevelRepository,
   })  : _playingLevelRepository = playingLevelRepository,
         super(const PlayerFilterState()) {
-    _populatePlayingLevelFilter();
+    loadPlayingLevels();
   }
 
   final CollectionRepository<PlayingLevel> _playingLevelRepository;
@@ -26,9 +27,18 @@ class PlayerFilterCubit extends Cubit<PlayerFilterState> {
   static const String playingLevelConjunction = 'playingLevel';
   static const String competitionConjunction = 'competition';
 
-  void _populatePlayingLevelFilter() async {
-    List<PlayingLevel> playingLevels = await _playingLevelRepository.getList();
-    emit(state.copyWith(allPlayingLevels: playingLevels));
+  void loadPlayingLevels() async {
+    if (state.loadingStatus != LoadingStatus.loading) {
+      emit(state.copyWith(loadingStatus: LoadingStatus.loading));
+    }
+    try {
+      List<PlayingLevel> playingLevels =
+          await _playingLevelRepository.getList();
+      emit(state.copyWith(
+          allPlayingLevels: playingLevels, loadingStatus: LoadingStatus.done));
+    } on CollectionFetchException {
+      emit(state.copyWith(loadingStatus: LoadingStatus.failed));
+    }
   }
 
   void predicateRemoved(FilterPredicate predicate) {

@@ -37,5 +37,7 @@
   "personalData": "Zur Person",
   "registeredCompetitions": "Gemeldete Disziplinen",
   "pleaseFillIn": "Bitte ausfüllen",
-  "formatError": "Ungültiges Format"
+  "formatError": "Ungültiges Format",
+  "playerListLoadingError": "Konnte die Spielerliste nicht laden",
+  "retry": "Erneut versuchen"
 }

@@ -37,5 +37,7 @@
   "personalData": "Personal",
   "registeredCompetitions": "Registered competitions",
   "pleaseFillIn": "Please fill in",
-  "formatError": "Format error"
+  "formatError": "Format error",
+  "playerListLoadingError": "Couldn't load the list of players",
+  "retry": "Retry"
 }
