@@ -63,6 +63,7 @@ class PlayerEditingState with FormzMixin {
       ];
 
   PlayerEditingState copyWith({
+    Player? player,
     FormzSubmissionStatus? formStatus,
     NonEmptyInput? firstName,
     NonEmptyInput? lastName,
@@ -74,7 +75,7 @@ class PlayerEditingState with FormzMixin {
     List<Club>? clubs,
   }) =>
       PlayerEditingState(
-        player: player,
+        player: player ?? this.player,
         formStatus: formStatus ?? this.formStatus,
         firstName: firstName ?? this.firstName,
         lastName: lastName ?? this.lastName,

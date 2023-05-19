@@ -61,3 +61,8 @@ class CollectionRepository<R extends Model> {
     return _modelConstructor(ModelConverter.modelToMap(updated));
   }
 }
+
+class CollectionException {
+  CollectionException(this.errorCode);
+  final String errorCode;
+}

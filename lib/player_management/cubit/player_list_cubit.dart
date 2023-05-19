@@ -1,6 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/list_filter/cubit/list_filter_cubit.dart';
+import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
+import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 part 'player_list_state.dart';
@@ -16,17 +18,29 @@ class PlayerListCubit extends Cubit<PlayerListState> {
       _populateCompetitionList(),
       _populatePlayerList(),
     ]).then(
-      (_) => _mapPlayerCompetitions(),
+      (_) {
+        if (state.loadingStatus == LoadingStatus.loading) {
+          _mapPlayerCompetitions();
+        }
+      },
     );
   }
 
   final CollectionRepository<Player> _playerRepository;
   final CollectionRepository<Competition> _competitionRepository;
 
+  late List<Competition> _competitions;
+
   Future<void> _populatePlayerList() async {
-    var players = await _playerRepository.getList(
-      expand: ExpansionTree(Player.expandedFields),
-    );
+    late List<Player> players;
+    try {
+      players = await _playerRepository.getList(
+        expand: ExpansionTree(Player.expandedFields),
+      );
+    } on CollectionException {
+      emit(state.copyWith(loadingStatus: LoadingStatus.failed));
+      return;
+    }
     players = List.unmodifiable(players);
     var newState =
         state.copyWith(allPlayers: players, filteredPlayers: players);
@@ -34,28 +48,31 @@ class PlayerListCubit extends Cubit<PlayerListState> {
   }
 
   Future<void> _populateCompetitionList() async {
-    var competitions = await _competitionRepository.getList(
-      expand: ExpansionTree(Competition.expandedFields)
-        ..expandWith(Team, Team.expandedFields),
-    );
-    competitions = List.unmodifiable(competitions);
-    var newState = state.copyWith(competitions: competitions);
-    emit(newState);
+    try {
+      _competitions = await _competitionRepository.getList(
+        expand: ExpansionTree(Competition.expandedFields)
+          ..expandWith(Team, Team.expandedFields),
+      );
+    } on CollectionException {
+      emit(state.copyWith(loadingStatus: LoadingStatus.failed));
+    }
   }
 
   void _mapPlayerCompetitions() {
     var playerCompetitions = {
       for (var p in state.allPlayers) p: <Competition>[]
     };
-    for (var competition in state.competitions) {
+    for (var competition in _competitions) {
       var teams = competition.registrations;
       var players =
           teams.map((t) => t.players).expand((playerList) => playerList);
       for (var player in players) {
-        playerCompetitions[player]!.add(competition);
+        playerCompetitions[player]?.add(competition);
       }
     }
-    var newState = state.copyWith(playerCompetitions: playerCompetitions);
+    var newState = state.copyWith(
+        playerCompetitions: playerCompetitions,
+        loadingStatus: LoadingStatus.done);
     emit(newState);
   }
 
@@ -67,7 +84,7 @@ class PlayerListCubit extends Cubit<PlayerListState> {
     }
     if (filters.containsKey(Competition)) {
       var filteredCompetitions =
-          state.competitions.where(filters[Competition]!).toList();
+          _competitions.where(filters[Competition]!).toList();
       var teams = filteredCompetitions
           .map((comp) => comp.registrations)
           .expand((teamList) => teamList);

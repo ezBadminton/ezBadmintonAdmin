@@ -98,8 +98,9 @@ class PlayerEditingCubit extends Cubit<PlayerEditingState> {
       );
       emit(newState);
       Player editedPlayer = _applyChanges();
-      Player createdPlayer = (await _playerRepository.create(editedPlayer))!;
+      Player createdPlayer = await _playerRepository.create(editedPlayer);
       newState = state.copyWith(
+        player: createdPlayer,
         formStatus: FormzSubmissionStatus.success,
       );
     } else {
