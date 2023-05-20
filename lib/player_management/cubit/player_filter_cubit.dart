@@ -56,11 +56,11 @@ class PlayerFilterCubit extends Cubit<PlayerFilterState> {
         break;
       case overAgeDomain:
         overAgeChanged('');
-        ageFilterSubmitted();
+        ageFilterSubmitted(submitUnder: false);
         break;
       case underAgeDomain:
         underAgeChanged('');
-        ageFilterSubmitted();
+        ageFilterSubmitted(submitOver: false);
         break;
       case searchDomain:
         searchTermChanged('');
@@ -86,11 +86,14 @@ class PlayerFilterCubit extends Cubit<PlayerFilterState> {
     emit(newState);
   }
 
-  void ageFilterSubmitted() {
-    if (state.overAge.isValid) {
+  void ageFilterSubmitted({
+    bool submitOver = true,
+    bool submitUnder = true,
+  }) {
+    if (state.overAge.isValid && submitOver) {
       _updateAgeFilter(true);
     }
-    if (state.underAge.isValid) {
+    if (state.underAge.isValid && submitUnder) {
       _updateAgeFilter(false);
     }
   }

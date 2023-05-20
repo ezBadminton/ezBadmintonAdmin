@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
@@ -108,6 +110,39 @@ class WithPredicateFunction extends CustomMatcher {
   featureValueOf(actual) => (actual as FilterPredicate).function;
 }
 
+class WithPredicateDomain extends CustomMatcher {
+  WithPredicateDomain(matcher)
+      : super(
+          'FilterPredicate with a domain of',
+          'Predicate domain',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => (actual as FilterPredicate).domain;
+}
+
+class WithPredicateDisjunction extends CustomMatcher {
+  WithPredicateDisjunction(matcher)
+      : super(
+          'FilterPredicate with a disjunction of',
+          'Predicate disjunction',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => (actual as FilterPredicate).disjunction;
+}
+
+class WithPredicateType extends CustomMatcher {
+  WithPredicateType(matcher)
+      : super(
+          'FilterPredicate with a type of',
+          'Predicate type',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => (actual as FilterPredicate).type;
+}
+
 class WhereFilterResult extends CustomMatcher {
   WhereFilterResult(matcher, {required this.items})
       : super(
@@ -183,6 +218,23 @@ void main() {
           playingLevelRepository: playingLevelRepository,
         ),
         expect: () => [HasLoadingStatus(LoadingStatus.done)],
+        verify: (cubit) => expect(cubit.state.allPlayingLevels, playingLevels),
+      );
+
+      blocTest<PlayerFilterCubit, PlayerFilterState>(
+        'goes back to LoadingStatus.loading when playing levels are reloaded',
+        setUp: () {
+          arrangePlayingLevelRepositoryReturns();
+          sut = PlayerFilterCubit(
+            playingLevelRepository: playingLevelRepository,
+          );
+        },
+        build: () => sut,
+        act: (cubit) => cubit.loadPlayingLevels(),
+        expect: () => [
+          HasLoadingStatus(LoadingStatus.loading),
+          HasLoadingStatus(LoadingStatus.done),
+        ],
         verify: (cubit) => expect(cubit.state.allPlayingLevels, playingLevels),
       );
     },
@@ -729,6 +781,188 @@ void main() {
           [namedPlayers[0]],
           items: namedPlayers,
         )),
+      ],
+    );
+  });
+
+  group('PlayerFilterCubit FilterPredicate creation/removal', () {
+    setUp(() {
+      arrangePlayingLevelRepositoryReturns();
+      sut = PlayerFilterCubit(playingLevelRepository: playingLevelRepository);
+    });
+
+    blocTest<PlayerFilterCubit, PlayerFilterState>(
+      """emits an empty FilterPredicate of over-/under-age domain when
+      an over-/under-age predicate is set to be removed,
+      the emitted predicates have the correct type,domain and disjunction""",
+      build: () => sut,
+      act: (cubit) {
+        cubit.overAgeChanged('20');
+        cubit.underAgeChanged('xyz');
+        cubit.ageFilterSubmitted();
+        var overAgePredicate = cubit.state.filterPredicate!;
+        expect(
+          overAgePredicate,
+          allOf(
+            WithPredicateType(Player),
+            WithPredicateDisjunction(isEmpty),
+            WithPredicateDomain(PlayerFilterCubit.overAgeDomain),
+          ),
+        );
+        cubit.predicateRemoved(overAgePredicate);
+        cubit.underAgeChanged('35');
+        cubit.ageFilterSubmitted();
+        var underAgePredicate = cubit.state.filterPredicate!;
+        expect(
+          underAgePredicate,
+          allOf(
+            WithPredicateType(Player),
+            WithPredicateDisjunction(isEmpty),
+            WithPredicateDomain(PlayerFilterCubit.underAgeDomain),
+          ),
+        );
+        cubit.predicateRemoved(underAgePredicate);
+      },
+      expect: () => [
+        HasAge('20', over: true),
+        HasAge('xyz', over: false),
+        HasFilterPredicate(isNotNull),
+        // Removal should set the age filter to empty string
+        HasAge('', over: true),
+        // Removal triggers emission of FilterPredicate with null-function
+        // in over-age domain
+        HasFilterPredicate(allOf(
+          WithPredicateFunction(isNull),
+          WithPredicateDomain(PlayerFilterCubit.overAgeDomain),
+        )),
+        HasAge('35', over: false),
+        HasFilterPredicate(WithPredicateFunction(isNull)),
+        HasFilterPredicate(WithPredicateFunction(isNotNull)),
+        HasAge('', over: false),
+        HasFilterPredicate(allOf(
+          WithPredicateFunction(isNull),
+          WithPredicateDomain(PlayerFilterCubit.underAgeDomain),
+        )),
+      ],
+    );
+
+    blocTest<PlayerFilterCubit, PlayerFilterState>(
+      """emits an empty FilterPredicate of gender domain when
+      a gender predicate is set to be removed,
+      the emitted predicate has the correct type,domain and disjunction""",
+      build: () => sut,
+      act: (cubit) {
+        cubit.genderChanged(Gender.female);
+        var genderPredicate = cubit.state.filterPredicate!;
+        expect(
+          genderPredicate,
+          allOf(
+            WithPredicateType(Player),
+            WithPredicateDisjunction(isEmpty),
+            WithPredicateDomain(PlayerFilterCubit.genderDomain),
+          ),
+        );
+        cubit.predicateRemoved(genderPredicate);
+      },
+      expect: () => [
+        HasGender(Gender.female),
+        allOf(
+          HasGender(isNull),
+          HasFilterPredicate(allOf(
+            WithPredicateFunction(isNull),
+            WithPredicateDomain(PlayerFilterCubit.genderDomain),
+          )),
+        ),
+      ],
+    );
+
+    blocTest<PlayerFilterCubit, PlayerFilterState>(
+      """emits an empty FilterPredicate of playing level domain when
+      a playing level predicate is set to be removed,
+      the emitted predicate has the correct type,domain and disjunction""",
+      build: () => sut,
+      act: (cubit) {
+        cubit.playingLevelToggled(playingLevels[0]);
+        var playingLevelPredicate = cubit.state.filterPredicate!;
+        expect(
+          playingLevelPredicate,
+          allOf(
+            WithPredicateType(Player),
+            WithPredicateDisjunction(PlayerFilterCubit.playingLevelDisjunction),
+            WithPredicateDomain(playingLevels[0]),
+          ),
+        );
+        cubit.predicateRemoved(playingLevelPredicate);
+      },
+      expect: () => [
+        HasPlayingLevels([playingLevels[0]]),
+        allOf(
+          HasPlayingLevels([]),
+          HasFilterPredicate(allOf(
+            WithPredicateFunction(isNull),
+            WithPredicateDomain(playingLevels[0]),
+          )),
+        ),
+      ],
+    );
+
+    blocTest<PlayerFilterCubit, PlayerFilterState>(
+      """emits an empty FilterPredicate of competition domain when
+      a competition predicate is set to be removed,
+      the emitted predicate has the correct type,domain and disjunction""",
+      build: () => sut,
+      act: (cubit) {
+        cubit.competitionTypeToggled(CompetitionType.doubles);
+        var competitionPredicate = cubit.state.filterPredicate!;
+        expect(
+          competitionPredicate,
+          allOf(
+            WithPredicateType(Competition),
+            WithPredicateDisjunction(PlayerFilterCubit.competitionDisjunction),
+            WithPredicateDomain(CompetitionType.doubles),
+          ),
+        );
+        cubit.predicateRemoved(competitionPredicate);
+      },
+      expect: () => [
+        HasCompetitionTypes([CompetitionType.doubles]),
+        allOf(
+          HasCompetitionTypes([]),
+          HasFilterPredicate(allOf(
+            WithPredicateFunction(isNull),
+            WithPredicateDomain(CompetitionType.doubles),
+          )),
+        ),
+      ],
+    );
+
+    blocTest<PlayerFilterCubit, PlayerFilterState>(
+      """emits an empty FilterPredicate of text search domain when
+      a text search predicate is set to be removed,
+      the emitted predicate has the correct type,domain and disjunction""",
+      build: () => sut,
+      act: (cubit) {
+        cubit.searchTermChanged('who dis?');
+        var searchPredicate = cubit.state.filterPredicate!;
+        expect(
+          searchPredicate,
+          allOf(
+            WithPredicateType(Player),
+            WithPredicateDisjunction(isEmpty),
+            WithPredicateDomain(PlayerFilterCubit.searchDomain),
+          ),
+        );
+        cubit.predicateRemoved(searchPredicate);
+      },
+      expect: () => [
+        HasSearchTerm('who dis?'),
+        allOf(
+          HasSearchTerm(''),
+          HasFilterPredicate(allOf(
+            WithPredicateFunction(isNull),
+            WithPredicateDomain(PlayerFilterCubit.searchDomain),
+          )),
+        ),
       ],
     );
   });
