@@ -1,11 +1,10 @@
 import 'package:bloc/bloc.dart';
 import 'package:collection_repository/collection_repository.dart';
-import 'package:ez_badminton_admin_app/list_filter/cubit/list_filter_cubit.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/models/age.dart';
 import 'package:ez_badminton_admin_app/player_management/models/search_term.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:formz/formz.dart';
 
 part 'player_filter_state.dart';
 
@@ -14,7 +13,7 @@ class PlayerFilterCubit extends Cubit<PlayerFilterState> {
   /// [Player] list.
   ///
   /// The cubit does not store filter state just emits the predicates for
-  /// a [ListFilterCubit] to consume.
+  /// a [PredicateFilterCubit] to consume.
   PlayerFilterCubit({
     required CollectionRepository<PlayingLevel> playingLevelRepository,
   })  : _playingLevelRepository = playingLevelRepository,

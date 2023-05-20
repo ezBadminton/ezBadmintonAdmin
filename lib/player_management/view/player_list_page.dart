@@ -1,5 +1,5 @@
 import 'package:collection_repository/collection_repository.dart';
-import 'package:ez_badminton_admin_app/list_filter/cubit/list_filter_cubit.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_list_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/player_editing_form.dart';
@@ -17,7 +17,7 @@ class PlayerListPage extends StatelessWidget {
     AppLocalizations l10n = AppLocalizations.of(context)!;
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => ListFilterCubit()),
+        BlocProvider(create: (_) => PredicateFilterCubit()),
         BlocProvider(
           create: (_) => PlayerFilterCubit(
             playingLevelRepository:
@@ -59,7 +59,7 @@ class _PlayerListWithFilter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations l10n = AppLocalizations.of(context)!;
-    return BlocListener<ListFilterCubit, ListFilterState>(
+    return BlocListener<PredicateFilterCubit, PredicateFilterState>(
       listener: (context, state) {
         context.read<PlayerListCubit>().filterChanged(state.filters);
       },

@@ -1,8 +1,8 @@
-part of 'list_filter_cubit.dart';
+part of 'predicate_filter_cubit.dart';
 
 @immutable
-class ListFilterState implements Equatable {
-  const ListFilterState({
+class PredicateFilterState implements Equatable {
+  const PredicateFilterState({
     this.filters = const {},
     this.filterPredicates = const {},
   });
@@ -18,7 +18,7 @@ class ListFilterState implements Equatable {
 }
 
 // A private ListFilterState to hide the mutable predicate map
-class _ListFilterState extends ListFilterState {
+class _ListFilterState extends PredicateFilterState {
   _ListFilterState({
     super.filters = const {},
     super.filterPredicates = const {},

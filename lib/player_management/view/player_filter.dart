@@ -1,5 +1,5 @@
 import 'package:collection_repository/collection_repository.dart';
-import 'package:ez_badminton_admin_app/list_filter/cubit/list_filter_cubit.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/popover_menu/popover_menu.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -34,7 +34,7 @@ class _FilterMenus extends StatelessWidget {
     return BlocListener<PlayerFilterCubit, PlayerFilterState>(
       listener: (context, state) {
         if (state.filterPredicate == null) return;
-        var listFilter = context.read<ListFilterCubit>();
+        var listFilter = context.read<PredicateFilterCubit>();
         if (state.filterPredicate!.function == null) {
           listFilter.removePredicate(state.filterPredicate!);
         } else {
@@ -490,7 +490,7 @@ class _FilterChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ListFilterCubit, ListFilterState>(
+    return BlocBuilder<PredicateFilterCubit, PredicateFilterState>(
       builder: (context, state) {
         return Wrap(
           children: state.filterPredicates.values

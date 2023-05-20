@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:collection_repository/collection_repository.dart';
-import 'package:ez_badminton_admin_app/list_filter/cubit/list_filter_cubit.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';

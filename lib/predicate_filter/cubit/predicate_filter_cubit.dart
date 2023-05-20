@@ -3,12 +3,16 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import "package:collection/collection.dart";
 
-part 'list_filter_state.dart';
+part 'predicate_filter_state.dart';
 
 typedef Predicate = bool Function(Object o);
 
-class ListFilterCubit extends Cubit<ListFilterState> {
-  ListFilterCubit() : super(_ListFilterState());
+class PredicateFilterCubit extends Cubit<PredicateFilterState> {
+  /// A predicate filter consisting of multiple [FilterPredicate]s.
+  ///
+  /// This cubit combines multiple predicates into a filter for different types
+  /// of objects.
+  PredicateFilterCubit() : super(_ListFilterState());
 
   /// Add a predicate to this filter
   void addPredicate(FilterPredicate predicate) {
@@ -21,6 +25,7 @@ class ListFilterCubit extends Cubit<ListFilterState> {
     _emit();
   }
 
+  /// R
   void removePredicate(FilterPredicate predicate) {
     if (predicate.function == null && predicate.domain != null) {
       _removeByDomain(predicate);
@@ -122,6 +127,7 @@ class ListFilterCubit extends Cubit<ListFilterState> {
         .map((type, predicates) => MapEntry(type, _createFilter(predicates)));
   }
 
+  // Make predicate lists unmodifiable
   Map<Type, List<FilterPredicate>> _finalizePredicates(
     Map<Type, List<FilterPredicate>> predicates,
   ) {
@@ -142,16 +148,17 @@ class ListFilterCubit extends Cubit<ListFilterState> {
 }
 
 class FilterPredicate extends Equatable {
-  /// A predicate describing a single condition of a filter.
+  /// A predicate describing a single condition of a predicate filter.
   ///
   /// The [function] is the predicate function taking in an object of a
   /// set [type].
   /// The predicate has a describing [name] aswell as a [domain].
   /// A filter can only contain one predicate of a given domain at a
   /// time. It gets overwritten by new entries with the same domain.
+  /// By default, all predicates of a type are conjoined to produce the final
+  /// filter unless the predicate has a non-empty [disjunction] string.
   /// All filters (of a type) with a matching [disjunction] string get combined
-  /// in a disjunction before being conjoined with the other predicates
-  /// of the filter.
+  /// in a disjunction before being conjoined.
   const FilterPredicate(this.function, this.type, this.name, this.domain,
       [this.disjunction = '']);
 
