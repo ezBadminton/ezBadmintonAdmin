@@ -4,10 +4,8 @@ import 'package:user_repository/src/models/models.dart';
 
 class UserRepository {
   UserRepository({required PocketBaseProvider pocketBaseProvider})
-      : _pocketBaseProvider = pocketBaseProvider,
-        _pocketBase = pocketBaseProvider.pocketBase;
+      : _pocketBase = pocketBaseProvider.pocketBase;
 
-  final _pocketBaseProvider;
   final _pocketBase;
   User? _user;
 

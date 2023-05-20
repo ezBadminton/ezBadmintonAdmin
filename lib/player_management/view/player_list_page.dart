@@ -1,9 +1,9 @@
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
-import 'package:ez_badminton_admin_app/player_management/cubit/player_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_list_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/player_editing_form.dart';
-import 'package:ez_badminton_admin_app/player_management/view/player_filter.dart';
+import 'package:ez_badminton_admin_app/player_management/player_filter/view/player_filter.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,6 +20,12 @@ class PlayerListPage extends StatelessWidget {
         BlocProvider(create: (_) => PredicateFilterCubit()),
         BlocProvider(
           create: (_) => PlayerFilterCubit(
+            agePredicateProducer: AgePredicateProducer(),
+            genderPredicateProducer: GenderPredicateProducer(),
+            playingLevelPredicateProducer: PlayingLevelPredicateProducer(),
+            competitionTypePredicateProducer:
+                CompetitionTypePredicateProducer(),
+            searchPredicateProducer: SearchPredicateProducer(),
             playingLevelRepository:
                 context.read<CollectionRepository<PlayingLevel>>(),
           ),

@@ -17,13 +17,11 @@ class CollectionRepository<M extends Model> {
     required M Function(Map<String, dynamic> recordModelMap) modelConstructor,
     required PocketBaseProvider pocketBaseProvider,
   })  : _modelConstructor = modelConstructor,
-        _pocketBaseProvider = pocketBaseProvider,
         _pocketBase = pocketBaseProvider.pocketBase,
         // All model classes have a corresponding collection name
         _collectionName = M.toString().snakeCase + 's';
 
   // The pocketbase SDK abstracts all the DB querying
-  final PocketBaseProvider _pocketBaseProvider;
   final PocketBase _pocketBase;
   final String _collectionName;
   final M Function(Map<String, dynamic> recordModelMap) _modelConstructor;

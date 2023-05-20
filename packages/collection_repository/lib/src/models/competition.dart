@@ -1,6 +1,5 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:collection_repository/src/models/model_converter.dart';
-import 'package:const_date_time/const_date_time.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'generated/competition.freezed.dart';

@@ -1,6 +1,6 @@
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
-import 'package:ez_badminton_admin_app/player_management/cubit/player_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/popover_menu/popover_menu.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -32,14 +32,10 @@ class _FilterMenus extends StatelessWidget {
   Widget build(BuildContext context) {
     AppLocalizations l10n = AppLocalizations.of(context)!;
     return BlocListener<PlayerFilterCubit, PlayerFilterState>(
+      listenWhen: (_, current) => current.filterPredicate != null,
       listener: (context, state) {
-        if (state.filterPredicate == null) return;
         var listFilter = context.read<PredicateFilterCubit>();
-        if (state.filterPredicate!.function == null) {
-          listFilter.removePredicate(state.filterPredicate!);
-        } else {
-          listFilter.addPredicate(state.filterPredicate!);
-        }
+        listFilter.consumePredicate(state.filterPredicate!);
       },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -85,7 +81,7 @@ class _PlayingLevelFilterForm extends StatelessWidget {
       bloc: backgroudContext.read<PlayerFilterCubit>(),
       buildWhen: (previous, current) =>
           previous.allPlayingLevels != current.allPlayingLevels,
-      builder: (context, state) {
+      builder: (_, state) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: state.allPlayingLevels
@@ -138,18 +134,21 @@ class _PlayingLevelCheckbox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var predicateProducer =
+        filterCubit.getPredicateProducer<PlayingLevelPredicateProducer>()!;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         BlocBuilder<PlayerFilterCubit, PlayerFilterState>(
           bloc: filterCubit,
-          buildWhen: (previous, current) =>
-              previous.playingLevels != current.playingLevels,
-          builder: (context, state) {
+          buildWhen: (_, current) =>
+              current.filterPredicate != null &&
+              predicateProducer.producesDomain(current.filterPredicate!.domain),
+          builder: (_, __) {
             return Checkbox(
-              value: state.playingLevels.contains(playingLevel),
+              value: predicateProducer.playingLevels.contains(playingLevel),
               onChanged: (value) {
-                filterCubit.playingLevelToggled(playingLevel);
+                predicateProducer.playingLevelToggled(playingLevel);
               },
             );
           },
@@ -178,18 +177,21 @@ class _CompetitionCheckbox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var predicateProducer =
+        filterCubit.getPredicateProducer<CompetitionTypePredicateProducer>()!;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         BlocBuilder<PlayerFilterCubit, PlayerFilterState>(
           bloc: filterCubit,
-          buildWhen: (previous, current) =>
-              previous.competitionTypes != current.competitionTypes,
-          builder: (context, state) {
+          buildWhen: (_, current) =>
+              current.filterPredicate != null &&
+              predicateProducer.producesDomain(current.filterPredicate!.domain),
+          builder: (_, __) {
             return Checkbox(
-              value: state.competitionTypes.contains(competition),
+              value: predicateProducer.competitionTypes.contains(competition),
               onChanged: (value) {
-                filterCubit.competitionTypeToggled(competition);
+                predicateProducer.competitionTypeToggled(competition);
               },
             );
           },
@@ -212,15 +214,18 @@ class _SearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var predicateProducer = context
+        .read<PlayerFilterCubit>()
+        .getPredicateProducer<SearchPredicateProducer>()!;
     var l10n = AppLocalizations.of(context)!;
     return BlocBuilder<PlayerFilterCubit, PlayerFilterState>(
-      buildWhen: (_, current) => current.searchTerm.value.isEmpty,
-      builder: (context, state) {
-        _controller.text = state.searchTerm.value;
+      buildWhen: (_, current) => predicateProducer.searchTerm.isEmpty,
+      builder: (_, __) {
+        _controller.text = predicateProducer.searchTerm;
         return TextField(
           controller: _controller,
           onChanged: (searchTerm) =>
-              context.read<PlayerFilterCubit>().searchTermChanged(searchTerm),
+              predicateProducer.searchTermChanged(searchTerm),
           decoration: InputDecoration(
             hintText: l10n.playerSearchHint,
             prefixIcon: const Icon(Icons.search),
@@ -241,30 +246,24 @@ class _GenderFilterForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations l10n = AppLocalizations.of(context)!;
-    return BlocBuilder<PlayerFilterCubit, PlayerFilterState>(
-      bloc: backgroundContext.read<PlayerFilterCubit>(),
-      buildWhen: (previous, current) => previous.gender != current.gender,
-      builder: (context, state) {
-        return ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 120),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _GenderButton(
-                labelText: l10n.women,
-                gender: Gender.female,
-                filterCubit: backgroundContext.read<PlayerFilterCubit>(),
-              ),
-              const SizedBox(height: 10),
-              _GenderButton(
-                labelText: l10n.men,
-                gender: Gender.male,
-                filterCubit: backgroundContext.read<PlayerFilterCubit>(),
-              ),
-            ],
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 120),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _GenderButton(
+            labelText: l10n.women,
+            gender: Gender.female,
+            filterCubit: backgroundContext.read<PlayerFilterCubit>(),
           ),
-        );
-      },
+          const SizedBox(height: 10),
+          _GenderButton(
+            labelText: l10n.men,
+            gender: Gender.male,
+            filterCubit: backgroundContext.read<PlayerFilterCubit>(),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -282,23 +281,27 @@ class _GenderButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var predicateProducer =
+        filterCubit.getPredicateProducer<GenderPredicateProducer>()!;
     return BlocBuilder<PlayerFilterCubit, PlayerFilterState>(
       bloc: filterCubit,
-      buildWhen: (previous, current) => previous.gender != current.gender,
-      builder: (context, state) {
-        var buttonBackgroundColor = state.gender == gender
+      buildWhen: (_, current) =>
+          current.filterPredicate != null &&
+          predicateProducer.producesDomain(current.filterPredicate!.domain),
+      builder: (_, __) {
+        var buttonBackgroundColor = predicateProducer.gender == gender
             ? MaterialStateProperty.all(Theme.of(context).colorScheme.primary)
             : MaterialStateProperty.all(Theme.of(context).colorScheme.surface);
-        var buttonTextColor = state.gender == gender
+        var buttonTextColor = predicateProducer.gender == gender
             ? MaterialStateProperty.all(Theme.of(context).colorScheme.onPrimary)
             : MaterialStateProperty.all(
                 Theme.of(context).colorScheme.onSurface);
-        var buttonBorder = state.gender == gender
+        var buttonBorder = predicateProducer.gender == gender
             ? BorderSide(color: Theme.of(context).primaryColor)
             : BorderSide(color: Theme.of(context).disabledColor);
         return ElevatedButton(
           onPressed: () {
-            filterCubit.genderChanged(gender);
+            predicateProducer.genderChanged(gender);
             PopoverMenu.of(context).close();
           },
           style: ButtonStyle(
@@ -389,14 +392,15 @@ class _AgeInput extends StatelessWidget {
     required this.filterCubit,
   })  : _focusNode = FocusNode(),
         _controller = TextEditingController() {
+    var predicateProducer =
+        filterCubit.getPredicateProducer<AgePredicateProducer>()!;
     _focusNode.addListener(() {
       if (!_focusNode.hasFocus) {
-        filterCubit.ageFilterSubmitted();
+        predicateProducer.produceAgePredicates();
       }
     });
-    _controller.text = overAge
-        ? filterCubit.state.overAge.value
-        : filterCubit.state.underAge.value;
+    _controller.text =
+        overAge ? predicateProducer.overAge : predicateProducer.underAge;
     if (!overAge) {
       _focusNode.requestFocus();
     }
@@ -410,6 +414,8 @@ class _AgeInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var predicateProducer =
+        filterCubit.getPredicateProducer<AgePredicateProducer>()!;
     return BlocBuilder<PlayerFilterCubit, PlayerFilterState>(
       bloc: filterCubit,
       builder: (context, state) {
@@ -447,8 +453,8 @@ class _AgeInput extends StatelessWidget {
                     ),
                     controller: _controller,
                     onChanged: overAge
-                        ? (age) => filterCubit.overAgeChanged(age)
-                        : (age) => filterCubit.underAgeChanged(age),
+                        ? (age) => predicateProducer.overAgeChanged(age)
+                        : (age) => predicateProducer.underAgeChanged(age),
                     onSubmitted: (_) => PopoverMenu.of(context).close(),
                     focusNode: _focusNode,
                     textAlignVertical: TextAlignVertical.top,
@@ -500,7 +506,7 @@ class _FilterChips extends StatelessWidget {
                     onDeleted: () {
                       context
                           .read<PlayerFilterCubit>()
-                          .predicateRemoved(predicate);
+                          .onPredicateRemoved(predicate);
                     },
                   ))
               .toList(),

@@ -14,10 +14,27 @@ class PredicateFilterCubit extends Cubit<PredicateFilterState> {
   /// of objects.
   PredicateFilterCubit() : super(_ListFilterState());
 
-  /// Add a predicate to this filter
-  void addPredicate(FilterPredicate predicate) {
-    if (_isPresent(predicate) || predicate.function == null) return;
-    _removeByDomain(predicate, emit: false);
+  /// Update the filter with a given [predicate]
+  ///
+  /// The given [FilterPredicate] will be incorporated into the filter as
+  /// follows:
+  ///
+  /// 1. If the `predicate.function` is null and a predicate of the same
+  /// `predicate.domain` is already present, the present predicate will be
+  /// removed
+  /// 2. If a predicate of the same `predicate.domain` is already present, then
+  /// the present predicate will be replaced by `predicate`
+  /// 3. The `predicate` is newly added
+  void consumePredicate(FilterPredicate predicate) {
+    if (predicate.function == null) {
+      _removePredicate(predicate);
+    } else {
+      _addPredicate(predicate);
+    }
+  }
+
+  void _addPredicate(FilterPredicate predicate) {
+    _removePredicate(predicate, emit: false);
 
     var privateState = state as _ListFilterState;
     privateState.predicates.putIfAbsent(predicate.type, () => []);
@@ -25,37 +42,9 @@ class PredicateFilterCubit extends Cubit<PredicateFilterState> {
     _emit();
   }
 
-  /// R
-  void removePredicate(FilterPredicate predicate) {
-    if (predicate.function == null && predicate.domain != null) {
-      _removeByDomain(predicate);
-    } else {
-      _remove(predicate);
-    }
-  }
-
-  bool _remove(FilterPredicate predicate, {bool emit = true}) {
-    var privateState = state as _ListFilterState;
-    if (!privateState.predicates.containsKey(predicate.type)) {
-      return false;
-    }
-    List<FilterPredicate> predicates = privateState.predicates[predicate.type]!;
-    if (predicates.contains(predicate)) {
-      predicates.remove(predicate);
-      if (predicates.isEmpty) {
-        privateState.predicates.remove(predicate.type);
-      }
-      if (emit) {
-        _emit();
-      }
-      return true;
-    }
-    return false;
-  }
-
   /// Checks if other [FilterPredicate]s have the same domain as
   /// [predicate]. If so, removes the existing one.
-  void _removeByDomain(FilterPredicate predicate, {bool emit = true}) {
+  void _removePredicate(FilterPredicate predicate, {bool emit = true}) {
     var domain = predicate.domain;
     var privateState = state as _ListFilterState;
     if (privateState.predicates.containsKey(predicate.type)) {
@@ -84,16 +73,6 @@ class PredicateFilterCubit extends Cubit<PredicateFilterState> {
       predicates: privateState.predicates,
     );
     emit(newState);
-  }
-
-  bool _isPresent(FilterPredicate predicate) {
-    var privateState = state as _ListFilterState;
-    if (!privateState.predicates.containsKey(predicate.type)) {
-      return false;
-    }
-    return privateState.predicates[predicate.type]!
-        .map((p) => p.name)
-        .contains(predicate.name);
   }
 
   /// Reduces a list of [FilterPredicate] to one [Predicate].
@@ -147,7 +126,7 @@ class PredicateFilterCubit extends Cubit<PredicateFilterState> {
   }
 }
 
-class FilterPredicate extends Equatable {
+class FilterPredicate {
   /// A predicate describing a single condition of a predicate filter.
   ///
   /// The [function] is the predicate function taking in an object of a
@@ -167,7 +146,4 @@ class FilterPredicate extends Equatable {
   final String name;
   final dynamic domain;
   final String disjunction;
-
-  @override
-  List<Object?> get props => [name];
 }
