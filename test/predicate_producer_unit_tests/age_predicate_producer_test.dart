@@ -24,9 +24,7 @@ class HasAge extends CustomMatcher {
 void main() {
   late AgePredicateProducer sut;
 
-  setUp(() {
-    sut = AgePredicateProducer();
-  });
+  setUp(() => sut = AgePredicateProducer());
 
   group('AgePredicateProducer input values', () {
     test('initial age values are empty strings', () {
@@ -59,8 +57,18 @@ void main() {
       await expectStream(
         sut.predicateStream,
         [
-          HasDomain(AgePredicateProducer.overAgeDomain),
-          HasDomain(AgePredicateProducer.underAgeDomain),
+          allOf(
+            HasFunction(isNotNull),
+            HasDomain(AgePredicateProducer.overAgeDomain),
+            HasDisjunction(isEmpty),
+            HasInputType(Player),
+          ),
+          allOf(
+            HasFunction(isNotNull),
+            HasDomain(AgePredicateProducer.underAgeDomain),
+            HasDisjunction(isEmpty),
+            HasInputType(Player),
+          ),
         ],
       );
     });

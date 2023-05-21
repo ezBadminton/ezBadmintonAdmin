@@ -3,7 +3,7 @@ import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_c
 import 'package:ez_badminton_admin_app/predicate_filter/predicate_producer/predicate_producer.dart';
 
 class GenderPredicateProducer extends PredicateProducer {
-  static const String _genderDomain = 'gender';
+  static const String genderDomain = 'gender';
   Gender? _gender;
   Gender? get gender => _gender;
 
@@ -24,7 +24,7 @@ class GenderPredicateProducer extends PredicateProducer {
       genderFilter,
       Player,
       filterName,
-      _genderDomain,
+      genderDomain,
     );
     predicateStreamController.add(predicate);
   }
@@ -38,6 +38,6 @@ class GenderPredicateProducer extends PredicateProducer {
 
   @override
   bool producesDomain(dynamic predicateDomain) {
-    return predicateDomain == _genderDomain;
+    return predicateDomain == genderDomain;
   }
 }

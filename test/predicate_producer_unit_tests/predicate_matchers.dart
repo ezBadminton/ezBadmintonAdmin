@@ -1,17 +1,15 @@
-import 'dart:math';
-
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Future<void> expectStream(
-  Stream<FilterPredicate> stream,
+Future<void> expectStream<T>(
+  Stream<T> stream,
   List<dynamic> matchers, {
   int skip = 0,
 }) async {
-  final producedPredicates = <FilterPredicate>[];
-  final subscription = stream.skip(skip).listen(producedPredicates.add);
+  final streamedData = <T>[];
+  final subscription = stream.skip(skip).listen(streamedData.add);
   await Future.delayed(Duration.zero);
-  expect(producedPredicates, wrapMatcher(matchers));
+  expect(streamedData, wrapMatcher(matchers));
 
   subscription.cancel();
 }
