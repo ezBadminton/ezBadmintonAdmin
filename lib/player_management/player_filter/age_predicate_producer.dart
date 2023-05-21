@@ -4,8 +4,8 @@ import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_c
 import 'package:ez_badminton_admin_app/predicate_filter/predicate_producer/predicate_producer.dart';
 
 class AgePredicateProducer extends PredicateProducer {
-  static const String _overAgeDomain = 'over';
-  static const String _underAgeDomain = 'under';
+  static const String overAgeDomain = 'over';
+  static const String underAgeDomain = 'under';
 
   Age _overAge = const Age.dirty('');
   Age _underAge = const Age.dirty('');
@@ -32,7 +32,7 @@ class AgePredicateProducer extends PredicateProducer {
 
   void _produceAgePredicate(bool over) {
     Age newAge = over ? _overAge : _underAge;
-    String filterDomain = over ? _overAgeDomain : _underAgeDomain;
+    String filterDomain = over ? overAgeDomain : underAgeDomain;
     FilterPredicate predicate;
     if (newAge.value.isEmpty) {
       predicate = FilterPredicate(
@@ -59,10 +59,10 @@ class AgePredicateProducer extends PredicateProducer {
 
   @override
   void produceEmptyPredicate(dynamic predicateDomain) {
-    if (predicateDomain == _overAgeDomain) {
+    if (predicateDomain == overAgeDomain) {
       overAgeChanged('');
       _produceAgePredicate(true);
-    } else if (predicateDomain == _underAgeDomain) {
+    } else if (predicateDomain == underAgeDomain) {
       underAgeChanged('');
       _produceAgePredicate(false);
     }
@@ -70,7 +70,7 @@ class AgePredicateProducer extends PredicateProducer {
 
   @override
   bool producesDomain(dynamic predicateDomain) {
-    return predicateDomain == _overAgeDomain ||
-        predicateDomain == _underAgeDomain;
+    return predicateDomain == overAgeDomain ||
+        predicateDomain == underAgeDomain;
   }
 }
