@@ -11,6 +11,8 @@ abstract class PredicateProducer {
   @protected
   final predicateStreamController = StreamController<FilterPredicate>();
 
+  void close() => predicateStreamController.close();
+
   void produceEmptyPredicate(dynamic predicateDomain);
 
   bool producesDomain(dynamic predicateDomain);

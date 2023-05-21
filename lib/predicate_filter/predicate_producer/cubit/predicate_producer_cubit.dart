@@ -20,9 +20,13 @@ abstract class PredicateProducerCubit<S> extends Cubit<S> {
   final Iterable<PredicateProducer> producers;
   late final Iterable<StreamSubscription> producerSubscriptions;
 
-  P? getPredicateProducer<P extends PredicateProducer>() {
+  P getPredicateProducer<P extends PredicateProducer>() {
     var typeProducers = producers.whereType<P>();
-    return typeProducers.isEmpty ? null : typeProducers.first;
+    if (typeProducers.isEmpty) {
+      throw Exception(
+          'A PredicateProducer of type ${P.toString()} could not be found');
+    }
+    return typeProducers.first;
   }
 
   @visibleForOverriding
@@ -41,6 +45,9 @@ abstract class PredicateProducerCubit<S> extends Cubit<S> {
   Future<void> close() {
     for (var subscription in producerSubscriptions) {
       subscription.cancel();
+    }
+    for (var producer in producers) {
+      producer.close();
     }
     return super.close();
   }

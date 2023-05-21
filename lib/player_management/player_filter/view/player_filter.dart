@@ -135,7 +135,7 @@ class _PlayingLevelCheckbox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var predicateProducer =
-        filterCubit.getPredicateProducer<PlayingLevelPredicateProducer>()!;
+        filterCubit.getPredicateProducer<PlayingLevelPredicateProducer>();
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -178,7 +178,7 @@ class _CompetitionCheckbox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var predicateProducer =
-        filterCubit.getPredicateProducer<CompetitionTypePredicateProducer>()!;
+        filterCubit.getPredicateProducer<CompetitionTypePredicateProducer>();
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -216,7 +216,7 @@ class _SearchField extends StatelessWidget {
   Widget build(BuildContext context) {
     var predicateProducer = context
         .read<PlayerFilterCubit>()
-        .getPredicateProducer<SearchPredicateProducer>()!;
+        .getPredicateProducer<SearchPredicateProducer>();
     var l10n = AppLocalizations.of(context)!;
     return BlocBuilder<PlayerFilterCubit, PlayerFilterState>(
       buildWhen: (_, current) => predicateProducer.searchTerm.isEmpty,
@@ -282,7 +282,7 @@ class _GenderButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var predicateProducer =
-        filterCubit.getPredicateProducer<GenderPredicateProducer>()!;
+        filterCubit.getPredicateProducer<GenderPredicateProducer>();
     return BlocBuilder<PlayerFilterCubit, PlayerFilterState>(
       bloc: filterCubit,
       buildWhen: (_, current) =>
@@ -393,7 +393,7 @@ class _AgeInput extends StatelessWidget {
   })  : _focusNode = FocusNode(),
         _controller = TextEditingController() {
     var predicateProducer =
-        filterCubit.getPredicateProducer<AgePredicateProducer>()!;
+        filterCubit.getPredicateProducer<AgePredicateProducer>();
     _focusNode.addListener(() {
       if (!_focusNode.hasFocus) {
         predicateProducer.produceAgePredicates();
@@ -415,7 +415,7 @@ class _AgeInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var predicateProducer =
-        filterCubit.getPredicateProducer<AgePredicateProducer>()!;
+        filterCubit.getPredicateProducer<AgePredicateProducer>();
     return BlocBuilder<PlayerFilterCubit, PlayerFilterState>(
       bloc: filterCubit,
       builder: (context, state) {
