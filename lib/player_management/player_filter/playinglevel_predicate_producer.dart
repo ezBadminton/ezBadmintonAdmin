@@ -3,7 +3,7 @@ import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_c
 import 'package:ez_badminton_admin_app/predicate_filter/predicate_producer/predicate_producer.dart';
 
 class PlayingLevelPredicateProducer extends PredicateProducer {
-  static const String _playingLevelDisjunction = 'playingLevel';
+  static const String playingLevelDisjunction = 'playingLevel';
   final _playingLevels = <PlayingLevel>[];
   List<PlayingLevel> get playingLevels => List.unmodifiable(_playingLevels);
 
@@ -21,7 +21,7 @@ class PlayingLevelPredicateProducer extends PredicateProducer {
         Player,
         playingLevel.name,
         playingLevel,
-        _playingLevelDisjunction,
+        playingLevelDisjunction,
       );
     }
 

@@ -7,7 +7,7 @@ import 'predicate_matchers.dart';
 class HasGender extends CustomMatcher {
   HasGender(matcher)
       : super(
-          'State with gender filter of',
+          'Producer with gender of',
           'gender',
           matcher,
         );
@@ -71,6 +71,7 @@ void main() {
             allOf(
               HasFunction(isNull),
               HasDomain(GenderPredicateProducer.genderDomain),
+              HasInputType(Player),
             ),
           ],
         );

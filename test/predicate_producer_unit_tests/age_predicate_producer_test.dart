@@ -93,7 +93,11 @@ void main() {
         sut.predicateStream,
         [
           HasFunction(isNotNull),
-          HasFunction(isNull),
+          allOf(
+            HasFunction(isNull),
+            HasDomain(AgePredicateProducer.underAgeDomain),
+            HasInputType(Player),
+          ),
         ],
       );
     });
