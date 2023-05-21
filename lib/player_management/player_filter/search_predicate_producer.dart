@@ -4,7 +4,7 @@ import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_c
 import 'package:ez_badminton_admin_app/predicate_filter/predicate_producer/predicate_producer.dart';
 
 class SearchPredicateProducer extends PredicateProducer {
-  static const String _searchDomain = 'search';
+  static const String searchDomain = 'search';
   SearchTerm _searchTerm = const SearchTerm.dirty('');
   String get searchTerm => _searchTerm.value;
 
@@ -25,7 +25,7 @@ class SearchPredicateProducer extends PredicateProducer {
         searchPredicate,
         Player,
         searchTerm,
-        _searchDomain,
+        searchDomain,
       );
       predicateStreamController.add(predicate);
     } else if (searchTerm.isEmpty) {
@@ -33,7 +33,7 @@ class SearchPredicateProducer extends PredicateProducer {
         null,
         Player,
         '',
-        _searchDomain,
+        searchDomain,
       );
       predicateStreamController.add(predicate);
     }
@@ -48,6 +48,6 @@ class SearchPredicateProducer extends PredicateProducer {
 
   @override
   bool producesDomain(dynamic predicateDomain) {
-    return predicateDomain == _searchDomain;
+    return predicateDomain == searchDomain;
   }
 }

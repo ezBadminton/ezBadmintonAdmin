@@ -3,7 +3,7 @@ import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_c
 import 'package:ez_badminton_admin_app/predicate_filter/predicate_producer/predicate_producer.dart';
 
 class CompetitionTypePredicateProducer extends PredicateProducer {
-  static const String _competitionDisjunction = 'competition';
+  static const String competitionDisjunction = 'competition';
   final _competitionTypes = <CompetitionType>[];
   List<CompetitionType> get competitionTypes =>
       List.unmodifiable(_competitionTypes);
@@ -27,7 +27,7 @@ class CompetitionTypePredicateProducer extends PredicateProducer {
         Competition,
         competitionType.name,
         competitionType,
-        _competitionDisjunction,
+        competitionDisjunction,
       );
     }
 
