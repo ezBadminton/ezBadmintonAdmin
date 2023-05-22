@@ -39,5 +39,6 @@
   "pleaseFillIn": "Please fill in",
   "formatError": "Format error",
   "playerListLoadingError": "Couldn't load the list of players",
+  "playerEditorLoadingError": "Couldn't load the player editor",
   "retry": "Retry"
 }

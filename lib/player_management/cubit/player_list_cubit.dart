@@ -22,20 +22,17 @@ class PlayerListCubit extends Cubit<PlayerListState> {
 
   late List<Competition> _competitions;
 
-  void loadPlayerData() {
+  void loadPlayerData() async {
     if (state.loadingStatus != LoadingStatus.loading) {
       emit(state.copyWith(loadingStatus: LoadingStatus.loading));
     }
-    Future.wait([
+    var loadingResults = await Future.wait([
       _fetchPlayerList(),
       _fetchCompetitionList(),
-    ]).then(
-      (loadingResults) {
-        var players = loadingResults[0] as List<Player>?;
-        var competitions = loadingResults[1] as List<Competition>?;
-        _finishLoading(players, competitions);
-      },
-    );
+    ]);
+    var players = loadingResults[0] as List<Player>?;
+    var competitions = loadingResults[1] as List<Competition>?;
+    _finishLoading(players, competitions);
   }
 
   Future<List<Player>?> _fetchPlayerList() async {

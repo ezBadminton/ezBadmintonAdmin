@@ -31,9 +31,14 @@ class CollectionRepository<M extends Model> {
   /// Relations are expanded as defined by the [expand] `ExpansionTree`.
   Future<List<M>> getList({ExpansionTree? expand}) async {
     String expandString = expand?.expandString ?? '';
-    List<RecordModel> records = await _pocketBase
-        .collection(_collectionName)
-        .getFullList(expand: expandString);
+    List<RecordModel> records;
+    try {
+      records = await _pocketBase
+          .collection(_collectionName)
+          .getFullList(expand: expandString);
+    } on ClientException catch (e) {
+      throw CollectionFetchException('$e.statusCode');
+    }
     List<M> models = records
         .map<M>((record) =>
             _modelConstructor(ModelConverter.modelToExpandedMap(record)))

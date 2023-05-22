@@ -18,7 +18,7 @@ class LoadingScreen extends StatelessWidget {
     this.errorMessage = 'Could not load!',
     this.onRetry,
     this.retryButtonLabel = 'Retry',
-    this.loadingIndicator = const CircularProgressIndicator(),
+    this.loadingIndicator = const Center(child: CircularProgressIndicator()),
     required this.child,
   });
 

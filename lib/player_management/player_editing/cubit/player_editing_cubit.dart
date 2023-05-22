@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
 import 'package:ez_badminton_admin_app/input_models/no_validation.dart';
+import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:formz/formz.dart';
 
@@ -22,8 +23,7 @@ class PlayerEditingCubit extends Cubit<PlayerEditingState> {
         _playerRepository = playerRepository,
         _context = context,
         super(PlayerEditingState.fromPlayer(context: context)) {
-    _populatePlayingLevelList();
-    _populateClubList();
+    loadClubsAndPlayingLevels();
   }
 
   final BuildContext _context;
@@ -33,16 +33,41 @@ class PlayerEditingCubit extends Cubit<PlayerEditingState> {
   final CollectionRepository<Competition> _competitionRepository;
   final CollectionRepository<Team> _teamRepository;
 
-  void _populatePlayingLevelList() async {
-    var playingLevels = await _playingLevelRepository.getList();
-    var newState = state.copyWith(playingLevels: playingLevels);
-    emit(newState);
+  void loadClubsAndPlayingLevels() async {
+    if (state.loadingStatus != LoadingStatus.loading) {
+      emit(state.copyWith(loadingStatus: LoadingStatus.loading));
+    }
+    var loadingResults = await Future.wait([
+      _fetchPlayingLevelList(),
+      _fetchClubList(),
+    ]);
+    if (loadingResults.contains(null)) {
+      emit(state.copyWith(loadingStatus: LoadingStatus.failed));
+    } else {
+      var playingLevels = loadingResults[0] as List<PlayingLevel>;
+      var clubs = loadingResults[1] as List<Club>;
+      emit(state.copyWith(
+        loadingStatus: LoadingStatus.done,
+        playingLevels: playingLevels,
+        clubs: clubs,
+      ));
+    }
   }
 
-  void _populateClubList() async {
-    var clubs = await _clubRepository.getList();
-    var newState = state.copyWith(clubs: clubs);
-    emit(newState);
+  Future<List<PlayingLevel>?> _fetchPlayingLevelList() async {
+    try {
+      return List.unmodifiable(await _playingLevelRepository.getList());
+    } on CollectionFetchException {
+      return null;
+    }
+  }
+
+  Future<List<Club>?> _fetchClubList() async {
+    try {
+      return List.unmodifiable(await _clubRepository.getList());
+    } on CollectionFetchException {
+      return null;
+    }
   }
 
   void firstNameChanged(String firstName) {
