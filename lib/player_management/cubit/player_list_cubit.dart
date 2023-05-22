@@ -64,6 +64,7 @@ class PlayerListCubit extends ModelFetcherCubit<PlayerListState>
           loadingStatus: LoadingStatus.done,
         );
         emit(newState);
+        filterChanged(_lastFilters);
       },
       onFailure: () =>
           emit(state.copyWith(loadingStatus: LoadingStatus.failed)),
@@ -86,10 +87,9 @@ class PlayerListCubit extends ModelFetcherCubit<PlayerListState>
     return playerCompetitions;
   }
 
+  Map<Type, Predicate> _lastFilters = {};
   void filterChanged(Map<Type, Predicate> filters) {
-    if (state.loadingStatus != LoadingStatus.done) {
-      return;
-    }
+    _lastFilters = filters;
     var filtered = state.allPlayers;
     List<Player>? filteredByCompetition;
     if (filters.containsKey(Player)) {
