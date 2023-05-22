@@ -3,7 +3,6 @@ part of 'player_editing_cubit.dart';
 @immutable
 class PlayerEditingState with FormzMixin {
   const PlayerEditingState({
-    required this.loadingStatus,
     required this.formStatus,
     required this.player,
     required this.firstName,
@@ -19,7 +18,6 @@ class PlayerEditingState with FormzMixin {
   PlayerEditingState.fromPlayer({
     required context,
     required this.player,
-    this.loadingStatus = LoadingStatus.loading,
     this.formStatus = FormzSubmissionStatus.initial,
     this.playingLevels = const [],
     this.clubs = const [],
@@ -40,7 +38,6 @@ class PlayerEditingState with FormzMixin {
           value: player.playingLevel,
         );
 
-  final LoadingStatus loadingStatus;
   final FormzSubmissionStatus formStatus;
   final Player player;
   final NonEmptyInput firstName;
@@ -65,7 +62,6 @@ class PlayerEditingState with FormzMixin {
 
   PlayerEditingState copyWith({
     Player? player,
-    LoadingStatus? loadingStatus,
     FormzSubmissionStatus? formStatus,
     NonEmptyInput? firstName,
     NonEmptyInput? lastName,
@@ -78,7 +74,6 @@ class PlayerEditingState with FormzMixin {
   }) =>
       PlayerEditingState(
         player: player ?? this.player,
-        loadingStatus: loadingStatus ?? this.loadingStatus,
         formStatus: formStatus ?? this.formStatus,
         firstName: firstName ?? this.firstName,
         lastName: lastName ?? this.lastName,

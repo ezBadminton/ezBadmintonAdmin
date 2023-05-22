@@ -2,17 +2,42 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/layout/fab_location.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/player_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/constrained_autocomplete/constrained_autocomplete.dart';
-import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:formz/formz.dart';
 
 class PlayerEditingForm extends StatelessWidget {
-  const PlayerEditingForm({super.key});
+  const PlayerEditingForm({
+    super.key,
+    required this.players,
+    required this.playingLevels,
+    required this.clubs,
+    required this.competitions,
+    required this.teams,
+  });
 
-  static Route<void> route() {
-    return MaterialPageRoute<void>(builder: (_) => const PlayerEditingForm());
+  final List<Player> players;
+  final List<PlayingLevel> playingLevels;
+  final List<Club> clubs;
+  final List<Competition> competitions;
+  final List<Team> teams;
+
+  static Route<Player?> route({
+    required List<Player> players,
+    required List<PlayingLevel> playingLevels,
+    required List<Club> clubs,
+    required List<Competition> competitions,
+    required List<Team> teams,
+  }) {
+    return MaterialPageRoute<Player?>(
+        builder: (_) => PlayerEditingForm(
+              players: players,
+              playingLevels: playingLevels,
+              clubs: clubs,
+              competitions: competitions,
+              teams: teams,
+            ));
   }
 
   @override
@@ -21,15 +46,23 @@ class PlayerEditingForm extends StatelessWidget {
     return BlocProvider(
       create: (context) => PlayerEditingCubit(
         context: context,
+        playingLevels: playingLevels,
+        clubs: clubs,
+        competitions: competitions,
+        teams: teams,
+        players: players,
         playerRepository: context.read<CollectionRepository<Player>>(),
-        playingLevelRepository:
-            context.read<CollectionRepository<PlayingLevel>>(),
         clubRepository: context.read<CollectionRepository<Club>>(),
         competitionRepository:
             context.read<CollectionRepository<Competition>>(),
         teamRepository: context.read<CollectionRepository<Team>>(),
       ),
-      child: BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
+      child: BlocConsumer<PlayerEditingCubit, PlayerEditingState>(
+        listenWhen: (_, current) =>
+            current.formStatus == FormzSubmissionStatus.success,
+        listener: (context, state) {
+          Navigator.of(context).pop(state.player);
+        },
         buildWhen: (previous, current) => previous.isPure != current.isPure,
         builder: (context, state) {
           return Scaffold(
@@ -68,80 +101,68 @@ class _PlayerEditingFormFields extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    return BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
-      buildWhen: (previous, current) =>
-          previous.loadingStatus != current.loadingStatus,
-      builder: (context, state) {
-        var cubit = context.read<PlayerEditingCubit>();
-        return LoadingScreen(
-          loadingStatusGetter: () => state.loadingStatus,
-          onRetry: cubit.loadClubsAndPlayingLevels,
-          errorMessage: l10n.playerEditorLoadingError,
-          retryButtonLabel: l10n.retry,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                l10n.personalData,
-                style: const TextStyle(fontSize: 22),
-              ),
-              const Divider(height: 25, indent: 20, endIndent: 20),
-              Row(
-                children: [
-                  _NameInput(
-                    labelText: '${l10n.firstName}*',
-                    onChanged: cubit.firstNameChanged,
-                    formInputGetter: (state) => state.firstName,
-                    initialValue: cubit.state.firstName.value,
-                  ),
-                  const SizedBox(width: 25),
-                  _NameInput(
-                    labelText: '${l10n.lastName}*',
-                    onChanged: cubit.lastNameChanged,
-                    formInputGetter: (state) => state.lastName,
-                    initialValue: cubit.state.lastName.value,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 5),
-              Row(
-                children: [
-                  _DateOfBirthInput(
-                    onChanged: cubit.dateOfBirthChanged,
-                    formInputGetter: (state) => state.dateOfBirth,
-                    initialValue: cubit.state.dateOfBirth.value,
-                  ),
-                  const SizedBox(width: 25),
-                  _EMailInput(
-                    onChanged: cubit.eMailChanged,
-                    formInputGetter: (state) => state.eMail,
-                    initialValue: cubit.state.eMail.value,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 5),
-              Row(
-                children: [
-                  _ClubInput(
-                    onChanged: cubit.clubNameChanged,
-                    initialValue: cubit.state.clubName.value,
-                  ),
-                  const SizedBox(width: 25),
-                  _PlayingLevelInput(onChanged: cubit.playingLevelChanged),
-                ],
-              ),
-              const SizedBox(height: 60),
-              Text(
-                l10n.registeredCompetitions,
-                style: const TextStyle(fontSize: 22),
-              ),
-              const Divider(height: 25, indent: 20, endIndent: 20),
-              const _CompetitionInput(),
-            ],
-          ),
-        );
-      },
+    var cubit = context.read<PlayerEditingCubit>();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          l10n.personalData,
+          style: const TextStyle(fontSize: 22),
+        ),
+        const Divider(height: 25, indent: 20, endIndent: 20),
+        Row(
+          children: [
+            _NameInput(
+              labelText: '${l10n.firstName}*',
+              onChanged: cubit.firstNameChanged,
+              formInputGetter: (state) => state.firstName,
+              initialValue: cubit.state.firstName.value,
+            ),
+            const SizedBox(width: 25),
+            _NameInput(
+              labelText: '${l10n.lastName}*',
+              onChanged: cubit.lastNameChanged,
+              formInputGetter: (state) => state.lastName,
+              initialValue: cubit.state.lastName.value,
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        Row(
+          children: [
+            _DateOfBirthInput(
+              onChanged: cubit.dateOfBirthChanged,
+              formInputGetter: (state) => state.dateOfBirth,
+              initialValue: cubit.state.dateOfBirth.value,
+            ),
+            const SizedBox(width: 25),
+            _EMailInput(
+              onChanged: cubit.eMailChanged,
+              formInputGetter: (state) => state.eMail,
+              initialValue: cubit.state.eMail.value,
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        Row(
+          children: [
+            _ClubInput(
+              onChanged: cubit.clubNameChanged,
+              initialValue: cubit.state.clubName.value,
+            ),
+            const SizedBox(width: 25),
+            _PlayingLevelInput(onChanged: cubit.playingLevelChanged),
+          ],
+        ),
+        const SizedBox(height: 60),
+        Text(
+          l10n.registeredCompetitions,
+          style: const TextStyle(fontSize: 22),
+        ),
+        const Divider(height: 25, indent: 20, endIndent: 20),
+        const _CompetitionInput(),
+      ],
     );
   }
 }
@@ -344,6 +365,7 @@ class _ClubInput extends StatelessWidget {
                 clubName.text,
                 state.clubs.map((c) => c.name),
               ),
+              onSelected: onChanged,
               constraints: constraints,
               fieldViewBuilder: (context, textEditingController, focusNode,
                       onFieldSubmitted) =>

@@ -22,6 +22,9 @@ class HasLoadingStatus extends CustomMatcher {
 void main() {
   late MockCollectionRepository<Player> playerRepository;
   late MockCollectionRepository<Competition> competitionRepository;
+  late MockCollectionRepository<PlayingLevel> playingLevelRepository;
+  late MockCollectionRepository<Club> clubRepository;
+  late MockCollectionRepository<Team> teamRepository;
   late PlayerListCubit sut;
 
   // Create some players and competitions with teams for testing
@@ -79,9 +82,22 @@ void main() {
     ).thenAnswer((_) async => throw CollectionFetchException('errorCode'));
   }
 
+  PlayerListCubit createSut() {
+    return PlayerListCubit(
+      playerRepository: playerRepository,
+      competitionRepository: competitionRepository,
+      playingLevelRepository: playingLevelRepository,
+      clubRepository: clubRepository,
+      teamRepository: teamRepository,
+    );
+  }
+
   setUp(() {
     playerRepository = MockCollectionRepository();
     competitionRepository = MockCollectionRepository();
+    playingLevelRepository = MockCollectionRepository();
+    clubRepository = MockCollectionRepository();
+    teamRepository = MockCollectionRepository();
 
     when(
       () => playerRepository.getList(expand: any(named: 'expand')),
@@ -91,10 +107,19 @@ void main() {
       () => competitionRepository.getList(expand: any(named: 'expand')),
     ).thenAnswer((invocation) async => [mixedCompetition, singlesCompetition]);
 
-    sut = PlayerListCubit(
-      playerRepository: playerRepository,
-      competitionRepository: competitionRepository,
-    );
+    when(
+      () => playingLevelRepository.getList(expand: any(named: 'expand')),
+    ).thenAnswer((invocation) async => []);
+
+    when(
+      () => clubRepository.getList(expand: any(named: 'expand')),
+    ).thenAnswer((invocation) async => []);
+
+    when(
+      () => teamRepository.getList(expand: any(named: 'expand')),
+    ).thenAnswer((invocation) async => []);
+
+    sut = createSut();
   });
 
   group(
@@ -102,10 +127,7 @@ void main() {
     () {
       test('initial state is loading', () {
         expect(
-          PlayerListCubit(
-            playerRepository: playerRepository,
-            competitionRepository: competitionRepository,
-          ).state,
+          createSut().state,
           HasLoadingStatus(LoadingStatus.loading),
         );
       });
@@ -113,10 +135,7 @@ void main() {
       blocTest<PlayerListCubit, PlayerListState>(
         """emits LoadingStatus.done when players and competitions have
         been fetched""",
-        build: () => PlayerListCubit(
-          playerRepository: playerRepository,
-          competitionRepository: competitionRepository,
-        ),
+        build: createSut,
         expect: () => [
           // Players and competitions fetched
           HasLoadingStatus(LoadingStatus.done)
@@ -126,10 +145,7 @@ void main() {
       blocTest<PlayerListCubit, PlayerListState>(
         'emits LoadingStatus.failed when players cannot be fetched',
         setUp: () => arrangePlayerFetchThrows(),
-        build: () => PlayerListCubit(
-          playerRepository: playerRepository,
-          competitionRepository: competitionRepository,
-        ),
+        build: createSut,
         expect: () => [
           // Player fetching failed
           HasLoadingStatus(LoadingStatus.failed),
@@ -139,10 +155,7 @@ void main() {
       blocTest<PlayerListCubit, PlayerListState>(
         'emits LoadingStatus.failed when competitions cannot be fetched',
         setUp: () => arrangeCompetitionFetchThrows(),
-        build: () => PlayerListCubit(
-          playerRepository: playerRepository,
-          competitionRepository: competitionRepository,
-        ),
+        build: createSut,
         expect: () => [
           // Competition fetching failed
           HasLoadingStatus(LoadingStatus.failed),

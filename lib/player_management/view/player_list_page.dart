@@ -14,7 +14,6 @@ class PlayerListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalizations l10n = AppLocalizations.of(context)!;
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => PredicateFilterCubit()),
@@ -35,24 +34,54 @@ class PlayerListPage extends StatelessWidget {
             playerRepository: context.read<CollectionRepository<Player>>(),
             competitionRepository:
                 context.read<CollectionRepository<Competition>>(),
+            playingLevelRepository:
+                context.read<CollectionRepository<PlayingLevel>>(),
+            clubRepository: context.read<CollectionRepository<Club>>(),
+            teamRepository: context.read<CollectionRepository<Team>>(),
           ),
         )
       ],
-      child: Scaffold(
-        appBar: AppBar(title: Text(l10n.playerManagement)),
-        body: const Align(
-          alignment: Alignment.topCenter,
-          child: _PlayerListWithFilter(),
-        ),
-        floatingActionButton: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 0, 80, 40),
-          child: FloatingActionButton.extended(
-            onPressed: () {
-              Navigator.of(context).push(PlayerEditingForm.route());
-            },
-            icon: const Icon(Icons.person_add_alt_1),
-            label: Text(l10n.add),
-          ),
+      child: const _PlayerListPageScaffold(),
+    );
+  }
+}
+
+class _PlayerListPageScaffold extends StatelessWidget {
+  const _PlayerListPageScaffold();
+
+  @override
+  Widget build(BuildContext context) {
+    AppLocalizations l10n = AppLocalizations.of(context)!;
+
+    return Scaffold(
+      appBar: AppBar(title: Text(l10n.playerManagement)),
+      body: const Align(
+        alignment: Alignment.topCenter,
+        child: _PlayerListWithFilter(),
+      ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 80, 40),
+        child: FloatingActionButton.extended(
+          onPressed: () {
+            var listCubit = context.read<PlayerListCubit>();
+            if (listCubit.state.loadingStatus == LoadingStatus.done) {
+              Navigator.of(context)
+                  .push(PlayerEditingForm.route(
+                players: listCubit.state.allPlayers,
+                playingLevels: listCubit.state.playingLevels,
+                clubs: listCubit.state.clubs,
+                competitions: listCubit.state.competitions,
+                teams: listCubit.state.teams,
+              ))
+                  .then((newPlayer) {
+                if (newPlayer != null) {
+                  listCubit.loadPlayerData();
+                }
+              });
+            }
+          },
+          icon: const Icon(Icons.person_add_alt_1),
+          label: Text(l10n.add),
         ),
       ),
     );
