@@ -10,7 +10,7 @@ class SearchPredicateProducer extends PredicateProducer {
 
   static bool _searchTermMatchesPlayer(String searchTerm, Player p) {
     var name = '${p.firstName} ${p.lastName}'.toLowerCase();
-    var club = p.club.name.toLowerCase();
+    var club = p.club?.name.toLowerCase() ?? '';
 
     return name.contains(searchTerm) || club.contains(searchTerm);
   }

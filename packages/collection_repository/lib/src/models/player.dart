@@ -25,9 +25,9 @@ class Player extends Model with _$Player {
     required String lastName,
     Gender? gender,
     DateTime? dateOfBirth,
-    @Default('') String eMail,
-    @Default(Club.clubless) Club club,
-    @Default(PlayingLevel.unrated) PlayingLevel playingLevel,
+    String? eMail,
+    Club? club,
+    PlayingLevel? playingLevel,
   }) = _Player;
 
   factory Player.fromJson(Map<String, dynamic> json) =>

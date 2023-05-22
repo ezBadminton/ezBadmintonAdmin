@@ -163,12 +163,11 @@ void main() {
           ));
           verify(() => playerRecordService.getFullList(expand: 'playingLevel'))
               .called(1);
-          var expandedPlayers = players
-              .where((p) => p.playingLevel != PlayingLevel.unrated)
-              .toList();
+          var expandedPlayers =
+              players.where((p) => p.playingLevel != null).toList();
           expect(expandedPlayers.length, 1);
           expect(
-            expandedPlayers[0].playingLevel.name,
+            expandedPlayers[0].playingLevel!.name,
             playingLevelFromPocketBase['name'],
           );
         },

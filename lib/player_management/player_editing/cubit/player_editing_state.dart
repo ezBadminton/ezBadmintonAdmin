@@ -23,8 +23,8 @@ class PlayerEditingState with FormzMixin {
     this.clubs = const [],
   })  : firstName = NonEmptyInput.pure(player.firstName),
         lastName = NonEmptyInput.pure(player.lastName),
-        clubName = NoValidationInput.pure(player.club.name),
-        eMail = EMailInput.pure(emptyAllowed: true, value: player.eMail),
+        clubName = NoValidationInput.pure(player.club?.name ?? ''),
+        eMail = EMailInput.pure(emptyAllowed: true, value: player.eMail ?? ''),
         dateOfBirth = player.dateOfBirth != null
             ? DateInput.pure(
                 context: context,
@@ -35,9 +35,7 @@ class PlayerEditingState with FormzMixin {
             : DateInput.pure(context: context, emptyAllowed: true),
         playingLevel = SelectionInput.pure(
           emptyAllowed: true,
-          value: player.playingLevel == PlayingLevel.unrated
-              ? null
-              : player.playingLevel,
+          value: player.playingLevel,
         );
 
   final FormzSubmissionStatus formStatus;
@@ -47,7 +45,7 @@ class PlayerEditingState with FormzMixin {
   final NoValidationInput clubName;
   final EMailInput eMail;
   final DateInput dateOfBirth;
-  final SelectionInput<PlayingLevel> playingLevel;
+  final SelectionInput<PlayingLevel?> playingLevel;
 
   final List<PlayingLevel> playingLevels;
   final List<Club> clubs;

@@ -143,7 +143,7 @@ class _PlayerList extends StatelessWidget {
                 SizedBox(
                   width: 190,
                   child: Text(
-                    player.club.name.isNotEmpty ? player.club.name : '-',
+                    player.club?.name ?? '-',
                     overflow: TextOverflow.fade,
                   ),
                 ),
@@ -164,9 +164,7 @@ class _PlayerList extends StatelessWidget {
                 SizedBox(
                   width: 110,
                   child: Text(
-                    player.playingLevel.name.isNotEmpty
-                        ? player.playingLevel.name
-                        : '-',
+                    player.playingLevel?.name ?? '-',
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -189,7 +187,7 @@ class _PlayerList extends StatelessWidget {
                 SizedBox(
                   width: 100,
                   child: Text(
-                    player.eMail.isNotEmpty ? player.eMail : '-',
+                    player.eMail ?? '-',
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),

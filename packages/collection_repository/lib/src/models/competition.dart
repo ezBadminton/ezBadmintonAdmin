@@ -20,10 +20,10 @@ class Competition extends Model with _$Competition {
     required DateTime updated,
     required int teamSize,
     required GenderCategory gender,
-    required AgeRestriction ageRestriction,
-    @Default(0) int age,
-    required PlayingLevel minLevel,
-    required PlayingLevel maxLevel,
+    AgeRestriction? ageRestriction,
+    int? age,
+    PlayingLevel? minLevel,
+    PlayingLevel? maxLevel,
     required List<Team> registrations,
   }) = _Competition;
 
@@ -50,13 +50,13 @@ class Competition extends Model with _$Competition {
     ExpandedField(
       model: PlayingLevel,
       key: 'minLevel',
-      isRequired: true,
+      isRequired: false,
       isSingle: true,
     ),
     ExpandedField(
       model: PlayingLevel,
       key: 'maxLevel',
-      isRequired: true,
+      isRequired: false,
       isSingle: true,
     ),
     ExpandedField(
@@ -76,6 +76,6 @@ class Competition extends Model with _$Competition {
 
 enum GenderCategory { female, male, mixed, any }
 
-enum AgeRestriction { under, over, none }
+enum AgeRestriction { under, over }
 
 enum CompetitionType { doubles, singles, mixed, other }

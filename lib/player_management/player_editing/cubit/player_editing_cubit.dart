@@ -114,7 +114,7 @@ class PlayerEditingCubit extends Cubit<PlayerEditingState> {
       firstName: state.firstName.value,
       lastName: state.lastName.value,
       eMail: state.eMail.value,
-      playingLevel: state.playingLevel.value ?? PlayingLevel.unrated,
+      playingLevel: state.playingLevel.value,
     );
   }
 }

@@ -56,9 +56,6 @@ void main() {
     updated: DateTime(2023),
     teamSize: 2,
     gender: GenderCategory.mixed,
-    ageRestriction: AgeRestriction.none,
-    minLevel: PlayingLevel.unrated,
-    maxLevel: PlayingLevel.unrated,
     registrations: mixedDoublesTeams,
   );
   var singlesCompetition = Competition(
@@ -67,9 +64,6 @@ void main() {
     updated: DateTime(2023),
     teamSize: 1,
     gender: GenderCategory.any,
-    ageRestriction: AgeRestriction.none,
-    minLevel: PlayingLevel.unrated,
-    maxLevel: PlayingLevel.unrated,
     registrations: singlesTeams,
   );
 
