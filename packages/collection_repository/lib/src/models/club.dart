@@ -20,6 +20,13 @@ class Club extends Model with _$Club {
     required String name,
   }) = _Club;
 
+  factory Club.newClub({required String name}) => Club(
+        id: '',
+        created: DateTime.now(),
+        updated: DateTime.now(),
+        name: name,
+      );
+
   factory Club.fromJson(Map<String, dynamic> json) => _$ClubFromJson(json);
 
   @override

@@ -97,8 +97,8 @@ void main() {
   });
 
   group('GenderPredicateProducer player filtering', () {
-    var femalePlayer = Player.newPlayer.copyWith(gender: Gender.female);
-    var malePlayer = Player.newPlayer.copyWith(gender: Gender.male);
+    var femalePlayer = Player.newPlayer().copyWith(gender: Gender.female);
+    var malePlayer = Player.newPlayer().copyWith(gender: Gender.male);
     test(
       'produced predicates filter players by gender',
       () async {

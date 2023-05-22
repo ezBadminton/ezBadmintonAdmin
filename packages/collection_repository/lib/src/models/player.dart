@@ -34,13 +34,13 @@ class Player extends Model with _$Player {
       _$PlayerFromJson(ModelConverter.convertExpansions(json, expandedFields));
 
   // This object is used as the original whenever a new player is added.
-  static const Player newPlayer = Player(
-    id: '',
-    created: ConstDateTime(0),
-    updated: ConstDateTime(0),
-    firstName: '',
-    lastName: '',
-  );
+  factory Player.newPlayer() => Player(
+        id: '',
+        created: DateTime.now(),
+        updated: DateTime.now(),
+        firstName: '',
+        lastName: '',
+      );
 
   static const List<ExpandedField> expandedFields = [
     ExpandedField(

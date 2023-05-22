@@ -18,9 +18,9 @@ class PlayerEditingState with FormzMixin {
 
   PlayerEditingState.fromPlayer({
     required context,
+    required this.player,
     this.loadingStatus = LoadingStatus.loading,
     this.formStatus = FormzSubmissionStatus.initial,
-    this.player = Player.newPlayer,
     this.playingLevels = const [],
     this.clubs = const [],
   })  : firstName = NonEmptyInput.pure(player.firstName),

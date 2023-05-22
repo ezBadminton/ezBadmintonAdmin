@@ -27,7 +27,7 @@ void main() {
   // Create some players and competitions with teams for testing
   var players = List<Player>.unmodifiable(
     List.generate(16, (index) {
-      return Player.newPlayer.copyWith(
+      return Player.newPlayer().copyWith(
         id: '$index',
       );
     }),

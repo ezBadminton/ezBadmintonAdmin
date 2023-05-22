@@ -76,8 +76,8 @@ class _PlayerEditingFormFields extends StatelessWidget {
         return LoadingScreen(
           loadingStatusGetter: () => state.loadingStatus,
           onRetry: cubit.loadClubsAndPlayingLevels,
-          retryButtonLabel: l10n.retry,
           errorMessage: l10n.playerEditorLoadingError,
+          retryButtonLabel: l10n.retry,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,

@@ -22,7 +22,10 @@ class PlayerEditingCubit extends Cubit<PlayerEditingState> {
         _playingLevelRepository = playingLevelRepository,
         _playerRepository = playerRepository,
         _context = context,
-        super(PlayerEditingState.fromPlayer(context: context)) {
+        super(PlayerEditingState.fromPlayer(
+          player: Player.newPlayer(),
+          context: context,
+        )) {
     loadClubsAndPlayingLevels();
   }
 
@@ -117,29 +120,56 @@ class PlayerEditingCubit extends Cubit<PlayerEditingState> {
   }
 
   void formSubmitted() async {
-    if (state.isValid) {
-      var newState = state.copyWith(
-        formStatus: FormzSubmissionStatus.inProgress,
-      );
-      emit(newState);
-      Player editedPlayer = _applyChanges();
-      Player createdPlayer = await _playerRepository.create(editedPlayer);
-      newState = state.copyWith(
-        player: createdPlayer,
-        formStatus: FormzSubmissionStatus.success,
-      );
-    } else {
+    if (!state.isValid) {
       var newState = state.copyWith(formStatus: FormzSubmissionStatus.failure);
       emit(newState);
+      return;
     }
+
+    var newState = state.copyWith(
+      formStatus: FormzSubmissionStatus.inProgress,
+    );
+    emit(newState);
+
+    DateTime? dateOfBirth = state.dateOfBirth.value.isEmpty
+        ? null
+        : MaterialLocalizations.of(_context)
+            .parseCompactDate(state.dateOfBirth.value);
+
+    Club? club;
+    if (state.clubName.value.isNotEmpty) {
+      var selectedClub = state.clubs.where(
+        (c) => c.name.toLowerCase() == state.clubName.value.toLowerCase(),
+      );
+      if (selectedClub.isNotEmpty) {
+        club = selectedClub.first;
+      } else {
+        var newClub = Club.newClub(name: state.clubName.value);
+        club = await _clubRepository.create(newClub);
+      }
+    }
+    Player editedPlayer = _applyChanges(
+      dateOfBirth: dateOfBirth,
+      club: club,
+    );
+    Player createdPlayer = await _playerRepository.create(editedPlayer);
+    newState = state.copyWith(
+      player: createdPlayer,
+      formStatus: FormzSubmissionStatus.success,
+    );
   }
 
-  Player _applyChanges() {
+  Player _applyChanges({
+    required DateTime? dateOfBirth,
+    required Club? club,
+  }) {
     return state.player.copyWith(
       firstName: state.firstName.value,
       lastName: state.lastName.value,
       eMail: state.eMail.value,
+      dateOfBirth: dateOfBirth,
       playingLevel: state.playingLevel.value,
+      club: club,
     );
   }
 }

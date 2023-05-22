@@ -108,11 +108,11 @@ void main() {
 
   group('PlayingLevelPredicateProducer player filtering', () {
     var level0Player =
-        Player.newPlayer.copyWith(playingLevel: playingLevels[0]);
+        Player.newPlayer().copyWith(playingLevel: playingLevels[0]);
     var level1Player =
-        Player.newPlayer.copyWith(playingLevel: playingLevels[1]);
+        Player.newPlayer().copyWith(playingLevel: playingLevels[1]);
     var level2Player =
-        Player.newPlayer.copyWith(playingLevel: playingLevels[2]);
+        Player.newPlayer().copyWith(playingLevel: playingLevels[2]);
     var players = [level0Player, level1Player, level2Player];
     test(
       'produced predicates filter players by playing level',

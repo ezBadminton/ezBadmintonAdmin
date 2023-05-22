@@ -124,7 +124,7 @@ void main() {
       ['F', 'Z']
     ]
         .mapIndexed(
-          (index, name) => Player.newPlayer.copyWith(
+          (index, name) => Player.newPlayer().copyWith(
             firstName: name[0],
             lastName: name[1],
             club: namedClubs[index],

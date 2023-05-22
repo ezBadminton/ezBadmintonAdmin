@@ -125,7 +125,7 @@ void main() {
       var today = DateTime.now();
       var dateOfBirth =
           DateTime(today.year - age, today.month, today.day - index);
-      return Player.newPlayer.copyWith(dateOfBirth: dateOfBirth);
+      return Player.newPlayer().copyWith(dateOfBirth: dateOfBirth);
     }).toList();
 
     test('produced predicates filter players by age', () async {

@@ -178,14 +178,14 @@ void main() {
   group(
     'Creating data',
     () {
-      final newPlayer = Player.newPlayer.copyWith(
+      final newPlayer = Player.newPlayer().copyWith(
         firstName: 'Lin',
         lastName: 'Dan',
         dateOfBirth: DateTime(1983, 10, 14),
         gender: Gender.male,
       );
 
-      final updatedPlayer = Player.newPlayer.copyWith(
+      final updatedPlayer = Player.newPlayer().copyWith(
         id: 'alreadyexisting',
         updated: DateTime(2023),
         firstName: 'Gillian',

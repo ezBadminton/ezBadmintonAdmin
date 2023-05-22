@@ -12,7 +12,10 @@ class CollectionRepository<M extends Model> {
   /// retrieving data the [M] object is instanciated by passing the json map
   /// to the [modelConstructor]. The modelConstructor is usually `fromJson`.
   ///
-  /// Example: `var playerRepository = CollectionRepository(modelConstructor: Player.fromJson, pocketBaseProvider: ...)`
+  /// Example:
+  /// ```dart
+  /// var playerRepository = CollectionRepository(modelConstructor: Player.fromJson, pocketBaseProvider: ...)
+  /// ```
   CollectionRepository({
     required M Function(Map<String, dynamic> recordModelMap) modelConstructor,
     required PocketBaseProvider pocketBaseProvider,
