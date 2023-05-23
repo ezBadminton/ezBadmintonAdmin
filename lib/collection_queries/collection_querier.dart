@@ -50,9 +50,11 @@ abstract class CollectionQuerierCubit<State extends CollectionQuerierState>
 
   CollectionFetcher collectionFetcher<M extends Model>({
     ExpansionTree? expand,
-  }) =>
-      CollectionFetcher<M>(
-          fetcherFunction: () => fetchCollection<M>(expand: expand));
+  }) {
+    return CollectionFetcher<M>(
+      fetcherFunction: () => fetchCollection<M>(expand: expand),
+    );
+  }
 
   void fetchCollectionsAndUpdateState(
     Iterable<CollectionFetcher> fetchers, {

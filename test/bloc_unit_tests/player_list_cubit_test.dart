@@ -179,7 +179,7 @@ void main() {
         their registered competitions.""",
         build: () => sut,
         verify: (cubit) {
-          expect(cubit.state.allPlayers, players);
+          expect(cubit.state.getCollection<Player>(), players);
           expect(cubit.state.filteredPlayers, players);
           expect(cubit.state.playerCompetitions.keys.toList(), players);
           for (var player in singlesTeams.expand((t) => t.players)) {
