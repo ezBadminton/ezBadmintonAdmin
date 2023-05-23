@@ -1,5 +1,6 @@
 import 'package:collection_repository/collection_repository.dart';
-import 'package:ez_badminton_admin_app/collection_fetching/collection_fetcher_mixins.dart';
+import 'package:ez_badminton_admin_app/collection_queries/collection_fetcher_mixins.dart';
+import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,7 @@ import 'package:meta/meta.dart';
 
 part 'player_list_state.dart';
 
-class PlayerListCubit extends ModelFetcherCubit<PlayerListState>
+class PlayerListCubit extends CollectionQuerierCubit<PlayerListState>
     with
         PlayerFetch,
         CompetitionFetch,

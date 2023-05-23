@@ -1,6 +1,5 @@
 import 'package:collection_repository/collection_repository.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 
 typedef FetcherFunction<M extends Model> = Future<List<M>?> Function({
   ExpansionTree? expand,
@@ -8,7 +7,7 @@ typedef FetcherFunction<M extends Model> = Future<List<M>?> Function({
 
 typedef StateUpdater<M extends Model> = void Function(List<M>);
 
-mixin PlayerFetch on ModelFetcher {
+mixin PlayerFetch on CollectionQuerier {
   Future<List<Player>?> fetchPlayerList({
     ExpansionTree? expand,
   }) async {
@@ -25,7 +24,7 @@ mixin PlayerFetch on ModelFetcher {
   }
 }
 
-mixin CompetitionFetch on ModelFetcher {
+mixin CompetitionFetch on CollectionQuerier {
   Future<List<Competition>?> fetchCompetitionList({
     ExpansionTree? expand,
   }) async {
@@ -43,7 +42,7 @@ mixin CompetitionFetch on ModelFetcher {
   }
 }
 
-mixin PlayingLevelFetch on ModelFetcher {
+mixin PlayingLevelFetch on CollectionQuerier {
   Future<List<PlayingLevel>?> fetchPlayingLevelList({
     ExpansionTree? expand,
   }) async {
@@ -58,7 +57,7 @@ mixin PlayingLevelFetch on ModelFetcher {
   }
 }
 
-mixin ClubFetch on ModelFetcher {
+mixin ClubFetch on CollectionQuerier {
   Future<List<Club>?> fetchClubList({
     ExpansionTree? expand,
   }) async {
@@ -73,7 +72,7 @@ mixin ClubFetch on ModelFetcher {
   }
 }
 
-mixin TeamFetch on ModelFetcher {
+mixin TeamFetch on CollectionQuerier {
   Future<List<Team>?> fetchTeamList({
     ExpansionTree? expand,
   }) async {
@@ -117,13 +116,4 @@ mixin FetcherBloc {
       }
     }
   }
-}
-
-abstract class ModelFetcher {
-  abstract final Iterable<CollectionRepository<Model>> collectionRepositories;
-}
-
-abstract class ModelFetcherCubit<State> extends Cubit<State>
-    implements ModelFetcher {
-  ModelFetcherCubit(super.initialState);
 }
