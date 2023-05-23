@@ -87,7 +87,7 @@ void main() {
   void arrangePlayingLevelRepositoryThrows() {
     when(
       () => playingLevelRepository.getList(expand: any(named: 'expand')),
-    ).thenAnswer((_) async => throw CollectionFetchException('errorCode'));
+    ).thenAnswer((_) async => throw CollectionQueryException('errorCode'));
   }
 
   void arrageProducersHaveStream() {

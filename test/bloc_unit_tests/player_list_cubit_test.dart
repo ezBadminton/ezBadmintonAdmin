@@ -73,13 +73,13 @@ void main() {
   void arrangePlayerFetchThrows() {
     when(
       () => playerRepository.getList(expand: any(named: 'expand')),
-    ).thenAnswer((_) async => throw CollectionFetchException('errorCode'));
+    ).thenAnswer((_) async => throw CollectionQueryException('errorCode'));
   }
 
   void arrangeCompetitionFetchThrows() {
     when(
       () => competitionRepository.getList(expand: any(named: 'expand')),
-    ).thenAnswer((_) async => throw CollectionFetchException('errorCode'));
+    ).thenAnswer((_) async => throw CollectionQueryException('errorCode'));
   }
 
   PlayerListCubit createSut() {

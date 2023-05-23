@@ -48,7 +48,7 @@ class PlayerFilterCubit extends PredicateProducerCubit<PlayerFilterState> {
         loadingStatus: LoadingStatus.done,
       );
       emit(newState);
-    } on CollectionFetchException {
+    } on CollectionQueryException {
       emit(state.copyWith(loadingStatus: LoadingStatus.failed));
     }
   }

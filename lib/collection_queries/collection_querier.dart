@@ -5,6 +5,10 @@ abstract class CollectionQuerier {
   abstract final Iterable<CollectionRepository<Model>> collectionRepositories;
 }
 
+abstract class CollectionQuerierState {
+  abstract final Map<Type, List<Model>> collections;
+}
+
 abstract class CollectionQuerierCubit<State> extends Cubit<State>
     implements CollectionQuerier {
   CollectionQuerierCubit(super.initialState);

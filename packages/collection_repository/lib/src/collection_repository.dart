@@ -40,7 +40,7 @@ class CollectionRepository<M extends Model> {
           .collection(_collectionName)
           .getFullList(expand: expandString);
     } on ClientException catch (e) {
-      throw CollectionFetchException('$e.statusCode');
+      throw CollectionQueryException('$e.statusCode');
     }
     List<M> models = records
         .map<M>((record) =>
@@ -68,7 +68,7 @@ class CollectionRepository<M extends Model> {
   }
 }
 
-class CollectionFetchException {
-  CollectionFetchException(this.errorCode);
+class CollectionQueryException {
+  CollectionQueryException(this.errorCode);
   final String errorCode;
 }

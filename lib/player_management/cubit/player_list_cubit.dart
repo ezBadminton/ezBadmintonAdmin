@@ -9,13 +9,7 @@ import 'package:meta/meta.dart';
 part 'player_list_state.dart';
 
 class PlayerListCubit extends CollectionQuerierCubit<PlayerListState>
-    with
-        PlayerFetch,
-        CompetitionFetch,
-        PlayingLevelFetch,
-        ClubFetch,
-        TeamFetch,
-        FetcherBloc {
+    with CollectionFetch, FetcherBloc {
   PlayerListCubit({
     required CollectionRepository<Player> playerRepository,
     required CollectionRepository<Competition> competitionRepository,
@@ -43,15 +37,15 @@ class PlayerListCubit extends CollectionQuerierCubit<PlayerListState>
     var newState = state;
     fetchCollectionsAndUpdateState(
       {
-        fetchPlayerList: (players) =>
+        fetchCollection<Player>: (players) =>
             newState = newState.copyWith(allPlayers: players as List<Player>),
-        fetchCompetitionList: (comps) => newState =
+        fetchCollection<Competition>: (comps) => newState =
             newState.copyWith(competitions: comps as List<Competition>),
-        fetchPlayingLevelList: (lvls) => newState =
+        fetchCollection<PlayingLevel>: (lvls) => newState =
             newState.copyWith(playingLevels: lvls as List<PlayingLevel>),
-        fetchClubList: (clubs) =>
+        fetchCollection<Club>: (clubs) =>
             newState = newState.copyWith(clubs: clubs as List<Club>),
-        fetchTeamList: (teams) =>
+        fetchCollection<Team>: (teams) =>
             newState = newState.copyWith(teams: teams as List<Team>),
       },
       onSuccess: () {
