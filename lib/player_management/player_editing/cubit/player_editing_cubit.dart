@@ -83,6 +83,28 @@ class PlayerEditingCubit extends Cubit<PlayerEditingState> {
     emit(newState);
   }
 
+  void competitionTypeChanged(CompetitionType? competitionType) {
+    if (competitionType == CompetitionType.mixed) {
+      genderCategoryChanged(GenderCategory.mixed);
+    } else if (state.genderCategory.value == GenderCategory.mixed) {
+      genderCategoryChanged(GenderCategory.male);
+    }
+    var newState = state.copyWith(
+      competitionType: SelectionInput.dirty(
+        emptyAllowed: true,
+        value: competitionType,
+      ),
+    );
+    emit(newState);
+  }
+
+  void genderCategoryChanged(GenderCategory genderCategory) {
+    var newState = state.copyWith(
+      genderCategory: SelectionInput.dirty(value: genderCategory),
+    );
+    emit(newState);
+  }
+
   void formSubmitted() async {
     if (!state.isValid) {
       var newState = state.copyWith(formStatus: FormzSubmissionStatus.failure);

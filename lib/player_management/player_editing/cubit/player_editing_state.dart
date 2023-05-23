@@ -13,6 +13,8 @@ class PlayerEditingState with FormzMixin {
     required this.playingLevel,
     required this.playingLevels,
     required this.clubs,
+    required this.competitionType,
+    required this.genderCategory,
   });
 
   PlayerEditingState.fromPlayer({
@@ -21,6 +23,9 @@ class PlayerEditingState with FormzMixin {
     this.formStatus = FormzSubmissionStatus.initial,
     this.playingLevels = const [],
     this.clubs = const [],
+    this.competitionType = const SelectionInput.dirty(emptyAllowed: true),
+    this.genderCategory =
+        const SelectionInput.dirty(value: GenderCategory.male),
   })  : firstName = NonEmptyInput.pure(player.firstName),
         lastName = NonEmptyInput.pure(player.lastName),
         clubName = NoValidationInput.pure(player.club?.name ?? ''),
@@ -47,6 +52,9 @@ class PlayerEditingState with FormzMixin {
   final DateInput dateOfBirth;
   final SelectionInput<PlayingLevel> playingLevel;
 
+  final SelectionInput<CompetitionType> competitionType;
+  final SelectionInput<GenderCategory> genderCategory;
+
   final List<PlayingLevel> playingLevels;
   final List<Club> clubs;
 
@@ -71,6 +79,8 @@ class PlayerEditingState with FormzMixin {
     SelectionInput<PlayingLevel>? playingLevel,
     List<PlayingLevel>? playingLevels,
     List<Club>? clubs,
+    SelectionInput<CompetitionType>? competitionType,
+    SelectionInput<GenderCategory>? genderCategory,
   }) =>
       PlayerEditingState(
         player: player ?? this.player,
@@ -83,5 +93,7 @@ class PlayerEditingState with FormzMixin {
         playingLevel: playingLevel ?? this.playingLevel,
         playingLevels: playingLevels ?? this.playingLevels,
         clubs: clubs ?? this.clubs,
+        competitionType: competitionType ?? this.competitionType,
+        genderCategory: genderCategory ?? this.genderCategory,
       );
 }
