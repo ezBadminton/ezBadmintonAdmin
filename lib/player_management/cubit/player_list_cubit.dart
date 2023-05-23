@@ -1,5 +1,4 @@
 import 'package:collection_repository/collection_repository.dart';
-import 'package:ez_badminton_admin_app/collection_queries/collection_fetcher_mixins.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
@@ -8,8 +7,7 @@ import 'package:meta/meta.dart';
 
 part 'player_list_state.dart';
 
-class PlayerListCubit extends CollectionQuerierCubit<PlayerListState>
-    with CollectionFetch, FetcherBloc {
+class PlayerListCubit extends CollectionQuerierCubit<PlayerListState> {
   PlayerListCubit({
     required CollectionRepository<Player> playerRepository,
     required CollectionRepository<Competition> competitionRepository,
@@ -34,31 +32,25 @@ class PlayerListCubit extends CollectionQuerierCubit<PlayerListState>
     if (state.loadingStatus != LoadingStatus.loading) {
       emit(state.copyWith(loadingStatus: LoadingStatus.loading));
     }
-    var newState = state;
     fetchCollectionsAndUpdateState(
-      {
-        fetchCollection<Player>: (players) =>
-            newState = newState.copyWith(allPlayers: players as List<Player>),
-        fetchCollection<Competition>: (comps) => newState =
-            newState.copyWith(competitions: comps as List<Competition>),
-        fetchCollection<PlayingLevel>: (lvls) => newState =
-            newState.copyWith(playingLevels: lvls as List<PlayingLevel>),
-        fetchCollection<Club>: (clubs) =>
-            newState = newState.copyWith(clubs: clubs as List<Club>),
-        fetchCollection<Team>: (teams) =>
-            newState = newState.copyWith(teams: teams as List<Team>),
-      },
-      onSuccess: () {
+      [
+        collectionFetcher<Player>(),
+        collectionFetcher<Competition>(),
+        collectionFetcher<PlayingLevel>(),
+        collectionFetcher<Club>(),
+        collectionFetcher<Team>(),
+      ],
+      onSuccess: (updatedState) {
         var playerCompetitions = _mapPlayerCompetitions(
-          newState.allPlayers,
-          newState.competitions,
+          updatedState.getCollection<Player>(),
+          updatedState.getCollection<Competition>(),
         );
-        newState = newState.copyWith(
+        updatedState = updatedState.copyWith(
           playerCompetitions: playerCompetitions,
-          filteredPlayers: newState.allPlayers,
+          filteredPlayers: updatedState.getCollection<Player>(),
           loadingStatus: LoadingStatus.done,
         );
-        emit(newState);
+        emit(updatedState);
         filterChanged(_lastFilters);
       },
       onFailure: () =>
@@ -85,14 +77,16 @@ class PlayerListCubit extends CollectionQuerierCubit<PlayerListState>
   Map<Type, Predicate> _lastFilters = {};
   void filterChanged(Map<Type, Predicate> filters) {
     _lastFilters = filters;
-    var filtered = state.allPlayers;
+    var filtered = state.getCollection<Player>();
     List<Player>? filteredByCompetition;
     if (filters.containsKey(Player)) {
       filtered = filtered.where(filters[Player]!).toList();
     }
     if (filters.containsKey(Competition)) {
-      var filteredCompetitions =
-          state.competitions.where(filters[Competition]!).toList();
+      var filteredCompetitions = state
+          .getCollection<Competition>()
+          .where(filters[Competition]!)
+          .toList();
       var teams = filteredCompetitions
           .map((comp) => comp.registrations)
           .expand((teamList) => teamList);

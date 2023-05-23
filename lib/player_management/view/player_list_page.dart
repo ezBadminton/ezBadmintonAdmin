@@ -67,11 +67,11 @@ class _PlayerListPageScaffold extends StatelessWidget {
             if (listCubit.state.loadingStatus == LoadingStatus.done) {
               Navigator.of(context)
                   .push(PlayerEditingForm.route(
-                players: listCubit.state.allPlayers,
-                playingLevels: listCubit.state.playingLevels,
-                clubs: listCubit.state.clubs,
-                competitions: listCubit.state.competitions,
-                teams: listCubit.state.teams,
+                players: listCubit.state.getCollection<Player>(),
+                playingLevels: listCubit.state.getCollection<PlayingLevel>(),
+                clubs: listCubit.state.getCollection<Club>(),
+                competitions: listCubit.state.getCollection<Competition>(),
+                teams: listCubit.state.getCollection<Team>(),
               ))
                   .then((newPlayer) {
                 if (newPlayer != null) {
