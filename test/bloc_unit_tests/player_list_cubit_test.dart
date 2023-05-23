@@ -19,6 +19,17 @@ class HasLoadingStatus extends CustomMatcher {
   featureValueOf(actual) => (actual as PlayerListState).loadingStatus;
 }
 
+class HasFilteredPlayers extends CustomMatcher {
+  HasFilteredPlayers(matcher)
+      : super(
+          'State with filtered players list that is',
+          'filtered players',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => (actual as PlayerListState).filteredPlayers;
+}
+
 void main() {
   late MockCollectionRepository<Player> playerRepository;
   late MockCollectionRepository<Competition> competitionRepository;
@@ -134,11 +145,12 @@ void main() {
 
       blocTest<PlayerListCubit, PlayerListState>(
         """emits LoadingStatus.done when players and competitions have
-        been fetched""",
+        been fetched, emits a status with an updated filteredPlayers list""",
         build: createSut,
         expect: () => [
           // Players and competitions fetched
-          HasLoadingStatus(LoadingStatus.done)
+          HasLoadingStatus(LoadingStatus.done),
+          HasFilteredPlayers(players),
         ],
       );
 
