@@ -1,7 +1,7 @@
 part of 'player_list_cubit.dart';
 
 @immutable
-class PlayerListState extends CollectionQuerierState {
+class PlayerListState extends CollectionFetcherState {
   const PlayerListState({
     this.loadingStatus = LoadingStatus.loading,
     this.filteredPlayers = const [],

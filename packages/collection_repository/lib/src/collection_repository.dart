@@ -52,18 +52,28 @@ class CollectionRepository<M extends Model> {
   Future<M> create(M newModel) async {
     Map<String, dynamic> json = newModel.toCollapsedJson();
     ModelConverter.clearMetaJsonFields(json);
-    RecordModel created =
-        await _pocketBase.collection(_collectionName).create(body: json);
+    RecordModel created;
+    try {
+      created =
+          await _pocketBase.collection(_collectionName).create(body: json);
+    } on ClientException catch (e) {
+      throw CollectionQueryException('$e.statusCode');
+    }
     return _modelConstructor(ModelConverter.modelToMap(created));
   }
 
   Future<M> update(M updatedModel) async {
     Map<String, dynamic> json = updatedModel.toCollapsedJson();
     ModelConverter.clearMetaJsonFields(json);
-    RecordModel updated = await _pocketBase.collection(_collectionName).update(
-          updatedModel.id,
-          body: json,
-        );
+    RecordModel updated;
+    try {
+      updated = await _pocketBase.collection(_collectionName).update(
+            updatedModel.id,
+            body: json,
+          );
+    } on ClientException catch (e) {
+      throw CollectionQueryException('$e.statusCode');
+    }
     return _modelConstructor(ModelConverter.modelToMap(updated));
   }
 }

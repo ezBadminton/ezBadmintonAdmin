@@ -3,8 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 typedef FetcherFunction<M extends Model> = Future<List<M>?> Function();
 
-abstract class CollectionQuerierState {
-  const CollectionQuerierState();
+abstract class CollectionQuerier {
+  abstract final Iterable<CollectionRepository<Model>> collectionRepositories;
+}
+
+abstract class CollectionFetcherState {
+  const CollectionFetcherState();
   copyWithCollection({
     required Type modelType,
     required List<Model> collection,
@@ -12,17 +16,18 @@ abstract class CollectionQuerierState {
   List<M> getCollection<M extends Model>();
 }
 
-abstract class CollectionQuerier {
-  abstract final Iterable<CollectionRepository<Model>> collectionRepositories;
+abstract class CollectionQuerierCubit<State> extends Cubit<State>
+    implements CollectionQuerier {
+  CollectionQuerierCubit(super.initialState);
 }
 
-abstract class CollectionQuerierCubit<State extends CollectionQuerierState>
-    extends Cubit<State> implements CollectionQuerier {
+abstract class CollectionFetcherCubit<State extends CollectionFetcherState>
+    extends CollectionQuerierCubit<State> {
   /// A cubit that has functions to fetch collections from db.
   ///
   /// The collections are accessed via [CollectionRepository] objects. Each
   /// repository object is granting access to a collection of one [Model].
-  /// The [CollectionQuerierState] stores the fetched collections and presents
+  /// The [CollectionFetcherState] stores the fetched collections and presents
   /// them as state to the view layer in the cubit descendants of this class.
   ///
   /// Example of an implementation:
@@ -34,7 +39,7 @@ abstract class CollectionQuerierCubit<State extends CollectionQuerierState>
   ///     required CollectionRepository<Team> teamRepository,
   ///   }) :
   ///   super(
-  ///     ExampleQuerierState(), // use a state that implements [CollectionQuerierState]
+  ///     ExampleQuerierState(), // use a state that implements [CollectionFetcherState]
   ///     collectionRepositories: [playerRepository, teamRepository], // set the collectionRepositories
   ///   );
   /// }
@@ -42,10 +47,10 @@ abstract class CollectionQuerierCubit<State extends CollectionQuerierState>
   ///
   /// The `ExampleQuerierCubit` now has the ability to fetch [Player] and [Team]
   /// collections. Beware trying to do collection operations
-  /// on Models that the [CollectionQuerierCubit] does not have the repository
+  /// on Models that the [CollectionFetcherCubit] does not have the repository
   /// of. This will lead to exceptions. User the [CollectionUpdater] mixin to
   /// also gain access to create and update functions.
-  CollectionQuerierCubit(
+  CollectionFetcherCubit(
     super.initialState, {
     required this.collectionRepositories,
   });

@@ -7,7 +7,7 @@ import 'package:meta/meta.dart';
 
 part 'player_list_state.dart';
 
-class PlayerListCubit extends CollectionQuerierCubit<PlayerListState> {
+class PlayerListCubit extends CollectionFetcherCubit<PlayerListState> {
   PlayerListCubit({
     required CollectionRepository<Player> playerRepository,
     required CollectionRepository<Competition> competitionRepository,

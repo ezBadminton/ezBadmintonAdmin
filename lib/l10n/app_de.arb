@@ -41,5 +41,7 @@
   "formatError": "Ungültiges Format",
   "playerListLoadingError": "Konnte die Spielerliste nicht laden",
   "playerEditorLoadingError": "Konnte den Spielereditor nicht laden",
-  "retry": "Erneut versuchen"
+  "retry": "Erneut versuchen",
+  "save": "Speichern",
+  "saveError": "Speichern fehlgeschlagen"
 }

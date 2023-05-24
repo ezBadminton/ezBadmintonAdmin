@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
 import 'package:ez_badminton_admin_app/input_models/no_validation.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,8 @@ import 'package:formz/formz.dart';
 
 part 'player_editing_state.dart';
 
-class PlayerEditingCubit extends Cubit<PlayerEditingState> {
+class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState>
+    with CollectionUpdater {
   PlayerEditingCubit({
     required BuildContext context,
     required CollectionRepository<Player> playerRepository,
@@ -20,10 +22,12 @@ class PlayerEditingCubit extends Cubit<PlayerEditingState> {
     required List<Competition> competitions,
     required List<Team> teams,
   })  : _context = context,
-        _playerRepository = playerRepository,
-        _clubRepository = clubRepository,
-        _teamRepository = teamRepository,
-        _competitionRepository = competitionRepository,
+        collectionRepositories = [
+          playerRepository,
+          clubRepository,
+          teamRepository,
+          competitionRepository,
+        ],
         super(PlayerEditingState.fromPlayer(
           player: Player.newPlayer(),
           context: context,
@@ -32,10 +36,9 @@ class PlayerEditingCubit extends Cubit<PlayerEditingState> {
         ));
 
   final BuildContext _context;
-  final CollectionRepository<Player> _playerRepository;
-  final CollectionRepository<Club> _clubRepository;
-  final CollectionRepository<Competition> _competitionRepository;
-  final CollectionRepository<Team> _teamRepository;
+
+  @override
+  final Iterable<CollectionRepository<Model>> collectionRepositories;
 
   void firstNameChanged(String firstName) {
     var newState = state.copyWith(firstName: NonEmptyInput.dirty(firstName));
@@ -124,26 +127,43 @@ class PlayerEditingCubit extends Cubit<PlayerEditingState> {
 
     Club? club;
     if (state.clubName.value.isNotEmpty) {
-      var selectedClub = state.clubs.where(
-        (c) => c.name.toLowerCase() == state.clubName.value.toLowerCase(),
-      );
-      if (selectedClub.isNotEmpty) {
-        club = selectedClub.first;
-      } else {
-        var createdClub = Club.newClub(name: state.clubName.value);
-        club = await _clubRepository.create(createdClub);
+      club = await _clubFromName(state.clubName.value);
+      if (club == null) {
+        emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+        return;
       }
     }
+
     Player editedPlayer = _applyChanges(
       dateOfBirth: dateOfBirth,
       club: club,
     );
-    Player createdPlayer = await _playerRepository.create(editedPlayer);
+    Player? createdPlayer = await createModel(editedPlayer);
+    if (createdPlayer == null) {
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      return;
+    }
     newState = state.copyWith(
       player: createdPlayer,
       formStatus: FormzSubmissionStatus.success,
     );
     emit(newState);
+  }
+
+  /// Either get an existing club by [clubName] or create a new one with the
+  /// given [clubName].
+  Future<Club?> _clubFromName(String clubName) async {
+    Club? club;
+    var selectedClub = state.clubs.where(
+      (c) => c.name.toLowerCase() == clubName.toLowerCase(),
+    );
+    if (selectedClub.isNotEmpty) {
+      club = selectedClub.first;
+    } else {
+      var createdClub = Club.newClub(name: clubName);
+      club = await createModel(createdClub);
+    }
+    return club;
   }
 
   Player _applyChanges({

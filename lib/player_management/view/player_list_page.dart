@@ -2,7 +2,7 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_list_cubit.dart';
-import 'package:ez_badminton_admin_app/player_management/player_editing/view/player_editing_form.dart';
+import 'package:ez_badminton_admin_app/player_management/player_editing/view/player_editing_page.dart';
 import 'package:ez_badminton_admin_app/player_management/player_filter/view/player_filter.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter/material.dart';
@@ -66,7 +66,7 @@ class _PlayerListPageScaffold extends StatelessWidget {
             var listCubit = context.read<PlayerListCubit>();
             if (listCubit.state.loadingStatus == LoadingStatus.done) {
               Navigator.of(context)
-                  .push(PlayerEditingForm.route(
+                  .push(PlayerEditingPage.route(
                 players: listCubit.state.getCollection<Player>(),
                 playingLevels: listCubit.state.getCollection<PlayingLevel>(),
                 clubs: listCubit.state.getCollection<Club>(),
