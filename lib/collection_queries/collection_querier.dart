@@ -3,57 +3,35 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 typedef FetcherFunction<M extends Model> = Future<List<M>?> Function();
 
-abstract class CollectionQuerier {
-  abstract final Iterable<CollectionRepository<Model>> collectionRepositories;
-}
-
-abstract class CollectionFetcherState {
-  const CollectionFetcherState();
-  copyWithCollection({
-    required Type modelType,
-    required List<Model> collection,
-  });
-  List<M> getCollection<M extends Model>();
-}
-
-abstract class CollectionQuerierCubit<State> extends Cubit<State>
-    implements CollectionQuerier {
-  CollectionQuerierCubit(super.initialState);
-}
-
-abstract class CollectionFetcherCubit<State extends CollectionFetcherState>
-    extends CollectionQuerierCubit<State> {
-  /// A cubit that has functions to fetch collections from db.
+class CollectionQuerier {
+  /// A class that has functions to fetch and update collections from db.
   ///
-  /// The collections are accessed via [CollectionRepository] objects. Each
-  /// repository object is granting access to a collection of one [Model].
-  /// The [CollectionFetcherState] stores the fetched collections and presents
-  /// them as state to the view layer in the cubit descendants of this class.
+  /// The collections are accessed via [CollectionRepository] objects given
+  /// by [collectionRepositories]. Each repository object is granting access to
+  /// a collection of one [Model].
   ///
-  /// Example of an implementation:
+  /// Example:
   /// ```dart
-  /// class ExampleQuerierCubit extends CollectionQuerierCubit<PlayerListState> {
-  ///   ExampleQuerierCubit({
-  ///     // Require the repositories of the data models Player and Team
-  ///     required CollectionRepository<Player> playerRepository,
-  ///     required CollectionRepository<Team> teamRepository,
-  ///   }) :
-  ///   super(
-  ///     ExampleQuerierState(), // use a state that implements [CollectionFetcherState]
-  ///     collectionRepositories: [playerRepository, teamRepository], // set the collectionRepositories
-  ///   );
-  /// }
+  /// CollectionRepository<Player> playerRepository = ...; // Usually injected by a repository provider
+  /// CollectionRepository<Team> teamRepository = ...;
+  /// var querier = CollectionQuerier(
+  ///   [
+  ///     playerRepository,
+  ///     teamRepository,
+  ///   ],
+  /// );
+  ///
+  /// // Fetch Player collection in some async function:
+  /// List<Player>? players = await querier.fetchCollection<Player>();
   /// ```
   ///
-  /// The `ExampleQuerierCubit` now has the ability to fetch [Player] and [Team]
+  /// The `querier` now has the ability to fetch [Player] and [Team]
   /// collections. Beware trying to do collection operations
-  /// on Models that the [CollectionFetcherCubit] does not have the repository
-  /// of. This will lead to exceptions. User the [CollectionUpdater] mixin to
-  /// also gain access to create and update functions.
-  CollectionFetcherCubit(
-    super.initialState, {
-    required this.collectionRepositories,
-  });
+  /// on Models that the [CollectionQuerier] does not have the repository
+  /// of. This will lead to exceptions.
+  CollectionQuerier(this.collectionRepositories);
+
+  final Iterable<CollectionRepository<Model>> collectionRepositories;
 
   static final Map<Type, ExpansionTree> _defaultExpansions = {
     Player: ExpansionTree(Player.expandedFields),
@@ -61,9 +39,6 @@ abstract class CollectionFetcherCubit<State extends CollectionFetcherState>
       ..expandWith(Team, Team.expandedFields),
     Team: ExpansionTree(Team.expandedFields),
   };
-
-  @override
-  final Iterable<CollectionRepository<Model>> collectionRepositories;
 
   /// Fetches the full collection of data objects of the model type [M]
   ///
@@ -85,19 +60,81 @@ abstract class CollectionFetcherCubit<State extends CollectionFetcherState>
   }
 
   /// Fetches multiple collections at once and returns them as a [List].
+  ///
+  /// The list contains null where the collection could not be fetched.
+  ///
+  /// Example:
+  /// ```dart
+  /// fetchCollections([fetchCollection<Player>, fetchCollection<Team>]);
+  /// ```
   Future<List<List<Model>?>> fetchCollections(
-      Iterable<FetcherFunction> fetchers) async {
+      Iterable<FetcherFunction> fetcherFunctions) async {
     var fetchResults =
-        await Future.wait([for (var fetcher in fetchers) fetcher()]);
+        await Future.wait([for (var fetcher in fetcherFunctions) fetcher()]);
     return fetchResults;
   }
+
+  /// Puts a newly created model into its collection on the DB.
+  ///
+  /// On success the Future resolves to the [Model] of type [M] with its
+  /// `id`, `created` and `updated` fields set.
+  /// Otherwise null if the collection db can't be reached.
+  Future<M?> createModel<M extends Model>(M newModel) async {
+    var collectionRepository =
+        collectionRepositories.whereType<CollectionRepository<M>>().first;
+
+    try {
+      return await collectionRepository.create(newModel);
+    } on CollectionQueryException {
+      return null;
+    }
+  }
+
+  /// Updates a model in its collection on the DB.
+  ///
+  /// On success the Future resolves to the [Model] of type [M] with its
+  /// new `updated` timestamp.
+  /// Otherwise null if the collection db can't be reached.
+  Future<M?> updateModel<M extends Model>(M updatedModel) async {
+    var collectionRepository =
+        collectionRepositories.whereType<CollectionRepository<M>>().first;
+
+    try {
+      return await collectionRepository.update(updatedModel);
+    } on CollectionQueryException {
+      return null;
+    }
+  }
+}
+
+class CollectionQuerierCubit<State> extends Cubit<State> {
+  /// A Cubit that has a [CollectionQuerier] member.
+  ///
+  /// The [CollectionQuerier] is created with the given [collectionRepositories]
+  /// and can be used by accessing the `querier` field.
+  CollectionQuerierCubit(
+    super.initialState, {
+    required Iterable<CollectionRepository<Model>> collectionRepositories,
+  }) : querier = CollectionQuerier(collectionRepositories);
+
+  final CollectionQuerier querier;
+}
+
+class CollectionFetcherCubit<State extends CollectionFetcherState>
+    extends CollectionQuerierCubit<State> {
+  /// A CollectionQuerierCubit that can update its [CollectionFetcherState]
+  /// with fetched collections.
+  CollectionFetcherCubit(
+    super.initialState, {
+    required super.collectionRepositories,
+  });
 
   /// Returns a [CollectionFetcher] object.
   CollectionFetcher collectionFetcher<M extends Model>({
     ExpansionTree? expand,
   }) {
     return CollectionFetcher<M>(
-      fetcherFunction: () => fetchCollection<M>(expand: expand),
+      fetcherFunction: () => querier.fetchCollection<M>(expand: expand),
     );
   }
 
@@ -130,7 +167,7 @@ abstract class CollectionFetcherCubit<State extends CollectionFetcherState>
     void Function()? onFailure,
   }) async {
     var fetchResults =
-        await fetchCollections(fetchers.map((f) => f.fetcherFunction));
+        await querier.fetchCollections(fetchers.map((f) => f.fetcherFunction));
     if (fetchResults.contains(null)) {
       if (onFailure != null) {
         onFailure();
@@ -151,38 +188,13 @@ abstract class CollectionFetcherCubit<State extends CollectionFetcherState>
   }
 }
 
-mixin CollectionUpdater on CollectionQuerier {
-  /// Puts a newly created model into its collection on the DB.
-  ///
-  /// On success the Future resolves to the [Model] of type [M] with its
-  /// `id`, `created` and `updated` fields set.
-  /// Otherwise null if the collection db can't be reached.
-  Future<M?> createModel<M extends Model>(M newModel) async {
-    var collectionRepository =
-        collectionRepositories.whereType<CollectionRepository<M>>().first;
-
-    try {
-      return await collectionRepository.create(newModel);
-    } on CollectionQueryException {
-      return null;
-    }
-  }
-
-  /// Updates a model in its collection on the DB.
-  ///
-  /// On success the Future resolves to the [Model] of type [M] with its
-  /// new `updated` timestamp.
-  /// Otherwise null if the collection db can't be reached.
-  Future<M?> updateModel<M extends Model>(M updatedModel) async {
-    var collectionRepository =
-        collectionRepositories.whereType<CollectionRepository<M>>().first;
-
-    try {
-      return await collectionRepository.update(updatedModel);
-    } on CollectionQueryException {
-      return null;
-    }
-  }
+abstract class CollectionFetcherState {
+  const CollectionFetcherState();
+  copyWithCollection({
+    required Type modelType,
+    required List<Model> collection,
+  });
+  List<M> getCollection<M extends Model>();
 }
 
 class CollectionFetcher<M extends Model> {

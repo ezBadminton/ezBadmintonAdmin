@@ -8,8 +8,7 @@ import 'package:formz/formz.dart';
 
 part 'player_editing_state.dart';
 
-class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState>
-    with CollectionUpdater {
+class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
   PlayerEditingCubit({
     required BuildContext context,
     required CollectionRepository<Player> playerRepository,
@@ -22,23 +21,22 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState>
     required List<Competition> competitions,
     required List<Team> teams,
   })  : _context = context,
-        collectionRepositories = [
-          playerRepository,
-          clubRepository,
-          teamRepository,
-          competitionRepository,
-        ],
-        super(PlayerEditingState.fromPlayer(
-          player: Player.newPlayer(),
-          context: context,
-          playingLevels: playingLevels,
-          clubs: clubs,
-        ));
+        super(
+          PlayerEditingState.fromPlayer(
+            player: Player.newPlayer(),
+            context: context,
+            playingLevels: playingLevels,
+            clubs: clubs,
+          ),
+          collectionRepositories: [
+            playerRepository,
+            clubRepository,
+            teamRepository,
+            competitionRepository,
+          ],
+        );
 
   final BuildContext _context;
-
-  @override
-  final Iterable<CollectionRepository<Model>> collectionRepositories;
 
   void firstNameChanged(String firstName) {
     var newState = state.copyWith(firstName: NonEmptyInput.dirty(firstName));
@@ -138,7 +136,7 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState>
       dateOfBirth: dateOfBirth,
       club: club,
     );
-    Player? createdPlayer = await createModel(editedPlayer);
+    Player? createdPlayer = await querier.createModel(editedPlayer);
     if (createdPlayer == null) {
       emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
       return;
@@ -161,7 +159,7 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState>
       club = selectedClub.first;
     } else {
       var createdClub = Club.newClub(name: clubName);
-      club = await createModel(createdClub);
+      club = await querier.createModel(createdClub);
     }
     return club;
   }
