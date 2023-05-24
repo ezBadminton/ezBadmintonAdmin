@@ -36,6 +36,7 @@ class PlayerListPage extends StatelessWidget {
                 context.read<CollectionRepository<Competition>>(),
             playingLevelRepository:
                 context.read<CollectionRepository<PlayingLevel>>(),
+            ageGroupRepository: context.read<CollectionRepository<AgeGroup>>(),
             clubRepository: context.read<CollectionRepository<Club>>(),
             teamRepository: context.read<CollectionRepository<Team>>(),
           ),
@@ -237,11 +238,11 @@ String _competitionAbbreviations(
   for (var competition in competitions) {
     String competitionAbbreviation =
         l10n.competitionTypeAbbreviated(competition.getCompetitionType().name);
-    if (competition.gender == GenderCategory.mixed ||
-        competition.gender == GenderCategory.any) {
+    if (competition.genderCategory == GenderCategory.mixed ||
+        competition.genderCategory == GenderCategory.any) {
       abbreviations.add(competitionAbbreviation);
     } else {
-      String genderPrefix = competition.gender == GenderCategory.female
+      String genderPrefix = competition.genderCategory == GenderCategory.female
           ? l10n.womenAbbreviated
           : l10n.menAbbreviated;
       abbreviations.add('$genderPrefix$competitionAbbreviation');

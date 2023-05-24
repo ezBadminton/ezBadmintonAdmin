@@ -12,6 +12,7 @@ class PlayerListCubit extends CollectionFetcherCubit<PlayerListState> {
     required CollectionRepository<Player> playerRepository,
     required CollectionRepository<Competition> competitionRepository,
     required CollectionRepository<PlayingLevel> playingLevelRepository,
+    required CollectionRepository<AgeGroup> ageGroupRepository,
     required CollectionRepository<Club> clubRepository,
     required CollectionRepository<Team> teamRepository,
   }) : super(
@@ -19,6 +20,7 @@ class PlayerListCubit extends CollectionFetcherCubit<PlayerListState> {
             competitionRepository,
             playerRepository,
             playingLevelRepository,
+            ageGroupRepository,
             clubRepository,
             teamRepository,
           ],
@@ -36,6 +38,7 @@ class PlayerListCubit extends CollectionFetcherCubit<PlayerListState> {
         collectionFetcher<Player>(),
         collectionFetcher<Competition>(),
         collectionFetcher<PlayingLevel>(),
+        collectionFetcher<AgeGroup>(),
         collectionFetcher<Club>(),
         collectionFetcher<Team>(),
       ],

@@ -12,18 +12,16 @@ class Competition extends Model with _$Competition {
   /// A competition within a badminton tournament.
   ///
   /// Competitions are categorized by [teamSize] (singles, or doubles),
-  /// [gender], [age] and playing level ([minLevel],[maxLevel]). The competiton
-  /// also holds all partipating Teams as [registrations].
+  /// [genderCategory], [ageGroups] and [playingLevels].
+  /// The competiton also holds all partipating Teams as [registrations].
   const factory Competition({
     required String id,
     required DateTime created,
     required DateTime updated,
     required int teamSize,
-    required GenderCategory gender,
-    AgeRestriction? ageRestriction,
-    int? age,
-    PlayingLevel? minLevel,
-    PlayingLevel? maxLevel,
+    required GenderCategory genderCategory,
+    required List<AgeGroup> ageGroups,
+    required List<PlayingLevel> playingLevels,
     required List<Team> registrations,
   }) = _Competition;
 
@@ -31,14 +29,33 @@ class Competition extends Model with _$Competition {
       _$CompetitionFromJson(
           ModelConverter.convertExpansions(json, expandedFields));
 
+  factory Competition.newCompetition({
+    required int teamSize,
+    required GenderCategory genderCategory,
+    List<AgeGroup> ageGroups = const [],
+    List<PlayingLevel> playingLevels = const [],
+    List<Team> registrations = const [],
+  }) {
+    return Competition(
+      id: '',
+      created: DateTime.now(),
+      updated: DateTime.now(),
+      teamSize: teamSize,
+      genderCategory: genderCategory,
+      ageGroups: ageGroups,
+      playingLevels: playingLevels,
+      registrations: registrations,
+    );
+  }
+
   /// Method for discering a Competition into the basic competition types
   /// of doubles, mixed or singles. If none of these are applicable it returns
   /// `CompetitionType.other`.
   CompetitionType getCompetitionType() {
     if (teamSize == 1) {
       return CompetitionType.singles;
-    } else if (teamSize == 2 && gender != GenderCategory.any) {
-      return gender == GenderCategory.mixed
+    } else if (teamSize == 2 && genderCategory != GenderCategory.any) {
+      return genderCategory == GenderCategory.mixed
           ? CompetitionType.mixed
           : CompetitionType.doubles;
     } else {
@@ -48,16 +65,16 @@ class Competition extends Model with _$Competition {
 
   static const List<ExpandedField> expandedFields = [
     ExpandedField(
-      model: PlayingLevel,
-      key: 'minLevel',
-      isRequired: false,
-      isSingle: true,
+      model: AgeGroup,
+      key: 'ageGroups',
+      isRequired: true,
+      isSingle: false,
     ),
     ExpandedField(
       model: PlayingLevel,
-      key: 'maxLevel',
-      isRequired: false,
-      isSingle: true,
+      key: 'playingLevels',
+      isRequired: true,
+      isSingle: false,
     ),
     ExpandedField(
       model: Team,
@@ -75,7 +92,5 @@ class Competition extends Model with _$Competition {
 }
 
 enum GenderCategory { female, male, mixed, any }
-
-enum AgeRestriction { under, over }
 
 enum CompetitionType { doubles, singles, mixed, other }

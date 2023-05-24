@@ -110,36 +110,24 @@ void main() {
   });
 
   group('CompetitionTypePredicateProducer competition filtering', () {
-    var singles = Competition(
-      id: 'singles',
-      created: DateTime(2023),
-      updated: DateTime(2023),
+    var singles = Competition.newCompetition(
       teamSize: 1,
-      gender: GenderCategory.any,
+      genderCategory: GenderCategory.any,
       registrations: const [],
     );
-    var mixed = Competition(
-      id: 'mixed',
-      created: DateTime(2023),
-      updated: DateTime(2023),
+    var mixed = Competition.newCompetition(
       teamSize: 2,
-      gender: GenderCategory.mixed,
+      genderCategory: GenderCategory.mixed,
       registrations: const [],
     );
-    var doubles = Competition(
-      id: 'doubles',
-      created: DateTime(2023),
-      updated: DateTime(2023),
+    var doubles = Competition.newCompetition(
       teamSize: 2,
-      gender: GenderCategory.female,
+      genderCategory: GenderCategory.female,
       registrations: const [],
     );
-    var other = Competition(
-      id: 'other',
-      created: DateTime(2023),
-      updated: DateTime(2023),
+    var other = Competition.newCompetition(
       teamSize: 4,
-      gender: GenderCategory.any,
+      genderCategory: GenderCategory.any,
       registrations: const [],
     );
     var competitions = [singles, mixed, doubles, other];

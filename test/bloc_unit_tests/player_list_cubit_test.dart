@@ -34,6 +34,7 @@ void main() {
   late MockCollectionRepository<Player> playerRepository;
   late MockCollectionRepository<Competition> competitionRepository;
   late MockCollectionRepository<PlayingLevel> playingLevelRepository;
+  late MockCollectionRepository<AgeGroup> ageGroupRepository;
   late MockCollectionRepository<Club> clubRepository;
   late MockCollectionRepository<Team> teamRepository;
   late PlayerListCubit sut;
@@ -64,20 +65,14 @@ void main() {
         players: [players[index + mixedDoublesTeams.length]],
         resigned: false),
   );
-  var mixedCompetition = Competition(
-    id: 'doublesComp',
-    created: DateTime(2023),
-    updated: DateTime(2023),
+  var mixedCompetition = Competition.newCompetition(
     teamSize: 2,
-    gender: GenderCategory.mixed,
+    genderCategory: GenderCategory.mixed,
     registrations: mixedDoublesTeams,
   );
-  var singlesCompetition = Competition(
-    id: 'singlesComp',
-    created: DateTime(2023),
-    updated: DateTime(2023),
+  var singlesCompetition = Competition.newCompetition(
     teamSize: 1,
-    gender: GenderCategory.any,
+    genderCategory: GenderCategory.any,
     registrations: singlesTeams,
   );
 
@@ -98,6 +93,7 @@ void main() {
       playerRepository: playerRepository,
       competitionRepository: competitionRepository,
       playingLevelRepository: playingLevelRepository,
+      ageGroupRepository: ageGroupRepository,
       clubRepository: clubRepository,
       teamRepository: teamRepository,
     );
@@ -107,6 +103,7 @@ void main() {
     playerRepository = MockCollectionRepository();
     competitionRepository = MockCollectionRepository();
     playingLevelRepository = MockCollectionRepository();
+    ageGroupRepository = MockCollectionRepository();
     clubRepository = MockCollectionRepository();
     teamRepository = MockCollectionRepository();
 
@@ -120,6 +117,10 @@ void main() {
 
     when(
       () => playingLevelRepository.getList(expand: any(named: 'expand')),
+    ).thenAnswer((invocation) async => []);
+
+    when(
+      () => ageGroupRepository.getList(expand: any(named: 'expand')),
     ).thenAnswer((invocation) async => []);
 
     when(
