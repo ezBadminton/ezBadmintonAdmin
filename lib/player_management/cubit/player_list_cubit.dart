@@ -14,19 +14,18 @@ class PlayerListCubit extends CollectionQuerierCubit<PlayerListState> {
     required CollectionRepository<PlayingLevel> playingLevelRepository,
     required CollectionRepository<Club> clubRepository,
     required CollectionRepository<Team> teamRepository,
-  })  : collectionRepositories = [
-          competitionRepository,
-          playerRepository,
-          playingLevelRepository,
-          clubRepository,
-          teamRepository,
-        ],
-        super(const PlayerListState()) {
+  }) : super(
+          collectionRepositories: [
+            competitionRepository,
+            playerRepository,
+            playingLevelRepository,
+            clubRepository,
+            teamRepository,
+          ],
+          const PlayerListState(),
+        ) {
     loadPlayerData();
   }
-
-  @override
-  final Iterable<CollectionRepository<Model>> collectionRepositories;
 
   void loadPlayerData() {
     if (state.loadingStatus != LoadingStatus.loading) {
