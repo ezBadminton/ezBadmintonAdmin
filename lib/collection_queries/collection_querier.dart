@@ -12,9 +12,13 @@ abstract class CollectionQuerierState {
   List<M> getCollection<M extends Model>();
 }
 
+abstract class CollectionQuerier {
+  abstract final Iterable<CollectionRepository<Model>> collectionRepositories;
+}
+
 abstract class CollectionQuerierCubit<State extends CollectionQuerierState>
-    extends Cubit<State> {
-  /// A cubit that has functions to fetch and update collections from db.
+    extends Cubit<State> implements CollectionQuerier {
+  /// A cubit that has functions to fetch collections from db.
   ///
   /// The collections are accessed via [CollectionRepository] objects. Each
   /// repository object is granting access to a collection of one [Model].
@@ -37,9 +41,10 @@ abstract class CollectionQuerierCubit<State extends CollectionQuerierState>
   /// ```
   ///
   /// The `ExampleQuerierCubit` now has the ability to fetch [Player] and [Team]
-  /// collections and update them. Beware trying to do collection operations
+  /// collections. Beware trying to do collection operations
   /// on Models that the [CollectionQuerierCubit] does not have the repository
-  /// of. This will lead to exceptions.
+  /// of. This will lead to exceptions. User the [CollectionUpdater] mixin to
+  /// also gain access to create and update functions.
   CollectionQuerierCubit(
     super.initialState, {
     required this.collectionRepositories,
@@ -52,6 +57,7 @@ abstract class CollectionQuerierCubit<State extends CollectionQuerierState>
     Team: ExpansionTree(Team.expandedFields),
   };
 
+  @override
   final Iterable<CollectionRepository<Model>> collectionRepositories;
 
   /// Fetches the full collection of data objects of the model type [M]
@@ -138,7 +144,9 @@ abstract class CollectionQuerierCubit<State extends CollectionQuerierState>
       }
     }
   }
+}
 
+mixin CollectionUpdater on CollectionQuerier {
   /// Puts a newly created model into its collection on the DB.
   ///
   /// On success the Future resolves to the [Model] of type [M] with its
