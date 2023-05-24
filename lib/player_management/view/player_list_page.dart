@@ -70,6 +70,7 @@ class _PlayerListPageScaffold extends StatelessWidget {
                   .push(PlayerEditingPage.route(
                 players: listCubit.state.getCollection<Player>(),
                 playingLevels: listCubit.state.getCollection<PlayingLevel>(),
+                ageGroups: listCubit.state.getCollection<AgeGroup>(),
                 clubs: listCubit.state.getCollection<Club>(),
                 competitions: listCubit.state.getCollection<Competition>(),
                 teams: listCubit.state.getCollection<Team>(),

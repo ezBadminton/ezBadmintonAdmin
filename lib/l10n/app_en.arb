@@ -11,6 +11,8 @@
   "underAge": "under",
   "overAgeAbbreviated": "O",
   "underAgeAbbreviated": "U",
+  "ageGroupAbbreviated": "{type, select, over{O} under{U} other{other}}",
+  "ageGroup": "Age group",
   "name": "name",
   "club": "club",
   "registrations": "registrations",

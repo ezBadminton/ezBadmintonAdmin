@@ -1,7 +1,7 @@
-import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/player_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/competition_registration_form.dart';
 import 'package:ez_badminton_admin_app/widgets/constrained_autocomplete/constrained_autocomplete.dart';
+import 'package:ez_badminton_admin_app/widgets/custom_input_fields/playing_level_input.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -84,7 +84,7 @@ class _PlayerEditingFormFields extends StatelessWidget {
               initialValue: cubit.state.clubName.value,
             ),
             const SizedBox(width: 25),
-            _PlayingLevelInput(onChanged: cubit.playingLevelChanged),
+            const _PlayingLevelInput(),
           ],
         ),
         const SizedBox(height: 60),
@@ -95,6 +95,28 @@ class _PlayerEditingFormFields extends StatelessWidget {
         const Divider(height: 25, indent: 20, endIndent: 20),
         const CompetitionRegistrationForm(),
       ],
+    );
+  }
+}
+
+class _PlayingLevelInput extends StatelessWidget {
+  const _PlayingLevelInput();
+
+  @override
+  Widget build(BuildContext context) {
+    var cubit = context.read<PlayerEditingCubit>();
+    return BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
+      buildWhen: (previous, current) =>
+          previous.playingLevel != current.playingLevel,
+      builder: (context, state) {
+        return Expanded(
+          child: PlayingLevelInput(
+            onChanged: cubit.playingLevelChanged,
+            currentValue: state.playingLevel.value,
+            playingLevelOptions: cubit.playingLevels,
+          ),
+        );
+      },
     );
   }
 }
@@ -192,52 +214,6 @@ class _DateOfBirthInput extends StatelessWidget {
   }
 }
 
-class _PlayingLevelInput extends StatelessWidget {
-  _PlayingLevelInput({
-    required this.onChanged,
-  });
-
-  final void Function(PlayingLevel? value) onChanged;
-  final FocusNode _focusNode = FocusNode();
-
-  @override
-  Widget build(BuildContext context) {
-    AppLocalizations l10n = AppLocalizations.of(context)!;
-    return Expanded(
-      child: BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
-        builder: (context, state) {
-          return DropdownButtonFormField<PlayingLevel>(
-            value: state.playingLevel.value,
-            onChanged: onChanged,
-            items: state.playingLevels
-                .map((level) => DropdownMenuItem(
-                      value: level,
-                      child: Text(level.name),
-                    ))
-                .toList(),
-            focusNode: _focusNode,
-            decoration: InputDecoration(
-              label: Text(l10n.playingLevel),
-              counterText: ' ',
-              suffixIcon: state.playingLevel.value == null
-                  ? null
-                  : IconButton(
-                      tooltip:
-                          MaterialLocalizations.of(context).deleteButtonTooltip,
-                      onPressed: () {
-                        onChanged(null);
-                        _focusNode.unfocus();
-                      },
-                      icon: const Icon(Icons.highlight_remove),
-                    ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
 class _ClubInput extends StatelessWidget {
   _ClubInput({
     required this.onChanged,
@@ -253,18 +229,18 @@ class _ClubInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations l10n = AppLocalizations.of(context)!;
+    var cubit = context.read<PlayerEditingCubit>();
     return Expanded(
       child: LayoutBuilder(
         builder: (context, constraints) =>
             BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
           buildWhen: (previous, current) =>
-              previous.clubName != current.clubName ||
-              previous.clubs != current.clubs,
+              previous.clubName != current.clubName,
           builder: (context, state) {
             return ConstrainedAutocomplete<String>(
               optionsBuilder: (clubName) => _createClubSuggestions(
                 clubName.text,
-                state.clubs.map((c) => c.name),
+                cubit.clubs.map((c) => c.name),
               ),
               onSelected: onChanged,
               constraints: constraints,

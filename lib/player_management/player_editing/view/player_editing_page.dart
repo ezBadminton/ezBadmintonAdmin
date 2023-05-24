@@ -13,6 +13,7 @@ class PlayerEditingPage extends StatelessWidget {
     super.key,
     required this.players,
     required this.playingLevels,
+    required this.ageGroups,
     required this.clubs,
     required this.competitions,
     required this.teams,
@@ -20,6 +21,7 @@ class PlayerEditingPage extends StatelessWidget {
 
   final List<Player> players;
   final List<PlayingLevel> playingLevels;
+  final List<AgeGroup> ageGroups;
   final List<Club> clubs;
   final List<Competition> competitions;
   final List<Team> teams;
@@ -27,6 +29,7 @@ class PlayerEditingPage extends StatelessWidget {
   static Route<Player?> route({
     required List<Player> players,
     required List<PlayingLevel> playingLevels,
+    required List<AgeGroup> ageGroups,
     required List<Club> clubs,
     required List<Competition> competitions,
     required List<Team> teams,
@@ -35,6 +38,7 @@ class PlayerEditingPage extends StatelessWidget {
         builder: (_) => PlayerEditingPage(
               players: players,
               playingLevels: playingLevels,
+              ageGroups: ageGroups,
               clubs: clubs,
               competitions: competitions,
               teams: teams,
@@ -48,6 +52,7 @@ class PlayerEditingPage extends StatelessWidget {
       create: (context) => PlayerEditingCubit(
         context: context,
         playingLevels: playingLevels,
+        ageGroups: ageGroups,
         clubs: clubs,
         competitions: competitions,
         teams: teams,

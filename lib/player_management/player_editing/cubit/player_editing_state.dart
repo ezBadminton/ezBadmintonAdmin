@@ -11,21 +11,15 @@ class PlayerEditingState with FormzMixin {
     required this.eMail,
     required this.dateOfBirth,
     required this.playingLevel,
-    required this.playingLevels,
-    required this.clubs,
-    required this.competitionType,
-    required this.genderCategory,
+    required this.registrations,
   });
 
   PlayerEditingState.fromPlayer({
     required context,
     required this.player,
     this.formStatus = FormzSubmissionStatus.initial,
-    this.playingLevels = const [],
-    this.clubs = const [],
-    this.competitionType = const SelectionInput.dirty(emptyAllowed: true),
-    this.genderCategory =
-        const SelectionInput.dirty(value: GenderCategory.male),
+    // TODO registrations from player
+    this.registrations = const [],
   })  : firstName = NonEmptyInput.pure(player.firstName),
         lastName = NonEmptyInput.pure(player.lastName),
         clubName = NoValidationInput.pure(player.club?.name ?? ''),
@@ -52,11 +46,7 @@ class PlayerEditingState with FormzMixin {
   final DateInput dateOfBirth;
   final SelectionInput<PlayingLevel> playingLevel;
 
-  final SelectionInput<CompetitionType> competitionType;
-  final SelectionInput<GenderCategory> genderCategory;
-
-  final List<PlayingLevel> playingLevels;
-  final List<Club> clubs;
+  final List<CompetitionRegistrationState> registrations;
 
   @override
   List<FormzInput> get inputs => [
@@ -77,10 +67,7 @@ class PlayerEditingState with FormzMixin {
     EMailInput? eMail,
     DateInput? dateOfBirth,
     SelectionInput<PlayingLevel>? playingLevel,
-    List<PlayingLevel>? playingLevels,
-    List<Club>? clubs,
-    SelectionInput<CompetitionType>? competitionType,
-    SelectionInput<GenderCategory>? genderCategory,
+    List<CompetitionRegistrationState>? registrations,
   }) =>
       PlayerEditingState(
         player: player ?? this.player,
@@ -91,9 +78,6 @@ class PlayerEditingState with FormzMixin {
         eMail: eMail ?? this.eMail,
         dateOfBirth: dateOfBirth ?? this.dateOfBirth,
         playingLevel: playingLevel ?? this.playingLevel,
-        playingLevels: playingLevels ?? this.playingLevels,
-        clubs: clubs ?? this.clubs,
-        competitionType: competitionType ?? this.competitionType,
-        genderCategory: genderCategory ?? this.genderCategory,
+        registrations: registrations ?? this.registrations,
       );
 }

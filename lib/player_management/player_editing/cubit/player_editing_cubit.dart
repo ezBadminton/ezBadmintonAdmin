@@ -1,7 +1,9 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
 import 'package:ez_badminton_admin_app/input_models/no_validation.dart';
+import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_state.dart';
 import 'package:flutter/material.dart';
 import 'package:formz/formz.dart';
 
@@ -14,18 +16,17 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
     required CollectionRepository<Club> clubRepository,
     required CollectionRepository<Competition> competitionRepository,
     required CollectionRepository<Team> teamRepository,
-    required List<Player> players,
-    required List<PlayingLevel> playingLevels,
-    required List<Club> clubs,
-    required List<Competition> competitions,
-    required List<Team> teams,
+    required this.players,
+    required this.competitions,
+    required this.playingLevels,
+    required this.ageGroups,
+    required this.clubs,
+    required this.teams,
   })  : _context = context,
         super(
           PlayerEditingState.fromPlayer(
             player: Player.newPlayer(),
             context: context,
-            playingLevels: playingLevels,
-            clubs: clubs,
           ),
           collectionRepositories: [
             playerRepository,
@@ -36,6 +37,15 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
         );
 
   final BuildContext _context;
+
+  final List<Player> players;
+  final List<Competition> competitions;
+  final List<PlayingLevel> playingLevels;
+  final List<AgeGroup> ageGroups;
+  final List<Club> clubs;
+  final List<Team> teams;
+
+  // Personal data inputs
 
   void firstNameChanged(String firstName) {
     var newState = state.copyWith(firstName: NonEmptyInput.dirty(firstName));
@@ -83,26 +93,122 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
     emit(newState);
   }
 
-  void competitionTypeChanged(CompetitionType? competitionType) {
-    if (competitionType == CompetitionType.mixed) {
-      genderCategoryChanged(GenderCategory.mixed);
-    } else if (state.genderCategory.value == GenderCategory.mixed) {
-      genderCategoryChanged(GenderCategory.male);
-    }
-    var newState = state.copyWith(
-      competitionType: SelectionInput.dirty(
-        emptyAllowed: true,
-        value: competitionType,
-      ),
-    );
-    emit(newState);
+  // Competition registration inputs
+
+  void addRegistration() {
+    int index = state.registrations.length;
+    var newRegistrations = List.of(state.registrations)
+      ..insert(index, CompetitionRegistrationState());
+    emit(state.copyWith(registrations: newRegistrations));
   }
 
-  void genderCategoryChanged(GenderCategory genderCategory) {
-    var newState = state.copyWith(
-      genderCategory: SelectionInput.dirty(value: genderCategory),
-    );
-    emit(newState);
+  void competitionTypeChanged(
+    int registrationIndex,
+    CompetitionType? competitionType,
+  ) {
+    var registration = state.registrations[registrationIndex];
+    registration = registration.copyWith(
+        competitionType: SelectionInput.dirty(value: competitionType));
+    _emitRegistrationChange(registrationIndex, registration);
+  }
+
+  void competitionPlayingLevelChanged(
+    int registrationIndex,
+    PlayingLevel? playingLevel,
+  ) {
+    var registration = state.registrations[registrationIndex];
+    registration = registration.copyWith(
+        playingLevel: SelectionInput.dirty(value: playingLevel));
+    _emitRegistrationChange(registrationIndex, registration);
+  }
+
+  void genderCategoryChanged(
+    int registrationIndex,
+    GenderCategory? genderCategory,
+  ) {
+    var registration = state.registrations[registrationIndex];
+    registration = registration.copyWith(
+        genderCategory: SelectionInput.dirty(value: genderCategory));
+    _emitRegistrationChange(registrationIndex, registration);
+  }
+
+  void ageGroupChanged(
+    int registrationIndex,
+    AgeGroup? ageGroup,
+  ) {
+    var registration = state.registrations[registrationIndex];
+    registration =
+        registration.copyWith(ageGroup: SelectionInput.dirty(value: ageGroup));
+    _emitRegistrationChange(registrationIndex, registration);
+  }
+
+  void partnerNameChanged(int registrationIndex, String partnerName) {
+    var registration = state.registrations[registrationIndex];
+    registration = registration.copyWith(
+        partnerName: NoValidationInput.dirty(partnerName));
+    _emitRegistrationChange(registrationIndex, registration);
+  }
+
+  void _emitRegistrationChange(
+    int registrationIndex,
+    CompetitionRegistrationState registration,
+  ) {
+    var newRegistrations = List.of(state.registrations)
+      ..removeAt(registrationIndex)
+      ..insert(registrationIndex, registration);
+    emit(state.copyWith(registrations: newRegistrations));
+  }
+
+  // Competition registration options
+
+  List<AgeGroup> getAvailableAgeGroups() {
+    return competitions
+        .map((c) => c.ageGroups)
+        .expand((groups) => groups)
+        .toSet()
+        .sorted((a, b) => a.age > b.age ? 1 : -1);
+  }
+
+  List<PlayingLevel> getAvailablePlayingLevels() {
+    return competitions
+        .map((c) => c.playingLevels)
+        .expand((levels) => levels)
+        .toSet()
+        .sorted((a, b) => a.index > b.index ? 1 : -1);
+  }
+
+  List<GenderCategory> getAvailableGenderCategories() {
+    var presentGenderCategories = competitions.map((c) => c.genderCategory);
+    return GenderCategory.values
+        .where((t) => presentGenderCategories.contains(t))
+        .toList();
+  }
+
+  List<CompetitionType> getAvailableCompetitionTypes() {
+    var presentCompetitionTypes =
+        competitions.map((c) => c.getCompetitionType());
+    return CompetitionType.values
+        .where((t) => presentCompetitionTypes.contains(t))
+        .toList();
+  }
+
+  List<Competition> getSelectedCompetitions(int registrationIndex) {
+    var registration = state.registrations[registrationIndex];
+    return competitions.where((competition) {
+      var typeMatch = competition.getCompetitionType() ==
+          registration.competitionType.value;
+      var genderCategoryMatch =
+          competition.genderCategory == GenderCategory.any ||
+              competition.genderCategory == registration.genderCategory.value;
+      var ageGroupMatch = competition.ageGroups.isEmpty ||
+          competition.ageGroups.contains(registration.ageGroup.value);
+      var playingLevelMatch = competition.playingLevels.isEmpty ||
+          competition.playingLevels.contains(registration.playingLevel.value);
+      return typeMatch &&
+          genderCategoryMatch &&
+          ageGroupMatch &&
+          playingLevelMatch;
+    }).toList();
   }
 
   void formSubmitted() async {
@@ -151,7 +257,7 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
   /// given [clubName].
   Future<Club?> _clubFromName(String clubName) async {
     Club? club;
-    var selectedClub = state.clubs.where(
+    var selectedClub = clubs.where(
       (c) => c.name.toLowerCase() == clubName.toLowerCase(),
     );
     if (selectedClub.isNotEmpty) {

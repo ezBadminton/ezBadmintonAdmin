@@ -5,19 +5,19 @@ import 'package:flutter/foundation.dart';
 
 import 'model_converter.dart';
 
-part 'generated/set.freezed.dart';
-part 'generated/set.g.dart';
+part 'generated/match_set.freezed.dart';
+part 'generated/match_set.g.dart';
 
 @freezed
-class Set extends Model with _$Set {
-  const Set._();
+class MatchSet extends Model with _$MatchSet {
+  const MatchSet._();
 
   /// One set in a badminton [Match]
   ///
   /// A badminton [match] usually consists of 2-3 sets with the winning team
   /// reaching 21 points (2 points clear) first. The [index] signals the order
   /// of sets in the match.
-  const factory Set({
+  const factory MatchSet({
     required String id,
     required DateTime created,
     required DateTime updated,
@@ -25,10 +25,10 @@ class Set extends Model with _$Set {
     required int index,
     required int team1Points,
     required int team2Points,
-  }) = _Set;
+  }) = _MatchSet;
 
-  factory Set.fromJson(Map<String, dynamic> json) =>
-      _$SetFromJson(ModelConverter.convertExpansions(json, expandedFields));
+  factory MatchSet.fromJson(Map<String, dynamic> json) => _$MatchSetFromJson(
+      ModelConverter.convertExpansions(json, expandedFields));
 
   static const List<ExpandedField> expandedFields = [
     ExpandedField(model: Match, key: 'match', isRequired: true, isSingle: true),
