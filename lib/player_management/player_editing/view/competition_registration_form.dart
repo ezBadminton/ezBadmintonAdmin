@@ -1,3 +1,5 @@
+import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_cubit.dart';
+import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_state.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/player_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/age_group_input.dart';
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/competition_type_input.dart';
@@ -13,6 +15,8 @@ class CompetitionRegistrationForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
+      buildWhen: (previous, current) =>
+          previous.registrations != current.registrations,
       builder: (context, state) {
         return Column(
           children: <Widget>[
@@ -33,7 +37,7 @@ class _RegistrationSubmitButton extends StatelessWidget {
   Widget build(BuildContext context) {
     var cubit = context.read<PlayerEditingCubit>();
     return ElevatedButton(
-      onPressed: cubit.addRegistration,
+      onPressed: cubit.registrationAdded,
       child: const Text('Neue Meldung'),
     );
   }
@@ -46,22 +50,63 @@ class _CompetitionForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var cubit = context.read<PlayerEditingCubit>();
+    var editingCubit = context.read<PlayerEditingCubit>();
+
+    return BlocProvider(
+      create: (context) => CompetitionRegistrationCubit(
+        editingCubit.state.registrations[registrationIndex],
+        registrationIndex: registrationIndex,
+        playerListCollections: editingCubit.collections,
+      ),
+      child: _CompetitionFormFields(
+        registrationIndex: registrationIndex,
+      ),
+    );
+  }
+}
+
+class _CompetitionFormFields extends StatelessWidget {
+  const _CompetitionFormFields({
+    required this.registrationIndex,
+  });
+
+  final int registrationIndex;
+
+  @override
+  Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
+    var registrationCubit = context.read<CompetitionRegistrationCubit>();
     return BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
       builder: (context, state) {
         var registration = state.registrations[registrationIndex];
         return Stepper(
           currentStep: registration.formStep,
-          onStepContinue: () => cubit.formStepForward(registrationIndex),
+          onStepContinue: () =>
+              registrationCubit.formStepForward(registrationIndex),
+          stepIconBuilder: (stepIndex, stepState) {
+            if (stepIndex < registration.formStep) {
+              return const Icon(
+                size: 16,
+                Icons.check,
+              );
+            } else {
+              return const Icon(
+                size: 16,
+                Icons.more_horiz,
+              );
+            }
+          },
           steps: [
-            if (cubit.getAvailablePlayingLevels().isNotEmpty)
+            if (registrationCubit.getAvailablePlayingLevels().isNotEmpty)
               Step(
                 title: Text(l10n.playingLevel),
+                subtitle: Text(
+                  registration.playingLevel.value?.name ?? 'Bitte wählen',
+                ),
                 content:
                     _PlayingLevelInput(registrationIndex: registrationIndex),
               ),
-            if (cubit.getAvailableAgeGroups().isNotEmpty)
+            if (registrationCubit.getAvailableAgeGroups().isNotEmpty)
               Step(
                 title: Text(l10n.ageGroup),
                 content: _AgeGroupInput(registrationIndex: registrationIndex),
@@ -75,6 +120,11 @@ class _CompetitionForm extends StatelessWidget {
                   _CompetitionTypeInput(registrationIndex: registrationIndex),
                 ],
               ),
+            ),
+            Step(
+              title: Text('Spielpartner'),
+              subtitle: Text('Optional'),
+              content: _AgeGroupInput(registrationIndex: registrationIndex),
             ),
           ],
         );
@@ -92,19 +142,19 @@ class _CompetitionTypeInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var cubit = context.read<PlayerEditingCubit>();
+    var registrationCubit = context.read<CompetitionRegistrationCubit>();
     return Expanded(
-      child: BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
+      child: BlocBuilder<CompetitionRegistrationCubit,
+          CompetitionRegistrationState>(
         buildWhen: (previous, current) =>
-            previous.registrations[registrationIndex].competitionType !=
-            current.registrations[registrationIndex].competitionType,
+            previous.competitionType != current.competitionType,
         builder: (context, state) {
           return CompetitionTypeInput(
-            onChanged: (competitionType) => cubit.competitionTypeChanged(
-                registrationIndex, competitionType),
-            currentValue:
-                state.registrations[registrationIndex].competitionType.value,
-            competitionTypeOptions: cubit.getAvailableCompetitionTypes(),
+            onChanged: (competitionType) => registrationCubit
+                .competitionTypeChanged(registrationIndex, competitionType),
+            currentValue: state.competitionType.value,
+            competitionTypeOptions:
+                registrationCubit.getAvailableCompetitionTypes(),
           );
         },
       ),
@@ -121,19 +171,19 @@ class _GenderCategoryInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var cubit = context.read<PlayerEditingCubit>();
+    var registrationCubit = context.read<CompetitionRegistrationCubit>();
     return Expanded(
-      child: BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
+      child: BlocBuilder<CompetitionRegistrationCubit,
+          CompetitionRegistrationState>(
         buildWhen: (previous, current) =>
-            previous.registrations[registrationIndex].genderCategory !=
-            current.registrations[registrationIndex].genderCategory,
+            previous.genderCategory != current.genderCategory,
         builder: (context, state) {
           return GenderCategoryInput(
-            onChanged: (genderCategory) =>
-                cubit.genderCategoryChanged(registrationIndex, genderCategory),
-            currentValue:
-                state.registrations[registrationIndex].genderCategory.value,
-            genderCategoryOptions: cubit.getAvailableGenderCategories(),
+            onChanged: (genderCategory) => registrationCubit
+                .genderCategoryChanged(registrationIndex, genderCategory),
+            currentValue: state.genderCategory.value,
+            genderCategoryOptions:
+                registrationCubit.getAvailableGenderCategories(),
           );
         },
       ),
@@ -150,17 +200,16 @@ class _AgeGroupInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var cubit = context.read<PlayerEditingCubit>();
-    return BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
-      buildWhen: (previous, current) =>
-          previous.registrations[registrationIndex].ageGroup !=
-          current.registrations[registrationIndex].ageGroup,
+    var registrationCubit = context.read<CompetitionRegistrationCubit>();
+    return BlocBuilder<CompetitionRegistrationCubit,
+        CompetitionRegistrationState>(
+      buildWhen: (previous, current) => previous.ageGroup != current.ageGroup,
       builder: (context, state) {
         return AgeGroupInput(
           onChanged: (ageGroup) =>
-              cubit.ageGroupChanged(registrationIndex, ageGroup),
-          currentValue: state.registrations[registrationIndex].ageGroup.value,
-          ageGroupOptions: cubit.getAvailableAgeGroups(),
+              registrationCubit.ageGroupChanged(registrationIndex, ageGroup),
+          currentValue: state.ageGroup.value,
+          ageGroupOptions: registrationCubit.getAvailableAgeGroups(),
         );
       },
     );
@@ -176,20 +225,20 @@ class _PlayingLevelInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var cubit = context.read<PlayerEditingCubit>();
-    return BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
+    var registrationCubit = context.read<CompetitionRegistrationCubit>();
+    return BlocBuilder<CompetitionRegistrationCubit,
+        CompetitionRegistrationState>(
       buildWhen: (previous, current) =>
-          previous.registrations[registrationIndex].playingLevel !=
-          current.registrations[registrationIndex].playingLevel,
+          previous.playingLevel != current.playingLevel,
       builder: (context, state) {
         return PlayingLevelInput(
-          onChanged: (playingLevel) => cubit.competitionPlayingLevelChanged(
+          onChanged: (playingLevel) =>
+              registrationCubit.competitionPlayingLevelChanged(
             registrationIndex,
             playingLevel,
           ),
-          currentValue:
-              state.registrations[registrationIndex].playingLevel.value,
-          playingLevelOptions: cubit.getAvailablePlayingLevels(),
+          currentValue: state.playingLevel.value,
+          playingLevelOptions: registrationCubit.getAvailablePlayingLevels(),
         );
       },
     );

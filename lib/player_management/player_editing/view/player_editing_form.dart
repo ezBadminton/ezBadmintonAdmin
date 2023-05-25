@@ -1,3 +1,4 @@
+import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/player_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/competition_registration_form.dart';
 import 'package:ez_badminton_admin_app/widgets/constrained_autocomplete/constrained_autocomplete.dart';
@@ -113,7 +114,7 @@ class _PlayingLevelInput extends StatelessWidget {
           child: PlayingLevelInput(
             onChanged: cubit.playingLevelChanged,
             currentValue: state.playingLevel.value,
-            playingLevelOptions: cubit.playingLevels,
+            playingLevelOptions: cubit.getCollection<PlayingLevel>(),
           ),
         );
       },
@@ -240,7 +241,7 @@ class _ClubInput extends StatelessWidget {
             return ConstrainedAutocomplete<String>(
               optionsBuilder: (clubName) => _createClubSuggestions(
                 clubName.text,
-                cubit.clubs.map((c) => c.name),
+                cubit.getCollection<Club>().map((c) => c.name),
               ),
               onSelected: onChanged,
               constraints: constraints,

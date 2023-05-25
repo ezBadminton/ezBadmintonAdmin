@@ -11,38 +11,23 @@ import 'package:formz/formz.dart';
 class PlayerEditingPage extends StatelessWidget {
   const PlayerEditingPage({
     super.key,
-    required this.players,
-    required this.playingLevels,
-    required this.ageGroups,
-    required this.clubs,
-    required this.competitions,
-    required this.teams,
+    required this.playerListCollections,
+    required this.playerCompetitions,
   });
 
-  final List<Player> players;
-  final List<PlayingLevel> playingLevels;
-  final List<AgeGroup> ageGroups;
-  final List<Club> clubs;
-  final List<Competition> competitions;
-  final List<Team> teams;
+  final Map<Type, List<Model>> playerListCollections;
+  final Map<Player, List<Competition>> playerCompetitions;
 
   static Route<Player?> route({
-    required List<Player> players,
-    required List<PlayingLevel> playingLevels,
-    required List<AgeGroup> ageGroups,
-    required List<Club> clubs,
-    required List<Competition> competitions,
-    required List<Team> teams,
+    required Map<Type, List<Model>> playerListCollections,
+    required Map<Player, List<Competition>> playerCompetitions,
   }) {
     return MaterialPageRoute<Player?>(
-        builder: (_) => PlayerEditingPage(
-              players: players,
-              playingLevels: playingLevels,
-              ageGroups: ageGroups,
-              clubs: clubs,
-              competitions: competitions,
-              teams: teams,
-            ));
+      builder: (_) => PlayerEditingPage(
+        playerListCollections: playerListCollections,
+        playerCompetitions: playerCompetitions,
+      ),
+    );
   }
 
   @override
@@ -51,12 +36,8 @@ class PlayerEditingPage extends StatelessWidget {
     return BlocProvider(
       create: (context) => PlayerEditingCubit(
         context: context,
-        playingLevels: playingLevels,
-        ageGroups: ageGroups,
-        clubs: clubs,
-        competitions: competitions,
-        teams: teams,
-        players: players,
+        playerListCollections: playerListCollections,
+        playerCompetitions: playerCompetitions,
         playerRepository: context.read<CollectionRepository<Player>>(),
         clubRepository: context.read<CollectionRepository<Club>>(),
         competitionRepository:
@@ -91,6 +72,7 @@ class PlayerEditingPage extends StatelessWidget {
                 ? const EndOffscreenFabLocation()
                 : FloatingActionButtonLocation.endFloat,
             body: const Align(
+              alignment: Alignment.topCenter,
               child: SizedBox(
                 width: 600,
                 child: PlayerEditingForm(),

@@ -1,7 +1,7 @@
 part of 'player_list_cubit.dart';
 
 @immutable
-class PlayerListState extends CollectionFetcherState {
+class PlayerListState extends CollectionFetcherState with CollectionGetter {
   const PlayerListState({
     this.loadingStatus = LoadingStatus.loading,
     this.filteredPlayers = const [],
@@ -13,6 +13,7 @@ class PlayerListState extends CollectionFetcherState {
   final List<Player> filteredPlayers;
   final Map<Player, List<Competition>> playerCompetitions;
 
+  @override
   final Map<Type, List<Model>> collections;
 
   PlayerListState copyWith({
@@ -38,10 +39,5 @@ class PlayerListState extends CollectionFetcherState {
     newCollections.remove(modelType);
     newCollections.putIfAbsent(modelType, () => collection);
     return copyWith(collections: Map.unmodifiable(newCollections));
-  }
-
-  @override
-  List<M> getCollection<M extends Model>() {
-    return collections[M] as List<M>;
   }
 }

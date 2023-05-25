@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
@@ -9,20 +8,18 @@ import 'package:formz/formz.dart';
 
 part 'player_editing_state.dart';
 
-class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
+class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState>
+    with CollectionGetter {
   PlayerEditingCubit({
     required BuildContext context,
     required CollectionRepository<Player> playerRepository,
     required CollectionRepository<Club> clubRepository,
     required CollectionRepository<Competition> competitionRepository,
     required CollectionRepository<Team> teamRepository,
-    required this.players,
-    required this.competitions,
-    required this.playingLevels,
-    required this.ageGroups,
-    required this.clubs,
-    required this.teams,
+    required Map<Type, List<Model>> playerListCollections,
+    required this.playerCompetitions,
   })  : _context = context,
+        collections = playerListCollections,
         super(
           PlayerEditingState.fromPlayer(
             player: Player.newPlayer(),
@@ -38,12 +35,9 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
 
   final BuildContext _context;
 
-  final List<Player> players;
-  final List<Competition> competitions;
-  final List<PlayingLevel> playingLevels;
-  final List<AgeGroup> ageGroups;
-  final List<Club> clubs;
-  final List<Team> teams;
+  @override
+  final Map<Type, List<Model>> collections;
+  final Map<Player, List<Competition>> playerCompetitions;
 
   // Personal data inputs
 
@@ -93,128 +87,10 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
     emit(newState);
   }
 
-  // Competition registration inputs
-
-  void addRegistration() {
-    int index = state.registrations.length;
+  void registrationAdded() {
     var newRegistrations = List.of(state.registrations)
-      ..insert(index, CompetitionRegistrationState());
+      ..add(CompetitionRegistrationState());
     emit(state.copyWith(registrations: newRegistrations));
-  }
-
-  void formStepForward(int registrationIndex) {
-    var registration = state.registrations[registrationIndex];
-    registration = registration.copyWith(formStep: registration.formStep + 1);
-    _emitRegistrationChange(registrationIndex, registration);
-  }
-
-  void competitionTypeChanged(
-    int registrationIndex,
-    CompetitionType? competitionType,
-  ) {
-    var registration = state.registrations[registrationIndex];
-    registration = registration.copyWith(
-        competitionType: SelectionInput.dirty(value: competitionType));
-    _emitRegistrationChange(registrationIndex, registration);
-  }
-
-  void competitionPlayingLevelChanged(
-    int registrationIndex,
-    PlayingLevel? playingLevel,
-  ) {
-    var registration = state.registrations[registrationIndex];
-    registration = registration.copyWith(
-        playingLevel: SelectionInput.dirty(value: playingLevel));
-    _emitRegistrationChange(registrationIndex, registration);
-  }
-
-  void genderCategoryChanged(
-    int registrationIndex,
-    GenderCategory? genderCategory,
-  ) {
-    var registration = state.registrations[registrationIndex];
-    registration = registration.copyWith(
-        genderCategory: SelectionInput.dirty(value: genderCategory));
-    _emitRegistrationChange(registrationIndex, registration);
-  }
-
-  void ageGroupChanged(
-    int registrationIndex,
-    AgeGroup? ageGroup,
-  ) {
-    var registration = state.registrations[registrationIndex];
-    registration =
-        registration.copyWith(ageGroup: SelectionInput.dirty(value: ageGroup));
-    _emitRegistrationChange(registrationIndex, registration);
-  }
-
-  void partnerNameChanged(int registrationIndex, String partnerName) {
-    var registration = state.registrations[registrationIndex];
-    registration = registration.copyWith(
-        partnerName: NoValidationInput.dirty(partnerName));
-    _emitRegistrationChange(registrationIndex, registration);
-  }
-
-  void _emitRegistrationChange(
-    int registrationIndex,
-    CompetitionRegistrationState registration,
-  ) {
-    var newRegistrations = List.of(state.registrations)
-      ..removeAt(registrationIndex)
-      ..insert(registrationIndex, registration);
-    emit(state.copyWith(registrations: newRegistrations));
-  }
-
-  // Competition registration options
-
-  List<AgeGroup> getAvailableAgeGroups() {
-    return competitions
-        .map((c) => c.ageGroups)
-        .expand((groups) => groups)
-        .toSet()
-        .sorted((a, b) => a.age > b.age ? 1 : -1);
-  }
-
-  List<PlayingLevel> getAvailablePlayingLevels() {
-    return competitions
-        .map((c) => c.playingLevels)
-        .expand((levels) => levels)
-        .toSet()
-        .sorted((a, b) => a.index > b.index ? 1 : -1);
-  }
-
-  List<GenderCategory> getAvailableGenderCategories() {
-    var presentGenderCategories = competitions.map((c) => c.genderCategory);
-    return GenderCategory.values
-        .where((t) => presentGenderCategories.contains(t))
-        .toList();
-  }
-
-  List<CompetitionType> getAvailableCompetitionTypes() {
-    var presentCompetitionTypes =
-        competitions.map((c) => c.getCompetitionType());
-    return CompetitionType.values
-        .where((t) => presentCompetitionTypes.contains(t))
-        .toList();
-  }
-
-  List<Competition> getSelectedCompetitions(int registrationIndex) {
-    var registration = state.registrations[registrationIndex];
-    return competitions.where((competition) {
-      var typeMatch = competition.getCompetitionType() ==
-          registration.competitionType.value;
-      var genderCategoryMatch =
-          competition.genderCategory == GenderCategory.any ||
-              competition.genderCategory == registration.genderCategory.value;
-      var ageGroupMatch = competition.ageGroups.isEmpty ||
-          competition.ageGroups.contains(registration.ageGroup.value);
-      var playingLevelMatch = competition.playingLevels.isEmpty ||
-          competition.playingLevels.contains(registration.playingLevel.value);
-      return typeMatch &&
-          genderCategoryMatch &&
-          ageGroupMatch &&
-          playingLevelMatch;
-    }).toList();
   }
 
   void formSubmitted() async {
@@ -263,7 +139,7 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
   /// given [clubName].
   Future<Club?> _clubFromName(String clubName) async {
     Club? club;
-    var selectedClub = clubs.where(
+    var selectedClub = getCollection<Club>().where(
       (c) => c.name.toLowerCase() == clubName.toLowerCase(),
     );
     if (selectedClub.isNotEmpty) {

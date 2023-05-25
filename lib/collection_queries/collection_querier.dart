@@ -188,6 +188,16 @@ class CollectionFetcherCubit<State extends CollectionFetcherState>
   }
 }
 
+abstract class CollectionHolder {
+  abstract final Map<Type, List<Model>> collections;
+}
+
+mixin CollectionGetter implements CollectionHolder {
+  List<M> getCollection<M extends Model>() {
+    return collections[M] as List<M>;
+  }
+}
+
 abstract class CollectionFetcherState {
   const CollectionFetcherState();
   copyWithCollection({
