@@ -5,6 +5,7 @@ import 'package:formz/formz.dart';
 
 class CompetitionRegistrationState with FormzMixin {
   CompetitionRegistrationState({
+    this.formStep = 0,
     this.competitionType = const SelectionInput.dirty(value: null),
     this.genderCategory = const SelectionInput.dirty(
       emptyAllowed: true,
@@ -19,6 +20,7 @@ class CompetitionRegistrationState with FormzMixin {
     this.partnerName = const NoValidationInput.dirty(''),
   });
 
+  final int formStep;
   final SelectionInput<CompetitionType> competitionType;
   final SelectionInput<GenderCategory> genderCategory;
   final SelectionInput<AgeGroup> ageGroup;
@@ -26,6 +28,7 @@ class CompetitionRegistrationState with FormzMixin {
   final NoValidationInput partnerName;
 
   CompetitionRegistrationState copyWith({
+    int? formStep,
     SelectionInput<CompetitionType>? competitionType,
     SelectionInput<GenderCategory>? genderCategory,
     SelectionInput<AgeGroup>? ageGroup,
@@ -33,6 +36,7 @@ class CompetitionRegistrationState with FormzMixin {
     NoValidationInput? partnerName,
   }) =>
       CompetitionRegistrationState(
+        formStep: formStep ?? this.formStep,
         competitionType: competitionType ?? this.competitionType,
         genderCategory: genderCategory ?? this.genderCategory,
         partnerName: partnerName ?? this.partnerName,

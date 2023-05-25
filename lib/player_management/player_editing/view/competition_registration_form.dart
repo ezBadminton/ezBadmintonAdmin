@@ -5,6 +5,7 @@ import 'package:ez_badminton_admin_app/widgets/custom_input_fields/gender_catego
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/playing_level_input.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CompetitionRegistrationForm extends StatelessWidget {
   const CompetitionRegistrationForm({super.key});
@@ -46,23 +47,38 @@ class _CompetitionForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var cubit = context.read<PlayerEditingCubit>();
-    return Column(
-      children: [
-        Row(
-          children: [
-            _PlayingLevelInput(registrationIndex: registrationIndex),
-            const SizedBox(width: 25),
-            _AgeGroupInput(registrationIndex: registrationIndex),
+    var l10n = AppLocalizations.of(context)!;
+    return BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
+      builder: (context, state) {
+        var registration = state.registrations[registrationIndex];
+        return Stepper(
+          currentStep: registration.formStep,
+          onStepContinue: () => cubit.formStepForward(registrationIndex),
+          steps: [
+            if (cubit.getAvailablePlayingLevels().isNotEmpty)
+              Step(
+                title: Text(l10n.playingLevel),
+                content:
+                    _PlayingLevelInput(registrationIndex: registrationIndex),
+              ),
+            if (cubit.getAvailableAgeGroups().isNotEmpty)
+              Step(
+                title: Text(l10n.ageGroup),
+                content: _AgeGroupInput(registrationIndex: registrationIndex),
+              ),
+            Step(
+              title: Text(l10n.competition),
+              content: Row(
+                children: [
+                  _GenderCategoryInput(registrationIndex: registrationIndex),
+                  const SizedBox(width: 10),
+                  _CompetitionTypeInput(registrationIndex: registrationIndex),
+                ],
+              ),
+            ),
           ],
-        ),
-        Row(
-          children: [
-            _GenderCategoryInput(registrationIndex: registrationIndex),
-            const SizedBox(width: 25),
-            _CompetitionTypeInput(registrationIndex: registrationIndex),
-          ],
-        )
-      ],
+        );
+      },
     );
   }
 }
@@ -140,13 +156,11 @@ class _AgeGroupInput extends StatelessWidget {
           previous.registrations[registrationIndex].ageGroup !=
           current.registrations[registrationIndex].ageGroup,
       builder: (context, state) {
-        return Expanded(
-          child: AgeGroupInput(
-            onChanged: (ageGroup) =>
-                cubit.ageGroupChanged(registrationIndex, ageGroup),
-            currentValue: state.registrations[registrationIndex].ageGroup.value,
-            ageGroupOptions: cubit.getAvailableAgeGroups(),
-          ),
+        return AgeGroupInput(
+          onChanged: (ageGroup) =>
+              cubit.ageGroupChanged(registrationIndex, ageGroup),
+          currentValue: state.registrations[registrationIndex].ageGroup.value,
+          ageGroupOptions: cubit.getAvailableAgeGroups(),
         );
       },
     );
@@ -163,26 +177,21 @@ class _PlayingLevelInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var cubit = context.read<PlayerEditingCubit>();
-    if (cubit.getAvailablePlayingLevels().isEmpty) {
-      return const SizedBox();
-    }
-    return Expanded(
-      child: BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
-        buildWhen: (previous, current) =>
-            previous.registrations[registrationIndex].playingLevel !=
-            current.registrations[registrationIndex].playingLevel,
-        builder: (context, state) {
-          return PlayingLevelInput(
-            onChanged: (playingLevel) => cubit.competitionPlayingLevelChanged(
-              registrationIndex,
-              playingLevel,
-            ),
-            currentValue:
-                state.registrations[registrationIndex].playingLevel.value,
-            playingLevelOptions: cubit.getAvailablePlayingLevels(),
-          );
-        },
-      ),
+    return BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
+      buildWhen: (previous, current) =>
+          previous.registrations[registrationIndex].playingLevel !=
+          current.registrations[registrationIndex].playingLevel,
+      builder: (context, state) {
+        return PlayingLevelInput(
+          onChanged: (playingLevel) => cubit.competitionPlayingLevelChanged(
+            registrationIndex,
+            playingLevel,
+          ),
+          currentValue:
+              state.registrations[registrationIndex].playingLevel.value,
+          playingLevelOptions: cubit.getAvailablePlayingLevels(),
+        );
+      },
     );
   }
 }

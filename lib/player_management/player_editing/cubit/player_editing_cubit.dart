@@ -102,6 +102,12 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
     emit(state.copyWith(registrations: newRegistrations));
   }
 
+  void formStepForward(int registrationIndex) {
+    var registration = state.registrations[registrationIndex];
+    registration = registration.copyWith(formStep: registration.formStep + 1);
+    _emitRegistrationChange(registrationIndex, registration);
+  }
+
   void competitionTypeChanged(
     int registrationIndex,
     CompetitionType? competitionType,
