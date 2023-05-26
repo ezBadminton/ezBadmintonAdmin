@@ -48,6 +48,10 @@ class CollectionQuerier {
   Future<List<M>?> fetchCollection<M extends Model>({
     ExpansionTree? expand,
   }) async {
+    assert(
+      collectionRepositories.whereType<CollectionRepository<M>>().isNotEmpty,
+      'The CollectionQuerier does not have the ${M.toString()} repository',
+    );
     var collectionRepository =
         collectionRepositories.whereType<CollectionRepository<M>>().first;
     try {
@@ -80,6 +84,10 @@ class CollectionQuerier {
   /// `id`, `created` and `updated` fields set.
   /// Otherwise null if the collection db can't be reached.
   Future<M?> createModel<M extends Model>(M newModel) async {
+    assert(
+      collectionRepositories.whereType<CollectionRepository<M>>().isNotEmpty,
+      'The CollectionQuerier does not have the ${M.toString()} repository',
+    );
     var collectionRepository =
         collectionRepositories.whereType<CollectionRepository<M>>().first;
 
@@ -96,6 +104,10 @@ class CollectionQuerier {
   /// new `updated` timestamp.
   /// Otherwise null if the collection db can't be reached.
   Future<M?> updateModel<M extends Model>(M updatedModel) async {
+    assert(
+      collectionRepositories.whereType<CollectionRepository<M>>().isNotEmpty,
+      'The CollectionQuerier does not have the ${M.toString()} repository',
+    );
     var collectionRepository =
         collectionRepositories.whereType<CollectionRepository<M>>().first;
 
@@ -194,6 +206,10 @@ abstract class CollectionHolder {
 
 mixin CollectionGetter implements CollectionHolder {
   List<M> getCollection<M extends Model>() {
+    assert(
+      collections.keys.contains(M),
+      'The CollectionHolder does not hold the ${M.toString()} collection.',
+    );
     return collections[M] as List<M>;
   }
 }

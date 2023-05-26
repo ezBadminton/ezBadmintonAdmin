@@ -9,13 +9,15 @@ class CompetitionTypeInput extends StatelessWidget {
     required this.onChanged,
     required this.currentValue,
     required this.competitionTypeOptions,
-    this.showDeleteButton = true,
+    this.showClearButton = true,
+    this.errorText,
   });
 
   final void Function(CompetitionType? value) onChanged;
   final CompetitionType? currentValue;
   final List<CompetitionType> competitionTypeOptions;
-  final bool showDeleteButton;
+  final bool showClearButton;
+  final String? errorText;
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +32,8 @@ class CompetitionTypeInput extends StatelessWidget {
                 child: Text(l10n.competitionType(type.name)),
               ))
           .toList(),
+      showClearButton: showClearButton,
+      errorText: errorText,
     );
   }
 }

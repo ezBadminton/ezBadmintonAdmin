@@ -25,9 +25,10 @@
   "womenAbbreviated": "D",
   "menAbbreviated": "H",
   "playerSearchHint": "Name/Verein suchen",
+  "genderCategory": "{type, select, female{Damen} male{Herren} mixed{Mixed} other{Frei}}",
   "competitionType": "{type, select, doubles{Doppel} mixed{Mixed} singles{Einzel} other{Sonstige}}",
-  "genderCategory": "{type, select, female{Damen} male{Herren} other{Andere}}",
-  "competitionAbbreviated": "{type, select, doubles{D} mixed{MX} singles{E} other{Sonst.}}",
+  "competitionSuffix": "{type, select, doubles{doppel} mixed{} singles{einzel} other{Sonstige}}",
+  "competitionTypeAbbreviated": "{type, select, doubles{D} mixed{MX} singles{E} other{Sonst.}}",
   "add" : "Hinzufügen",
   "firstName": "Vorname",
   "lastName": "Nachname",
@@ -45,5 +46,7 @@
   "playerEditorLoadingError": "Konnte den Spielereditor nicht laden",
   "retry": "Erneut versuchen",
   "save": "Speichern",
-  "saveError": "Speichern fehlgeschlagen"
+  "saveError": "Speichern fehlgeschlagen",
+  "addRegistration": "Neue Meldung",
+  "optional": "Optional"
 }

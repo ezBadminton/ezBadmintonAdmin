@@ -9,13 +9,15 @@ class PlayingLevelInput extends StatelessWidget {
     required this.onChanged,
     required this.currentValue,
     required this.playingLevelOptions,
-    this.showDeleteButton = true,
+    this.showClearButton = true,
+    this.errorText,
   });
 
   final void Function(PlayingLevel? value) onChanged;
   final PlayingLevel? currentValue;
   final List<PlayingLevel> playingLevelOptions;
-  final bool showDeleteButton;
+  final bool showClearButton;
+  final String? errorText;
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +32,8 @@ class PlayingLevelInput extends StatelessWidget {
                 child: Text(level.name),
               ))
           .toList(),
+      showClearButton: showClearButton,
+      errorText: errorText,
     );
   }
 }

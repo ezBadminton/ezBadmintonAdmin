@@ -25,8 +25,9 @@
   "womenAbbreviated": "W",
   "menAbbreviated": "M",
   "playerSearchHint": "Search name/club",
+  "genderCategory": "{type, select, female{Womens} male{Mens} mixed{Mixed} other{Free}}",
   "competitionType": "{type, select, doubles{doubles} mixed{mixed} singles{singles} other{other}}",
-  "genderCategory": "{type, select, female{Womens} male{Mens} other{other}}",
+  "competitionSuffix": "{type, select, doubles{ doubles} mixed{} singles{ singles} other{ other}}",
   "competitionTypeAbbreviated": "{type, select, doubles{D} mixed{MX} singles{S} other{other}}",
   "add" : "Add",
   "firstName": "first name",
@@ -45,5 +46,7 @@
   "playerEditorLoadingError": "Couldn't load the player editor",
   "retry": "Retry",
   "save": "Save",
-  "saveError": "Saving failed"
+  "saveError": "Saving failed",
+  "addRegistration": "Add registration",
+  "optional": "optional"
 }

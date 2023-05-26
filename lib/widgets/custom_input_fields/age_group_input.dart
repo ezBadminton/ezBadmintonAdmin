@@ -9,13 +9,15 @@ class AgeGroupInput extends StatelessWidget {
     required this.onChanged,
     required this.currentValue,
     required this.ageGroupOptions,
-    this.showDeleteButton = true,
+    this.showClearButton = true,
+    this.errorText,
   });
 
   final void Function(AgeGroup? value) onChanged;
   final AgeGroup? currentValue;
   final List<AgeGroup> ageGroupOptions;
-  final bool showDeleteButton;
+  final bool showClearButton;
+  final String? errorText;
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +34,8 @@ class AgeGroupInput extends StatelessWidget {
                 ),
               ))
           .toList(),
+      showClearButton: showClearButton,
+      errorText: errorText,
     );
   }
 }

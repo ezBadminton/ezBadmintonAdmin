@@ -8,6 +8,7 @@ class ClearableDropdownButton<T> extends StatelessWidget {
     required this.items,
     required this.label,
     this.showClearButton = true,
+    this.errorText,
   });
 
   final T? value;
@@ -15,6 +16,7 @@ class ClearableDropdownButton<T> extends StatelessWidget {
   final List<DropdownMenuItem<T>> items;
   final Widget label;
   final bool showClearButton;
+  final String? errorText;
 
   final FocusNode _focusNode = FocusNode();
 
@@ -27,6 +29,7 @@ class ClearableDropdownButton<T> extends StatelessWidget {
       decoration: InputDecoration(
         label: label,
         counterText: ' ',
+        errorText: errorText,
         suffixIcon: value == null || !showClearButton
             ? null
             : IconButton(

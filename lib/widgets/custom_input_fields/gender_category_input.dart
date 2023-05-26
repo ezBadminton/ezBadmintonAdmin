@@ -9,13 +9,15 @@ class GenderCategoryInput extends StatelessWidget {
     required this.onChanged,
     required this.currentValue,
     required this.genderCategoryOptions,
-    this.showDeleteButton = true,
+    this.showClearButton = true,
+    this.errorText,
   });
 
   final void Function(GenderCategory? value) onChanged;
   final GenderCategory? currentValue;
   final List<GenderCategory> genderCategoryOptions;
-  final bool showDeleteButton;
+  final bool showClearButton;
+  final String? errorText;
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +32,8 @@ class GenderCategoryInput extends StatelessWidget {
                 child: Text(l10n.genderCategory(category.name)),
               ))
           .toList(),
+      showClearButton: showClearButton,
+      errorText: errorText,
     );
   }
 }

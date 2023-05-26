@@ -49,9 +49,51 @@ class CompetitionRegistrationState with FormzMixin {
         playingLevel: playingLevel ?? this.playingLevel,
       );
 
+  CompetitionRegistrationState copyWithCompetitionParameter<P>(
+    P? parameter,
+  ) {
+    switch (P) {
+      case PlayingLevel:
+        return copyWith(
+          playingLevel: SelectionInput.dirty(
+            emptyAllowed: true,
+            value: parameter as PlayingLevel?,
+          ),
+        );
+      case AgeGroup:
+        return copyWith(
+          ageGroup: SelectionInput.dirty(
+            emptyAllowed: true,
+            value: parameter as AgeGroup?,
+          ),
+        );
+      case GenderCategory:
+        return copyWith(
+          genderCategory: SelectionInput.dirty(
+            emptyAllowed: true,
+            value: parameter as GenderCategory?,
+          ),
+        );
+      case CompetitionType:
+        return copyWith(
+          competitionType: SelectionInput.dirty(
+            emptyAllowed: true,
+            value: parameter as CompetitionType?,
+          ),
+        );
+      default:
+        assert(false, 'Unknown competition parameter type');
+        return this;
+    }
+  }
+
+  P? getCompetitionParameter<P>() {
+    return inputs.whereType<FormzInput<P?, Object>>().first.value;
+  }
+
   @override
   List<FormzInput> get inputs =>
-      [competitionType, genderCategory, ageGroup, partnerName];
+      [playingLevel, ageGroup, genderCategory, competitionType, partnerName];
 }
 
 class _NullCompetition implements Competition {
