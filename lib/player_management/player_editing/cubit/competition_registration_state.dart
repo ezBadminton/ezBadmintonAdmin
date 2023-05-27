@@ -6,12 +6,10 @@ import 'package:formz/formz.dart';
 class CompetitionRegistrationState with FormzMixin {
   CompetitionRegistrationState({
     this.formStep = 0,
-    this.competition,
+    this.competition = const SelectionInput.dirty(value: null),
+    this.partner = const SelectionInput.dirty(emptyAllowed: true, value: null),
     this.competitionType = const SelectionInput.dirty(value: null),
-    this.genderCategory = const SelectionInput.dirty(
-      emptyAllowed: true,
-      value: null,
-    ),
+    this.genderCategory = const SelectionInput.dirty(value: null),
     this.ageGroup = const SelectionInput.dirty(
       emptyAllowed: true,
       value: null,
@@ -22,7 +20,8 @@ class CompetitionRegistrationState with FormzMixin {
   });
 
   final int formStep;
-  final Competition? competition;
+  final SelectionInput<Competition> competition;
+  final SelectionInput<Player> partner;
   final SelectionInput<CompetitionType> competitionType;
   final SelectionInput<GenderCategory> genderCategory;
   final SelectionInput<AgeGroup> ageGroup;
@@ -31,7 +30,8 @@ class CompetitionRegistrationState with FormzMixin {
 
   CompetitionRegistrationState copyWith({
     int? formStep,
-    Competition competition = const _NullCompetition(),
+    SelectionInput<Competition>? competition,
+    SelectionInput<Player>? partner,
     SelectionInput<CompetitionType>? competitionType,
     SelectionInput<GenderCategory>? genderCategory,
     SelectionInput<AgeGroup>? ageGroup,
@@ -40,8 +40,8 @@ class CompetitionRegistrationState with FormzMixin {
   }) =>
       CompetitionRegistrationState(
         formStep: formStep ?? this.formStep,
-        competition:
-            competition is _NullCompetition ? this.competition : competition,
+        competition: competition ?? this.competition,
+        partner: partner ?? this.partner,
         competitionType: competitionType ?? this.competitionType,
         genderCategory: genderCategory ?? this.genderCategory,
         partnerName: partnerName ?? this.partnerName,
@@ -70,14 +70,12 @@ class CompetitionRegistrationState with FormzMixin {
       case GenderCategory:
         return copyWith(
           genderCategory: SelectionInput.dirty(
-            emptyAllowed: true,
             value: parameter as GenderCategory?,
           ),
         );
       case CompetitionType:
         return copyWith(
           competitionType: SelectionInput.dirty(
-            emptyAllowed: true,
             value: parameter as CompetitionType?,
           ),
         );
@@ -94,10 +92,4 @@ class CompetitionRegistrationState with FormzMixin {
   @override
   List<FormzInput> get inputs =>
       [playingLevel, ageGroup, genderCategory, competitionType, partnerName];
-}
-
-class _NullCompetition implements Competition {
-  const _NullCompetition();
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

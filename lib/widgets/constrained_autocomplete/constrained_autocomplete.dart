@@ -29,7 +29,7 @@ class ConstrainedAutocomplete<T extends Object> extends RawAutocomplete<T> {
     return ConstrainedAutocomplete._(
       optionsBuilder: optionsBuilder,
       optionsViewBuilder: (context, onSelected, options) =>
-          _constrainedAutocompleteOptionsViewBuilder(
+          _constrainedAutocompleteOptionsViewBuilder<T>(
         context,
         onSelected,
         options,

@@ -48,5 +48,7 @@
   "save": "Save",
   "saveError": "Saving failed",
   "addRegistration": "Add registration",
-  "optional": "optional"
+  "optional": "optional",
+  "partner": "partner",
+  "cancel": "Cancel"
 }

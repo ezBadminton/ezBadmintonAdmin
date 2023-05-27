@@ -1,9 +1,9 @@
-import 'dart:math';
-
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_state.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/player_editing_cubit.dart';
+import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
+import 'package:ez_badminton_admin_app/widgets/constrained_autocomplete/constrained_autocomplete.dart';
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/age_group_input.dart';
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/competition_type_input.dart';
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/gender_category_input.dart';
@@ -21,14 +21,49 @@ class CompetitionRegistrationForm extends StatelessWidget {
       buildWhen: (previous, current) =>
           previous.registrations != current.registrations,
       builder: (context, state) {
+        var scrollController = context.read<ScrollController>();
+        _scrollAfterBuild(scrollController);
         return Column(
           children: <Widget>[
             for (int i = 0; i < state.registrations.length; i++)
               _CompetitionForm(registrationIndex: i),
-            const _RegistrationSubmitButton()
+            if (state.registrations.isEmpty ||
+                state.registrations.last.competition.value != null)
+              const _RegistrationSubmitButton()
+            else
+              const _RegistrationCancelButton(),
           ],
         );
       },
+    );
+  }
+
+  Future<void> _scrollAfterBuild(ScrollController controller) async {
+    await Future.delayed(Duration.zero);
+    controller.animateTo(
+      controller.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.fastOutSlowIn,
+    );
+  }
+}
+
+class _RegistrationCancelButton extends StatelessWidget {
+  const _RegistrationCancelButton();
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+    var cubit = context.read<PlayerEditingCubit>();
+    return OutlinedButton(
+      onPressed: cubit.registrationCancelled,
+      child: Builder(builder: (context) {
+        return Text(
+          l10n.cancel,
+          style: DefaultTextStyle.of(context).style.copyWith(
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(.6)),
+        );
+      }),
     );
   }
 }
@@ -79,6 +114,7 @@ class _CompetitionFormFields extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<CompetitionRegistrationCubit,
         CompetitionRegistrationState>(
+      buildWhen: (previous, current) => previous.formStep != current.formStep,
       builder: (context, state) {
         var registrationCubit = context.read<CompetitionRegistrationCubit>();
         var l10n = AppLocalizations.of(context)!;
@@ -103,9 +139,9 @@ class _CompetitionFormFields extends StatelessWidget {
               _AgeGroupStep(context, state),
             _CompetitionStep(context, state),
             Step(
-              title: const Text('Spielpartner'),
+              title: Text(l10n.partner),
               subtitle: Text(l10n.optional),
-              content: const _AgeGroupInput(),
+              content: _PartnerNameInput(),
             ),
           ],
         );
@@ -372,5 +408,95 @@ class _PlayingLevelInput extends StatelessWidget {
         );
       },
     );
+  }
+}
+
+class _PartnerNameInput extends StatelessWidget {
+  _PartnerNameInput({
+    String initialValue = '',
+  }) {
+    _controller.text = initialValue;
+  }
+
+  final _controller = TextEditingController();
+  final _focus = FocusNode();
+
+  @override
+  Widget build(BuildContext context) {
+    AppLocalizations l10n = AppLocalizations.of(context)!;
+    var cubit = context.read<CompetitionRegistrationCubit>();
+
+    _focus.addListener(() {
+      if (!_focus.hasFocus && cubit.state.partner.value != null) {
+        _controller.text = _playerDisplayString(cubit.state.partner.value!);
+      }
+    });
+
+    return LayoutBuilder(
+      builder: (context, constraints) => BlocBuilder<
+          CompetitionRegistrationCubit, CompetitionRegistrationState>(
+        buildWhen: (previous, current) =>
+            previous.partnerName != current.partnerName ||
+            previous.formStep != current.formStep,
+        builder: (context, state) {
+          return ConstrainedAutocomplete<Player>(
+            optionsBuilder: (playerSearchTerm) =>
+                _partnerOptionsBuilder(context, playerSearchTerm),
+            onSelected: cubit.partnerChanged,
+            constraints: constraints,
+            displayStringForOption: _playerDisplayString,
+            fieldViewBuilder:
+                (context, textEditingController, focusNode, onFieldSubmitted) =>
+                    TextField(
+              controller: textEditingController,
+              focusNode: focusNode,
+              decoration: InputDecoration(
+                label: Text(l10n.partner),
+                counterText: ' ',
+              ),
+              onChanged: cubit.partnerNameChanged,
+            ),
+            optionsMaxHeight: 100,
+            focusNode: _focus,
+            textEditingController: _controller,
+          );
+        },
+      ),
+    );
+  }
+
+  String _playerDisplayString(Player player) {
+    var name = '${player.firstName} ${player.lastName}';
+    var club = player.club == null ? '' : ' (${player.club!.name})';
+    return name + club;
+  }
+
+  Iterable<Player> _partnerOptionsBuilder(
+    BuildContext context,
+    TextEditingValue playerSearchTerm,
+  ) {
+    var cubit = context.read<CompetitionRegistrationCubit>();
+    var selected = cubit.getSelectedCompetitions().first;
+    var players = cubit.getCollection<Player>();
+    var participants = selected.registrations.expand((team) => team.players);
+
+    var playerOptions = players.where((p) => !participants.contains(p));
+
+    if (playerSearchTerm.text.isNotEmpty) {
+      playerOptions = playerOptions.where(
+        (p) => SearchPredicateProducer.searchTermMatchesPlayer(
+          playerSearchTerm.text,
+          p,
+        ),
+      );
+    }
+
+    if (playerOptions.length == 1) {
+      cubit.partnerChanged(playerOptions.first);
+    } else {
+      cubit.partnerChanged(null);
+    }
+
+    return playerOptions;
   }
 }

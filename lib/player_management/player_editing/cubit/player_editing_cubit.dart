@@ -93,6 +93,11 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState>
     emit(state.copyWith(registrations: newRegistrations));
   }
 
+  void registrationCancelled() {
+    var newRegistrations = List.of(state.registrations)..removeLast();
+    emit(state.copyWith(registrations: newRegistrations));
+  }
+
   void formSubmitted() async {
     if (!state.isValid) {
       var newState = state.copyWith(formStatus: FormzSubmissionStatus.failure);

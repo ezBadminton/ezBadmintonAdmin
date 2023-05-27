@@ -8,19 +8,19 @@ class SearchPredicateProducer extends PredicateProducer {
   SearchTerm _searchTerm = const SearchTerm.dirty('');
   String get searchTerm => _searchTerm.value;
 
-  static bool _searchTermMatchesPlayer(String searchTerm, Player p) {
+  static bool searchTermMatchesPlayer(String searchTerm, Player p) {
+    var cleanSearchTerm = searchTerm.trim().toLowerCase();
     var name = '${p.firstName} ${p.lastName}'.toLowerCase();
     var club = p.club?.name.toLowerCase() ?? '';
 
-    return name.contains(searchTerm) || club.contains(searchTerm);
+    return name.contains(cleanSearchTerm) || club.contains(cleanSearchTerm);
   }
 
   void searchTermChanged(String searchTerm) {
     _searchTerm = SearchTerm.dirty(searchTerm);
     if (_searchTerm.isValid) {
-      var cleanSearchTerm = searchTerm.trim().toLowerCase();
       searchPredicate(Object p) =>
-          _searchTermMatchesPlayer(cleanSearchTerm, p as Player);
+          searchTermMatchesPlayer(searchTerm, p as Player);
       var predicate = FilterPredicate(
         searchPredicate,
         Player,

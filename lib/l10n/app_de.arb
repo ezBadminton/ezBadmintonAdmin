@@ -48,5 +48,7 @@
   "save": "Speichern",
   "saveError": "Speichern fehlgeschlagen",
   "addRegistration": "Neue Meldung",
-  "optional": "Optional"
+  "optional": "Optional",
+  "partner": "Partner*in",
+  "cancel": "Abbrechen"
 }

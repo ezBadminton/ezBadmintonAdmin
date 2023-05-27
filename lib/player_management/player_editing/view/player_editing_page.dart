@@ -7,9 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:formz/formz.dart';
+import 'package:provider/provider.dart';
 
 class PlayerEditingPage extends StatelessWidget {
-  const PlayerEditingPage({
+  PlayerEditingPage({
     super.key,
     required this.playerListCollections,
     required this.playerCompetitions,
@@ -17,6 +18,7 @@ class PlayerEditingPage extends StatelessWidget {
 
   final Map<Type, List<Model>> playerListCollections;
   final Map<Player, List<Competition>> playerCompetitions;
+  final scrollController = ScrollController();
 
   static Route<Player?> route({
     required Map<Type, List<Model>> playerListCollections,
@@ -32,7 +34,7 @@ class PlayerEditingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalizations l10n = AppLocalizations.of(context)!;
+    var l10n = AppLocalizations.of(context)!;
     return BlocProvider(
       create: (context) => PlayerEditingCubit(
         context: context,
@@ -71,11 +73,20 @@ class PlayerEditingPage extends StatelessWidget {
             floatingActionButtonLocation: state.isPure
                 ? const EndOffscreenFabLocation()
                 : FloatingActionButtonLocation.endFloat,
-            body: const Align(
+            body: Align(
               alignment: Alignment.topCenter,
               child: SizedBox(
-                width: 600,
-                child: PlayerEditingForm(),
+                width: 640,
+                child: SingleChildScrollView(
+                  controller: scrollController,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
+                    child: ChangeNotifierProvider.value(
+                      value: scrollController,
+                      child: const PlayerEditingForm(),
+                    ),
+                  ),
+                ),
               ),
             ),
           );

@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
+import 'package:ez_badminton_admin_app/input_models/models.dart';
 import 'package:ez_badminton_admin_app/input_models/no_validation.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -45,14 +46,6 @@ class CompetitionRegistrationCubit extends Cubit<CompetitionRegistrationState>
     return lastStep;
   }
 
-  void formStepForward() {
-    if (state.formStep >= lastFormStep) {
-      return;
-    }
-    var newState = state.copyWith(formStep: state.formStep + 1);
-    emit(newState);
-  }
-
   void formStepBack() {
     if (state.formStep == 0) {
       return;
@@ -74,14 +67,12 @@ class CompetitionRegistrationCubit extends Cubit<CompetitionRegistrationState>
     switch (P) {
       case PlayingLevel:
         return selectedCompetitions
-            .map((c) => c.playingLevels)
-            .expand((levels) => levels)
+            .expand((competition) => competition.playingLevels)
             .toSet()
             .sorted((a, b) => a.index > b.index ? 1 : -1) as List<P>;
       case AgeGroup:
         return selectedCompetitions
-            .map((c) => c.ageGroups)
-            .expand((groups) => groups)
+            .expand((competition) => competition.ageGroups)
             .toSet()
             .sorted((a, b) => a.age > b.age ? 1 : -1) as List<P>;
       case GenderCategory:
@@ -197,9 +188,16 @@ class CompetitionRegistrationCubit extends Cubit<CompetitionRegistrationState>
     return allFormSteps[formStep];
   }
 
-  void partnerNameChanged(int registrationIndex, String partnerName) {
+  void partnerNameChanged(String partnerName) {
     var newState =
         state.copyWith(partnerName: NoValidationInput.dirty(partnerName));
+    emit(newState);
+  }
+
+  void partnerChanged(Player? partner) {
+    var newState = state.copyWith(
+      partner: SelectionInput.dirty(emptyAllowed: true, value: partner),
+    );
     emit(newState);
   }
 }
