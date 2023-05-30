@@ -11,7 +11,7 @@ class MockPocketBase extends Mock implements PocketBase {}
 class MockRecordService extends Mock implements RecordService {}
 
 void main() {
-  late CollectionRepository<Player> sut;
+  late PocketbaseCollectionRepository<Player> sut;
   late MockPocketBaseProvider pocketBaseProvider;
   late MockPocketBase pocketBase;
   late MockRecordService playerRecordService;
@@ -23,7 +23,7 @@ void main() {
     when(() => pocketBaseProvider.pocketBase).thenReturn(pocketBase);
     when(() => pocketBase.collection('players'))
         .thenReturn(playerRecordService);
-    sut = CollectionRepository(
+    sut = PocketbaseCollectionRepository(
       modelConstructor: Player.fromJson,
       pocketBaseProvider: pocketBaseProvider,
     );

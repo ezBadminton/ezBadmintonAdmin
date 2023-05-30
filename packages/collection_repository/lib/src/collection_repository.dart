@@ -1,82 +1,36 @@
 import 'package:collection_repository/collection_repository.dart';
-import 'package:collection_repository/src/models/model_converter.dart';
-import 'package:pocketbase/pocketbase.dart';
-import 'package:pocketbase_provider/pocketbase_provider.dart';
-import 'package:recase/recase.dart';
 
-class CollectionRepository<M extends Model> {
-  /// A repository for interfacing the business logic with the database.
+abstract class CollectionRepository<M extends Model> {
+  /// Streams a [M] object whenever it is updated
   ///
-  /// The repository handles all CRUD operations for model [M] via pocketbase.
-  /// The pocketbase connection comes from a [pocketBaseProvider]. When
-  /// retrieving data the [M] object is instanciated by passing the json map
-  /// to the [modelConstructor]. The modelConstructor is usually `fromJson`.
-  ///
-  /// Example:
-  /// ```dart
-  /// var playerRepository = CollectionRepository(modelConstructor: Player.fromJson, pocketBaseProvider: ...)
-  /// ```
-  CollectionRepository({
-    required M Function(Map<String, dynamic> recordModelMap) modelConstructor,
-    required PocketBaseProvider pocketBaseProvider,
-  })  : _modelConstructor = modelConstructor,
-        _pocketBase = pocketBaseProvider.pocketBase,
-        // All model classes have a corresponding collection name
-        _collectionName = M.toString().snakeCase + 's';
+  /// This happens when the [M] object was created, updated or deleted.
+  Stream<CollectionUpdateEvent<M>> get updateStream;
 
-  // The pocketbase SDK abstracts all the DB querying
-  final PocketBase _pocketBase;
-  final String _collectionName;
-  final M Function(Map<String, dynamic> recordModelMap) _modelConstructor;
-
-  /// Get the full list of model objects from the database.
+  /// Fetches the full list of [M] objects from their database collection.
   ///
   /// Relations are expanded as defined by the [expand] `ExpansionTree`.
-  Future<List<M>> getList({ExpansionTree? expand}) async {
-    String expandString = expand?.expandString ?? '';
-    List<RecordModel> records;
-    try {
-      records = await _pocketBase
-          .collection(_collectionName)
-          .getFullList(expand: expandString);
-    } on ClientException catch (e) {
-      throw CollectionQueryException('$e.statusCode');
-    }
-    List<M> models = records
-        .map<M>((record) =>
-            _modelConstructor(ModelConverter.modelToExpandedMap(record)))
-        .toList();
-    return models;
-  }
+  Future<List<M>> getList({ExpansionTree? expand});
 
-  Future<M> create(M newModel) async {
-    Map<String, dynamic> json = newModel.toCollapsedJson();
-    ModelConverter.clearMetaJsonFields(json);
-    RecordModel created;
-    try {
-      created =
-          await _pocketBase.collection(_collectionName).create(body: json);
-    } on ClientException catch (e) {
-      throw CollectionQueryException('$e.statusCode');
-    }
-    return _modelConstructor(ModelConverter.modelToMap(created));
-  }
+  /// Adds a new instance of [M] to the [M]-collection.
+  Future<M> create(M newModel);
 
-  Future<M> update(M updatedModel) async {
-    Map<String, dynamic> json = updatedModel.toCollapsedJson();
-    ModelConverter.clearMetaJsonFields(json);
-    RecordModel updated;
-    try {
-      updated = await _pocketBase.collection(_collectionName).update(
-            updatedModel.id,
-            body: json,
-          );
-    } on ClientException catch (e) {
-      throw CollectionQueryException('$e.statusCode');
-    }
-    return _modelConstructor(ModelConverter.modelToMap(updated));
-  }
+  /// Updates an existing instance of [M] identified by its 'id'.
+  Future<M> update(M updatedModel);
+
+  /// Deletes an existing instance of [M] identified by its 'id'.
+  Future<void> delete(M deletedModel);
 }
+
+class CollectionUpdateEvent<M extends Model> {
+  CollectionUpdateEvent.create(this.model) : updateType = UpdateType.create;
+  CollectionUpdateEvent.update(this.model) : updateType = UpdateType.update;
+  CollectionUpdateEvent.delete(this.model) : updateType = UpdateType.delete;
+
+  final M model;
+  final UpdateType updateType;
+}
+
+enum UpdateType { create, update, delete }
 
 class CollectionQueryException {
   CollectionQueryException(this.errorCode);

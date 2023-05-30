@@ -8,9 +8,12 @@ import 'package:ez_badminton_admin_app/widgets/custom_input_fields/age_group_inp
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/competition_type_input.dart';
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/gender_category_input.dart';
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/playing_level_input.dart';
+import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
+    as display_strings;
 
 class CompetitionRegistrationForm extends StatelessWidget {
   const CompetitionRegistrationForm({super.key});
@@ -19,31 +22,22 @@ class CompetitionRegistrationForm extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
       buildWhen: (previous, current) =>
-          previous.registrations != current.registrations,
+          previous.registrationFormShown != current.registrationFormShown,
       builder: (context, state) {
-        var scrollController = context.read<ScrollController>();
-        _scrollAfterBuild(scrollController);
         return Column(
           children: <Widget>[
-            for (int i = 0; i < state.registrations.length; i++)
-              _CompetitionForm(registrationIndex: i),
-            if (state.registrations.isEmpty ||
-                state.registrations.last.competition.value != null)
-              const _RegistrationSubmitButton()
-            else
-              const _RegistrationCancelButton(),
+            if (!state.registrationFormShown) ...[
+              for (var registration in state.registrations)
+                _CompetitionDisplayCard(registration),
+              if (state.registrations.isNotEmpty) const SizedBox(height: 25),
+              const _RegistrationAddButton(),
+            ] else ...const [
+              _CompetitionForm(),
+              _RegistrationCancelButton()
+            ]
           ],
         );
       },
-    );
-  }
-
-  Future<void> _scrollAfterBuild(ScrollController controller) async {
-    await Future.delayed(Duration.zero);
-    controller.animateTo(
-      controller.position.maxScrollExtent,
-      duration: const Duration(milliseconds: 250),
-      curve: Curves.fastOutSlowIn,
     );
   }
 }
@@ -68,8 +62,8 @@ class _RegistrationCancelButton extends StatelessWidget {
   }
 }
 
-class _RegistrationSubmitButton extends StatelessWidget {
-  const _RegistrationSubmitButton();
+class _RegistrationAddButton extends StatelessWidget {
+  const _RegistrationAddButton();
 
   @override
   Widget build(BuildContext context) {
@@ -82,80 +76,174 @@ class _RegistrationSubmitButton extends StatelessWidget {
   }
 }
 
-class _CompetitionForm extends StatelessWidget {
-  const _CompetitionForm({required this.registrationIndex});
+class _CompetitionDisplayCard extends StatelessWidget {
+  const _CompetitionDisplayCard(this.competition);
 
-  final int registrationIndex;
+  final Competition competition;
 
   @override
   Widget build(BuildContext context) {
-    var editingCubit = context.read<PlayerEditingCubit>();
-    return BlocProvider(
-      create: (context) => CompetitionRegistrationCubit(
-        editingCubit.state.registrations[registrationIndex],
-        registrationIndex: registrationIndex,
-        playerListCollections: editingCubit.collections,
+    var l10n = AppLocalizations.of(context)!;
+    var divider = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Icon(
+        Icons.circle,
+        size: 7,
+        color: Theme.of(context).colorScheme.onSurface.withOpacity(.5),
       ),
-      child: _CompetitionFormFields(
-        registrationIndex: registrationIndex,
+    );
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.onSurface.withOpacity(.3),
+          width: 2,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Stack(
+          children: [
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                onPressed: () {},
+                tooltip: l10n.deleteRegistration,
+                icon: const Icon(Icons.close, size: 22),
+              ),
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 240),
+                  child: Text(
+                    display_strings.playingLevelList(competition.playingLevels),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                divider,
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 140),
+                  child: Text(
+                    display_strings.ageGroupList(l10n, competition.ageGroups),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                divider,
+                Text(
+                  display_strings.competitionCategory(
+                    l10n,
+                    competition.type,
+                    competition.genderCategory,
+                  ),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-class _CompetitionFormFields extends StatelessWidget {
-  const _CompetitionFormFields({
-    required this.registrationIndex,
-  });
-
-  final int registrationIndex;
+class _CompetitionForm extends StatelessWidget {
+  const _CompetitionForm();
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CompetitionRegistrationCubit,
+    return BlocProvider(
+      create: (context) => CompetitionRegistrationCubit(
+        playerRepository: context.read<CollectionRepository<Player>>(),
+        competitionRepository:
+            context.read<CollectionRepository<Competition>>(),
+        playingLevelRepository:
+            context.read<CollectionRepository<PlayingLevel>>(),
+        ageGroupRepository: context.read<CollectionRepository<AgeGroup>>(),
+      ),
+      child: const _CompetitionFormFields(),
+    );
+  }
+}
+
+class _CompetitionFormFields extends StatelessWidget {
+  const _CompetitionFormFields();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<CompetitionRegistrationCubit,
         CompetitionRegistrationState>(
-      buildWhen: (previous, current) => previous.formStep != current.formStep,
+      listenWhen: (previous, current) => current.competition.value != null,
+      listener: (context, state) {
+        var editingCubit = context.read<PlayerEditingCubit>();
+        editingCubit.registrationSubmitted(state.competition.value!);
+      },
+      buildWhen: (previous, current) =>
+          previous.formStep != current.formStep ||
+          previous.loadingStatus != current.loadingStatus,
       builder: (context, state) {
         var registrationCubit = context.read<CompetitionRegistrationCubit>();
-        var l10n = AppLocalizations.of(context)!;
-        return Stepper(
-          currentStep: state.formStep,
-          onStepCancel: registrationCubit.formStepBack,
-          stepIconBuilder: (stepIndex, stepState) {
-            if (stepIndex < state.formStep) {
-              return const Icon(size: 16, Icons.check);
-            } else {
-              return const Icon(size: 16, Icons.more_horiz);
-            }
+        var scrollController = context.read<ScrollController>();
+        return LoadingScreen(
+          loadingStatusGetter: () => state.loadingStatus,
+          onRetry: registrationCubit.loadPlayerData,
+          builder: (_) {
+            _scrollAfterBuild(scrollController);
+            return Stepper(
+              currentStep: state.formStep,
+              onStepContinue: registrationCubit.formSubmitted,
+              onStepCancel: registrationCubit.formStepBack,
+              stepIconBuilder: (stepIndex, stepState) {
+                if (stepIndex < state.formStep) {
+                  return const Icon(size: 16, Icons.check);
+                } else {
+                  return const Icon(size: 16, Icons.more_horiz);
+                }
+              },
+              margin: const EdgeInsets.fromLTRB(60.0, 0, 25.0, 0),
+              controlsBuilder: _formControlsBuilder,
+              steps: [
+                if (registrationCubit
+                    .getParameterOptions<PlayingLevel>()
+                    .isNotEmpty)
+                  _PlayingLevelStep(context, state),
+                if (registrationCubit
+                    .getParameterOptions<AgeGroup>()
+                    .isNotEmpty)
+                  _AgeGroupStep(context, state),
+                _CompetitionStep(context, state),
+                _FinalStep(context, state),
+              ],
+            );
           },
-          margin: const EdgeInsets.fromLTRB(60.0, 0, 25.0, 0),
-          controlsBuilder: _formControlsBuilder,
-          steps: [
-            if (registrationCubit
-                .getParameterOptions<PlayingLevel>()
-                .isNotEmpty)
-              _PlayingLevelStep(context, state),
-            if (registrationCubit.getParameterOptions<AgeGroup>().isNotEmpty)
-              _AgeGroupStep(context, state),
-            _CompetitionStep(context, state),
-            Step(
-              title: Text(l10n.partner),
-              subtitle: Text(l10n.optional),
-              content: _PartnerNameInput(),
-            ),
-          ],
         );
       },
     );
   }
 
-  Widget _formControlsBuilder(BuildContext context, ControlsDetails details) {
-    Widget cancelButton;
+  Future<void> _scrollAfterBuild(ScrollController controller) async {
+    await Future.delayed(Duration.zero);
+    controller.animateTo(
+      controller.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOutCubic,
+    );
+  }
 
-    if (details.stepIndex == 0) {
-      cancelButton = const SizedBox();
-    } else {
-      cancelButton = Padding(
+  Widget _formControlsBuilder(BuildContext context, ControlsDetails details) {
+    var cubit = context.read<CompetitionRegistrationCubit>();
+    var l10n = AppLocalizations.of(context)!;
+    Widget backButton = const SizedBox();
+    Widget submitButton = const SizedBox();
+
+    if (details.stepIndex > 0) {
+      backButton = Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: OutlinedButton(
           onPressed: details.onStepCancel,
@@ -171,9 +259,19 @@ class _CompetitionFormFields extends StatelessWidget {
         ),
       );
     }
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: cancelButton,
+
+    if (details.stepIndex == cubit.lastFormStep) {
+      submitButton = Padding(
+        padding: const EdgeInsets.only(left: 15),
+        child: ElevatedButton(
+          onPressed: details.onStepContinue,
+          child: Text(l10n.register.toUpperCase()),
+        ),
+      );
+    }
+
+    return Row(
+      children: [backButton, submitButton],
     );
   }
 }
@@ -218,9 +316,11 @@ class _CompetitionStep extends Step {
     } else {
       var competitionType = state.getCompetitionParameter<CompetitionType>()!;
       var genderCategory = state.getCompetitionParameter<GenderCategory>()!;
-      var genderPrefix = l10n.genderCategory(genderCategory.name);
-      var competitionSuffix = l10n.competitionSuffix(competitionType.name);
-      return Text(genderPrefix + competitionSuffix);
+      return Text(display_strings.competitionCategory(
+        l10n,
+        competitionType,
+        genderCategory,
+      ));
     }
   }
 }
@@ -316,9 +416,7 @@ class _AgeGroupStep extends Step {
       return Text(l10n.pleaseFillIn);
     } else {
       var ageGroup = state.getCompetitionParameter<AgeGroup>()!;
-      return Text(
-        '${l10n.ageGroupAbbreviated(ageGroup.type.name)}${ageGroup.age}',
-      );
+      return Text(display_strings.ageGroup(l10n, ageGroup));
     }
   }
 }
@@ -411,6 +509,45 @@ class _PlayingLevelInput extends StatelessWidget {
   }
 }
 
+class _FinalStep extends Step {
+  const _FinalStep._({
+    required super.title,
+    super.subtitle,
+    required super.content,
+  });
+
+  factory _FinalStep(
+    BuildContext context,
+    CompetitionRegistrationState state,
+  ) {
+    var l10n = AppLocalizations.of(context)!;
+    return _FinalStep._(
+      title: Text(l10n.registerPartner),
+      subtitle: createSubtitle(context, state),
+      content: createContent(state),
+    );
+  }
+
+  static Widget createContent(CompetitionRegistrationState state) {
+    if (state.competitionType.value == CompetitionType.singles) {
+      return const SizedBox();
+    } else {
+      return _PartnerNameInput();
+    }
+  }
+
+  static Widget? createSubtitle(
+    BuildContext context,
+    CompetitionRegistrationState state,
+  ) {
+    var l10n = AppLocalizations.of(context)!;
+    if (state.competitionType.value == CompetitionType.singles) {
+      return Text(l10n.competitionType('singles'));
+    }
+    return Text(l10n.optional);
+  }
+}
+
 class _PartnerNameInput extends StatelessWidget {
   _PartnerNameInput({
     String initialValue = '',
@@ -428,7 +565,8 @@ class _PartnerNameInput extends StatelessWidget {
 
     _focus.addListener(() {
       if (!_focus.hasFocus && cubit.state.partner.value != null) {
-        _controller.text = _playerDisplayString(cubit.state.partner.value!);
+        _controller.text =
+            display_strings.playerWithClub(cubit.state.partner.value!);
       }
     });
 
@@ -444,14 +582,14 @@ class _PartnerNameInput extends StatelessWidget {
                 _partnerOptionsBuilder(context, playerSearchTerm),
             onSelected: cubit.partnerChanged,
             constraints: constraints,
-            displayStringForOption: _playerDisplayString,
+            displayStringForOption: display_strings.playerWithClub,
             fieldViewBuilder:
                 (context, textEditingController, focusNode, onFieldSubmitted) =>
                     TextField(
               controller: textEditingController,
               focusNode: focusNode,
               decoration: InputDecoration(
-                label: Text(l10n.partner),
+                label: Text('${l10n.partner} (${l10n.optional.toLowerCase()})'),
                 counterText: ' ',
               ),
               onChanged: cubit.partnerNameChanged,
@@ -465,19 +603,13 @@ class _PartnerNameInput extends StatelessWidget {
     );
   }
 
-  String _playerDisplayString(Player player) {
-    var name = '${player.firstName} ${player.lastName}';
-    var club = player.club == null ? '' : ' (${player.club!.name})';
-    return name + club;
-  }
-
   Iterable<Player> _partnerOptionsBuilder(
     BuildContext context,
     TextEditingValue playerSearchTerm,
   ) {
     var cubit = context.read<CompetitionRegistrationCubit>();
     var selected = cubit.getSelectedCompetitions().first;
-    var players = cubit.getCollection<Player>();
+    var players = cubit.state.getCollection<Player>();
     var participants = selected.registrations.expand((team) => team.players);
 
     var playerOptions = players.where((p) => !participants.contains(p));

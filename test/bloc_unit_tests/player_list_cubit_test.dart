@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockCollectionRepository<M extends Model> extends Mock
-    implements CollectionRepository<M> {}
+    implements PocketbaseCollectionRepository<M> {}
 
 class HasLoadingStatus extends CustomMatcher {
   HasLoadingStatus(matcher)
@@ -36,7 +36,6 @@ void main() {
   late MockCollectionRepository<PlayingLevel> playingLevelRepository;
   late MockCollectionRepository<AgeGroup> ageGroupRepository;
   late MockCollectionRepository<Club> clubRepository;
-  late MockCollectionRepository<Team> teamRepository;
   late PlayerListCubit sut;
 
   // Create some players and competitions with teams for testing
@@ -95,7 +94,6 @@ void main() {
       playingLevelRepository: playingLevelRepository,
       ageGroupRepository: ageGroupRepository,
       clubRepository: clubRepository,
-      teamRepository: teamRepository,
     );
   }
 
@@ -105,11 +103,13 @@ void main() {
     playingLevelRepository = MockCollectionRepository();
     ageGroupRepository = MockCollectionRepository();
     clubRepository = MockCollectionRepository();
-    teamRepository = MockCollectionRepository();
 
     when(
       () => playerRepository.getList(expand: any(named: 'expand')),
     ).thenAnswer((invocation) async => players);
+
+    when(() => playerRepository.updateStream)
+        .thenAnswer((_) => Stream.fromIterable([]));
 
     when(
       () => competitionRepository.getList(expand: any(named: 'expand')),
@@ -125,10 +125,6 @@ void main() {
 
     when(
       () => clubRepository.getList(expand: any(named: 'expand')),
-    ).thenAnswer((invocation) async => []);
-
-    when(
-      () => teamRepository.getList(expand: any(named: 'expand')),
     ).thenAnswer((invocation) async => []);
 
     sut = createSut();
@@ -213,8 +209,7 @@ void main() {
         "players are filtered by competition attributes",
         build: () => sut,
         act: (cubit) => cubit.filterChanged({
-          Competition: (o) =>
-              (o as Competition).getCompetitionType() == CompetitionType.mixed,
+          Competition: (o) => (o as Competition).type == CompetitionType.mixed,
         }),
         verify: (cubit) {
           expect(
@@ -230,8 +225,7 @@ void main() {
         build: () => sut,
         act: (cubit) => cubit.filterChanged({
           Competition: (o) =>
-              (o as Competition).getCompetitionType() ==
-              CompetitionType.singles,
+              (o as Competition).type == CompetitionType.singles,
           Player: (o) => int.parse((o as Player).id) < 5,
         }),
         verify: (cubit) {

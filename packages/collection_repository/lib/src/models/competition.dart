@@ -48,10 +48,10 @@ class Competition extends Model with _$Competition {
     );
   }
 
-  /// Method for discering a Competition into the basic competition types
-  /// of doubles, mixed or singles. If none of these are applicable it returns
-  /// `CompetitionType.other`.
-  CompetitionType getCompetitionType() {
+  /// Basic competition type of doubles, mixed or singles.
+  ///
+  /// If none of these are applicable it returns `CompetitionType.other`.
+  CompetitionType get type {
     if (teamSize == 1) {
       return CompetitionType.singles;
     } else if (teamSize == 2 && genderCategory != GenderCategory.any) {

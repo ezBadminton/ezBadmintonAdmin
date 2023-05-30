@@ -102,7 +102,7 @@ class CollectionQuerier {
   ///
   /// On success the Future resolves to the [Model] of type [M] with its
   /// new `updated` timestamp.
-  /// Otherwise null if the collection db can't be reached.
+  /// Otherwise `null` if the collection db can't be reached.
   Future<M?> updateModel<M extends Model>(M updatedModel) async {
     assert(
       collectionRepositories.whereType<CollectionRepository<M>>().isNotEmpty,
@@ -115,6 +115,25 @@ class CollectionQuerier {
       return await collectionRepository.update(updatedModel);
     } on CollectionQueryException {
       return null;
+    }
+  }
+
+  /// Deletes a model from its collection on the DB.
+  ///
+  /// On success the future resolves to `true` otherwise `false`.
+  Future<bool> deleteModel<M extends Model>(M deletedModel) async {
+    assert(
+      collectionRepositories.whereType<CollectionRepository<M>>().isNotEmpty,
+      'The CollectionQuerier does not have the ${M.toString()} repository',
+    );
+    var collectionRepository =
+        collectionRepositories.whereType<CollectionRepository<M>>().first;
+
+    try {
+      await collectionRepository.delete(deletedModel);
+      return true;
+    } on CollectionQueryException {
+      return false;
     }
   }
 }

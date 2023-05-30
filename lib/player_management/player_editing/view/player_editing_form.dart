@@ -114,7 +114,7 @@ class _PlayingLevelInput extends StatelessWidget {
           child: PlayingLevelInput(
             onChanged: cubit.playingLevelChanged,
             currentValue: state.playingLevel.value,
-            playingLevelOptions: cubit.getCollection<PlayingLevel>(),
+            playingLevelOptions: state.getCollection<PlayingLevel>(),
           ),
         );
       },
@@ -230,7 +230,6 @@ class _ClubInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations l10n = AppLocalizations.of(context)!;
-    var cubit = context.read<PlayerEditingCubit>();
     return Expanded(
       child: LayoutBuilder(
         builder: (context, constraints) =>
@@ -241,7 +240,7 @@ class _ClubInput extends StatelessWidget {
             return ConstrainedAutocomplete<String>(
               optionsBuilder: (clubName) => _createClubSuggestions(
                 clubName.text,
-                cubit.getCollection<Club>().map((c) => c.name),
+                state.getCollection<Club>().map((c) => c.name),
               ),
               onSelected: onChanged,
               constraints: constraints,

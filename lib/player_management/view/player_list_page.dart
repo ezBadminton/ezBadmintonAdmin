@@ -8,6 +8,8 @@ import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dar
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
+    as display_strings;
 
 class PlayerListPage extends StatelessWidget {
   const PlayerListPage({super.key});
@@ -38,7 +40,6 @@ class PlayerListPage extends StatelessWidget {
                 context.read<CollectionRepository<PlayingLevel>>(),
             ageGroupRepository: context.read<CollectionRepository<AgeGroup>>(),
             clubRepository: context.read<CollectionRepository<Club>>(),
-            teamRepository: context.read<CollectionRepository<Team>>(),
           ),
         )
       ],
@@ -66,16 +67,7 @@ class _PlayerListPageScaffold extends StatelessWidget {
           onPressed: () {
             var listCubit = context.read<PlayerListCubit>();
             if (listCubit.state.loadingStatus == LoadingStatus.done) {
-              Navigator.of(context)
-                  .push(PlayerEditingPage.route(
-                playerListCollections: listCubit.state.collections,
-                playerCompetitions: listCubit.state.playerCompetitions,
-              ))
-                  .then((newPlayer) {
-                if (newPlayer != null) {
-                  listCubit.loadPlayerData();
-                }
-              });
+              Navigator.of(context).push(PlayerEditingPage.route());
             }
           },
           icon: const Icon(Icons.person_add_alt_1),
@@ -118,8 +110,8 @@ class _PlayerListWithFilter extends StatelessWidget {
                     context.read<PlayerFilterCubit>().loadPlayingLevels();
                   }
                 },
-                child: Column(
-                  children: const [
+                builder: (_) => const Column(
+                  children: [
                     PlayerFilter(),
                     _PlayerList(),
                   ],
@@ -161,7 +153,7 @@ class _PlayerList extends StatelessWidget {
                 SizedBox(
                   width: 190,
                   child: Text(
-                    '${player.firstName} ${player.lastName}',
+                    display_strings.playerName(player),
                     overflow: TextOverflow.fade,
                   ),
                 ),
@@ -234,7 +226,7 @@ String _competitionAbbreviations(
   List<String> abbreviations = [];
   for (var competition in competitions) {
     String competitionAbbreviation =
-        l10n.competitionTypeAbbreviated(competition.getCompetitionType().name);
+        l10n.competitionTypeAbbreviated(competition.type.name);
     if (competition.genderCategory == GenderCategory.mixed ||
         competition.genderCategory == GenderCategory.any) {
       abbreviations.add(competitionAbbreviation);

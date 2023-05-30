@@ -12,10 +12,10 @@ class PlayerFilter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return const SizedBox(
       width: 1150,
       child: Column(
-        children: const [
+        children: [
           _FilterMenus(),
           SizedBox(height: 10),
           _FilterChips(),

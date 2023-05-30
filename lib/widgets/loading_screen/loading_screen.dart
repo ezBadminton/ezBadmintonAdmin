@@ -19,7 +19,7 @@ class LoadingScreen extends StatelessWidget {
     this.onRetry,
     this.retryButtonLabel = 'Retry',
     this.loadingIndicator = const Center(child: CircularProgressIndicator()),
-    required this.child,
+    required this.builder,
   });
 
   final LoadingStatus Function() loadingStatusGetter;
@@ -27,7 +27,7 @@ class LoadingScreen extends StatelessWidget {
   final void Function()? onRetry;
   final String retryButtonLabel;
   final Widget loadingIndicator;
-  final Widget child;
+  final WidgetBuilder builder;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +48,7 @@ class LoadingScreen extends StatelessWidget {
           children: column,
         );
       case LoadingStatus.done:
-        return child;
+        return builder(context);
     }
   }
 }

@@ -1,10 +1,15 @@
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/input_models/no_validation.dart';
 import 'package:ez_badminton_admin_app/input_models/selection.dart';
+import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:formz/formz.dart';
 
-class CompetitionRegistrationState with FormzMixin {
+class CompetitionRegistrationState extends CollectionFetcherState
+    with FormzMixin, CollectionGetter {
   CompetitionRegistrationState({
+    this.collections = const {},
+    this.loadingStatus = LoadingStatus.loading,
     this.formStep = 0,
     this.competition = const SelectionInput.dirty(value: null),
     this.partner = const SelectionInput.dirty(emptyAllowed: true, value: null),
@@ -19,6 +24,10 @@ class CompetitionRegistrationState with FormzMixin {
     this.partnerName = const NoValidationInput.dirty(''),
   });
 
+  @override
+  final Map<Type, List<Model>> collections;
+  final LoadingStatus loadingStatus;
+
   final int formStep;
   final SelectionInput<Competition> competition;
   final SelectionInput<Player> partner;
@@ -29,6 +38,8 @@ class CompetitionRegistrationState with FormzMixin {
   final NoValidationInput partnerName;
 
   CompetitionRegistrationState copyWith({
+    Map<Type, List<Model>>? collections,
+    LoadingStatus? loadingStatus,
     int? formStep,
     SelectionInput<Competition>? competition,
     SelectionInput<Player>? partner,
@@ -39,6 +50,8 @@ class CompetitionRegistrationState with FormzMixin {
     NoValidationInput? partnerName,
   }) =>
       CompetitionRegistrationState(
+        collections: collections ?? this.collections,
+        loadingStatus: loadingStatus ?? this.loadingStatus,
         formStep: formStep ?? this.formStep,
         competition: competition ?? this.competition,
         partner: partner ?? this.partner,
@@ -83,6 +96,17 @@ class CompetitionRegistrationState with FormzMixin {
         assert(false, 'Unknown competition parameter type');
         return this;
     }
+  }
+
+  @override
+  CompetitionRegistrationState copyWithCollection({
+    required Type modelType,
+    required List<Model> collection,
+  }) {
+    var newCollections = Map.of(collections);
+    newCollections.remove(modelType);
+    newCollections.putIfAbsent(modelType, () => collection);
+    return copyWith(collections: Map.unmodifiable(newCollections));
   }
 
   P? getCompetitionParameter<P>() {

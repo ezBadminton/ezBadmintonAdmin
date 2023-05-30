@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockCollectionRepository<M extends Model> extends Mock
-    implements CollectionRepository<M> {}
+    implements PocketbaseCollectionRepository<M> {}
 
 class MockAgePredicateProducer extends Mock implements AgePredicateProducer {}
 
@@ -69,7 +69,7 @@ var playingLevels = List<PlayingLevel>.generate(
 );
 
 void main() {
-  late CollectionRepository<PlayingLevel> playingLevelRepository;
+  late PocketbaseCollectionRepository<PlayingLevel> playingLevelRepository;
   late PlayerFilterCubit sut;
   late List<PredicateProducer> producers;
   late AgePredicateProducer agePredicateProducer;

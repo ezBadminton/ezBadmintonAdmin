@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
+import 'package:ez_badminton_admin_app/player_management/utils/competition_registration.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +17,6 @@ class PlayerListCubit extends CollectionFetcherCubit<PlayerListState> {
     required CollectionRepository<PlayingLevel> playingLevelRepository,
     required CollectionRepository<AgeGroup> ageGroupRepository,
     required CollectionRepository<Club> clubRepository,
-    required CollectionRepository<Team> teamRepository,
   }) : super(
           collectionRepositories: [
             competitionRepository,
@@ -22,12 +24,15 @@ class PlayerListCubit extends CollectionFetcherCubit<PlayerListState> {
             playingLevelRepository,
             ageGroupRepository,
             clubRepository,
-            teamRepository,
           ],
           const PlayerListState(),
         ) {
     loadPlayerData();
+    _playerUpdateSubscription =
+        playerRepository.updateStream.listen(_playerCollectionUpdated);
   }
+
+  late final StreamSubscription _playerUpdateSubscription;
 
   void loadPlayerData() {
     if (state.loadingStatus != LoadingStatus.loading) {
@@ -40,10 +45,9 @@ class PlayerListCubit extends CollectionFetcherCubit<PlayerListState> {
         collectionFetcher<PlayingLevel>(),
         collectionFetcher<AgeGroup>(),
         collectionFetcher<Club>(),
-        collectionFetcher<Team>(),
       ],
       onSuccess: (updatedState) {
-        var playerCompetitions = _mapPlayerCompetitions(
+        var playerCompetitions = mapPlayerCompetitions(
           updatedState.getCollection<Player>(),
           updatedState.getCollection<Competition>(),
         );
@@ -58,22 +62,6 @@ class PlayerListCubit extends CollectionFetcherCubit<PlayerListState> {
       onFailure: () =>
           emit(state.copyWith(loadingStatus: LoadingStatus.failed)),
     );
-  }
-
-  static Map<Player, List<Competition>> _mapPlayerCompetitions(
-    List<Player> players,
-    List<Competition> competitions,
-  ) {
-    var playerCompetitions = {for (var p in players) p: <Competition>[]};
-    for (var competition in competitions) {
-      var teams = competition.registrations;
-      var players =
-          teams.map((t) => t.players).expand((playerList) => playerList);
-      for (var player in players) {
-        playerCompetitions[player]?.add(competition);
-      }
-    }
-    return playerCompetitions;
   }
 
   Map<Type, Predicate> _lastFilters = {};
@@ -104,5 +92,15 @@ class PlayerListCubit extends CollectionFetcherCubit<PlayerListState> {
     }
     var newState = state.copyWith(filteredPlayers: filtered);
     emit(newState);
+  }
+
+  void _playerCollectionUpdated(CollectionUpdateEvent event) {
+    loadPlayerData();
+  }
+
+  @override
+  Future<void> close() async {
+    await _playerUpdateSubscription.cancel();
+    super.close();
   }
 }

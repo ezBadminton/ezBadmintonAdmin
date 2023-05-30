@@ -4,35 +4,64 @@ import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dar
 import 'package:ez_badminton_admin_app/input_models/models.dart';
 import 'package:ez_badminton_admin_app/input_models/no_validation.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_state.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 
-class CompetitionRegistrationCubit extends Cubit<CompetitionRegistrationState>
-    with CollectionGetter {
-  CompetitionRegistrationCubit(
-    super.initialState, {
-    required this.registrationIndex,
-    required Map<Type, List<Model>> playerListCollections,
-  }) : collections = playerListCollections {
-    var formSteps = [
-      [PlayingLevel],
-      [AgeGroup],
-      [GenderCategory, CompetitionType],
-      [Player],
-    ];
-    if (getParameterOptions<PlayingLevel>().isEmpty) {
-      formSteps.removeWhere((step) => step.contains(PlayingLevel));
-    }
-    if (getParameterOptions<AgeGroup>().isEmpty) {
-      formSteps.removeWhere((step) => step.contains(AgeGroup));
-    }
-    allFormSteps = formSteps;
+class CompetitionRegistrationCubit
+    extends CollectionFetcherCubit<CompetitionRegistrationState> {
+  CompetitionRegistrationCubit({
+    required CollectionRepository<Player> playerRepository,
+    required CollectionRepository<Competition> competitionRepository,
+    required CollectionRepository<PlayingLevel> playingLevelRepository,
+    required CollectionRepository<AgeGroup> ageGroupRepository,
+  }) : super(
+          CompetitionRegistrationState(),
+          collectionRepositories: [
+            playerRepository,
+            competitionRepository,
+            playingLevelRepository,
+            ageGroupRepository,
+          ],
+        ) {
+    loadPlayerData();
   }
 
-  final int registrationIndex;
-  @override
-  final Map<Type, List<Model>> collections;
-
   late List<List<Type>> allFormSteps;
+
+  void loadPlayerData() {
+    if (state.loadingStatus != LoadingStatus.loading) {
+      emit(state.copyWith(loadingStatus: LoadingStatus.loading));
+    }
+    fetchCollectionsAndUpdateState(
+      [
+        collectionFetcher<Player>(),
+        collectionFetcher<Competition>(),
+        collectionFetcher<PlayingLevel>(),
+        collectionFetcher<AgeGroup>(),
+      ],
+      onSuccess: (updatedState) {
+        updatedState = updatedState.copyWith(
+          loadingStatus: LoadingStatus.done,
+        );
+
+        emit(updatedState);
+        var baseFormSteps = [
+          [PlayingLevel],
+          [AgeGroup],
+          [GenderCategory, CompetitionType],
+          [Player],
+        ];
+        if (getParameterOptions<PlayingLevel>().isEmpty) {
+          baseFormSteps.removeWhere((step) => step.contains(PlayingLevel));
+        }
+        if (getParameterOptions<AgeGroup>().isEmpty) {
+          baseFormSteps.removeWhere((step) => step.contains(AgeGroup));
+        }
+        allFormSteps = baseFormSteps;
+      },
+      onFailure: () =>
+          emit(state.copyWith(loadingStatus: LoadingStatus.failed)),
+    );
+  }
 
   int get lastFormStep {
     int lastStep = allFormSteps.length - 1;
@@ -44,6 +73,19 @@ class CompetitionRegistrationCubit extends Cubit<CompetitionRegistrationState>
       lastStep--;
     }
     return lastStep;
+  }
+
+  void formSubmitted() {
+    var selected = getSelectedCompetitions();
+    assert(
+      selected.length == 1,
+      'Registration form did not select only one competition',
+    );
+    var newState = state.copyWith(
+      competition: SelectionInput.dirty(value: selected.first),
+    );
+    assert(newState.isValid);
+    emit(newState);
   }
 
   void formStepBack() {
@@ -62,8 +104,9 @@ class CompetitionRegistrationCubit extends Cubit<CompetitionRegistrationState>
   /// If [inSelection] is `true` the Competitions are pre-filered by the
   /// parameters that are already set (the "selected" competitions).
   List<P> getParameterOptions<P extends Object>({bool inSelection = false}) {
-    var selectedCompetitions =
-        inSelection ? getSelectedCompetitions() : getCollection<Competition>();
+    var selectedCompetitions = inSelection
+        ? getSelectedCompetitions(ignore: [P])
+        : state.getCollection<Competition>();
     switch (P) {
       case PlayingLevel:
         return selectedCompetitions
@@ -82,8 +125,7 @@ class CompetitionRegistrationCubit extends Cubit<CompetitionRegistrationState>
             .where((t) => presentGenderCategories.contains(t))
             .toList() as List<P>;
       case CompetitionType:
-        var presentCompetitionTypes =
-            selectedCompetitions.map((c) => c.getCompetitionType());
+        var presentCompetitionTypes = selectedCompetitions.map((c) => c.type);
         return CompetitionType.values
             .where((t) => presentCompetitionTypes.contains(t))
             .toList() as List<P>;
@@ -96,18 +138,23 @@ class CompetitionRegistrationCubit extends Cubit<CompetitionRegistrationState>
   /// Returns the List of [Competition]s that match the currently set
   /// parameters.
   ///
-  /// In order to successfully sumbit the competition registration form the list
+  /// The parameter types in the [ignore] list are not used for matching.
+  /// In order to successfully submit the competition registration form the list
   /// needs to be of length 1.
-  List<Competition> getSelectedCompetitions() {
-    return getCollection<Competition>().where((competition) {
-      var typeMatch = state.competitionType.value == null ||
-          competition.getCompetitionType() == state.competitionType.value;
-      var genderCategoryMatch = state.genderCategory.value == null ||
+  List<Competition> getSelectedCompetitions({List<Type> ignore = const []}) {
+    return state.getCollection<Competition>().where((competition) {
+      var typeMatch = ignore.contains(CompetitionType) ||
+          state.competitionType.value == null ||
+          competition.type == state.competitionType.value;
+      var genderCategoryMatch = ignore.contains(GenderCategory) ||
+          state.genderCategory.value == null ||
           competition.genderCategory == state.genderCategory.value;
-      var ageGroupMatch = state.ageGroup.value == null ||
+      var ageGroupMatch = ignore.contains(AgeGroup) ||
+          state.ageGroup.value == null ||
           competition.ageGroups.isEmpty ||
           competition.ageGroups.contains(state.ageGroup.value);
-      var playingLevelMatch = state.playingLevel.value == null ||
+      var playingLevelMatch = ignore.contains(PlayingLevel) ||
+          state.playingLevel.value == null ||
           competition.playingLevels.isEmpty ||
           competition.playingLevels.contains(state.playingLevel.value);
       return typeMatch &&

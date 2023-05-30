@@ -38,29 +38,41 @@ class _AppState extends State<App> {
     _userRepository = UserRepository(
       pocketBaseProvider: _pocketBaseProvider,
     );
-    _playerRepository = CollectionRepository(
-      modelConstructor: Player.fromJson,
-      pocketBaseProvider: _pocketBaseProvider,
+    _playerRepository = CachedCollectionRepository(
+      PocketbaseCollectionRepository(
+        modelConstructor: Player.fromJson,
+        pocketBaseProvider: _pocketBaseProvider,
+      ),
     );
-    _competitionRepository = CollectionRepository(
-      modelConstructor: Competition.fromJson,
-      pocketBaseProvider: _pocketBaseProvider,
+    _competitionRepository = CachedCollectionRepository(
+      PocketbaseCollectionRepository(
+        modelConstructor: Competition.fromJson,
+        pocketBaseProvider: _pocketBaseProvider,
+      ),
     );
-    _playingLevelRepository = CollectionRepository(
-      modelConstructor: PlayingLevel.fromJson,
-      pocketBaseProvider: _pocketBaseProvider,
+    _playingLevelRepository = CachedCollectionRepository(
+      PocketbaseCollectionRepository(
+        modelConstructor: PlayingLevel.fromJson,
+        pocketBaseProvider: _pocketBaseProvider,
+      ),
     );
-    _ageGroupRepository = CollectionRepository(
-      modelConstructor: AgeGroup.fromJson,
-      pocketBaseProvider: _pocketBaseProvider,
+    _ageGroupRepository = CachedCollectionRepository(
+      PocketbaseCollectionRepository(
+        modelConstructor: AgeGroup.fromJson,
+        pocketBaseProvider: _pocketBaseProvider,
+      ),
     );
-    _teamRepository = CollectionRepository(
-      modelConstructor: Team.fromJson,
-      pocketBaseProvider: _pocketBaseProvider,
+    _teamRepository = CachedCollectionRepository(
+      PocketbaseCollectionRepository(
+        modelConstructor: Team.fromJson,
+        pocketBaseProvider: _pocketBaseProvider,
+      ),
     );
-    _clubRepository = CollectionRepository(
-      modelConstructor: Club.fromJson,
-      pocketBaseProvider: _pocketBaseProvider,
+    _clubRepository = CachedCollectionRepository(
+      PocketbaseCollectionRepository(
+        modelConstructor: Club.fromJson,
+        pocketBaseProvider: _pocketBaseProvider,
+      ),
     );
   }
 

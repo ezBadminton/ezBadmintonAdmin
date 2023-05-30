@@ -1,25 +1,24 @@
+import 'dart:async';
+
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
 import 'package:ez_badminton_admin_app/input_models/no_validation.dart';
-import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_state.dart';
+import 'package:ez_badminton_admin_app/player_management/utils/competition_registration.dart';
+import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:formz/formz.dart';
 
 part 'player_editing_state.dart';
 
-class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState>
-    with CollectionGetter {
+class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
   PlayerEditingCubit({
     required BuildContext context,
     required CollectionRepository<Player> playerRepository,
-    required CollectionRepository<Club> clubRepository,
     required CollectionRepository<Competition> competitionRepository,
-    required CollectionRepository<Team> teamRepository,
-    required Map<Type, List<Model>> playerListCollections,
-    required this.playerCompetitions,
+    required CollectionRepository<Club> clubRepository,
+    required CollectionRepository<PlayingLevel> playingLevelRepository,
   })  : _context = context,
-        collections = playerListCollections,
         super(
           PlayerEditingState.fromPlayer(
             player: Player.newPlayer(),
@@ -27,17 +26,42 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState>
           ),
           collectionRepositories: [
             playerRepository,
-            clubRepository,
-            teamRepository,
             competitionRepository,
+            clubRepository,
+            playingLevelRepository,
           ],
-        );
+        ) {
+    loadPlayerData();
+  }
 
   final BuildContext _context;
 
-  @override
-  final Map<Type, List<Model>> collections;
-  final Map<Player, List<Competition>> playerCompetitions;
+  void loadPlayerData() {
+    if (state.loadingStatus != LoadingStatus.loading) {
+      emit(state.copyWith(loadingStatus: LoadingStatus.loading));
+    }
+    fetchCollectionsAndUpdateState(
+      [
+        collectionFetcher<Player>(),
+        collectionFetcher<Competition>(),
+        collectionFetcher<Club>(),
+        collectionFetcher<PlayingLevel>(),
+      ],
+      onSuccess: (updatedState) {
+        var playerCompetitions = mapPlayerCompetitions(
+          updatedState.getCollection<Player>(),
+          updatedState.getCollection<Competition>(),
+        );
+        updatedState = updatedState.copyWith(
+          registrations: playerCompetitions[updatedState.player],
+          loadingStatus: LoadingStatus.done,
+        );
+        emit(updatedState);
+      },
+      onFailure: () =>
+          emit(state.copyWith(loadingStatus: LoadingStatus.failed)),
+    );
+  }
 
   // Personal data inputs
 
@@ -88,14 +112,23 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState>
   }
 
   void registrationAdded() {
-    var newRegistrations = List.of(state.registrations)
-      ..add(CompetitionRegistrationState());
-    emit(state.copyWith(registrations: newRegistrations));
+    assert(!state.registrationFormShown);
+    emit(state.copyWith(registrationFormShown: true));
   }
 
   void registrationCancelled() {
-    var newRegistrations = List.of(state.registrations)..removeLast();
-    emit(state.copyWith(registrations: newRegistrations));
+    assert(state.registrationFormShown);
+    emit(state.copyWith(registrationFormShown: false));
+  }
+
+  void registrationSubmitted(Competition registeredCompetition) {
+    assert(state.registrationFormShown);
+    var registrations = List.of(state.registrations)
+      ..add(registeredCompetition);
+    emit(state.copyWith(
+      registrations: registrations,
+      registrationFormShown: false,
+    ));
   }
 
   void formSubmitted() async {
@@ -144,9 +177,9 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState>
   /// given [clubName].
   Future<Club?> _clubFromName(String clubName) async {
     Club? club;
-    var selectedClub = getCollection<Club>().where(
-      (c) => c.name.toLowerCase() == clubName.toLowerCase(),
-    );
+    var selectedClub = state.getCollection<Club>().where(
+          (c) => c.name.toLowerCase() == clubName.toLowerCase(),
+        );
     if (selectedClub.isNotEmpty) {
       club = selectedClub.first;
     } else {

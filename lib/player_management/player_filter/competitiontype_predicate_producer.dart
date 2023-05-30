@@ -20,8 +20,7 @@ class CompetitionTypePredicateProducer extends PredicateProducer {
       );
     } else {
       _competitionTypes.add(competitionType);
-      competitionFilter(Object c) =>
-          (c as Competition).getCompetitionType() == competitionType;
+      competitionFilter(Object c) => (c as Competition).type == competitionType;
       predicate = FilterPredicate(
         competitionFilter,
         Competition,

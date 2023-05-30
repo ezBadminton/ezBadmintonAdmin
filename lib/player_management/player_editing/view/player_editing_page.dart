@@ -2,6 +2,7 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/layout/fab_location.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/player_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/player_editing_form.dart';
+import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:ez_badminton_admin_app/widgets/progress_indicator_icon/progress_indicator_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,25 +11,13 @@ import 'package:formz/formz.dart';
 import 'package:provider/provider.dart';
 
 class PlayerEditingPage extends StatelessWidget {
-  PlayerEditingPage({
+  const PlayerEditingPage({
     super.key,
-    required this.playerListCollections,
-    required this.playerCompetitions,
   });
 
-  final Map<Type, List<Model>> playerListCollections;
-  final Map<Player, List<Competition>> playerCompetitions;
-  final scrollController = ScrollController();
-
-  static Route<Player?> route({
-    required Map<Type, List<Model>> playerListCollections,
-    required Map<Player, List<Competition>> playerCompetitions,
-  }) {
+  static Route<Player?> route() {
     return MaterialPageRoute<Player?>(
-      builder: (_) => PlayerEditingPage(
-        playerListCollections: playerListCollections,
-        playerCompetitions: playerCompetitions,
-      ),
+      builder: (_) => const PlayerEditingPage(),
     );
   }
 
@@ -38,13 +27,12 @@ class PlayerEditingPage extends StatelessWidget {
     return BlocProvider(
       create: (context) => PlayerEditingCubit(
         context: context,
-        playerListCollections: playerListCollections,
-        playerCompetitions: playerCompetitions,
         playerRepository: context.read<CollectionRepository<Player>>(),
-        clubRepository: context.read<CollectionRepository<Club>>(),
         competitionRepository:
             context.read<CollectionRepository<Competition>>(),
-        teamRepository: context.read<CollectionRepository<Team>>(),
+        clubRepository: context.read<CollectionRepository<Club>>(),
+        playingLevelRepository:
+            context.read<CollectionRepository<PlayingLevel>>(),
       ),
       child: BlocConsumer<PlayerEditingCubit, PlayerEditingState>(
         listenWhen: (previous, current) =>
@@ -73,25 +61,47 @@ class PlayerEditingPage extends StatelessWidget {
             floatingActionButtonLocation: state.isPure
                 ? const EndOffscreenFabLocation()
                 : FloatingActionButtonLocation.endFloat,
-            body: Align(
-              alignment: Alignment.topCenter,
-              child: SizedBox(
-                width: 640,
-                child: SingleChildScrollView(
-                  controller: scrollController,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
-                    child: ChangeNotifierProvider.value(
-                      value: scrollController,
-                      child: const PlayerEditingForm(),
-                    ),
+            body: _PlayerEditingPageContent(),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _PlayerEditingPageContent extends StatelessWidget {
+  _PlayerEditingPageContent();
+
+  final scrollController = ScrollController();
+
+  @override
+  Widget build(BuildContext context) {
+    var cubit = context.read<PlayerEditingCubit>();
+    return BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
+      buildWhen: (previous, current) =>
+          previous.loadingStatus != current.loadingStatus,
+      builder: (context, state) {
+        return LoadingScreen(
+          loadingStatusGetter: () => state.loadingStatus,
+          onRetry: () => cubit.loadPlayerData(),
+          builder: (_) => Align(
+            alignment: Alignment.topCenter,
+            child: SizedBox(
+              width: 640,
+              child: SingleChildScrollView(
+                controller: scrollController,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
+                  child: ChangeNotifierProvider.value(
+                    value: scrollController,
+                    child: const PlayerEditingForm(),
                   ),
                 ),
               ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }
