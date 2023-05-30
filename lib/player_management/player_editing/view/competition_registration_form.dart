@@ -22,18 +22,21 @@ class CompetitionRegistrationForm extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
       buildWhen: (previous, current) =>
-          previous.registrationFormShown != current.registrationFormShown,
+          previous.registrationFormShown != current.registrationFormShown ||
+          previous.registrations != current.registrations,
       builder: (context, state) {
         return Column(
           children: <Widget>[
-            if (!state.registrationFormShown) ...[
+            if (state.registrationFormShown) ...const [
+              _CompetitionForm(),
+              _RegistrationCancelButton(),
+            ] else ...[
               for (var registration in state.registrations)
                 _CompetitionDisplayCard(registration),
               if (state.registrations.isNotEmpty) const SizedBox(height: 25),
-              const _RegistrationAddButton(),
-            ] else ...const [
-              _CompetitionForm(),
-              _RegistrationCancelButton()
+              if (state.getCollection<Competition>().length !=
+                  state.registrations.length)
+                const _RegistrationAddButton(),
             ]
           ],
         );
@@ -83,6 +86,7 @@ class _CompetitionDisplayCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var editingCubit = context.read<PlayerEditingCubit>();
     var l10n = AppLocalizations.of(context)!;
     var divider = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -110,7 +114,7 @@ class _CompetitionDisplayCard extends StatelessWidget {
               child: IconButton(
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
-                onPressed: () {},
+                onPressed: () => editingCubit.registrationRemoved(competition),
                 tooltip: l10n.deleteRegistration,
                 icon: const Icon(Icons.close, size: 22),
               ),
@@ -158,8 +162,10 @@ class _CompetitionForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var editingCubit = context.read<PlayerEditingCubit>();
     return BlocProvider(
       create: (context) => CompetitionRegistrationCubit(
+        registrations: editingCubit.state.registrations,
         playerRepository: context.read<CollectionRepository<Player>>(),
         competitionRepository:
             context.read<CollectionRepository<Competition>>(),

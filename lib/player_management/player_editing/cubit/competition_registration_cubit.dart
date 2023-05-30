@@ -9,6 +9,7 @@ import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dar
 class CompetitionRegistrationCubit
     extends CollectionFetcherCubit<CompetitionRegistrationState> {
   CompetitionRegistrationCubit({
+    required this.registrations,
     required CollectionRepository<Player> playerRepository,
     required CollectionRepository<Competition> competitionRepository,
     required CollectionRepository<PlayingLevel> playingLevelRepository,
@@ -24,6 +25,8 @@ class CompetitionRegistrationCubit
         ) {
     loadPlayerData();
   }
+
+  final List<Competition> registrations;
 
   late List<List<Type>> allFormSteps;
 
@@ -99,7 +102,7 @@ class CompetitionRegistrationCubit
   }
 
   /// Returns the set of values that are present for a parameter [P] on all
-  /// [Competition]s in the collection.
+  /// [Competition]s in the collection that the player is not registered for.
   ///
   /// If [inSelection] is `true` the Competitions are pre-filered by the
   /// parameters that are already set (the "selected" competitions).
@@ -107,6 +110,7 @@ class CompetitionRegistrationCubit
     var selectedCompetitions = inSelection
         ? getSelectedCompetitions(ignore: [P])
         : state.getCollection<Competition>();
+    selectedCompetitions.removeWhere((c) => registrations.contains(c));
     switch (P) {
       case PlayingLevel:
         return selectedCompetitions

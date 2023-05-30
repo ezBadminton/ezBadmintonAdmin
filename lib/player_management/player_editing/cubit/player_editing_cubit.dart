@@ -131,6 +131,13 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     ));
   }
 
+  void registrationRemoved(Competition removedCompetition) {
+    assert(state.registrations.contains(removedCompetition));
+    var registrations = List.of(state.registrations)
+      ..remove(removedCompetition);
+    emit(state.copyWith(registrations: registrations));
+  }
+
   void formSubmitted() async {
     if (!state.isValid) {
       var newState = state.copyWith(formStatus: FormzSubmissionStatus.failure);
