@@ -165,6 +165,7 @@ class _CompetitionForm extends StatelessWidget {
     var editingCubit = context.read<PlayerEditingCubit>();
     return BlocProvider(
       create: (context) => CompetitionRegistrationCubit(
+        player: editingCubit.state.player,
         registrations: editingCubit.state.registrations,
         playerRepository: context.read<CollectionRepository<Player>>(),
         competitionRepository:

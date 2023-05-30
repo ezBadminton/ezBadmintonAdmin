@@ -4,11 +4,13 @@ import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dar
 import 'package:ez_badminton_admin_app/input_models/models.dart';
 import 'package:ez_badminton_admin_app/input_models/no_validation.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_state.dart';
+import 'package:ez_badminton_admin_app/player_management/utils/age_groups.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 
 class CompetitionRegistrationCubit
     extends CollectionFetcherCubit<CompetitionRegistrationState> {
   CompetitionRegistrationCubit({
+    required this.player,
     required this.registrations,
     required CollectionRepository<Player> playerRepository,
     required CollectionRepository<Competition> competitionRepository,
@@ -26,6 +28,7 @@ class CompetitionRegistrationCubit
     loadPlayerData();
   }
 
+  final Player player;
   final List<Competition> registrations;
 
   late List<List<Type>> allFormSteps;
@@ -79,16 +82,34 @@ class CompetitionRegistrationCubit
   }
 
   void formSubmitted() {
-    var selected = getSelectedCompetitions();
+    var selection = getSelectedCompetitions();
     assert(
-      selected.length == 1,
+      selection.length == 1,
       'Registration form did not select only one competition',
     );
+    var selected = selection.first;
+    if (!_verifyAgeGroup(selected)) {
+      // TODO warning popup state
+    }
     var newState = state.copyWith(
-      competition: SelectionInput.dirty(value: selected.first),
+      competition: SelectionInput.dirty(value: selected),
     );
     assert(newState.isValid);
     emit(newState);
+  }
+
+  bool _verifyAgeGroup(Competition competition) {
+    if (player.dateOfBirth == null || competition.ageGroups.isEmpty) {
+      return true;
+    } else {
+      var playerAgeGroups = ageToAgeGroups(
+        player.calculateAge(),
+        state.getCollection<AgeGroup>(),
+      );
+      return playerAgeGroups
+          .where((group) => competition.ageGroups.contains(group))
+          .isNotEmpty;
+    }
   }
 
   void formStepBack() {

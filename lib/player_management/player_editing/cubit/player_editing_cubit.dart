@@ -99,6 +99,7 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
       ),
     );
     emit(newState);
+    emit(state.copyWith(player: _applyChanges()));
   }
 
   void playingLevelChanged(PlayingLevel? playingLevel) {
@@ -109,6 +110,7 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
       ),
     );
     emit(newState);
+    emit(state.copyWith(player: _applyChanges()));
   }
 
   void registrationAdded() {
@@ -150,11 +152,6 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     );
     emit(newState);
 
-    DateTime? dateOfBirth = state.dateOfBirth.value.isEmpty
-        ? null
-        : MaterialLocalizations.of(_context)
-            .parseCompactDate(state.dateOfBirth.value);
-
     Club? club;
     if (state.clubName.value.isNotEmpty) {
       club = await _clubFromName(state.clubName.value);
@@ -165,7 +162,6 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     }
 
     Player editedPlayer = _applyChanges(
-      dateOfBirth: dateOfBirth,
       club: club,
     );
     Player? createdPlayer = await querier.createModel(editedPlayer);
@@ -197,9 +193,13 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
   }
 
   Player _applyChanges({
-    required DateTime? dateOfBirth,
-    required Club? club,
+    Club? club,
   }) {
+    DateTime? dateOfBirth =
+        state.dateOfBirth.value.isEmpty || state.dateOfBirth.isNotValid
+            ? null
+            : MaterialLocalizations.of(_context)
+                .parseCompactDate(state.dateOfBirth.value);
     return state.player.copyWith(
       firstName: state.firstName.value,
       lastName: state.lastName.value,
