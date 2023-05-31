@@ -33,11 +33,12 @@ class CompetitionRegistrationForm extends StatelessWidget {
               _CompetitionForm(),
               _RegistrationCancelButton(),
             ] else ...[
-              for (var registration in state.registrations)
+              for (var registration in state.registrations.value)
                 _RegistrationDisplayCard(registration),
-              if (state.registrations.isNotEmpty) const SizedBox(height: 25),
+              if (state.registrations.value.isNotEmpty)
+                const SizedBox(height: 25),
               if (state.getCollection<Competition>().length !=
-                  state.registrations.length)
+                  state.registrations.value.length)
                 const _RegistrationAddButton(),
             ]
           ],
@@ -75,7 +76,7 @@ class _RegistrationAddButton extends StatelessWidget {
     var cubit = context.read<PlayerEditingCubit>();
     var l10n = AppLocalizations.of(context)!;
     return ElevatedButton(
-      onPressed: cubit.registrationAdded,
+      onPressed: cubit.registrationFormOpened,
       child: Text(l10n.addRegistration),
     );
   }
@@ -198,7 +199,7 @@ class _CompetitionForm extends StatelessWidget {
     return BlocProvider(
       create: (context) => CompetitionRegistrationCubit(
         player: editingCubit.state.player,
-        registrations: editingCubit.state.registrations,
+        registrations: editingCubit.state.registrations.value,
         playerRepository: context.read<CollectionRepository<Player>>(),
         competitionRepository:
             context.read<CollectionRepository<Competition>>(),
@@ -222,7 +223,7 @@ class _CompetitionFormFields extends StatelessWidget {
       listener: (context, state) {
         if (state.warnings.isEmpty) {
           var editingCubit = context.read<PlayerEditingCubit>();
-          editingCubit.registrationSubmitted(
+          editingCubit.registrationAdded(
             state.competition.value!,
             state.partner.value,
           );

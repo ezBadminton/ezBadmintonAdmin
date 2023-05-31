@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
+import 'package:ez_badminton_admin_app/input_models/list_input.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
 import 'package:ez_badminton_admin_app/input_models/no_validation.dart';
 import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
@@ -54,7 +55,8 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
           updatedState.getCollection<Competition>(),
         );
         updatedState = updatedState.copyWith(
-          registrations: playerCompetitions[updatedState.player],
+          registrations:
+              ListInput.pure(playerCompetitions[updatedState.player] ?? []),
           loadingStatus: LoadingStatus.done,
         );
         emit(updatedState);
@@ -114,7 +116,7 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     emit(state.copyWith(player: _applyChanges()));
   }
 
-  void registrationAdded() {
+  void registrationFormOpened() {
     assert(!state.registrationFormShown);
     emit(state.copyWith(registrationFormShown: true));
   }
@@ -124,7 +126,7 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     emit(state.copyWith(registrationFormShown: false));
   }
 
-  void registrationSubmitted(
+  void registrationAdded(
     Competition registeredCompetition,
     Player? partner,
   ) {
@@ -141,7 +143,7 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
       competition: registeredCompetition,
       team: team,
     );
-    var registrations = List.of(state.registrations)..add(registration);
+    var registrations = state.registrations.copyWithAddedValue(registration);
 
     emit(state.copyWith(
       registrations: registrations,
@@ -150,9 +152,9 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
   }
 
   void registrationRemoved(CompetitionRegistration removedCompetition) {
-    assert(state.registrations.contains(removedCompetition));
-    var registrations = List.of(state.registrations)
-      ..remove(removedCompetition);
+    assert(state.registrations.value.contains(removedCompetition));
+    var registrations =
+        state.registrations.copyWithRemovedValue(removedCompetition);
     emit(state.copyWith(registrations: registrations));
   }
 

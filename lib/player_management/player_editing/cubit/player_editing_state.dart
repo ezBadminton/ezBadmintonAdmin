@@ -21,7 +21,7 @@ class PlayerEditingState extends CollectionFetcherState
   PlayerEditingState.fromPlayer({
     this.collections = const {},
     this.loadingStatus = LoadingStatus.loading,
-    this.registrations = const [],
+    this.registrations = const ListInput.pure(),
     required context,
     required this.player,
     this.formStatus = FormzSubmissionStatus.initial,
@@ -49,7 +49,7 @@ class PlayerEditingState extends CollectionFetcherState
   final LoadingStatus loadingStatus;
   final FormzSubmissionStatus formStatus;
   final Player player;
-  final List<CompetitionRegistration> registrations;
+  final ListInput<CompetitionRegistration> registrations;
   final NonEmptyInput firstName;
   final NonEmptyInput lastName;
   final NoValidationInput clubName;
@@ -67,13 +67,14 @@ class PlayerEditingState extends CollectionFetcherState
         eMail,
         dateOfBirth,
         playingLevel,
+        registrations,
       ];
 
   PlayerEditingState copyWith({
     Map<Type, List<Model>>? collections,
     LoadingStatus? loadingStatus,
     Player? player,
-    List<CompetitionRegistration>? registrations,
+    ListInput<CompetitionRegistration>? registrations,
     FormzSubmissionStatus? formStatus,
     NonEmptyInput? firstName,
     NonEmptyInput? lastName,
