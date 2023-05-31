@@ -68,7 +68,8 @@ class Player extends Model with _$Player {
     }
     var now = DateTime.now();
     int age = now.year - dateOfBirth!.year;
-    if (now.month <= dateOfBirth!.month && now.day < dateOfBirth!.day) {
+    if (now.month < dateOfBirth!.month ||
+        (now.month == dateOfBirth!.month && now.day < dateOfBirth!.day)) {
       age--;
     }
     return age;

@@ -2,6 +2,7 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/input_models/no_validation.dart';
 import 'package:ez_badminton_admin_app/input_models/selection.dart';
+import 'package:ez_badminton_admin_app/player_management/player_editing/models/registration_warning.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:formz/formz.dart';
 
@@ -22,6 +23,7 @@ class CompetitionRegistrationState extends CollectionFetcherState
     this.playingLevel =
         const SelectionInput.dirty(emptyAllowed: true, value: null),
     this.partnerName = const NoValidationInput.dirty(''),
+    this.warnings = const [],
   });
 
   @override
@@ -37,6 +39,8 @@ class CompetitionRegistrationState extends CollectionFetcherState
   final SelectionInput<PlayingLevel> playingLevel;
   final NoValidationInput partnerName;
 
+  final List<RegistrationWarning> warnings;
+
   CompetitionRegistrationState copyWith({
     Map<Type, List<Model>>? collections,
     LoadingStatus? loadingStatus,
@@ -48,6 +52,7 @@ class CompetitionRegistrationState extends CollectionFetcherState
     SelectionInput<AgeGroup>? ageGroup,
     SelectionInput<PlayingLevel>? playingLevel,
     NoValidationInput? partnerName,
+    List<RegistrationWarning>? warnings,
   }) =>
       CompetitionRegistrationState(
         collections: collections ?? this.collections,
@@ -60,6 +65,7 @@ class CompetitionRegistrationState extends CollectionFetcherState
         partnerName: partnerName ?? this.partnerName,
         ageGroup: ageGroup ?? this.ageGroup,
         playingLevel: playingLevel ?? this.playingLevel,
+        warnings: warnings ?? this.warnings,
       );
 
   CompetitionRegistrationState copyWithCompetitionParameter<P>(

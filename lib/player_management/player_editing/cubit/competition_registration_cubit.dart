@@ -4,7 +4,10 @@ import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dar
 import 'package:ez_badminton_admin_app/input_models/models.dart';
 import 'package:ez_badminton_admin_app/input_models/no_validation.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_state.dart';
+import 'package:ez_badminton_admin_app/player_management/player_editing/models/registration_warning.dart';
 import 'package:ez_badminton_admin_app/player_management/utils/age_groups.dart';
+import 'package:ez_badminton_admin_app/player_management/utils/gender_categories.dart';
+import 'package:ez_badminton_admin_app/player_management/utils/playing_levels.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 
 class CompetitionRegistrationCubit
@@ -81,35 +84,86 @@ class CompetitionRegistrationCubit
     return lastStep;
   }
 
-  void formSubmitted() {
+  void formSubmitted({bool ignoreWarnings = false}) {
     var selection = getSelectedCompetitions();
     assert(
       selection.length == 1,
       'Registration form did not select only one competition',
     );
     var selected = selection.first;
-    if (!_verifyAgeGroup(selected)) {
-      // TODO warning popup state
+    CompetitionRegistrationState newState;
+    if (ignoreWarnings) {
+      newState = state.copyWith(warnings: []);
+    } else {
+      newState = _createWarnings(selected);
     }
-    var newState = state.copyWith(
+    newState = newState.copyWith(
       competition: SelectionInput.dirty(value: selected),
     );
     assert(newState.isValid);
     emit(newState);
   }
 
+  void warningsDismissed(bool doContinue) {
+    if (doContinue) {
+      formSubmitted(ignoreWarnings: true);
+    } else {
+      var newState = state.copyWith(
+        warnings: [],
+        competition: const SelectionInput.dirty(value: null),
+      );
+      emit(newState);
+    }
+  }
+
+  CompetitionRegistrationState _createWarnings(Competition selected) {
+    var warnings = List.of(state.warnings);
+    if (!_verifyAgeGroup(selected)) {
+      warnings.add(
+        AgeGroupWarning(unfitAgeGroups: selected.ageGroups, player: player),
+      );
+    }
+    if (!_verifyPlayingLevel(selected)) {
+      warnings.add(
+        PlayingLevelWarning(
+          unfitPlayingLevels: selected.playingLevels,
+          player: player,
+        ),
+      );
+    }
+    if (!_verifyGenderCategory(selected)) {
+      warnings.add(
+        GenderWarning(conflictingGender: selected.genderCategory),
+      );
+    }
+    return state.copyWith(warnings: warnings);
+  }
+
   bool _verifyAgeGroup(Competition competition) {
     if (player.dateOfBirth == null || competition.ageGroups.isEmpty) {
       return true;
-    } else {
-      var playerAgeGroups = ageToAgeGroups(
-        player.calculateAge(),
-        state.getCollection<AgeGroup>(),
-      );
-      return playerAgeGroups
-          .where((group) => competition.ageGroups.contains(group))
-          .isNotEmpty;
     }
+    var playerAgeGroups = ageToAgeGroups(
+      player.calculateAge(),
+      state.getCollection<AgeGroup>(),
+    );
+    return playerAgeGroups
+        .where((group) => competition.ageGroups.contains(group))
+        .isNotEmpty;
+  }
+
+  bool _verifyPlayingLevel(Competition competition) {
+    if (player.playingLevel == null || competition.playingLevels.isEmpty) {
+      return true;
+    }
+    var comparison =
+        player.playingLevel!.compareToList(competition.playingLevels);
+    return comparison == 0;
+  }
+
+  bool _verifyGenderCategory(Competition competition) {
+    var present = registrations.map((c) => c.genderCategory);
+    return !competition.genderCategory.isConflicting(present);
   }
 
   void formStepBack() {

@@ -2,6 +2,7 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_state.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/player_editing_cubit.dart';
+import 'package:ez_badminton_admin_app/player_management/player_editing/models/registration_warning.dart';
 import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
 import 'package:ez_badminton_admin_app/widgets/constrained_autocomplete/constrained_autocomplete.dart';
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/age_group_input.dart';
@@ -188,8 +189,12 @@ class _CompetitionFormFields extends StatelessWidget {
         CompetitionRegistrationState>(
       listenWhen: (previous, current) => current.competition.value != null,
       listener: (context, state) {
-        var editingCubit = context.read<PlayerEditingCubit>();
-        editingCubit.registrationSubmitted(state.competition.value!);
+        if (state.warnings.isEmpty) {
+          var editingCubit = context.read<PlayerEditingCubit>();
+          editingCubit.registrationSubmitted(state.competition.value!);
+        } else {
+          _showWarningDialog(context, state.warnings);
+        }
       },
       buildWhen: (previous, current) =>
           previous.formStep != current.formStep ||
@@ -280,6 +285,50 @@ class _CompetitionFormFields extends StatelessWidget {
     return Row(
       children: [backButton, submitButton],
     );
+  }
+
+  Future<void> _showWarningDialog(
+    BuildContext context,
+    List<RegistrationWarning> warnings,
+  ) async {
+    var l10n = AppLocalizations.of(context)!;
+    var cubit = context.read<CompetitionRegistrationCubit>();
+    var bullet = '\u2022';
+    var doContinue = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(l10n.registrationWarning),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l10n.continueMsg),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(l10n.cancel),
+            ),
+          ],
+          content: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 700),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (var warning in warnings)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6.0),
+                    child:
+                        Text('$bullet ${warning.getWarningMessage(context)}'),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+    cubit.warningsDismissed(doContinue!);
   }
 }
 
