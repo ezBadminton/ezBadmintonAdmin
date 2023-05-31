@@ -172,7 +172,8 @@ class _PlayerList extends StatelessWidget {
                   width: 73,
                   child: Text(
                     _competitionAbbreviations(
-                      listState.playerCompetitions[player]!,
+                      listState.competitionRegistrations[player]!
+                          .map((r) => r.competition),
                       l10n,
                     ),
                     overflow: TextOverflow.fade,
@@ -220,7 +221,7 @@ class _PlayerList extends StatelessWidget {
 }
 
 String _competitionAbbreviations(
-  List<Competition> competitions,
+  Iterable<Competition> competitions,
   AppLocalizations l10n,
 ) {
   List<String> abbreviations = [];

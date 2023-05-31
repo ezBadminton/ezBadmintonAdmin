@@ -1,9 +1,9 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_state.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/player_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/models/registration_warning.dart';
-import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
 import 'package:ez_badminton_admin_app/widgets/constrained_autocomplete/constrained_autocomplete.dart';
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/age_group_input.dart';
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/competition_type_input.dart';
@@ -15,6 +15,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
     as display_strings;
+import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 
 class CompetitionRegistrationForm extends StatelessWidget {
   const CompetitionRegistrationForm({super.key});
@@ -33,7 +34,7 @@ class CompetitionRegistrationForm extends StatelessWidget {
               _RegistrationCancelButton(),
             ] else ...[
               for (var registration in state.registrations)
-                _CompetitionDisplayCard(registration),
+                _RegistrationDisplayCard(registration),
               if (state.registrations.isNotEmpty) const SizedBox(height: 25),
               if (state.getCollection<Competition>().length !=
                   state.registrations.length)
@@ -80,10 +81,11 @@ class _RegistrationAddButton extends StatelessWidget {
   }
 }
 
-class _CompetitionDisplayCard extends StatelessWidget {
-  const _CompetitionDisplayCard(this.competition);
+class _RegistrationDisplayCard extends StatelessWidget {
+  const _RegistrationDisplayCard(this.registration);
 
-  final Competition competition;
+  final CompetitionRegistration registration;
+  Competition get competition => registration.competition;
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +99,9 @@ class _CompetitionDisplayCard extends StatelessWidget {
         color: Theme.of(context).colorScheme.onSurface.withOpacity(.5),
       ),
     );
+    Player? partner = registration.team.players
+        .whereNot((p) => p.id == editingCubit.state.player.id)
+        .firstOrNull;
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -109,46 +114,72 @@ class _CompetitionDisplayCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Stack(
+          alignment: Alignment.center,
           children: [
             Align(
               alignment: AlignmentDirectional.centerEnd,
               child: IconButton(
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
-                onPressed: () => editingCubit.registrationRemoved(competition),
+                onPressed: () => editingCubit.registrationRemoved(registration),
                 tooltip: l10n.deleteRegistration,
                 icon: const Icon(Icons.close, size: 22),
               ),
             ),
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
+            Column(
               children: [
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 240),
-                  child: Text(
-                    display_strings.playingLevelList(competition.playingLevels),
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 240),
+                      child: Text(
+                        display_strings.playingLevelList(
+                          competition.playingLevels,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    divider,
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 140),
+                      child: Text(
+                        display_strings.ageGroupList(
+                          l10n,
+                          competition.ageGroups,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    divider,
+                    Text(
+                      display_strings.competitionCategory(
+                        l10n,
+                        competition.type,
+                        competition.genderCategory,
+                      ),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
-                divider,
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 140),
-                  child: Text(
-                    display_strings.ageGroupList(l10n, competition.ageGroups),
-                    overflow: TextOverflow.ellipsis,
+                if (competition.teamSize == 2) ...[
+                  const Divider(
+                    height: 6,
+                    indent: 35,
+                    endIndent: 35,
                   ),
-                ),
-                divider,
-                Text(
-                  display_strings.competitionCategory(
-                    l10n,
-                    competition.type,
-                    competition.genderCategory,
-                  ),
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
+                  Text(
+                    partner == null
+                        ? l10n.noPartner
+                        : l10n.withPartner(
+                            display_strings.playerWithClub(partner),
+                          ),
+                    style: const TextStyle(fontSize: 12),
+                    textAlign: TextAlign.center,
+                  )
+                ],
               ],
             ),
           ],
@@ -191,7 +222,10 @@ class _CompetitionFormFields extends StatelessWidget {
       listener: (context, state) {
         if (state.warnings.isEmpty) {
           var editingCubit = context.read<PlayerEditingCubit>();
-          editingCubit.registrationSubmitted(state.competition.value!);
+          editingCubit.registrationSubmitted(
+            state.competition.value!,
+            state.partner.value,
+          );
         } else {
           _showWarningDialog(context, state.warnings);
         }
@@ -614,6 +648,9 @@ class _PartnerNameInput extends StatelessWidget {
   final _controller = TextEditingController();
   final _focus = FocusNode();
 
+  final String Function(Player) displayStringFunction =
+      display_strings.playerWithClub;
+
   @override
   Widget build(BuildContext context) {
     AppLocalizations l10n = AppLocalizations.of(context)!;
@@ -638,7 +675,7 @@ class _PartnerNameInput extends StatelessWidget {
                 _partnerOptionsBuilder(context, playerSearchTerm),
             onSelected: cubit.partnerChanged,
             constraints: constraints,
-            displayStringForOption: display_strings.playerWithClub,
+            displayStringForOption: displayStringFunction,
             fieldViewBuilder:
                 (context, textEditingController, focusNode, onFieldSubmitted) =>
                     TextField(
@@ -671,20 +708,23 @@ class _PartnerNameInput extends StatelessWidget {
     var playerOptions = players.where((p) => !participants.contains(p));
 
     if (playerSearchTerm.text.isNotEmpty) {
-      playerOptions = playerOptions.where(
-        (p) => SearchPredicateProducer.searchTermMatchesPlayer(
-          playerSearchTerm.text,
-          p,
-        ),
-      );
+      playerOptions =
+          playerOptions.where((p) => _partnerSearch(p, playerSearchTerm.text));
     }
 
     if (playerOptions.length == 1) {
       cubit.partnerChanged(playerOptions.first);
-    } else {
+    } else if (cubit.state.partner.value != null) {
       cubit.partnerChanged(null);
     }
 
     return playerOptions;
+  }
+
+  bool _partnerSearch(Player partner, String searchTerm) {
+    var cleanSearchTerm = searchTerm.toLowerCase().trim();
+    return displayStringFunction(partner)
+        .toLowerCase()
+        .contains(cleanSearchTerm);
   }
 }

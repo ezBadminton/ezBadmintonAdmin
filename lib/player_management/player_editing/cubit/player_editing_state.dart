@@ -49,7 +49,7 @@ class PlayerEditingState extends CollectionFetcherState
   final LoadingStatus loadingStatus;
   final FormzSubmissionStatus formStatus;
   final Player player;
-  final List<Competition> registrations;
+  final List<CompetitionRegistration> registrations;
   final NonEmptyInput firstName;
   final NonEmptyInput lastName;
   final NoValidationInput clubName;
@@ -73,7 +73,7 @@ class PlayerEditingState extends CollectionFetcherState
     Map<Type, List<Model>>? collections,
     LoadingStatus? loadingStatus,
     Player? player,
-    List<Competition>? registrations,
+    List<CompetitionRegistration>? registrations,
     FormzSubmissionStatus? formStatus,
     NonEmptyInput? firstName,
     NonEmptyInput? lastName,

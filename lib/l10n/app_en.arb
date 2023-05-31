@@ -58,5 +58,7 @@
   "registrationWarning": "Registration notice",
   "ageGroupWarning": "The registered age group is {ageGroup}, the player is {age} years old.",
   "playingLevelWarning": "The registered playing level is {playingLevel}, the player is of {playerLevel}.",
-  "genderWarning": "Player is already registered in a {presentGender} competition. The registration is for a {conflictingGender} competition."
+  "genderWarning": "Player is already registered in a {presentGender} competition. The registration is for a {conflictingGender} competition.",
+  "withPartner": "with {partnerName}",
+  "noPartner": "no partner registered"
 }

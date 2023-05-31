@@ -50,13 +50,15 @@
   "addRegistration": "Neue Meldung",
   "deleteRegistration": "Meldung löschen",
   "optional": "Optional",
-  "partner": "Partner/-in",
+  "partner": "Partner",
   "register": "Melden",
-  "registerPartner": "Partner*in melden",
+  "registerPartner": "Partner melden",
   "cancel": "Abbrechen",
   "continueMsg": "Fortfahren",
   "registrationWarning": "Hinweise zur Meldung",
-  "ageGroupWarning": "Gemeldete Altersklasse ist {ageGroup}, Spieler/-in ist {age}.",
-  "playingLevelWarning": "Gemeldete Spielklasse ist {playingLevel}, Spieler/-in ist in {playerLevel}.",
-  "genderWarning": "Spieler/-in ist schon für eine {presentGender}-Disziplin gemeldet. Meldung ist eine {conflictingGender}-Disziplin."
+  "ageGroupWarning": "Gemeldete Altersklasse ist {ageGroup}, Spieler ist {age}.",
+  "playingLevelWarning": "Gemeldete Spielklasse ist {playingLevel}, Spieler ist in {playerLevel}.",
+  "genderWarning": "Spieler ist schon für eine {presentGender}-Disziplin gemeldet. Meldung ist eine {conflictingGender}-Disziplin.",
+  "withPartner": "mit {partnerName}",
+  "noPartner": "kein Partner gemeldet"
 }

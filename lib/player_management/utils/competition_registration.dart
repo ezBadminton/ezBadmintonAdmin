@@ -1,16 +1,24 @@
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 
 /// Maps players to the competitions that they are registered for
-Map<Player, List<Competition>> mapPlayerCompetitions(
+Map<Player, List<CompetitionRegistration>> mapCompetitionRegistrations(
   List<Player> players,
   List<Competition> competitions,
 ) {
-  var playerCompetitions = {for (var p in players) p: <Competition>[]};
+  var playerCompetitions = {
+    for (var p in players) p: <CompetitionRegistration>[],
+  };
   for (var competition in competitions) {
     var teams = competition.registrations;
     var players = teams.expand((team) => team.players);
     for (var player in players) {
-      playerCompetitions[player]?.add(competition);
+      playerCompetitions[player]?.add(
+        CompetitionRegistration.fromCompetition(
+          competition: competition,
+          player: player,
+        ),
+      );
     }
   }
   return playerCompetitions;

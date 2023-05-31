@@ -24,6 +24,16 @@ class Team extends Model with _$Team {
     required bool resigned,
   }) = _Team;
 
+  factory Team.newTeam({List<Player> players = const []}) {
+    return Team(
+      id: '',
+      created: DateTime.now(),
+      updated: DateTime.now(),
+      players: players,
+      resigned: false,
+    );
+  }
+
   factory Team.fromJson(Map<String, dynamic> json) =>
       _$TeamFromJson(ModelConverter.convertExpansions(json, expandedFields));
 

@@ -3,6 +3,7 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
 import 'package:ez_badminton_admin_app/input_models/no_validation.dart';
+import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_state.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/models/registration_warning.dart';
 import 'package:ez_badminton_admin_app/player_management/utils/age_groups.dart';
@@ -32,7 +33,7 @@ class CompetitionRegistrationCubit
   }
 
   final Player player;
-  final List<Competition> registrations;
+  final List<CompetitionRegistration> registrations;
 
   late List<List<Type>> allFormSteps;
 
@@ -162,7 +163,7 @@ class CompetitionRegistrationCubit
   }
 
   bool _verifyGenderCategory(Competition competition) {
-    var present = registrations.map((c) => c.genderCategory);
+    var present = registrations.map((c) => c.competition.genderCategory);
     return !competition.genderCategory.isConflicting(present);
   }
 
@@ -185,7 +186,9 @@ class CompetitionRegistrationCubit
     var selectedCompetitions = inSelection
         ? getSelectedCompetitions(ignore: [P])
         : state.getCollection<Competition>();
-    selectedCompetitions.removeWhere((c) => registrations.contains(c));
+    selectedCompetitions.removeWhere(
+      (c) => registrations.map((r) => r.competition).contains(c),
+    );
     switch (P) {
       case PlayingLevel:
         return selectedCompetitions

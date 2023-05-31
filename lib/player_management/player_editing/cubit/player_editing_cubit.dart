@@ -4,6 +4,7 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
 import 'package:ez_badminton_admin_app/input_models/no_validation.dart';
+import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/utils/competition_registration.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter/material.dart';
@@ -48,7 +49,7 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
         collectionFetcher<PlayingLevel>(),
       ],
       onSuccess: (updatedState) {
-        var playerCompetitions = mapPlayerCompetitions(
+        var playerCompetitions = mapCompetitionRegistrations(
           updatedState.getCollection<Player>(),
           updatedState.getCollection<Competition>(),
         );
@@ -123,17 +124,32 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     emit(state.copyWith(registrationFormShown: false));
   }
 
-  void registrationSubmitted(Competition registeredCompetition) {
+  void registrationSubmitted(
+    Competition registeredCompetition,
+    Player? partner,
+  ) {
     assert(state.registrationFormShown);
-    var registrations = List.of(state.registrations)
-      ..add(registeredCompetition);
+
+    var team = Team.newTeam(players: [
+      state.player,
+      if (partner != null) partner,
+    ]);
+
+    assert(team.players.length <= registeredCompetition.teamSize);
+
+    var registration = CompetitionRegistration(
+      competition: registeredCompetition,
+      team: team,
+    );
+    var registrations = List.of(state.registrations)..add(registration);
+
     emit(state.copyWith(
       registrations: registrations,
       registrationFormShown: false,
     ));
   }
 
-  void registrationRemoved(Competition removedCompetition) {
+  void registrationRemoved(CompetitionRegistration removedCompetition) {
     assert(state.registrations.contains(removedCompetition));
     var registrations = List.of(state.registrations)
       ..remove(removedCompetition);

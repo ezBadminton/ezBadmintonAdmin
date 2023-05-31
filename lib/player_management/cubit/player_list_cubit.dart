@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
+import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/utils/competition_registration.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
@@ -47,12 +48,12 @@ class PlayerListCubit extends CollectionFetcherCubit<PlayerListState> {
         collectionFetcher<Club>(),
       ],
       onSuccess: (updatedState) {
-        var playerCompetitions = mapPlayerCompetitions(
+        var playerCompetitions = mapCompetitionRegistrations(
           updatedState.getCollection<Player>(),
           updatedState.getCollection<Competition>(),
         );
         updatedState = updatedState.copyWith(
-          playerCompetitions: playerCompetitions,
+          competitionRegistrations: playerCompetitions,
           filteredPlayers: updatedState.getCollection<Player>(),
           loadingStatus: LoadingStatus.done,
         );

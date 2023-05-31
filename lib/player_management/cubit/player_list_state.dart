@@ -5,13 +5,13 @@ class PlayerListState extends CollectionFetcherState with CollectionGetter {
   const PlayerListState({
     this.loadingStatus = LoadingStatus.loading,
     this.filteredPlayers = const [],
-    this.playerCompetitions = const {},
+    this.competitionRegistrations = const {},
     this.collections = const {},
   });
 
   final LoadingStatus loadingStatus;
   final List<Player> filteredPlayers;
-  final Map<Player, List<Competition>> playerCompetitions;
+  final Map<Player, List<CompetitionRegistration>> competitionRegistrations;
 
   @override
   final Map<Type, List<Model>> collections;
@@ -19,13 +19,14 @@ class PlayerListState extends CollectionFetcherState with CollectionGetter {
   PlayerListState copyWith({
     LoadingStatus? loadingStatus,
     List<Player>? filteredPlayers,
-    Map<Player, List<Competition>>? playerCompetitions,
+    Map<Player, List<CompetitionRegistration>>? competitionRegistrations,
     Map<Type, List<Model>>? collections,
   }) {
     return PlayerListState(
       loadingStatus: loadingStatus ?? this.loadingStatus,
       filteredPlayers: filteredPlayers ?? this.filteredPlayers,
-      playerCompetitions: playerCompetitions ?? this.playerCompetitions,
+      competitionRegistrations:
+          competitionRegistrations ?? this.competitionRegistrations,
       collections: collections ?? this.collections,
     );
   }

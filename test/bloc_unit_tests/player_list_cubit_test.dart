@@ -178,16 +178,16 @@ void main() {
         verify: (cubit) {
           expect(cubit.state.getCollection<Player>(), players);
           expect(cubit.state.filteredPlayers, players);
-          expect(cubit.state.playerCompetitions.keys.toList(), players);
+          expect(cubit.state.competitionRegistrations.keys.toList(), players);
           for (var player in singlesTeams.expand((t) => t.players)) {
             expect(
-              cubit.state.playerCompetitions[player],
+              cubit.state.competitionRegistrations[player],
               contains(singlesCompetition),
             );
           }
           for (var player in mixedDoublesTeams.expand((t) => t.players)) {
             expect(
-              cubit.state.playerCompetitions[player],
+              cubit.state.competitionRegistrations[player],
               contains(mixedCompetition),
             );
           }
