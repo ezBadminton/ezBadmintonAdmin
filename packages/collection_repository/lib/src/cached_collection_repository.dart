@@ -27,7 +27,7 @@ class CachedCollectionRepository<M extends Model>
   @override
   Future<M> create(M newModel) async {
     var createdModelFromDB = await targetCollectionRepository.create(newModel);
-    _cachedCollection.add(createdModelFromDB);
+    _collectionCached = false;
     return createdModelFromDB;
   }
 
@@ -35,15 +35,13 @@ class CachedCollectionRepository<M extends Model>
   Future<M> update(M updatedModel) async {
     var updatedModelFromDB =
         await targetCollectionRepository.update(updatedModel);
-    _cachedCollection
-      ..removeWhere((m) => m.id == updatedModelFromDB.id)
-      ..add(updatedModelFromDB);
+    _collectionCached = false;
     return updatedModelFromDB;
   }
 
   @override
   Future<void> delete(M deletedModel) async {
     await targetCollectionRepository.delete(deletedModel);
-    _cachedCollection.removeWhere((m) => m.id == deletedModel.id);
+    _collectionCached = false;
   }
 }

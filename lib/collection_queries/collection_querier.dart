@@ -88,6 +88,7 @@ class CollectionQuerier {
       collectionRepositories.whereType<CollectionRepository<M>>().isNotEmpty,
       'The CollectionQuerier does not have the ${M.toString()} repository',
     );
+    assert(newModel.id.isEmpty);
     var collectionRepository =
         collectionRepositories.whereType<CollectionRepository<M>>().first;
 
@@ -108,6 +109,7 @@ class CollectionQuerier {
       collectionRepositories.whereType<CollectionRepository<M>>().isNotEmpty,
       'The CollectionQuerier does not have the ${M.toString()} repository',
     );
+    assert(updatedModel.id.isNotEmpty);
     var collectionRepository =
         collectionRepositories.whereType<CollectionRepository<M>>().first;
 
@@ -115,6 +117,15 @@ class CollectionQuerier {
       return await collectionRepository.update(updatedModel);
     } on CollectionQueryException {
       return null;
+    }
+  }
+
+  /// Updates or creates the given model based on wether it already has an `id`.
+  Future<M?> updateOrCreateModel<M extends Model>(M model) {
+    if (model.id.isEmpty) {
+      return createModel(model);
+    } else {
+      return updateModel(model);
     }
   }
 

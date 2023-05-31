@@ -31,9 +31,12 @@ class PlayerListCubit extends CollectionFetcherCubit<PlayerListState> {
     loadPlayerData();
     _playerUpdateSubscription =
         playerRepository.updateStream.listen(_playerCollectionUpdated);
+    _competitionUpdateSubscription =
+        competitionRepository.updateStream.listen(_playerCollectionUpdated);
   }
 
   late final StreamSubscription _playerUpdateSubscription;
+  late final StreamSubscription _competitionUpdateSubscription;
 
   void loadPlayerData() {
     if (state.loadingStatus != LoadingStatus.loading) {
@@ -102,6 +105,7 @@ class PlayerListCubit extends CollectionFetcherCubit<PlayerListState> {
   @override
   Future<void> close() async {
     await _playerUpdateSubscription.cancel();
+    await _competitionUpdateSubscription.cancel();
     super.close();
   }
 }

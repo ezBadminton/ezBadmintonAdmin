@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/input_models/list_input.dart';
@@ -20,6 +21,7 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     required CollectionRepository<Competition> competitionRepository,
     required CollectionRepository<Club> clubRepository,
     required CollectionRepository<PlayingLevel> playingLevelRepository,
+    required CollectionRepository<Team> teamRepository,
   })  : _context = context,
         super(
           PlayerEditingState.fromPlayer(
@@ -31,6 +33,7 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
             competitionRepository,
             clubRepository,
             playingLevelRepository,
+            teamRepository,
           ],
         ) {
     loadPlayerData();
@@ -102,7 +105,7 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
       ),
     );
     emit(newState);
-    emit(state.copyWith(player: _applyChanges()));
+    emit(state.copyWith(player: _applyPlayerChanges()));
   }
 
   void playingLevelChanged(PlayingLevel? playingLevel) {
@@ -113,7 +116,7 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
       ),
     );
     emit(newState);
-    emit(state.copyWith(player: _applyChanges()));
+    emit(state.copyWith(player: _applyPlayerChanges()));
   }
 
   void registrationFormOpened() {
@@ -165,33 +168,51 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
       return;
     }
 
-    var newState = state.copyWith(
+    var progressState = state.copyWith(
       formStatus: FormzSubmissionStatus.inProgress,
     );
-    emit(newState);
+    emit(progressState);
 
+    var updatedPlayerState = await _updateOrCreatePlayer(state);
+    if (updatedPlayerState == null) {
+      return;
+    }
+
+    bool registrationUpdate = await _updateRegistrations(updatedPlayerState);
+    if (!registrationUpdate) {
+      return;
+    }
+
+    emit(updatedPlayerState.copyWith(
+      formStatus: FormzSubmissionStatus.success,
+    ));
+  }
+
+  Future<PlayerEditingState?> _updateOrCreatePlayer(
+    PlayerEditingState state,
+  ) async {
     Club? club;
     if (state.clubName.value.isNotEmpty) {
       club = await _clubFromName(state.clubName.value);
       if (club == null) {
         emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-        return;
+        return null;
       }
     }
 
-    Player editedPlayer = _applyChanges(
+    Player editedPlayer = _applyPlayerChanges(
       club: club,
     );
-    Player? createdPlayer = await querier.createModel(editedPlayer);
-    if (createdPlayer == null) {
+    var updatedPlayer = await querier.updateOrCreateModel(editedPlayer);
+
+    if (updatedPlayer == null) {
       emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-      return;
+      return null;
     }
-    newState = state.copyWith(
-      player: createdPlayer,
-      formStatus: FormzSubmissionStatus.success,
+
+    return state.copyWith(
+      player: updatedPlayer,
     );
-    emit(newState);
   }
 
   /// Either get an existing club by [clubName] or create a new one with the
@@ -210,7 +231,7 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     return club;
   }
 
-  Player _applyChanges({
+  Player _applyPlayerChanges({
     Club? club,
   }) {
     DateTime? dateOfBirth =
@@ -226,5 +247,73 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
       playingLevel: state.playingLevel.value,
       club: club,
     );
+  }
+
+  List<CompetitionRegistration> _applyRegistrationChanges(
+    PlayerEditingState state,
+  ) {
+    assert(state.player.id.isNotEmpty);
+    var addedRegistrations =
+        state.registrations.getAddedElements().map((registration) {
+      var competition = registration.competition;
+      var registeredTeam = registration.team;
+
+      if (this.state.player.id.isEmpty) {
+        // Replace new player with created player from db
+
+        var createdPlayers = List.of(registeredTeam.players)
+          ..remove(this.state.player)
+          ..add(state.player);
+
+        registeredTeam = registeredTeam.copyWith(players: createdPlayers);
+      }
+
+      if (registeredTeam.players.length == 2) {
+        // Check if partner already has a team
+        var partner =
+            registeredTeam.players.whereNot((p) => p == state.player).first;
+        var partnerTeam = competition.registrations
+            .where((t) => t.players.contains(partner))
+            .firstOrNull;
+        if (partnerTeam != null) {
+          assert(partnerTeam.players.length == 1);
+          registeredTeam = partnerTeam.copyWith(
+            players: [partner, state.player],
+          );
+        }
+      }
+
+      return CompetitionRegistration(
+        competition: competition,
+        team: registeredTeam,
+      );
+    }).toList();
+
+    return addedRegistrations;
+  }
+
+  Future<bool> _updateRegistrations(
+    PlayerEditingState state,
+  ) async {
+    var registrations = _applyRegistrationChanges(state);
+    for (var registration in registrations) {
+      var updatedTeam = await querier.updateOrCreateModel(registration.team);
+      if (updatedTeam == null) {
+        emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+        return false;
+      }
+      var updatedTeams = List.of(registration.competition.registrations)
+        ..remove(registration.team)
+        ..add(updatedTeam);
+      var competition = registration.competition.copyWith(
+        registrations: updatedTeams,
+      );
+      var updatedCompetition = await querier.updateModel(competition);
+      if (updatedCompetition == null) {
+        emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+        return false;
+      }
+    }
+    return true;
   }
 }

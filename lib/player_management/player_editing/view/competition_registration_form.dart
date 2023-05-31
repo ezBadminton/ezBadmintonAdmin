@@ -705,9 +705,11 @@ class _PartnerNameInput extends StatelessWidget {
     var cubit = context.read<CompetitionRegistrationCubit>();
     var selected = cubit.getSelectedCompetitions().first;
     var players = cubit.state.getCollection<Player>();
-    var participants = selected.registrations.expand((team) => team.players);
+    var alreadyPartnered = selected.registrations.expand(
+      (team) => team.players.length == 2 ? team.players : [],
+    );
 
-    var playerOptions = players.where((p) => !participants.contains(p));
+    var playerOptions = players.whereNot((p) => alreadyPartnered.contains(p));
 
     if (playerSearchTerm.text.isNotEmpty) {
       playerOptions =

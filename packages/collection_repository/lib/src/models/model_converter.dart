@@ -27,10 +27,16 @@ class ModelConverter {
       Map<String, dynamic> json, List<ExpandedField> expandedFields) {
     for (ExpandedField expandedField in expandedFields) {
       String key = expandedField.key;
-      // When a field is not expanded it contains the id of the relation as a
-      // string.
+      // When a single field is not expanded it contains the id of the relation
+      // as a string.
       if (!expandedField.isRequired && json[key] is String) {
         json[key] = null;
+      }
+      // When a list field is not expanded it contains the ids as a list of
+      // strings.
+      else if (!expandedField.isSingle &&
+          (json[key] as List).firstOrNull is String) {
+        json[key] = [];
       }
       // If it's not null the expanded object is always a list even if the
       // expansion is single.
@@ -53,7 +59,7 @@ class ModelConverter {
       if (json[key] is Map && _isValidID(json[key]['id'])) {
         json[key] = json[key]['id'];
       } else if (json[key] is List) {
-        json[key] = (json[key] as List).map((e) => e['id']);
+        json[key] = (json[key] as List).map((e) => e['id']).toList();
       } else {
         json.remove(key);
       }

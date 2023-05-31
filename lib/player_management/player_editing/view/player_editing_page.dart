@@ -33,6 +33,7 @@ class PlayerEditingPage extends StatelessWidget {
         clubRepository: context.read<CollectionRepository<Club>>(),
         playingLevelRepository:
             context.read<CollectionRepository<PlayingLevel>>(),
+        teamRepository: context.read<CollectionRepository<Team>>(),
       ),
       child: BlocConsumer<PlayerEditingCubit, PlayerEditingState>(
         listenWhen: (previous, current) =>

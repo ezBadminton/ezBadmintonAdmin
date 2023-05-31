@@ -17,7 +17,7 @@ abstract class Model extends Equatable {
   DateTime get updated;
 
   @override
-  List<Object?> get props => [id, updated];
+  List<Object?> get props => [id];
 
   @override
   bool? get stringify => false;

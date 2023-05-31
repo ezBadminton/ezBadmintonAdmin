@@ -115,6 +115,9 @@ void main() {
       () => competitionRepository.getList(expand: any(named: 'expand')),
     ).thenAnswer((invocation) async => [mixedCompetition, singlesCompetition]);
 
+    when(() => competitionRepository.updateStream)
+        .thenAnswer((_) => Stream.fromIterable([]));
+
     when(
       () => playingLevelRepository.getList(expand: any(named: 'expand')),
     ).thenAnswer((invocation) async => []);
@@ -181,13 +184,15 @@ void main() {
           expect(cubit.state.competitionRegistrations.keys.toList(), players);
           for (var player in singlesTeams.expand((t) => t.players)) {
             expect(
-              cubit.state.competitionRegistrations[player],
+              cubit.state.competitionRegistrations[player]!
+                  .map((r) => r.competition),
               contains(singlesCompetition),
             );
           }
           for (var player in mixedDoublesTeams.expand((t) => t.players)) {
             expect(
-              cubit.state.competitionRegistrations[player],
+              cubit.state.competitionRegistrations[player]!
+                  .map((r) => r.competition),
               contains(mixedCompetition),
             );
           }
