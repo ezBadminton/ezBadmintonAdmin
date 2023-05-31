@@ -207,13 +207,13 @@ class _CompetitionForm extends StatelessWidget {
             context.read<CollectionRepository<PlayingLevel>>(),
         ageGroupRepository: context.read<CollectionRepository<AgeGroup>>(),
       ),
-      child: const _CompetitionFormFields(),
+      child: const _CompetitionRegistrationStepper(),
     );
   }
 }
 
-class _CompetitionFormFields extends StatelessWidget {
-  const _CompetitionFormFields();
+class _CompetitionRegistrationStepper extends StatelessWidget {
+  const _CompetitionRegistrationStepper();
 
   @override
   Widget build(BuildContext context) {
@@ -246,6 +246,7 @@ class _CompetitionFormFields extends StatelessWidget {
               currentStep: state.formStep,
               onStepContinue: registrationCubit.formSubmitted,
               onStepCancel: registrationCubit.formStepBack,
+              onStepTapped: (step) => registrationCubit.formStepBackTo(step),
               stepIconBuilder: (stepIndex, stepState) {
                 if (stepIndex < state.formStep) {
                   return const Icon(size: 16, Icons.check);

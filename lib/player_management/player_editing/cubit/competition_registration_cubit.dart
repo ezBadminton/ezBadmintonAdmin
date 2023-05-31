@@ -167,6 +167,16 @@ class CompetitionRegistrationCubit
     return !competition.genderCategory.isConflicting(present);
   }
 
+  void formStepBackTo(int step) {
+    assert(step >= 0 && step <= lastFormStep);
+    if (step >= state.formStep) {
+      return;
+    }
+    while (state.formStep > step) {
+      formStepBack();
+    }
+  }
+
   void formStepBack() {
     if (state.formStep == 0) {
       return;
