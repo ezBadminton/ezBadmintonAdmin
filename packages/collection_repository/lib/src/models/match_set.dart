@@ -1,9 +1,10 @@
+import 'package:collection_repository/src/expansion_tree/expanded_field.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:collection_repository/collection_repository.dart';
+import 'package:collection_repository/src/utils/model_converter.dart'
+    as model_converter;
 // ignore: unused_import
 import 'package:flutter/foundation.dart';
-
-import 'model_converter.dart';
 
 part 'generated/match_set.freezed.dart';
 part 'generated/match_set.g.dart';
@@ -27,8 +28,8 @@ class MatchSet extends Model with _$MatchSet {
     required int team2Points,
   }) = _MatchSet;
 
-  factory MatchSet.fromJson(Map<String, dynamic> json) => _$MatchSetFromJson(
-      ModelConverter.convertExpansions(json, expandedFields));
+  factory MatchSet.fromJson(Map<String, dynamic> json) =>
+      _$MatchSetFromJson(json..cleanUpExpansions(expandedFields));
 
   static const List<ExpandedField> expandedFields = [
     ExpandedField(model: Match, key: 'match', isRequired: true, isSingle: true),
@@ -37,6 +38,6 @@ class MatchSet extends Model with _$MatchSet {
   @override
   Map<String, dynamic> toCollapsedJson() {
     Map<String, dynamic> json = toJson();
-    return ModelConverter.collapseExpansions(json, expandedFields);
+    return json..collapseExpansions(expandedFields);
   }
 }

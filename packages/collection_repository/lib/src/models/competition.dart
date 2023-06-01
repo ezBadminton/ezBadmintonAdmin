@@ -1,5 +1,7 @@
 import 'package:collection_repository/collection_repository.dart';
-import 'package:collection_repository/src/models/model_converter.dart';
+import 'package:collection_repository/src/expansion_tree/expanded_field.dart';
+import 'package:collection_repository/src/utils/model_converter.dart'
+    as model_converter;
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'generated/competition.freezed.dart';
@@ -26,8 +28,7 @@ class Competition extends Model with _$Competition {
   }) = _Competition;
 
   factory Competition.fromJson(Map<String, dynamic> json) =>
-      _$CompetitionFromJson(
-          ModelConverter.convertExpansions(json, expandedFields));
+      _$CompetitionFromJson(json..cleanUpExpansions(expandedFields));
 
   factory Competition.newCompetition({
     required int teamSize,
@@ -87,7 +88,7 @@ class Competition extends Model with _$Competition {
   @override
   Map<String, dynamic> toCollapsedJson() {
     Map<String, dynamic> json = toJson();
-    return ModelConverter.collapseExpansions(json, expandedFields);
+    return json..collapseExpansions(expandedFields);
   }
 }
 

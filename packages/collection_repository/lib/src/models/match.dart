@@ -1,4 +1,6 @@
-import 'package:collection_repository/src/models/model_converter.dart';
+import 'package:collection_repository/src/expansion_tree/expanded_field.dart';
+import 'package:collection_repository/src/utils/model_converter.dart'
+    as model_converter;
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:collection_repository/collection_repository.dart';
 // ignore: unused_import
@@ -33,7 +35,7 @@ class Match extends Model with _$Match {
   }) = _Match;
 
   factory Match.fromJson(Map<String, dynamic> json) =>
-      _$MatchFromJson(ModelConverter.convertExpansions(json, expandedFields));
+      _$MatchFromJson(json..cleanUpExpansions(expandedFields));
 
   static const List<ExpandedField> expandedFields = [
     ExpandedField(
@@ -52,7 +54,7 @@ class Match extends Model with _$Match {
   @override
   Map<String, dynamic> toCollapsedJson() {
     Map<String, dynamic> json = toJson();
-    return ModelConverter.collapseExpansions(json, expandedFields);
+    return json..collapseExpansions(expandedFields);
   }
 }
 

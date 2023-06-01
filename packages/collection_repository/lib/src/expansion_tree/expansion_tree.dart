@@ -1,5 +1,5 @@
 import 'package:collection_repository/collection_repository.dart';
-import 'package:collection_repository/src/models/model_converter.dart';
+import 'package:collection_repository/src/expansion_tree/expanded_field.dart';
 
 class ExpansionTree {
   /// A tree of ExpandedFields representing the relations (and nested relations)

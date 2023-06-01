@@ -1,8 +1,10 @@
-import 'package:collection_repository/src/models/model_converter.dart';
+import 'package:collection_repository/src/expansion_tree/expanded_field.dart';
+import 'package:collection_repository/src/utils/model_converter.dart'
+    as model_converter;
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:collection_repository/src/models/models.dart';
 // ignore: unused_import
 import 'package:flutter/foundation.dart';
-import 'package:collection_repository/src/models/models.dart';
 
 part 'generated/team.freezed.dart';
 part 'generated/team.g.dart';
@@ -35,7 +37,7 @@ class Team extends Model with _$Team {
   }
 
   factory Team.fromJson(Map<String, dynamic> json) =>
-      _$TeamFromJson(ModelConverter.convertExpansions(json, expandedFields));
+      _$TeamFromJson(json..cleanUpExpansions(expandedFields));
 
   static const List<ExpandedField> expandedFields = [
     ExpandedField(
@@ -49,6 +51,6 @@ class Team extends Model with _$Team {
   @override
   Map<String, dynamic> toCollapsedJson() {
     Map<String, dynamic> json = toJson();
-    return ModelConverter.collapseExpansions(json, expandedFields);
+    return json..collapseExpansions(expandedFields);
   }
 }
