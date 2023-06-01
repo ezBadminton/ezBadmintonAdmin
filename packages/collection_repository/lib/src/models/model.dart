@@ -12,6 +12,7 @@ abstract class Model extends Equatable {
   /// If the model has relations they are not added as fully serialized models
   /// but collapsed to Strings holding the relation's ID.
   Map<String, dynamic> toCollapsedJson();
+
   String get id;
   DateTime get created;
   DateTime get updated;

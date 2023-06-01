@@ -33,18 +33,12 @@ class CollectionQuerier {
 
   final Iterable<CollectionRepository<Model>> collectionRepositories;
 
-  static final Map<Type, ExpansionTree> _defaultExpansions = {
-    Player: ExpansionTree(Player.expandedFields),
-    Competition: ExpansionTree(Competition.expandedFields)
-      ..expandWith(Team, Team.expandedFields),
-    Team: ExpansionTree(Team.expandedFields),
-  };
-
   /// Fetches the full collection of data objects of the model type [M]
   ///
   /// The Future resolves to null if the collection db can't be reached.
   /// Use an [ExpansionTree] as the [expand] parameter to also fetch the related
-  /// models of [M]. Some [Model]s have default expansions defined.
+  /// models of [M]. Some [Model]s have default expansions defined by the
+  /// repository.
   Future<List<M>?> fetchCollection<M extends Model>({
     ExpansionTree? expand,
   }) async {
@@ -56,7 +50,7 @@ class CollectionQuerier {
         collectionRepositories.whereType<CollectionRepository<M>>().first;
     try {
       return await collectionRepository.getList(
-        expand: expand ?? _defaultExpansions[M],
+        expand: expand,
       );
     } on CollectionQueryException {
       return null;
@@ -83,7 +77,10 @@ class CollectionQuerier {
   /// On success the Future resolves to the [Model] of type [M] with its
   /// `id`, `created` and `updated` fields set.
   /// Otherwise null if the collection db can't be reached.
-  Future<M?> createModel<M extends Model>(M newModel) async {
+  Future<M?> createModel<M extends Model>(
+    M newModel, {
+    ExpansionTree? expand,
+  }) async {
     assert(
       collectionRepositories.whereType<CollectionRepository<M>>().isNotEmpty,
       'The CollectionQuerier does not have the ${M.toString()} repository',
@@ -93,7 +90,7 @@ class CollectionQuerier {
         collectionRepositories.whereType<CollectionRepository<M>>().first;
 
     try {
-      return await collectionRepository.create(newModel);
+      return await collectionRepository.create(newModel, expand: expand);
     } on CollectionQueryException {
       return null;
     }
@@ -104,7 +101,10 @@ class CollectionQuerier {
   /// On success the Future resolves to the [Model] of type [M] with its
   /// new `updated` timestamp.
   /// Otherwise `null` if the collection db can't be reached.
-  Future<M?> updateModel<M extends Model>(M updatedModel) async {
+  Future<M?> updateModel<M extends Model>(
+    M updatedModel, {
+    ExpansionTree? expand,
+  }) async {
     assert(
       collectionRepositories.whereType<CollectionRepository<M>>().isNotEmpty,
       'The CollectionQuerier does not have the ${M.toString()} repository',
@@ -114,18 +114,21 @@ class CollectionQuerier {
         collectionRepositories.whereType<CollectionRepository<M>>().first;
 
     try {
-      return await collectionRepository.update(updatedModel);
+      return await collectionRepository.update(updatedModel, expand: expand);
     } on CollectionQueryException {
       return null;
     }
   }
 
   /// Updates or creates the given model based on wether it already has an `id`.
-  Future<M?> updateOrCreateModel<M extends Model>(M model) {
+  Future<M?> updateOrCreateModel<M extends Model>(
+    M model, {
+    ExpansionTree? expand,
+  }) {
     if (model.id.isEmpty) {
-      return createModel(model);
+      return createModel(model, expand: expand);
     } else {
-      return updateModel(model);
+      return updateModel(model, expand: expand);
     }
   }
 

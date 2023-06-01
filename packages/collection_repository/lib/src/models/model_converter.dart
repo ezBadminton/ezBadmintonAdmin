@@ -60,7 +60,7 @@ class ModelConverter {
         json[key] = json[key]['id'];
       } else if (json[key] is List) {
         json[key] = (json[key] as List).map((e) => e['id']).toList();
-      } else {
+      } else if (json[key] != null) {
         json.remove(key);
       }
     }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:collection_repository/collection_repository.dart';
 import 'package:collection_repository/src/models/model_converter.dart';
@@ -40,8 +41,32 @@ class PocketbaseCollectionRepository<M extends Model>
     yield* _updateStreamController.stream;
   }
 
+  static final Map<Type, ExpansionTree> _defaultExpansions = {
+    Player: ExpansionTree(Player.expandedFields),
+    Competition: ExpansionTree(Competition.expandedFields)
+      ..expandWith(Team, Team.expandedFields),
+    Team: ExpansionTree(Team.expandedFields),
+  };
+
+  @override
+  Future<M> getModel(String id, {ExpansionTree? expand}) async {
+    expand = expand ?? _defaultExpansions[M];
+    String expandString = expand?.expandString ?? '';
+    RecordModel record;
+    try {
+      record = await _pocketBase
+          .collection(_collectionName)
+          .getOne(id, expand: expandString);
+    } on ClientException catch (e) {
+      throw CollectionQueryException('$e.statusCode');
+    }
+    M model = _modelConstructor(ModelConverter.modelToExpandedMap(record));
+    return model;
+  }
+
   @override
   Future<List<M>> getList({ExpansionTree? expand}) async {
+    expand = expand ?? _defaultExpansions[M];
     String expandString = expand?.expandString ?? '';
     List<RecordModel> records;
     try {
@@ -59,7 +84,7 @@ class PocketbaseCollectionRepository<M extends Model>
   }
 
   @override
-  Future<M> create(M newModel) async {
+  Future<M> create(M newModel, {ExpansionTree? expand}) async {
     Map<String, dynamic> json = newModel.toCollapsedJson();
     ModelConverter.clearMetaJsonFields(json);
     RecordModel created;
@@ -69,8 +94,7 @@ class PocketbaseCollectionRepository<M extends Model>
     } on ClientException catch (e) {
       throw CollectionQueryException('$e.statusCode');
     }
-    var createdModelFromDB =
-        _modelConstructor(ModelConverter.modelToMap(created));
+    var createdModelFromDB = await getModel(created.id, expand: expand);
     emitUpdateEvent(
       CollectionUpdateEvent.create(createdModelFromDB),
     );
@@ -78,7 +102,7 @@ class PocketbaseCollectionRepository<M extends Model>
   }
 
   @override
-  Future<M> update(M updatedModel) async {
+  Future<M> update(M updatedModel, {ExpansionTree? expand}) async {
     Map<String, dynamic> json = updatedModel.toCollapsedJson();
     ModelConverter.clearMetaJsonFields(json);
     RecordModel updated;
@@ -90,8 +114,7 @@ class PocketbaseCollectionRepository<M extends Model>
     } on ClientException catch (e) {
       throw CollectionQueryException('$e.statusCode');
     }
-    var updatedModelFromDB =
-        _modelConstructor(ModelConverter.modelToMap(updated));
+    var updatedModelFromDB = await getModel(updated.id, expand: expand);
     emitUpdateEvent(
       CollectionUpdateEvent.update(updatedModelFromDB),
     );
@@ -111,9 +134,6 @@ class PocketbaseCollectionRepository<M extends Model>
   }
 
   void emitUpdateEvent(CollectionUpdateEvent<M> event) {
-    // Reschedule the event emission to allow decorators to update before
-    // stream listeners react
-    //await Future.delayed(Duration.zero);
     _updateStreamController.add(event);
   }
 }
