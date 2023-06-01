@@ -22,21 +22,14 @@ class PlayerEditingState extends CollectionFetcherState
     this.collections = const {},
     this.loadingStatus = LoadingStatus.loading,
     this.registrations = const ListInput.pure(),
-    required context,
+    required BuildContext context,
     required this.player,
     this.formStatus = FormzSubmissionStatus.initial,
   })  : firstName = NonEmptyInput.pure(player.firstName),
         lastName = NonEmptyInput.pure(player.lastName),
         clubName = NoValidationInput.pure(player.club?.name ?? ''),
         eMail = EMailInput.pure(emptyAllowed: true, value: player.eMail ?? ''),
-        dateOfBirth = player.dateOfBirth != null
-            ? DateInput.pure(
-                context: context,
-                emptyAllowed: true,
-                value: MaterialLocalizations.of(context)
-                    .formatCompactDate(player.dateOfBirth!),
-              )
-            : DateInput.pure(context: context, emptyAllowed: true),
+        dateOfBirth = DateInput.pure(context: context, emptyAllowed: true),
         playingLevel = SelectionInput.pure(
           emptyAllowed: true,
           value: player.playingLevel,

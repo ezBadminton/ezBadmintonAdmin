@@ -148,71 +148,76 @@ class _PlayerList extends StatelessWidget {
           sortAscending: true,
           sortColumnIndex: 0,
           rows: listState.filteredPlayers.map((player) {
-            return DataRow(cells: [
-              DataCell(
-                SizedBox(
-                  width: 190,
-                  child: Text(
-                    display_strings.playerName(player),
-                    overflow: TextOverflow.fade,
-                  ),
-                ),
-              ),
-              DataCell(
-                SizedBox(
-                  width: 190,
-                  child: Text(
-                    player.club?.name ?? '-',
-                    overflow: TextOverflow.fade,
-                  ),
-                ),
-              ),
-              DataCell(
-                SizedBox(
-                  width: 73,
-                  child: Text(
-                    _competitionAbbreviations(
-                      listState.competitionRegistrations[player]!
-                          .map((r) => r.competition),
-                      l10n,
+            return DataRow(
+              cells: [
+                DataCell(
+                  SizedBox(
+                    width: 190,
+                    child: Text(
+                      display_strings.playerName(player),
+                      overflow: TextOverflow.fade,
                     ),
-                    overflow: TextOverflow.fade,
+                  ),
+                  onTap: () {
+                    Navigator.of(context).push(PlayerEditingPage.route(player));
+                  },
+                ),
+                DataCell(
+                  SizedBox(
+                    width: 190,
+                    child: Text(
+                      player.club?.name ?? '-',
+                      overflow: TextOverflow.fade,
+                    ),
                   ),
                 ),
-              ),
-              DataCell(
-                SizedBox(
-                  width: 110,
-                  child: Text(
-                    player.playingLevel?.name ?? '-',
-                    overflow: TextOverflow.ellipsis,
+                DataCell(
+                  SizedBox(
+                    width: 73,
+                    child: Text(
+                      _competitionAbbreviations(
+                        listState.competitionRegistrations[player]!
+                            .map((r) => r.competition),
+                        l10n,
+                      ),
+                      overflow: TextOverflow.fade,
+                    ),
                   ),
                 ),
-              ),
-              DataCell(
-                SizedBox(
-                  child: SizedBox(
-                    width: 32,
-                    child: Text('${player.calculateAge()}'),
+                DataCell(
+                  SizedBox(
+                    width: 110,
+                    child: Text(
+                      player.playingLevel?.name ?? '-',
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
-              ),
-              DataCell(
-                SizedBox(
-                  width: 70,
-                  child: Text(player.gender == Gender.male ? 'm' : 'w'),
-                ),
-              ),
-              DataCell(
-                SizedBox(
-                  width: 100,
-                  child: Text(
-                    player.eMail ?? '-',
-                    overflow: TextOverflow.ellipsis,
+                DataCell(
+                  SizedBox(
+                    child: SizedBox(
+                      width: 32,
+                      child: Text('${player.calculateAge()}'),
+                    ),
                   ),
                 ),
-              ),
-            ]);
+                DataCell(
+                  SizedBox(
+                    width: 70,
+                    child: Text(player.gender == Gender.male ? 'm' : 'w'),
+                  ),
+                ),
+                DataCell(
+                  SizedBox(
+                    width: 100,
+                    child: Text(
+                      player.eMail ?? '-',
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              ],
+            );
           }).toList(),
         );
       },

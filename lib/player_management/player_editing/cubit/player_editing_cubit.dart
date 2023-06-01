@@ -17,6 +17,7 @@ part 'player_editing_state.dart';
 class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
   PlayerEditingCubit({
     required BuildContext context,
+    Player? player,
     required CollectionRepository<Player> playerRepository,
     required CollectionRepository<Competition> competitionRepository,
     required CollectionRepository<Club> clubRepository,
@@ -25,7 +26,7 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
   })  : _context = context,
         super(
           PlayerEditingState.fromPlayer(
-            player: Player.newPlayer(),
+            player: player ?? Player.newPlayer(),
             context: context,
           ),
           collectionRepositories: [
@@ -62,6 +63,17 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
               ListInput.pure(playerCompetitions[updatedState.player] ?? []),
           loadingStatus: LoadingStatus.done,
         );
+        if (state.player.dateOfBirth != null) {
+          var dobString = MaterialLocalizations.of(_context)
+              .formatCompactDate(state.player.dateOfBirth!);
+          updatedState = updatedState.copyWith(
+            dateOfBirth: DateInput.pure(
+              context: _context,
+              emptyAllowed: true,
+              value: dobString,
+            ),
+          );
+        }
         emit(updatedState);
       },
       onFailure: () =>

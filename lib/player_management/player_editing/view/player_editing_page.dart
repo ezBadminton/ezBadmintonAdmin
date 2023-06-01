@@ -13,13 +13,18 @@ import 'package:provider/provider.dart';
 class PlayerEditingPage extends StatelessWidget {
   const PlayerEditingPage({
     super.key,
+    this.player,
   });
 
-  static Route<Player?> route() {
+  static Route<Player?> route([Player? player]) {
     return MaterialPageRoute<Player?>(
-      builder: (_) => const PlayerEditingPage(),
+      builder: (_) => PlayerEditingPage(
+        player: player,
+      ),
     );
   }
+
+  final Player? player;
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +32,7 @@ class PlayerEditingPage extends StatelessWidget {
     return BlocProvider(
       create: (context) => PlayerEditingCubit(
         context: context,
+        player: player,
         playerRepository: context.read<CollectionRepository<Player>>(),
         competitionRepository:
             context.read<CollectionRepository<Competition>>(),
@@ -46,7 +52,8 @@ class PlayerEditingPage extends StatelessWidget {
             previous.formStatus != current.formStatus,
         builder: (context, state) {
           return Scaffold(
-            appBar: AppBar(title: Text(l10n.addPlayer)),
+            appBar: AppBar(
+                title: Text(player == null ? l10n.addPlayer : l10n.editPlayer)),
             floatingActionButton: Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 80, 40),
               child: FloatingActionButton.extended(
