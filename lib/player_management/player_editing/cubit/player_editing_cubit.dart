@@ -249,7 +249,7 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     );
   }
 
-  List<CompetitionRegistration> _applyRegistrationChanges(
+  List<CompetitionRegistration> _applyRegistrationAdditions(
     PlayerEditingState state,
   ) {
     assert(state.player.id.isNotEmpty);
@@ -257,15 +257,16 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
         state.registrations.getAddedElements().map((registration) {
       var competition = registration.competition;
       var registeredTeam = registration.team;
+      assert(registeredTeam.id.isEmpty);
 
       if (this.state.player.id.isEmpty) {
         // Replace new player with created player from db
 
-        var createdPlayers = List.of(registeredTeam.players)
+        var teamMembers = List.of(registeredTeam.players)
           ..remove(this.state.player)
           ..add(state.player);
 
-        registeredTeam = registeredTeam.copyWith(players: createdPlayers);
+        registeredTeam = registeredTeam.copyWith(players: teamMembers);
       }
 
       if (registeredTeam.players.length == 2) {
@@ -276,7 +277,10 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
             .where((t) => t.players.contains(partner))
             .firstOrNull;
         if (partnerTeam != null) {
-          assert(partnerTeam.players.length == 1);
+          assert(
+            partnerTeam.players.length == 1,
+            'registration form selected partner that already has a partner',
+          );
           registeredTeam = partnerTeam.copyWith(
             players: [partner, state.player],
           );
@@ -292,11 +296,36 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     return addedRegistrations;
   }
 
+  List<CompetitionRegistration> _applyRegistrationRemovals(
+    PlayerEditingState state,
+  ) {
+    assert(state.player.id.isNotEmpty);
+    var removedRegistrations =
+        state.registrations.getRemovedElements().map((registration) {
+      var competition = registration.competition;
+      var leftTeam = registration.team;
+      assert(leftTeam.players.contains(state.player));
+      assert(leftTeam.id.isNotEmpty);
+
+      var teamMembers = List.of(leftTeam.players)..remove(state.player);
+      leftTeam = leftTeam.copyWith(players: teamMembers);
+
+      return CompetitionRegistration(
+        competition: competition,
+        team: leftTeam,
+      );
+    }).toList();
+
+    return removedRegistrations;
+  }
+
   Future<bool> _updateRegistrations(
     PlayerEditingState state,
   ) async {
-    var registrations = _applyRegistrationChanges(state);
-    for (var registration in registrations) {
+    var addedRegistrations = _applyRegistrationAdditions(state);
+    var removedRegistrations = _applyRegistrationRemovals(state);
+
+    for (var registration in addedRegistrations) {
       var updatedTeam = await querier.updateOrCreateModel(registration.team);
       if (updatedTeam == null) {
         emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
@@ -314,6 +343,35 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
         return false;
       }
     }
+
+    for (var registration in removedRegistrations) {
+      var competition = registration.competition;
+      var leftTeam = registration.team;
+      if (leftTeam.players.isEmpty) {
+        var teamDeleted = await querier.deleteModel(leftTeam);
+        if (!teamDeleted) {
+          emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+          return false;
+        }
+      } else {
+        var updatedTeam = await querier.updateModel(leftTeam);
+        if (updatedTeam == null) {
+          emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+          return false;
+        }
+        var updatedTeams = List.of(registration.competition.registrations)
+          ..remove(leftTeam)
+          ..add(updatedTeam);
+
+        competition = competition.copyWith(registrations: updatedTeams);
+        var updatedCompetition = await querier.updateModel(competition);
+        if (updatedCompetition == null) {
+          emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+          return false;
+        }
+      }
+    }
+
     return true;
   }
 }
