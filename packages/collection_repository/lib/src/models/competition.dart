@@ -86,7 +86,7 @@ class Competition extends Model with _$Competition {
 
   @override
   Map<String, dynamic> toCollapsedJson() {
-    Map<String, dynamic> json = this.toJson();
+    Map<String, dynamic> json = toJson();
     return ModelConverter.collapseExpansions(json, expandedFields);
   }
 }

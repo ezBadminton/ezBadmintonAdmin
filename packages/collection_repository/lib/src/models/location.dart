@@ -24,6 +24,6 @@ class Location extends Model with _$Location {
 
   @override
   Map<String, dynamic> toCollapsedJson() {
-    return this.toJson();
+    return toJson();
   }
 }

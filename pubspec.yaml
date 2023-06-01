@@ -71,6 +71,8 @@ dev_dependencies:
   flutter_lints: ^2.0.0
   mocktail: ^0.3.0
   bloc_test: ^9.1.1
+  expect_stream:
+    path: packages/expect_stream
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

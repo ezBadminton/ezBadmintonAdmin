@@ -25,7 +25,7 @@ class PocketbaseCollectionRepository<M extends Model>
   })  : _modelConstructor = modelConstructor,
         _pocketBase = pocketBaseProvider.pocketBase,
         // All model classes have a corresponding collection name
-        _collectionName = M.toString().snakeCase + 's';
+        _collectionName = '${M.toString().snakeCase}s';
 
   // The pocketbase SDK abstracts all the DB querying
   final PocketBase _pocketBase;
@@ -56,7 +56,7 @@ class PocketbaseCollectionRepository<M extends Model>
           .collection(_collectionName)
           .getOne(id, expand: expandString);
     } on ClientException catch (e) {
-      throw CollectionQueryException('$e.statusCode');
+      throw CollectionQueryException('${e.statusCode}');
     }
     M model = _modelConstructor(ModelConverter.modelToExpandedMap(record));
     return model;
@@ -71,7 +71,7 @@ class PocketbaseCollectionRepository<M extends Model>
           .collection(_collectionName)
           .getFullList(expand: expandString);
     } on ClientException catch (e) {
-      throw CollectionQueryException('$e.statusCode');
+      throw CollectionQueryException('${e.statusCode}');
     }
     List<M> models = records
         .map<M>((record) =>
@@ -92,7 +92,7 @@ class PocketbaseCollectionRepository<M extends Model>
             expand: expandString,
           );
     } on ClientException catch (e) {
-      throw CollectionQueryException('$e.statusCode');
+      throw CollectionQueryException('${e.statusCode}');
     }
     var createdModelFromDB = _modelConstructor(
       ModelConverter.modelToExpandedMap(created),
@@ -116,7 +116,7 @@ class PocketbaseCollectionRepository<M extends Model>
             expand: expandString,
           );
     } on ClientException catch (e) {
-      throw CollectionQueryException('$e.statusCode');
+      throw CollectionQueryException('${e.statusCode}');
     }
     var updatedModelFromDB = _modelConstructor(
       ModelConverter.modelToExpandedMap(updated),
@@ -132,7 +132,7 @@ class PocketbaseCollectionRepository<M extends Model>
     try {
       await _pocketBase.collection(_collectionName).delete(deletedModel.id);
     } on ClientException catch (e) {
-      throw CollectionQueryException('$e.statusCode');
+      throw CollectionQueryException('${e.statusCode}');
     }
     emitUpdateEvent(
       CollectionUpdateEvent.delete(deletedModel),
@@ -146,5 +146,10 @@ class PocketbaseCollectionRepository<M extends Model>
   String expandStringFromExpansionTree(ExpansionTree? expand) {
     expand = expand ?? _defaultExpansions[M];
     return expand?.expandString ?? '';
+  }
+
+  @override
+  Future<void> dispose() {
+    return _updateStreamController.close();
   }
 }

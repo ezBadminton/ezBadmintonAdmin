@@ -27,6 +27,6 @@ class PlayingLevel extends Model with _$PlayingLevel {
 
   @override
   Map<String, dynamic> toCollapsedJson() {
-    return this.toJson();
+    return toJson();
   }
 }

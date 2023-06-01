@@ -51,7 +51,7 @@ class Match extends Model with _$Match {
 
   @override
   Map<String, dynamic> toCollapsedJson() {
-    Map<String, dynamic> json = this.toJson();
+    Map<String, dynamic> json = toJson();
     return ModelConverter.collapseExpansions(json, expandedFields);
   }
 }

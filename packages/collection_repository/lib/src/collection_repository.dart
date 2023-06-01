@@ -28,6 +28,9 @@ abstract class CollectionRepository<M extends Model> {
 
   /// Deletes an existing instance of [M] identified by its 'id'.
   Future<void> delete(M deletedModel);
+
+  /// Closes the update stream
+  Future<void> dispose();
 }
 
 class CollectionUpdateEvent<M extends Model> {

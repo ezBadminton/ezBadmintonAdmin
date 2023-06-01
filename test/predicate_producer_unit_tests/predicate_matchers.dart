@@ -1,19 +1,6 @@
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Future<void> expectStream<T>(
-  Stream<T> stream,
-  List<dynamic> matchers, {
-  int skip = 0,
-}) async {
-  final streamedData = <T>[];
-  final subscription = stream.skip(skip).listen(streamedData.add);
-  await Future.delayed(Duration.zero);
-  expect(streamedData, wrapMatcher(matchers));
-
-  subscription.cancel();
-}
-
 class HasFunction extends CustomMatcher {
   HasFunction(matcher)
       : super(

@@ -15,7 +15,10 @@ class CachedCollectionRepository<M extends Model>
   @override
   Future<M> getModel(String id, {ExpansionTree? expand}) async {
     var cached = _collectionCached
-        ? _cachedCollection.singleWhere((model) => model.id == id, orElse: null)
+        ? _cachedCollection.singleWhere(
+            (model) => model.id == id,
+            orElse: (null),
+          )
         : null;
     if (cached != null) {
       return cached;
@@ -63,5 +66,10 @@ class CachedCollectionRepository<M extends Model>
   Future<void> delete(M deletedModel) async {
     await targetCollectionRepository.delete(deletedModel);
     _cachedCollection.removeWhere((m) => m.id == deletedModel.id);
+  }
+
+  @override
+  Future<void> dispose() {
+    return targetCollectionRepository.dispose();
   }
 }

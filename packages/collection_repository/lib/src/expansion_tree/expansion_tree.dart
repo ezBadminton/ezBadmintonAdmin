@@ -55,7 +55,7 @@ class ExpansionTree {
 class _ExpansionNode {
   _ExpansionNode(this.parent, this.expandedField);
   _ExpansionNode.root(Iterable<ExpandedField> rootFields)
-      : expandedField = ExpandedField(
+      : expandedField = const ExpandedField(
           model: Model,
           key: '',
           isRequired: false,
@@ -72,7 +72,7 @@ class _ExpansionNode {
   bool isLeaf() => children.isEmpty;
 
   void expandWith(Type model, Iterable<ExpandedField> expand) {
-    if (this.expandedField.model == model && isLeaf()) {
+    if (expandedField.model == model && isLeaf()) {
       _expandWith(expand);
     } else {
       for (var child in children) {

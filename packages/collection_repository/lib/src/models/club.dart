@@ -31,6 +31,6 @@ class Club extends Model with _$Club {
 
   @override
   Map<String, dynamic> toCollapsedJson() {
-    return this.toJson();
+    return toJson();
   }
 }

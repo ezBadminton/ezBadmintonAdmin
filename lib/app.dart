@@ -79,6 +79,12 @@ class _AppState extends State<App> {
   @override
   void dispose() {
     _authenticationRepository.dispose();
+    _playerRepository.dispose();
+    _competitionRepository.dispose();
+    _playingLevelRepository.dispose();
+    _ageGroupRepository.dispose();
+    _teamRepository.dispose();
+    _clubRepository.dispose();
     super.dispose();
   }
 

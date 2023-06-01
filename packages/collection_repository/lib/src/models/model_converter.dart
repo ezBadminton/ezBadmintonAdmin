@@ -74,19 +74,19 @@ class ModelConverter {
   /// Put all values of a RecordModel into a map
   ///
   /// If the model has references to other models they are expanded up to
-  /// [expansion_depth] levels deep.
+  /// [expansionDepth] levels deep.
   static Map<String, dynamic> modelToExpandedMap(RecordModel recordModel,
-      {int expansion_depth = 7}) {
+      {int expansionDepth = 7}) {
     return _modelToExpandedMap(
-        recordModel, modelToMap(recordModel), expansion_depth);
+        recordModel, modelToMap(recordModel), expansionDepth);
   }
 
   /// Add the expansions of a [RecordModel] to its map from [modelToMap].
   ///
-  /// Recurses up to [expansion_depth] levels deep.
+  /// Recurses up to [expansionDepth] levels deep.
   static Map<String, dynamic> _modelToExpandedMap(
-      RecordModel recordModel, Map<String, dynamic> map, int expansion_depth) {
-    if (expansion_depth <= 0) {
+      RecordModel recordModel, Map<String, dynamic> map, int expansionDepth) {
+    if (expansionDepth <= 0) {
       // Return map without expansions
       return map;
     }
@@ -103,7 +103,7 @@ class ModelConverter {
         _modelToExpandedMap(
           nestedRecord[0],
           nestedRecord[1],
-          expansion_depth - 1,
+          expansionDepth - 1,
         );
       }
     }

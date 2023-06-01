@@ -3,6 +3,9 @@ import 'package:mocktail/mocktail.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:pocketbase_provider/pocketbase_provider.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:expect_stream/expect_stream.dart';
+
+import 'update_event_matchers.dart';
 
 class MockPocketBaseProvider extends Mock implements PocketBaseProvider {}
 
@@ -27,6 +30,17 @@ void main() {
       modelConstructor: Player.fromJson,
       pocketBaseProvider: pocketBaseProvider,
     );
+  });
+
+  group('initialization and disposal', () {
+    test('update stream can be listened to', () {
+      expect(sut.updateStream.first, anything);
+    });
+
+    test('update stream is closed after dispose()', () async {
+      await sut.dispose();
+      expect(sut.updateStream.first, throwsA(anything));
+    }, timeout: const Timeout(Duration(milliseconds: 500)));
   });
 
   group(
@@ -99,20 +113,31 @@ void main() {
       void arrangePocketBaseReturnsPlayingLevelRelation() {
         when(
           () => playerRecordService.getFullList(expand: 'playingLevel'),
-        )..thenAnswer(
-            (_) async {
-              return playersFromPocketBase.map((json) {
-                var expansions = <String, List<RecordModel>>{};
-                if (json.containsKey('playingLevel')) {
-                  expansions.putIfAbsent(
-                    'playingLevel',
-                    () => [RecordModel(data: playingLevelFromPocketBase)],
-                  );
-                }
-                return RecordModel(data: json, expand: expansions);
-              }).toList();
-            },
-          );
+        ).thenAnswer(
+          (_) async {
+            return playersFromPocketBase.map((json) {
+              var expansions = <String, List<RecordModel>>{};
+              if (json.containsKey('playingLevel')) {
+                expansions.putIfAbsent(
+                  'playingLevel',
+                  () => [RecordModel(data: playingLevelFromPocketBase)],
+                );
+              }
+              return RecordModel(data: json, expand: expansions);
+            }).toList();
+          },
+        );
+      }
+
+      void arrangePocketBaseReturnsOnePlayer() {
+        when(
+          () => playerRecordService.getOne(
+            any(),
+            expand: any(named: 'expand'),
+          ),
+        ).thenAnswer((_) async {
+          return RecordModel(data: playersFromPocketBase[0]);
+        });
       }
 
       test(
@@ -129,7 +154,7 @@ void main() {
       );
 
       test(
-        'Parsed Player objects match json from pocketbase',
+        'Parsed Player collection matches json from pocketbase',
         () async {
           arrangePocketBaseReturnsPlayers();
           List<Player> players = await sut.getList();
@@ -174,11 +199,23 @@ void main() {
           );
         },
       );
+
+      test(
+        'pocketbase getOne is called',
+        () async {
+          arrangePocketBaseReturnsOnePlayer();
+          await sut.getModel('xyz');
+          verify(() => playerRecordService.getOne(
+                any(),
+                expand: any(named: 'expand'),
+              )).called(1);
+        },
+      );
     },
   );
 
   group(
-    'Creating data',
+    'Modifying data',
     () {
       final newPlayer = Player.newPlayer().copyWith(
         firstName: 'Lin',
@@ -232,6 +269,12 @@ void main() {
         });
       }
 
+      void arrangePocketBaseDeletesPlayer() {
+        when(
+          () => playerRecordService.delete(any()),
+        ).thenAnswer((_) async {});
+      }
+
       test('pocketbase create is called', () async {
         arrangePocketBaseCreatesPlayer();
         await sut.create(newPlayer);
@@ -239,6 +282,22 @@ void main() {
               body: any(named: 'body'),
               expand: any(named: 'expand'),
             )).called(1);
+      });
+
+      test('update stream emits create event', () async {
+        arrangePocketBaseCreatesPlayer();
+        var expectation = expectBroadcastStream(
+          sut.updateStream,
+          [
+            allOf(
+              HasType(UpdateType.create),
+              HasModel(WithId('freshnewid12345')),
+            ),
+          ],
+        );
+        await sut.create(newPlayer);
+        sut.dispose();
+        await expectation;
       });
 
       test('pocketbase update is called', () async {
@@ -249,6 +308,22 @@ void main() {
               body: any(named: 'body'),
               expand: any(named: 'expand'),
             )).called(1);
+      });
+
+      test('update stream emits update event', () async {
+        arrangePocketBaseUpdatesPlayer();
+        var expectation = expectBroadcastStream(
+          sut.updateStream,
+          [
+            allOf(
+              HasType(UpdateType.update),
+              HasModel(updatedPlayer),
+            ),
+          ],
+        );
+        await sut.update(updatedPlayer);
+        sut.dispose();
+        await expectation;
       });
 
       test('created player has new ID and correct data', () async {
@@ -273,6 +348,129 @@ void main() {
         expect(player.eMail, updatedPlayer.eMail);
         expect(player.gender, updatedPlayer.gender);
       });
+
+      test('pocketbase delete is called', () async {
+        arrangePocketBaseDeletesPlayer();
+        await sut.delete(updatedPlayer);
+        verify(() => playerRecordService.delete(any())).called(1);
+      });
+
+      test('update stream emits delete event', () async {
+        arrangePocketBaseDeletesPlayer();
+        var expectation = expectBroadcastStream(
+          sut.updateStream,
+          [
+            allOf(
+              HasType(UpdateType.delete),
+              HasModel(updatedPlayer),
+            ),
+          ],
+        );
+        await sut.delete(updatedPlayer);
+        sut.dispose();
+        await expectation;
+      });
     },
   );
+
+  group('error cases', () {
+    setUp(() {
+      when(
+        () => playerRecordService.getFullList(expand: any(named: 'expand')),
+      ).thenAnswer((_) => throw ClientException(statusCode: 42));
+
+      when(
+        () => playerRecordService.getOne(any(), expand: any(named: 'expand')),
+      ).thenAnswer((_) => throw ClientException(statusCode: 42));
+
+      when(
+        () => playerRecordService.create(
+          body: any(named: 'body'),
+          expand: any(named: 'expand'),
+        ),
+      ).thenAnswer((_) => throw ClientException(statusCode: 42));
+
+      when(
+        () => playerRecordService.update(
+          any(),
+          body: any(named: 'body'),
+          expand: any(named: 'expand'),
+        ),
+      ).thenAnswer((_) => throw ClientException(statusCode: 42));
+
+      when(
+        () => playerRecordService.delete(any()),
+      ).thenAnswer((_) => throw ClientException(statusCode: 42));
+    });
+
+    test(
+      'list fetch throws CollectionQueryException when pocketbase throws',
+      () async {
+        try {
+          await sut.getList();
+        } catch (e) {
+          expect(e, isA<CollectionQueryException>());
+          expect((e as CollectionQueryException).errorCode, '42');
+          return;
+        }
+        assert(false, 'No exception thrown');
+      },
+    );
+
+    test(
+      'single fetch throws CollectionQueryException when pocketbase throws',
+      () async {
+        try {
+          await sut.getModel('abc');
+        } catch (e) {
+          expect(e, isA<CollectionQueryException>());
+          expect((e as CollectionQueryException).errorCode, '42');
+          return;
+        }
+        assert(false, 'No exception thrown');
+      },
+    );
+
+    test(
+      'create throws CollectionQueryException when pocketbase throws',
+      () async {
+        try {
+          await sut.create(Player.newPlayer());
+        } catch (e) {
+          expect(e, isA<CollectionQueryException>());
+          expect((e as CollectionQueryException).errorCode, '42');
+          return;
+        }
+        assert(false, 'No exception thrown');
+      },
+    );
+
+    test(
+      'update throws CollectionQueryException when pocketbase throws',
+      () async {
+        try {
+          await sut.update(Player.newPlayer().copyWith(id: 'id'));
+        } catch (e) {
+          expect(e, isA<CollectionQueryException>());
+          expect((e as CollectionQueryException).errorCode, '42');
+          return;
+        }
+        assert(false, 'No exception thrown');
+      },
+    );
+
+    test(
+      'delete throws CollectionQueryException when pocketbase throws',
+      () async {
+        try {
+          await sut.delete(Player.newPlayer().copyWith(id: 'id'));
+        } catch (e) {
+          expect(e, isA<CollectionQueryException>());
+          expect((e as CollectionQueryException).errorCode, '42');
+          return;
+        }
+        assert(false, 'No exception thrown');
+      },
+    );
+  });
 }

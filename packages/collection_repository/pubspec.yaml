@@ -6,6 +6,7 @@ environment:
   sdk: '>=2.19.6 <3.0.0'
 
 dependencies:
+  collection: ^1.17.1
   const_date_time: ^1.0.2
   equatable: ^2.0.3
   flutter:
@@ -24,4 +25,7 @@ dev_dependencies:
   freezed: ^2.3.3
   json_serializable: ^6.6.2
   mocktail: ^0.3.0
+  flutter_lints: ^2.0.0
   very_good_analysis: ^4.0.0
+  expect_stream:
+    path: ../expect_stream

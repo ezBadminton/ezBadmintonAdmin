@@ -1,0 +1,14 @@
+name: expect_stream
+description: Dart package containing a test function that can expect the contents of a stream
+publish_to: none
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=2.19.6 <3.0.0'
+
+dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+  very_good_analysis: ^4.0.0

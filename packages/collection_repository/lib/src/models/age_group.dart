@@ -22,7 +22,7 @@ class AgeGroup extends Model with _$AgeGroup {
 
   @override
   Map<String, dynamic> toCollapsedJson() {
-    return this.toJson();
+    return toJson();
   }
 }
 
