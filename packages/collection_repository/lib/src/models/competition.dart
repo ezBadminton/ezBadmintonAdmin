@@ -1,7 +1,6 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:collection_repository/src/expansion_tree/expanded_field.dart';
-import 'package:collection_repository/src/utils/model_converter.dart'
-    as model_converter;
+import 'package:collection_repository/src/utils/model_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'generated/competition.freezed.dart';
