@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:collection_repository/src/collection_repository_decorator.dart';
 
@@ -6,7 +7,7 @@ class CachedCollectionRepository<M extends Model>
   CachedCollectionRepository(super.targetCollectionRepository);
 
   List<M> _cachedCollection = [];
-  bool _collectionCached = false;
+  bool _entireCollectionCached = false;
 
   @override
   Stream<CollectionUpdateEvent<M>> get updateStream =>
@@ -14,28 +15,27 @@ class CachedCollectionRepository<M extends Model>
 
   @override
   Future<M> getModel(String id, {ExpansionTree? expand}) async {
-    var cached = _collectionCached
-        ? _cachedCollection.singleWhere(
-            (model) => model.id == id,
-            orElse: (null),
-          )
-        : null;
+    var cached = _cachedCollection.singleWhereOrNull(
+      (model) => model.id == id,
+    );
     if (cached != null) {
       return cached;
     } else {
-      _collectionCached = false;
-      return await targetCollectionRepository.getModel(id, expand: expand);
+      var model = await targetCollectionRepository.getModel(id, expand: expand);
+      _cachedCollection.add(model);
+      assert(_cachedCollection.where((e) => e.id == id).length == 1);
+      return model;
     }
   }
 
   @override
   Future<List<M>> getList({ExpansionTree? expand}) async {
-    if (_collectionCached) {
+    if (_entireCollectionCached) {
       return List.of(_cachedCollection);
     } else {
       var collection = await targetCollectionRepository.getList(expand: expand);
       _cachedCollection = List.of(collection);
-      _collectionCached = true;
+      _entireCollectionCached = true;
       return collection;
     }
   }
