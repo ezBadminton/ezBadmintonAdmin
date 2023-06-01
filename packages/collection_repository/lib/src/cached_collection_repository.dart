@@ -1,8 +1,5 @@
-import 'dart:math';
-
 import 'package:collection_repository/collection_repository.dart';
 import 'package:collection_repository/src/collection_repository_decorator.dart';
-import 'package:flutter/widgets.dart';
 
 class CachedCollectionRepository<M extends Model>
     extends CollectionRepositoryDecorator<M> {

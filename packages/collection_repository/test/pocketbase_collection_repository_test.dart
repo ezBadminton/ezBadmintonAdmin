@@ -86,7 +86,7 @@ void main() {
 
       void arrangePocketBaseReturnsPlayers() {
         when(
-          () => playerRecordService.getFullList(expand: ''),
+          () => playerRecordService.getFullList(expand: any(named: 'expand')),
         ).thenAnswer(
           (_) async {
             return playersFromPocketBase
@@ -122,7 +122,9 @@ void main() {
           await sut.getList();
           verify(() => pocketBase.collection('players').getFullList())
               .called(1);
-          verify(() => playerRecordService.getFullList(expand: '')).called(1);
+          verify(
+            () => playerRecordService.getFullList(expand: any(named: 'expand')),
+          ).called(1);
         },
       );
 
@@ -195,8 +197,10 @@ void main() {
       );
 
       void arrangePocketBaseCreatesPlayer() {
-        when(() => playerRecordService.create(body: any(named: 'body')))
-            .thenAnswer((invocation) async {
+        when(() => playerRecordService.create(
+              body: any(named: 'body'),
+              expand: any(named: 'expand'),
+            )).thenAnswer((invocation) async {
           Map<String, dynamic> json =
               Map.from(invocation.namedArguments[#body]);
           var record = RecordModel(
@@ -210,8 +214,11 @@ void main() {
       }
 
       void arrangePocketBaseUpdatesPlayer() {
-        when(() => playerRecordService.update(any(), body: any(named: 'body')))
-            .thenAnswer((invocation) async {
+        when(() => playerRecordService.update(
+              any(),
+              body: any(named: 'body'),
+              expand: any(named: 'expand'),
+            )).thenAnswer((invocation) async {
           Map<String, dynamic> json =
               Map.from(invocation.namedArguments[#body]);
           String id = invocation.positionalArguments[0];
@@ -228,16 +235,20 @@ void main() {
       test('pocketbase create is called', () async {
         arrangePocketBaseCreatesPlayer();
         await sut.create(newPlayer);
-        verify(() => playerRecordService.create(body: any(named: 'body')))
-            .called(1);
+        verify(() => playerRecordService.create(
+              body: any(named: 'body'),
+              expand: any(named: 'expand'),
+            )).called(1);
       });
 
       test('pocketbase update is called', () async {
         arrangePocketBaseUpdatesPlayer();
         await sut.update(updatedPlayer);
-        verify(() =>
-                playerRecordService.update(any(), body: any(named: 'body')))
-            .called(1);
+        verify(() => playerRecordService.update(
+              any(),
+              body: any(named: 'body'),
+              expand: any(named: 'expand'),
+            )).called(1);
       });
 
       test('created player has new ID and correct data', () async {
