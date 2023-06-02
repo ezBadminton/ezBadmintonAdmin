@@ -104,7 +104,7 @@ void main() {
         ).thenAnswer(
           (_) async {
             return playersFromPocketBase
-                .map((json) => RecordModel(data: json))
+                .map((json) => RecordModel(id: json['id'], data: Map.of(json)))
                 .toList();
           },
         );
@@ -120,10 +120,19 @@ void main() {
               if (json.containsKey('playingLevel')) {
                 expansions.putIfAbsent(
                   'playingLevel',
-                  () => [RecordModel(data: playingLevelFromPocketBase)],
+                  () => [
+                    RecordModel(
+                      id: playingLevelFromPocketBase['id'],
+                      data: Map.of(playingLevelFromPocketBase),
+                    )
+                  ],
                 );
               }
-              return RecordModel(data: json, expand: expansions);
+              return RecordModel(
+                id: json['id'],
+                data: Map.of(json),
+                expand: expansions,
+              );
             }).toList();
           },
         );
@@ -136,7 +145,7 @@ void main() {
             expand: any(named: 'expand'),
           ),
         ).thenAnswer((_) async {
-          return RecordModel(data: playersFromPocketBase[0]);
+          return RecordModel(data: Map.of(playersFromPocketBase[0]));
         });
       }
 
@@ -170,9 +179,10 @@ void main() {
               );
             }
             if (playersFromPocketBase[i].containsKey('dateOfBirth')) {
+              var dateOfBirth = playersFromPocketBase[i]['dateOfBirth'];
               expect(
                 players[i].dateOfBirth?.toIso8601String(),
-                playersFromPocketBase[i]['dateOfBirth'],
+                dateOfBirth.isEmpty ? null : dateOfBirth,
               );
             }
           }

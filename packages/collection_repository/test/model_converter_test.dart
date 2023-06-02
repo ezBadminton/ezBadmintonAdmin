@@ -12,42 +12,6 @@ void main() {
   });
 
   test(
-    """RecordModel.toCollapsedJson() correctly copies the meta fields, 
-    replaces empty string values with null,
-    expand values are ignored""",
-    () {
-      var timestamp = DateTime(2023, 6, 1, 8).toIso8601String();
-      var data = <String, dynamic>{
-        'field1': 42,
-        'field2': 'hello world',
-        'field3': '',
-        'expandedField': 'relationID',
-      };
-      var expand = <String, List<RecordModel>>{
-        'relationID': [RecordModel(id: 'relationID', data: data)]
-      };
-
-      var model = RecordModel(
-        id: 'yeet',
-        created: timestamp,
-        updated: timestamp,
-        data: data,
-        expand: expand,
-      );
-
-      var jsonMap = model.toCollapsedJson();
-
-      expect(jsonMap['id'], 'yeet');
-      expect(jsonMap['created'], timestamp);
-      expect(jsonMap['updated'], timestamp);
-      expect(jsonMap['field1'], data['field1']);
-      expect(jsonMap['field2'], data['field2']);
-      expect(jsonMap['field3'], null);
-      expect(jsonMap['expandedField'], data['expandedField']);
-    },
-  );
-
-  test(
     """non-expanded relation fields are cleaned up,
     expanded single-valued relation fields are unwrapped""",
     () {
@@ -160,6 +124,42 @@ void main() {
   });
 
   test(
+    """RecordModel.toCollapsedJson() correctly copies the meta fields, 
+    replaces empty string values with null,
+    expand values are ignored""",
+    () {
+      var timestamp = DateTime(2023, 6, 1, 8).toIso8601String();
+      var data = <String, dynamic>{
+        'field1': 42,
+        'field2': 'hello world',
+        'field3': '',
+        'expandedField': 'relationID',
+      };
+      var expand = <String, List<RecordModel>>{
+        'relationID': [RecordModel(id: 'relationID', data: data)]
+      };
+
+      var model = RecordModel(
+        id: 'yeet',
+        created: timestamp,
+        updated: timestamp,
+        data: data,
+        expand: expand,
+      );
+
+      var jsonMap = model.toCollapsedJson();
+
+      expect(jsonMap['id'], 'yeet');
+      expect(jsonMap['created'], timestamp);
+      expect(jsonMap['updated'], timestamp);
+      expect(jsonMap['field1'], data['field1']);
+      expect(jsonMap['field2'], data['field2']);
+      expect(jsonMap['field3'], null);
+      expect(jsonMap['expandedField'], data['expandedField']);
+    },
+  );
+
+  test(
     """RecordModel.toExpandedJson() correctly constructs the json map
     from the expand data""",
     () {
@@ -169,6 +169,7 @@ void main() {
       var level1ExpandData = <String, dynamic>{
         'field1': 420,
         'relation': 'relationID2',
+        'multi-relation': ['multi-relationID1', 'multi-relationID2'],
       };
       var level2ExpandData = <String, dynamic>{
         'field1': 360,
@@ -177,6 +178,16 @@ void main() {
         'relation': [
           RecordModel(
             id: 'relationID2',
+            data: level2ExpandData,
+          )
+        ],
+        'multi-relation': [
+          RecordModel(
+            id: 'multi-relationID1',
+            data: level2ExpandData,
+          ),
+          RecordModel(
+            id: 'multi-relationID2',
             data: level2ExpandData,
           )
         ]
@@ -188,7 +199,7 @@ void main() {
             data: level1ExpandData,
             expand: expand2,
           )
-        ]
+        ],
       };
 
       var model = RecordModel(
@@ -200,6 +211,8 @@ void main() {
 
       expect(expandedJson['relation'][0]['field1'], 420);
       expect(expandedJson['relation'][0]['relation'][0]['field1'], 360);
+      expect(expandedJson['relation'][0]['multi-relation'][0]['field1'], 360);
+      expect(expandedJson['relation'][0]['multi-relation'][1]['field1'], 360);
     },
   );
 }

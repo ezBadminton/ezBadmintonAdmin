@@ -86,7 +86,7 @@ extension RecordModelConverions on RecordModel {
     return map;
   }
 
-  /// Put all values of a RecordModel into a map
+  /// Put all values of a [RecordModel] into a map
   ///
   /// If the model has relations to other models they are expanded up to
   /// [expansionDepth] levels deep.
@@ -105,8 +105,13 @@ extension RecordModelConverions on RecordModel {
       return json;
     }
     for (MapEntry<String, List<RecordModel>> expansion in expand.entries) {
-      json.remove(expansion.key);
+      var relationIDs = json.remove(expansion.key);
       var relatedRecords = expansion.value;
+      assert(relatedRecords
+              .map((r) => r.id)
+              .where((id) => relationIDs.contains(id))
+              .length ==
+          ((relationIDs is List) ? relationIDs.length : 1));
       List<Map<String, dynamic>> relatedJsonObjects =
           relatedRecords.map((e) => e.toCollapsedJson()).toList();
       json.putIfAbsent(expansion.key, () => relatedJsonObjects);
