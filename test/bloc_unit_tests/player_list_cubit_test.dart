@@ -144,8 +144,8 @@ void main() {
       });
 
       blocTest<PlayerListCubit, PlayerListState>(
-        """emits LoadingStatus.done when collections have
-        been fetched, emits a status with an updated filteredPlayers list""",
+        """emits LoadingStatus.done when collections have been fetched,
+        emits a status with an updated filteredPlayers list""",
         build: createSut,
         expect: () => [
           // Players and competitions fetched
