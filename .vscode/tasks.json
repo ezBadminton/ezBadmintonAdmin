@@ -2,14 +2,15 @@
     "version": "2.0.0",
     "tasks": [
       {
-        "label": "Launch Flutter Analyzer",
+        "label": "Watch Flutter Analyzer",
         "type": "shell",
         "command": "flutter analyze --watch --write=analyzer_problems.log",
         "group": "none",
         "presentation": {
           "reveal": "always",
           "panel": "new"
-        }
+        },
+        "problemMatcher": []
       }
     ]
   }

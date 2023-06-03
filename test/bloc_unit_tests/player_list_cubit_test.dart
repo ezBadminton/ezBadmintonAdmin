@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_list_cubit.dart';
@@ -37,6 +39,10 @@ void main() {
   late MockCollectionRepository<AgeGroup> ageGroupRepository;
   late MockCollectionRepository<Club> clubRepository;
   late PlayerListCubit sut;
+  late StreamController<CollectionUpdateEvent<Player>>
+      playerUpdateStreamController;
+  late StreamController<CollectionUpdateEvent<Competition>>
+      competitionUpdateStreamController;
 
   // Create some players and competitions with teams for testing
   var players = List<Player>.unmodifiable(
@@ -103,20 +109,22 @@ void main() {
     playingLevelRepository = MockCollectionRepository();
     ageGroupRepository = MockCollectionRepository();
     clubRepository = MockCollectionRepository();
+    playerUpdateStreamController = StreamController.broadcast();
+    competitionUpdateStreamController = StreamController.broadcast();
 
     when(
       () => playerRepository.getList(expand: any(named: 'expand')),
     ).thenAnswer((invocation) async => players);
 
     when(() => playerRepository.updateStream)
-        .thenAnswer((_) => Stream.fromIterable([]));
+        .thenAnswer((_) => playerUpdateStreamController.stream);
 
     when(
       () => competitionRepository.getList(expand: any(named: 'expand')),
     ).thenAnswer((invocation) async => [mixedCompetition, singlesCompetition]);
 
     when(() => competitionRepository.updateStream)
-        .thenAnswer((_) => Stream.fromIterable([]));
+        .thenAnswer((_) => competitionUpdateStreamController.stream);
 
     when(
       () => playingLevelRepository.getList(expand: any(named: 'expand')),
@@ -240,6 +248,32 @@ void main() {
                   (p) => players.sublist(0, 5).contains(p),
                 ),
           );
+        },
+      );
+
+      blocTest<PlayerListCubit, PlayerListState>(
+        'Reloads collections when Player or Competition collection updates',
+        build: () => sut,
+        act: (bloc) {
+          playerUpdateStreamController
+              .add(CollectionUpdateEvent.create(Player.newPlayer()));
+          competitionUpdateStreamController
+              .add(CollectionUpdateEvent.create(Competition.newCompetition(
+            teamSize: 2,
+            genderCategory: GenderCategory.any,
+          )));
+        },
+        expect: () => [
+          HasLoadingStatus(LoadingStatus.loading),
+          HasLoadingStatus(LoadingStatus.done),
+          HasFilteredPlayers(players),
+          HasLoadingStatus(LoadingStatus.done),
+          HasFilteredPlayers(players),
+        ],
+        verify: (bloc) {
+          verify(
+            () => playerRepository.getList(expand: any(named: 'expand')),
+          ).called(1 + 2); //Once on init, once for each of 2 update events
         },
       );
     },
