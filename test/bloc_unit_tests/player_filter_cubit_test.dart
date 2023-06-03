@@ -97,6 +97,12 @@ void main() {
     }
   }
 
+  void arrageProducersCloseStream() {
+    for (var producer in producers) {
+      when(() => producer.close()).thenAnswer((_) async {});
+    }
+  }
+
   PlayerFilterCubit createSut() {
     return PlayerFilterCubit(
       playingLevelRepository: playingLevelRepository,
@@ -125,6 +131,7 @@ void main() {
     ];
 
     arrageProducersHaveStream();
+    arrageProducersCloseStream();
   });
 
   group(

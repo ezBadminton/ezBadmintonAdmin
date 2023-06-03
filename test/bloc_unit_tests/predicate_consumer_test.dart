@@ -75,7 +75,7 @@ void main() {
       when(() => producer.producesDomain(any())).thenAnswer(
           (invocation) => invocation.positionalArguments[0] == domain);
       when(() => producer.close()).thenAnswer((invocation) {
-        controller.close();
+        return controller.close();
       });
 
       return producer;

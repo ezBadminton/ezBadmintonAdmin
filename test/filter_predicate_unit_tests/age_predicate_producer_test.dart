@@ -147,4 +147,11 @@ void main() {
       );
     });
   });
+
+  test('PredicateProducer.close() closes the stream', () async {
+    await expectStream(sut.predicateStream, []);
+    await sut.close();
+    // ignore: invalid_use_of_protected_member
+    expect(sut.predicateStreamController.isClosed, isTrue);
+  });
 }
