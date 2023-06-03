@@ -1,8 +1,10 @@
 import 'dart:async';
 
-import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
 import 'package:meta/meta.dart';
 
+/// A class producing [FilterPredicate]s and emitting them on a
+/// single subscriber stream
 abstract class PredicateProducer {
   Stream<FilterPredicate> get predicateStream async* {
     yield* predicateStreamController.stream;

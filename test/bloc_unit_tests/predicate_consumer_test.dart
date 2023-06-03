@@ -1,11 +1,10 @@
 import 'dart:async';
 
-import 'package:bloc_test/bloc_test.dart';
 import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
-import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
-import 'package:ez_badminton_admin_app/predicate_filter/predicate_producer/cubit/predicate_producer_cubit.dart';
-import 'package:ez_badminton_admin_app/predicate_filter/predicate_producer/predicate_producer.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/predicate/predicate_consumer.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/predicate/predicate_producer.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -13,16 +12,18 @@ class MockPredicateProducer extends Mock implements PredicateProducer {}
 
 class MockPredicateProducer2 extends Mock implements PredicateProducer {}
 
-class TestPredicateProducerCubit
-    extends PredicateProducerCubit<FilterPredicate?> {
-  TestPredicateProducerCubit(
-    super.initialState, {
-    required super.producers,
-  });
+class TestPredicateConsumer with PredicateConsumer {
+  TestPredicateConsumer({
+    required Iterable<PredicateProducer> producers,
+  }) {
+    initPredicateProducers(producers);
+  }
+
+  FilterPredicate? lastConsumed;
 
   @override
   void onPredicateProduced(FilterPredicate predicate) {
-    emit(predicate);
+    lastConsumed = predicate;
   }
 }
 
@@ -49,7 +50,7 @@ class PredicateDomain extends CustomMatcher {
 }
 
 void main() {
-  late TestPredicateProducerCubit sut;
+  late TestPredicateConsumer sut;
   late List<StreamController<FilterPredicate>> producerStreamControllers;
   late Iterable<PredicateProducer> producers;
 
@@ -79,7 +80,7 @@ void main() {
 
       return producer;
     });
-    sut = TestPredicateProducerCubit(null, producers: producers);
+    sut = TestPredicateConsumer(producers: producers);
   });
 
   test('all given predicate producers are subscribed to', () {
@@ -100,58 +101,75 @@ void main() {
     expect(exception, isNotNull);
   });
 
-  blocTest<TestPredicateProducerCubit, FilterPredicate?>(
-    'emits a FilterPredicate when one of the producers produces one',
-    build: () => sut,
-    act: (_) => producerStreamControllers[0].add(FilterPredicate(
-      (o) => false,
-      Player,
-      'name',
-      'domain1',
-    )),
-    expect: () => [PredicateDomain('domain1')],
+  test(
+    'consumes the FilterPredicate when one of the producers produces one',
+    () async {
+      producerStreamControllers[0].add(FilterPredicate(
+        (o) => false,
+        Player,
+        'name',
+        'domain1',
+      ));
+      await Future.delayed(Duration.zero);
+      expect(sut.lastConsumed, PredicateDomain('domain1'));
+    },
   );
 
-  blocTest<TestPredicateProducerCubit, FilterPredicate?>(
-    """emits an empty FilterPredicate of correct domain when onPredicateRemoved
-    is called""",
-    build: () => sut,
-    act: (bloc) {
+  test(
+    """consumes an empty FilterPredicate of correct domain when
+    onPredicateRemoved is called""",
+    () async {
       sut.onPredicateRemoved(FilterPredicate(
         (o) => false,
         Player,
         'name',
         'domain1',
       ));
+      await Future.delayed(Duration.zero);
+      expect(
+        sut.lastConsumed,
+        allOf(
+          PredicateDomain('domain1'),
+          PredicateFunction(isNull),
+        ),
+      );
+
       sut.onPredicateRemoved(FilterPredicate(
         (o) => false,
         Player,
         'name',
         'domain2',
       ));
+      await Future.delayed(Duration.zero);
+      expect(
+        sut.lastConsumed,
+        allOf(
+          PredicateDomain('domain2'),
+          PredicateFunction(isNull),
+        ),
+      );
+
       sut.onPredicateRemoved(FilterPredicate(
         (o) => false,
         Player,
         'name',
         'non existent domain',
       ));
+      await Future.delayed(Duration.zero);
+      expect(
+        sut.lastConsumed,
+        allOf(
+          PredicateDomain('domain2'),
+          PredicateFunction(isNull),
+        ),
+      );
     },
-    expect: () => [
-      allOf(
-        PredicateDomain('domain1'),
-        PredicateFunction(isNull),
-      ),
-      allOf(
-        PredicateDomain('domain2'),
-        PredicateFunction(isNull),
-      ),
-    ],
   );
 
-  blocTest<TestPredicateProducerCubit, FilterPredicate?>(
-    'closes all producer streams as the cubit is closed',
-    build: () => sut,
-    verify: (cubit) {
+  test(
+    'closes all producer streams after closeProducerStreams()',
+    () async {
+      await sut.closeProducerStreams();
       for (var controller in producerStreamControllers) {
         expect(controller.isClosed, true);
       }

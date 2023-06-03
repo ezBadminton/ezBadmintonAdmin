@@ -1,6 +1,6 @@
 import 'package:collection_repository/collection_repository.dart';
-import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
-import 'package:ez_badminton_admin_app/predicate_filter/predicate_producer/predicate_producer.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/predicate/predicate_producer.dart';
 
 class CompetitionTypePredicateProducer extends PredicateProducer {
   static const String competitionDisjunction = 'competition';

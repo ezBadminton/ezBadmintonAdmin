@@ -1,4 +1,4 @@
-import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class HasFunction extends CustomMatcher {
