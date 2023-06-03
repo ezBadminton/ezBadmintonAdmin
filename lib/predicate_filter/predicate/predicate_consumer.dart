@@ -23,11 +23,10 @@ mixin PredicateConsumer {
 
   P getPredicateProducer<P extends PredicateProducer>() {
     var typeProducers = producers.whereType<P>();
-    if (typeProducers.isEmpty) {
-      throw Exception(
-        'A PredicateProducer of type ${P.toString()} could not be found',
-      );
-    }
+    assert(
+      typeProducers.isNotEmpty,
+      'A PredicateProducer of type ${P.toString()} could not be found',
+    );
     return typeProducers.first;
   }
 

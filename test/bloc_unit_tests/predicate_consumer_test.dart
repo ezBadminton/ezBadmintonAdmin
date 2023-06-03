@@ -92,13 +92,10 @@ void main() {
       sut.getPredicateProducer<MockPredicateProducer>(),
       isA<MockPredicateProducer>(),
     );
-    Exception? exception;
-    try {
-      sut.getPredicateProducer<MockPredicateProducer2>();
-    } on Exception catch (e) {
-      exception = e;
-    }
-    expect(exception, isNotNull);
+    expect(
+      () => sut.getPredicateProducer<MockPredicateProducer2>(),
+      throwsAssertionError,
+    );
   });
 
   test(
