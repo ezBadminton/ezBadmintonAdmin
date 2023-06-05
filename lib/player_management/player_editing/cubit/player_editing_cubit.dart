@@ -270,12 +270,11 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     assert(state.player.id.isNotEmpty);
     var addedRegistrations =
         state.registrations.getAddedElements().map((registration) {
-      var removedRegistrationOnCompetition = removedRegistrations
+      var competitionWithRemoval = removedRegistrations
           .where((r) => r.competition == registration.competition)
           .firstOrNull
           ?.competition;
-      var competition =
-          removedRegistrationOnCompetition ?? registration.competition;
+      var competition = competitionWithRemoval ?? registration.competition;
       var registeredTeam = registration.team;
       assert(registeredTeam.id.isEmpty);
 
