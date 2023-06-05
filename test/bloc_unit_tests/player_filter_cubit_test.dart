@@ -7,6 +7,8 @@ import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dar
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../common_matchers/state_matchers.dart';
+
 class MockCollectionRepository<M extends Model> extends Mock
     implements PocketbaseCollectionRepository<M> {}
 
@@ -23,17 +25,6 @@ class MockCompetitionTypePredicateProducer extends Mock
 
 class MockSearchPredicateProducer extends Mock
     implements SearchPredicateProducer {}
-
-class HasLoadingStatus extends CustomMatcher {
-  HasLoadingStatus(matcher)
-      : super(
-          'State with LoadingStatus that is',
-          'LoadingStatus',
-          matcher,
-        );
-  @override
-  featureValueOf(actual) => (actual as PlayerFilterState).loadingStatus;
-}
 
 class HasFilterPredicate extends CustomMatcher {
   HasFilterPredicate(matcher)

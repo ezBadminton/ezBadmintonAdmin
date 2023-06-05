@@ -25,10 +25,7 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     required CollectionRepository<Team> teamRepository,
   })  : _context = context,
         super(
-          PlayerEditingState.fromPlayer(
-            player: player ?? Player.newPlayer(),
-            context: context,
-          ),
+          PlayerEditingState(player: player),
           collectionRepositories: [
             playerRepository,
             competitionRepository,
@@ -54,6 +51,13 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
         collectionFetcher<PlayingLevel>(),
       ],
       onSuccess: (updatedState) {
+        if (state.player.id.isNotEmpty && state.isPure) {
+          updatedState = updatedState.copyWithPlayer(
+            player: state.player,
+            dateParser: dateParser,
+          );
+        }
+
         var playerCompetitions = mapCompetitionRegistrations(
           updatedState.getCollection<Player>(),
           updatedState.getCollection<Competition>(),
@@ -64,11 +68,10 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
           loadingStatus: LoadingStatus.done,
         );
         if (state.player.dateOfBirth != null) {
-          var dobString = MaterialLocalizations.of(_context)
-              .formatCompactDate(state.player.dateOfBirth!);
+          var dobString = dateFormatter(state.player.dateOfBirth!);
           updatedState = updatedState.copyWith(
             dateOfBirth: DateInput.pure(
-              context: _context,
+              dateParser: dateParser,
               emptyAllowed: true,
               value: dobString,
             ),
@@ -111,7 +114,7 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
   void dateOfBirthChanged(String dateOfBirth) {
     var newState = state.copyWith(
       dateOfBirth: DateInput.dirty(
-        context: _context,
+        dateParser: dateParser,
         emptyAllowed: true,
         value: dateOfBirth,
       ),
@@ -187,11 +190,13 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
 
     var updatedPlayerState = await _updateOrCreatePlayer(state);
     if (updatedPlayerState == null) {
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
       return;
     }
 
     bool registrationUpdate = await _updateRegistrations(updatedPlayerState);
     if (!registrationUpdate) {
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
       return;
     }
 
@@ -207,7 +212,6 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     if (state.clubName.value.isNotEmpty) {
       club = await _clubFromName(state.clubName.value);
       if (club == null) {
-        emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
         return null;
       }
     }
@@ -218,7 +222,6 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     var updatedPlayer = await querier.updateOrCreateModel(editedPlayer);
 
     if (updatedPlayer == null) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
       return null;
     }
 
@@ -249,8 +252,7 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     DateTime? dateOfBirth =
         state.dateOfBirth.value.isEmpty || state.dateOfBirth.isNotValid
             ? null
-            : MaterialLocalizations.of(_context)
-                .parseCompactDate(state.dateOfBirth.value);
+            : dateParser(state.dateOfBirth.value);
     return state.player.copyWith(
       firstName: state.firstName.value,
       lastName: state.lastName.value,
@@ -263,11 +265,17 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
 
   List<CompetitionRegistration> _applyRegistrationAdditions(
     PlayerEditingState state,
+    List<CompetitionRegistration> removedRegistrations,
   ) {
     assert(state.player.id.isNotEmpty);
     var addedRegistrations =
         state.registrations.getAddedElements().map((registration) {
-      var competition = registration.competition;
+      var removedRegistrationOnCompetition = removedRegistrations
+          .where((r) => r.competition == registration.competition)
+          .firstOrNull
+          ?.competition;
+      var competition =
+          removedRegistrationOnCompetition ?? registration.competition;
       var registeredTeam = registration.team;
       assert(registeredTeam.id.isEmpty);
 
@@ -334,13 +342,54 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
   Future<bool> _updateRegistrations(
     PlayerEditingState state,
   ) async {
-    var addedRegistrations = _applyRegistrationAdditions(state);
     var removedRegistrations = _applyRegistrationRemovals(state);
+
+    for (var registration in removedRegistrations) {
+      var competition = registration.competition;
+      var leftTeam = registration.team;
+      Competition? updatedCompetition;
+      if (leftTeam.players.isEmpty) {
+        var teamDeleted = await querier.deleteModel(leftTeam);
+        if (!teamDeleted) {
+          return false;
+        }
+        updatedCompetition = await querier.fetchModel(competition.id);
+        if (updatedCompetition == null) {
+          return false;
+        }
+      } else {
+        var updatedTeam = await querier.updateModel(leftTeam);
+        if (updatedTeam == null) {
+          return false;
+        }
+        var updatedTeams = List.of(registration.competition.registrations)
+          ..remove(leftTeam)
+          ..add(updatedTeam);
+
+        competition = competition.copyWith(registrations: updatedTeams);
+        updatedCompetition = await querier.updateModel(competition);
+        if (updatedCompetition == null) {
+          return false;
+        }
+      }
+      removedRegistrations
+        ..remove(registration)
+        ..add(
+          CompetitionRegistration(
+            competition: updatedCompetition,
+            team: leftTeam,
+          ),
+        );
+    }
+
+    var addedRegistrations = _applyRegistrationAdditions(
+      state,
+      removedRegistrations,
+    );
 
     for (var registration in addedRegistrations) {
       var updatedTeam = await querier.updateOrCreateModel(registration.team);
       if (updatedTeam == null) {
-        emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
         return false;
       }
       var updatedTeams = List.of(registration.competition.registrations)
@@ -351,39 +400,17 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
       );
       var updatedCompetition = await querier.updateModel(competition);
       if (updatedCompetition == null) {
-        emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
         return false;
       }
     }
 
-    for (var registration in removedRegistrations) {
-      var competition = registration.competition;
-      var leftTeam = registration.team;
-      if (leftTeam.players.isEmpty) {
-        var teamDeleted = await querier.deleteModel(leftTeam);
-        if (!teamDeleted) {
-          emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-          return false;
-        }
-      } else {
-        var updatedTeam = await querier.updateModel(leftTeam);
-        if (updatedTeam == null) {
-          emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-          return false;
-        }
-        var updatedTeams = List.of(registration.competition.registrations)
-          ..remove(leftTeam)
-          ..add(updatedTeam);
-
-        competition = competition.copyWith(registrations: updatedTeams);
-        var updatedCompetition = await querier.updateModel(competition);
-        if (updatedCompetition == null) {
-          emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-          return false;
-        }
-      }
-    }
-
     return true;
+  }
+
+  String Function(DateTime) get dateFormatter =>
+      MaterialLocalizations.of(_context).formatCompactDate;
+
+  DateTime? Function(String) get dateParser {
+    return MaterialLocalizations.of(_context).parseCompactDate;
   }
 }

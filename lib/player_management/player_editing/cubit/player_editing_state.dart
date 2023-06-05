@@ -3,38 +3,20 @@ part of 'player_editing_cubit.dart';
 @immutable
 class PlayerEditingState extends CollectionFetcherState
     with FormzMixin, CollectionGetter {
-  const PlayerEditingState({
-    required this.collections,
-    required this.loadingStatus,
-    required this.formStatus,
-    required this.player,
-    required this.registrations,
-    required this.firstName,
-    required this.lastName,
-    required this.clubName,
-    required this.eMail,
-    required this.dateOfBirth,
-    required this.playingLevel,
-    required this.registrationFormShown,
-  });
-
-  PlayerEditingState.fromPlayer({
+  PlayerEditingState({
     this.collections = const {},
     this.loadingStatus = LoadingStatus.loading,
-    this.registrations = const ListInput.pure(),
-    required BuildContext context,
-    required this.player,
     this.formStatus = FormzSubmissionStatus.initial,
-  })  : firstName = NonEmptyInput.pure(player.firstName),
-        lastName = NonEmptyInput.pure(player.lastName),
-        clubName = NoValidationInput.pure(player.club?.name ?? ''),
-        eMail = EMailInput.pure(emptyAllowed: true, value: player.eMail ?? ''),
-        dateOfBirth = DateInput.pure(context: context, emptyAllowed: true),
-        playingLevel = SelectionInput.pure(
-          emptyAllowed: true,
-          value: player.playingLevel,
-        ),
-        registrationFormShown = false;
+    Player? player,
+    this.registrations = const ListInput.pure(),
+    this.firstName = const NonEmptyInput.pure(),
+    this.lastName = const NonEmptyInput.pure(),
+    this.clubName = const NoValidationInput.pure(),
+    this.eMail = const EMailInput.pure(emptyAllowed: true),
+    this.dateOfBirth = const DateInput.pure(emptyAllowed: true),
+    this.playingLevel = const SelectionInput.pure(emptyAllowed: true),
+    this.registrationFormShown = false,
+  }) : player = player ?? Player.newPlayer();
 
   @override
   final Map<Type, List<Model>> collections;
@@ -62,6 +44,26 @@ class PlayerEditingState extends CollectionFetcherState
         playingLevel,
         registrations,
       ];
+
+  PlayerEditingState copyWithPlayer({
+    required Player player,
+    required DateTime? Function(String) dateParser,
+  }) =>
+      copyWith(
+        player: player,
+        firstName: NonEmptyInput.pure(player.firstName),
+        lastName: NonEmptyInput.pure(player.lastName),
+        clubName: NoValidationInput.pure(player.club?.name ?? ''),
+        eMail: EMailInput.pure(emptyAllowed: true, value: player.eMail ?? ''),
+        dateOfBirth: DateInput.pure(
+          dateParser: dateParser,
+          emptyAllowed: true,
+        ),
+        playingLevel: SelectionInput.pure(
+          emptyAllowed: true,
+          value: player.playingLevel,
+        ),
+      );
 
   PlayerEditingState copyWith({
     Map<Type, List<Model>>? collections,

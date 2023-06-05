@@ -33,6 +33,30 @@ class CollectionQuerier {
 
   final Iterable<CollectionRepository<Model>> collectionRepositories;
 
+  /// Fetches one model from collection of data objects of the model type [M]
+  ///
+  /// The Future resolves to null if the collection db can't be reached.
+  /// Use an [ExpansionTree] as the [expand] parameter to also fetch the related
+  /// models of [M]. Some [Model]s have default expansions defined by the
+  /// repository.
+  Future<M?> fetchModel<M extends Model>(
+    String id, {
+    ExpansionTree? expand,
+  }) async {
+    assert(
+      collectionRepositories.whereType<CollectionRepository<M>>().isNotEmpty,
+      'The CollectionQuerier does not have the ${M.toString()} repository',
+    );
+    var collectionRepository =
+        collectionRepositories.whereType<CollectionRepository<M>>().first;
+
+    try {
+      return await collectionRepository.getModel(id, expand: expand);
+    } on CollectionQueryException {
+      return null;
+    }
+  }
+
   /// Fetches the full collection of data objects of the model type [M]
   ///
   /// The Future resolves to null if the collection db can't be reached.

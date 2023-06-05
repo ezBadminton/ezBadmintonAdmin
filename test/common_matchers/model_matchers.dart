@@ -1,0 +1,89 @@
+import 'package:flutter_test/flutter_test.dart';
+
+class HasId extends CustomMatcher {
+  HasId(matcher)
+      : super(
+          'Model with ID',
+          'ID',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.id;
+}
+
+class HasFirstName extends CustomMatcher {
+  HasFirstName(matcher)
+      : super(
+          'Player with first name',
+          'first name',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.firstName;
+}
+
+class HasLastName extends CustomMatcher {
+  HasLastName(matcher)
+      : super(
+          'Player with last name',
+          'first name',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.lastName;
+}
+
+class HasClub extends CustomMatcher {
+  HasClub(matcher)
+      : super(
+          'Player with club',
+          'Club',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.club;
+}
+
+class HasEMail extends CustomMatcher {
+  HasEMail(matcher)
+      : super(
+          'Player with eMail of',
+          'eMail',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.eMail;
+}
+
+class HasDateOfBirth extends CustomMatcher {
+  HasDateOfBirth(matcher)
+      : super(
+          'Player with date of birth of',
+          'date of birth',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.dateOfBirth;
+}
+
+class HasPlayingLevel extends CustomMatcher {
+  HasPlayingLevel(matcher)
+      : super(
+          'Model with playing level of',
+          'PlayingLevel',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.playingLevel;
+}
+
+class HasName extends CustomMatcher {
+  HasName(matcher)
+      : super(
+          'Model with name of',
+          'name string',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.name;
+}

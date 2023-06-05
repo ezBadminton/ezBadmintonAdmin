@@ -1,21 +1,20 @@
-import 'package:flutter/material.dart';
 import 'package:formz/formz.dart';
 
 enum DateValidationError { empty, format }
 
 class DateInput extends FormzInput<String, DateValidationError> {
   const DateInput.pure({
-    required this.context,
+    this.dateParser,
     required this.emptyAllowed,
     String value = '',
   }) : super.pure(value);
   const DateInput.dirty({
-    required this.context,
+    this.dateParser,
     required this.emptyAllowed,
     String value = '',
   }) : super.dirty(value);
 
-  final BuildContext context;
+  final DateTime? Function(String)? dateParser;
   final bool emptyAllowed;
 
   @override
@@ -23,8 +22,12 @@ class DateInput extends FormzInput<String, DateValidationError> {
     if (value.isEmpty) {
       return emptyAllowed ? null : DateValidationError.empty;
     }
+    if (dateParser == null) {
+      assert(false, 'Do not call the date validator with no parser supplied');
+      return null;
+    }
 
-    var parsedDate = MaterialLocalizations.of(context).parseCompactDate(value);
+    var parsedDate = dateParser!(value);
     if (parsedDate == null) {
       return DateValidationError.format;
     } else {
