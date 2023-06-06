@@ -332,7 +332,10 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
         state.registrations.getRemovedElements().map((registration) {
       var competition = registration.competition;
       var leftTeam = registration.team;
-      assert(leftTeam.players.contains(state.player));
+      assert(
+        leftTeam.players.contains(state.player),
+        'tried to remove non-existent registration',
+      );
       assert(leftTeam.id.isNotEmpty);
 
       var teamMembers = List.of(leftTeam.players)..remove(state.player);
@@ -391,14 +394,22 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     );
 
     for (var registration in addedRegistrations) {
-      var updatedTeam = await querier.updateOrCreateModel(registration.team);
+      var competition = registration.competition;
+      var joinedTeam = registration.team;
+      if (competition.registrations
+          .expand((team) => team.players)
+          .contains(state.player)) {
+        // Tried to register Player twice
+        return false;
+      }
+      var updatedTeam = await querier.updateOrCreateModel(joinedTeam);
       if (updatedTeam == null) {
         return false;
       }
-      var updatedTeams = List.of(registration.competition.registrations)
-        ..remove(registration.team)
+      var updatedTeams = List.of(competition.registrations)
+        ..remove(joinedTeam)
         ..add(updatedTeam);
-      var competition = registration.competition.copyWith(
+      competition = competition.copyWith(
         registrations: updatedTeams,
       );
       var updatedCompetition = await querier.updateModel(competition);

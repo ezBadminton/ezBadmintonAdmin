@@ -580,8 +580,6 @@ void main() {
       build: () => createSut(player),
       act: (cubit) async {
         await Future.delayed(Duration.zero);
-        cubit.firstNameChanged('changedFirstName');
-        cubit.lastNameChanged('changedLastName');
         cubit.registrationFormOpened();
         cubit.registrationAdded(competition, player2);
         cubit.formSubmitted();
@@ -596,7 +594,7 @@ void main() {
       },
     );
 
-    var teamWithPartner =
+    final teamWithPartner =
         Team.newTeam(players: [player, player2]).copyWith(id: 'teamId');
     blocTest<PlayerEditingCubit, PlayerEditingState>(
       """deregistering from a Competition correctly updates the Comptetition's
@@ -612,8 +610,6 @@ void main() {
       build: () => createSut(player),
       act: (cubit) async {
         await Future.delayed(Duration.zero);
-        cubit.firstNameChanged('changedFirstName');
-        cubit.lastNameChanged('changedLastName');
         cubit.registrationRemoved(cubit.state.registrations.value.first);
         cubit.formSubmitted();
       },
@@ -628,8 +624,8 @@ void main() {
       },
     );
 
-    var soloTeam = Team.newTeam(players: [player]).copyWith(id: 'teamId');
-    var soloTeam2 = Team.newTeam(players: [player2]).copyWith(id: 'teamid2');
+    final soloTeam = Team.newTeam(players: [player]).copyWith(id: 'teamId');
+    final soloTeam2 = Team.newTeam(players: [player2]).copyWith(id: 'teamId2');
     blocTest<PlayerEditingCubit, PlayerEditingState>(
       """deregistering from a Competition while in a Team solo deletes the team,
       registering with a partner that is already solo in a Team makes the
@@ -639,13 +635,11 @@ void main() {
         competitionList = [
           competition.copyWith(registrations: [soloTeam, soloTeam2]),
         ];
-        playerList = List.of(soloTeam.players);
+        playerList = [player, player2];
       },
       build: () => createSut(player),
       act: (cubit) async {
         await Future.delayed(Duration.zero);
-        cubit.firstNameChanged('changedFirstName');
-        cubit.lastNameChanged('changedLastName');
         cubit.registrationRemoved(cubit.state.registrations.value.first);
         cubit.registrationFormOpened();
         cubit.registrationAdded(competitionList.first, player2);
@@ -659,6 +653,35 @@ void main() {
           teamList.first.players,
           allOf(contains(player), contains(player2)),
         );
+      },
+    );
+
+    final alreadyRegisteredTeam =
+        Team.newTeam(players: [player]).copyWith(id: 'teamId');
+    blocTest<PlayerEditingCubit, PlayerEditingState>(
+      """trying to register twice for a Competition
+      emits FormzSubmissionStatus.failure""",
+      setUp: () {
+        teamList = [alreadyRegisteredTeam];
+        competitionList = [
+          competition.copyWith(registrations: [alreadyRegisteredTeam]),
+        ];
+        playerList = List.of(alreadyRegisteredTeam.players);
+      },
+      build: () => createSut(player),
+      skip: 3,
+      act: (cubit) async {
+        await Future.delayed(Duration.zero);
+        cubit.registrationFormOpened();
+        cubit.registrationAdded(competitionList.first, null);
+        cubit.formSubmitted();
+      },
+      expect: () => [
+        HasFormStatus(FormzSubmissionStatus.inProgress),
+        HasFormStatus(FormzSubmissionStatus.failure),
+      ],
+      verify: (bloc) {
+        expect(competitionList.first.registrations, [alreadyRegisteredTeam]);
       },
     );
   });
