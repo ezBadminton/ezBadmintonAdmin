@@ -1,6 +1,8 @@
 import 'package:collection_repository/collection_repository.dart';
 
 class CompetitionRegistration {
+  /// An ephemeral data structure representing the registration of a [team]
+  /// in a [competition].
   CompetitionRegistration({
     required this.competition,
     required this.team,

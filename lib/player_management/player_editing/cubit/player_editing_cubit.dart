@@ -144,6 +144,8 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     emit(state.copyWith(registrationFormShown: false));
   }
 
+  /// Registers the Player for a new [registeredCompetition] in doubles
+  /// disciplines with an optional [partner]
   void registrationAdded(
     Competition registeredCompetition,
     Player? partner,
@@ -246,6 +248,7 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     return club;
   }
 
+  /// Transfers the data from the form inputs to the Player object
   Player _applyPlayerChanges({
     Club? club,
   }) {
@@ -263,24 +266,28 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     );
   }
 
+  /// Updates the [Competition] and [Team] objects according to the newly
+  /// added [CompetitionRegistration]s
+  ///
+  /// The List of [deregisteredCompetitions] represents the competitions that
+  /// the player has been removed from during this form submit.
   List<CompetitionRegistration> _applyRegistrationAdditions(
     PlayerEditingState state,
-    List<CompetitionRegistration> removedRegistrations,
+    List<Competition> deregisteredCompetitions,
   ) {
     assert(state.player.id.isNotEmpty);
     var addedRegistrations =
         state.registrations.getAddedElements().map((registration) {
-      var competitionWithRemoval = removedRegistrations
-          .where((r) => r.competition == registration.competition)
-          .firstOrNull
-          ?.competition;
-      var competition = competitionWithRemoval ?? registration.competition;
+      // Use updated competition object if player has been removed from it
+      var deregisteredCompetition = deregisteredCompetitions
+          .where((c) => c == registration.competition)
+          .firstOrNull;
+      var competition = deregisteredCompetition ?? registration.competition;
       var registeredTeam = registration.team;
       assert(registeredTeam.id.isEmpty);
 
       if (this.state.player.id.isEmpty) {
         // Replace new player with created player from db
-
         var teamMembers = List.of(registeredTeam.players)
           ..remove(this.state.player)
           ..add(state.player);
@@ -315,6 +322,8 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     return addedRegistrations;
   }
 
+  /// Updates the [Competition] and [Team] objects according to the removed
+  /// [CompetitionRegistration]s
   List<CompetitionRegistration> _applyRegistrationRemovals(
     PlayerEditingState state,
   ) {
@@ -338,10 +347,12 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     return removedRegistrations;
   }
 
+  /// Persist the updated [Competition]s and [Team]s in their collections
   Future<bool> _updateRegistrations(
     PlayerEditingState state,
   ) async {
     var removedRegistrations = _applyRegistrationRemovals(state);
+    var deregisteredCompetitions = <Competition>[];
 
     for (var registration in removedRegistrations) {
       var competition = registration.competition;
@@ -371,19 +382,12 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
           return false;
         }
       }
-      removedRegistrations
-        ..remove(registration)
-        ..add(
-          CompetitionRegistration(
-            competition: updatedCompetition,
-            team: leftTeam,
-          ),
-        );
+      deregisteredCompetitions.add(updatedCompetition);
     }
 
     var addedRegistrations = _applyRegistrationAdditions(
       state,
-      removedRegistrations,
+      deregisteredCompetitions,
     );
 
     for (var registration in addedRegistrations) {
