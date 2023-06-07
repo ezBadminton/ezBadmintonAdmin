@@ -109,3 +109,25 @@ class HasAgeGroupInput extends CustomMatcher {
   @override
   featureValueOf(actual) => actual.ageGroup.value;
 }
+
+class HasGenderCategoryInput extends CustomMatcher {
+  HasGenderCategoryInput(matcher)
+      : super(
+          'State with gender category input value of',
+          'GenderCategory',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.genderCategory.value;
+}
+
+class HasCompetitionTypeInput extends CustomMatcher {
+  HasCompetitionTypeInput(matcher)
+      : super(
+          'State with competition type input value of',
+          'CompetitionType',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.competitionType.value;
+}

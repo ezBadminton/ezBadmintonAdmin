@@ -18,14 +18,12 @@ class CompetitionRegistrationCubit
     required this.registrations,
     required CollectionRepository<Player> playerRepository,
     required CollectionRepository<Competition> competitionRepository,
-    required CollectionRepository<PlayingLevel> playingLevelRepository,
     required CollectionRepository<AgeGroup> ageGroupRepository,
   }) : super(
           CompetitionRegistrationState(),
           collectionRepositories: [
             playerRepository,
             competitionRepository,
-            playingLevelRepository,
             ageGroupRepository,
           ],
         ) {
@@ -45,7 +43,6 @@ class CompetitionRegistrationCubit
       [
         collectionFetcher<Player>(),
         collectionFetcher<Competition>(),
-        collectionFetcher<PlayingLevel>(),
         collectionFetcher<AgeGroup>(),
       ],
       onSuccess: (updatedState) {
@@ -73,17 +70,7 @@ class CompetitionRegistrationCubit
     );
   }
 
-  int get lastFormStep {
-    int lastStep = allFormSteps.length - 1;
-    // The form is shorter when no playing levels/age groups are configured
-    if (getParameterOptions<PlayingLevel>().isEmpty) {
-      lastStep--;
-    }
-    if (getParameterOptions<AgeGroup>().isEmpty) {
-      lastStep--;
-    }
-    return lastStep;
-  }
+  int get lastFormStep => allFormSteps.length - 1;
 
   void formSubmitted({bool ignoreWarnings = false}) {
     var selection = getSelectedCompetitions();
@@ -101,7 +88,6 @@ class CompetitionRegistrationCubit
     newState = newState.copyWith(
       competition: SelectionInput.dirty(value: selected),
     );
-    assert(newState.isValid);
     emit(newState);
   }
 
@@ -187,7 +173,7 @@ class CompetitionRegistrationCubit
     emit(newState);
   }
 
-  /// Returns the set of values that are present for a parameter [P] on all
+  /// Returns the set of values that are possible for a parameter [P] on all
   /// [Competition]s in the collection that the player is not registered for.
   ///
   /// If [inSelection] is `true` the Competitions are pre-filered by the
@@ -256,6 +242,12 @@ class CompetitionRegistrationCubit
     }).toList();
   }
 
+  /// Updates the state with a [parameter] of one of the Competition parameter
+  /// types [PlayingLevel], [AgeGroup], [GenderCategory] or [CompetitionType].
+  ///
+  /// The registration form step is incremented whenever all parameters of
+  /// that step have been set. Once all parameter types are set with a value,
+  /// a single competition has been selected.
   void competitionParameterChanged<P>(P? parameter) {
     if (parameter == null) {
       return;
@@ -282,7 +274,21 @@ class CompetitionRegistrationCubit
     emit(newState);
   }
 
-  void resetFormStep<P>(int formStep) {
+  void partnerNameChanged(String partnerName) {
+    var newState =
+        state.copyWith(partnerName: NoValidationInput.dirty(partnerName));
+    emit(newState);
+  }
+
+  void partnerChanged(Player? partner) {
+    var newState = state.copyWith(
+      partner: SelectionInput.dirty(emptyAllowed: true, value: partner),
+    );
+    emit(newState);
+  }
+
+  // Sets all parameters of a form step back to null.
+  void resetFormStep(int formStep) {
     var newState = state;
     for (var parameterType in getFormStepParameterTypes(formStep)) {
       switch (parameterType) {
@@ -312,6 +318,7 @@ class CompetitionRegistrationCubit
     emit(newState);
   }
 
+  /// Returns the form step in which the parameter type [P] is put in.
   int getFormStepFromParameterType<P>() {
     int step;
     for (step = 0; step <= lastFormStep; step++) {
@@ -323,20 +330,9 @@ class CompetitionRegistrationCubit
     return 0;
   }
 
+  /// Returns the types of the competition parameters that are put in during
+  /// the given [formStep]
   List<Type> getFormStepParameterTypes(int formStep) {
     return allFormSteps[formStep];
-  }
-
-  void partnerNameChanged(String partnerName) {
-    var newState =
-        state.copyWith(partnerName: NoValidationInput.dirty(partnerName));
-    emit(newState);
-  }
-
-  void partnerChanged(Player? partner) {
-    var newState = state.copyWith(
-      partner: SelectionInput.dirty(emptyAllowed: true, value: partner),
-    );
-    emit(newState);
   }
 }

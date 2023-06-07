@@ -7,7 +7,7 @@ import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dar
 import 'package:formz/formz.dart';
 
 class CompetitionRegistrationState extends CollectionFetcherState
-    with FormzMixin, CollectionGetter {
+    with CollectionGetter {
   CompetitionRegistrationState({
     this.collections = const {},
     this.loadingStatus = LoadingStatus.loading,
@@ -119,7 +119,6 @@ class CompetitionRegistrationState extends CollectionFetcherState
     return inputs.whereType<FormzInput<P?, Object>>().first.value;
   }
 
-  @override
   List<FormzInput> get inputs =>
       [playingLevel, ageGroup, genderCategory, competitionType, partnerName];
 }
