@@ -144,18 +144,21 @@ class _NotesInput extends StatelessWidget {
   final void Function(String value) onChanged;
   final FormzInput Function(PlayerEditingState state) formInputGetter;
   final _controller = TextEditingController();
+  final _focusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
     AppLocalizations l10n = AppLocalizations.of(context)!;
     return BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
+      buildWhen: (previous, current) => previous.notes != current.notes,
       builder: (context, state) {
         return TextField(
           keyboardType: TextInputType.multiline,
-          minLines: 1,
+          minLines: _focusNode.hasFocus ? 3 : 1,
           maxLines: 5,
           onChanged: onChanged,
           controller: _controller,
+          focusNode: _focusNode,
           decoration: InputDecoration(
             label: Text(l10n.notes),
             counterText: ' ',
