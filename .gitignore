@@ -33,6 +33,7 @@ untranslated-messages.json
 
 # Test coverage
 lcov.info
+**/coverage/html
 
 # Symbolication related
 app.*.symbols
