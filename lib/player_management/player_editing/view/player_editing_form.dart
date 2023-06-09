@@ -186,6 +186,9 @@ class _DateOfBirthInput extends StatelessWidget {
   Widget build(BuildContext context) {
     AppLocalizations l10n = AppLocalizations.of(context)!;
     return BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
+      buildWhen: (previous, current) =>
+          previous.dateOfBirth != current.dateOfBirth ||
+          previous.formStatus != current.formStatus,
       builder: (context, state) {
         return TextField(
           onChanged: onChanged,
