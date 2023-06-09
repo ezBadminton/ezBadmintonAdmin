@@ -32,6 +32,7 @@ class CompetitionRegistrationForm extends StatelessWidget {
             if (state.registrationFormShown) ...const [
               _CompetitionForm(),
               _RegistrationCancelButton(),
+              SizedBox(height: 300),
             ] else ...[
               for (var registration in state.registrations.value)
                 _RegistrationDisplayCard(registration),
