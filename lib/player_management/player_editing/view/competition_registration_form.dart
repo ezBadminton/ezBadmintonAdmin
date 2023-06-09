@@ -708,7 +708,8 @@ class _PartnerNameInput extends StatelessWidget {
       (team) => team.players.length == 2 ? team.players : [],
     );
 
-    var playerOptions = players.whereNot((p) => alreadyPartnered.contains(p));
+    var playerOptions = players
+        .whereNot((p) => alreadyPartnered.contains(p) || p == cubit.player);
 
     if (playerSearchTerm.text.isNotEmpty) {
       playerOptions =
