@@ -1,7 +1,8 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 
-/// Maps players to the competitions that they are registered for
+/// Maps players to [CompetitionRegistration]s containing the [Competition]s
+/// that they are registered for.
 Map<Player, List<CompetitionRegistration>> mapCompetitionRegistrations(
   List<Player> players,
   List<Competition> competitions,
