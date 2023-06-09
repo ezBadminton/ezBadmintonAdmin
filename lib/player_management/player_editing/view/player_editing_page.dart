@@ -87,22 +87,32 @@ class _PlayerEditingPageContent extends StatelessWidget {
     var cubit = context.read<PlayerEditingCubit>();
     return BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
       buildWhen: (previous, current) =>
-          previous.loadingStatus != current.loadingStatus,
+          previous.loadingStatus != current.loadingStatus ||
+          previous.isPure != current.isPure,
       builder: (context, state) {
-        return LoadingScreen(
-          loadingStatusGetter: () => state.loadingStatus,
-          onRetry: () => cubit.loadPlayerData(),
-          builder: (_) => Align(
-            alignment: Alignment.topCenter,
-            child: SizedBox(
-              width: 640,
-              child: SingleChildScrollView(
-                controller: scrollController,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
-                  child: ChangeNotifierProvider.value(
-                    value: scrollController,
-                    child: const PlayerEditingForm(),
+        return WillPopScope(
+          onWillPop: () async {
+            if (state.isDirty) {
+              return _showUnsavedChangesDialog(context);
+            } else {
+              return true;
+            }
+          },
+          child: LoadingScreen(
+            loadingStatusGetter: () => state.loadingStatus,
+            onRetry: () => cubit.loadPlayerData(),
+            builder: (_) => Align(
+              alignment: Alignment.topCenter,
+              child: SizedBox(
+                width: 640,
+                child: SingleChildScrollView(
+                  controller: scrollController,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
+                    child: ChangeNotifierProvider.value(
+                      value: scrollController,
+                      child: const PlayerEditingForm(),
+                    ),
                   ),
                 ),
               ),
@@ -111,5 +121,29 @@ class _PlayerEditingPageContent extends StatelessWidget {
         );
       },
     );
+  }
+
+  Future<bool> _showUnsavedChangesDialog(BuildContext context) async {
+    var l10n = AppLocalizations.of(context)!;
+    var dismissChanges = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(l10n.unsavedChanges),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l10n.dismissChanges),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(l10n.cancel),
+            ),
+          ],
+        );
+      },
+    );
+    return dismissChanges!;
   }
 }

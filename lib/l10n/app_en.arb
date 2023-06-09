@@ -61,5 +61,7 @@
   "genderWarning": "Player is already registered in a {presentGender} competition. The registration is for a {conflictingGender} competition.",
   "withPartner": "with {partnerName}",
   "noPartner": "no partner registered",
-  "notes": "Notes"
+  "notes": "Notes",
+  "unsavedChanges": "Unsaved changes",
+  "dismissChanges": "Dismiss"
 }

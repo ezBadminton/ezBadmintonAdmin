@@ -61,5 +61,7 @@
   "genderWarning": "Spieler ist schon für eine {presentGender}-Disziplin gemeldet. Meldung ist eine {conflictingGender}-Disziplin.",
   "withPartner": "mit {partnerName}",
   "noPartner": "kein Partner gemeldet",
-  "notes": "Notizen"
+  "notes": "Notizen",
+  "unsavedChanges": "Ungesicherte Änderungen",
+  "dismissChanges": "Verwerfen"
 }
