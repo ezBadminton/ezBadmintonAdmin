@@ -60,5 +60,6 @@
   "playingLevelWarning": "The registered playing level is {playingLevel}, the player is of {playerLevel}.",
   "genderWarning": "Player is already registered in a {presentGender} competition. The registration is for a {conflictingGender} competition.",
   "withPartner": "with {partnerName}",
-  "noPartner": "no partner registered"
+  "noPartner": "no partner registered",
+  "notes": "Notes"
 }

@@ -12,7 +12,7 @@ class PlayerEditingState extends CollectionFetcherState
     this.firstName = const NonEmptyInput.pure(),
     this.lastName = const NonEmptyInput.pure(),
     this.clubName = const NoValidationInput.pure(),
-    this.eMail = const EMailInput.pure(emptyAllowed: true),
+    this.notes = const NoValidationInput.pure(),
     this.dateOfBirth = const DateInput.pure(emptyAllowed: true),
     this.playingLevel = const SelectionInput.pure(emptyAllowed: true),
     this.registrationFormShown = false,
@@ -28,7 +28,7 @@ class PlayerEditingState extends CollectionFetcherState
   final NonEmptyInput firstName;
   final NonEmptyInput lastName;
   final NoValidationInput clubName;
-  final EMailInput eMail;
+  final NoValidationInput notes;
   final DateInput dateOfBirth;
   final SelectionInput<PlayingLevel> playingLevel;
 
@@ -39,7 +39,7 @@ class PlayerEditingState extends CollectionFetcherState
         firstName,
         lastName,
         clubName,
-        eMail,
+        notes,
         dateOfBirth,
         playingLevel,
         registrations,
@@ -54,7 +54,7 @@ class PlayerEditingState extends CollectionFetcherState
         firstName: NonEmptyInput.pure(player.firstName),
         lastName: NonEmptyInput.pure(player.lastName),
         clubName: NoValidationInput.pure(player.club?.name ?? ''),
-        eMail: EMailInput.pure(emptyAllowed: true, value: player.eMail ?? ''),
+        notes: NoValidationInput.pure(player.notes ?? ''),
         dateOfBirth: DateInput.pure(
           dateParser: dateParser,
           emptyAllowed: true,
@@ -74,7 +74,7 @@ class PlayerEditingState extends CollectionFetcherState
     NonEmptyInput? firstName,
     NonEmptyInput? lastName,
     NoValidationInput? clubName,
-    EMailInput? eMail,
+    NoValidationInput? notes,
     DateInput? dateOfBirth,
     SelectionInput<PlayingLevel>? playingLevel,
     bool? registrationFormShown,
@@ -88,7 +88,7 @@ class PlayerEditingState extends CollectionFetcherState
         firstName: firstName ?? this.firstName,
         lastName: lastName ?? this.lastName,
         clubName: clubName ?? this.clubName,
-        eMail: eMail ?? this.eMail,
+        notes: notes ?? this.notes,
         dateOfBirth: dateOfBirth ?? this.dateOfBirth,
         playingLevel: playingLevel ?? this.playingLevel,
         registrationFormShown:

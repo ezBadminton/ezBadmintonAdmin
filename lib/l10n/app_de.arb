@@ -60,5 +60,6 @@
   "playingLevelWarning": "Gemeldete Spielklasse ist {playingLevel}, Spieler ist in {playerLevel}.",
   "genderWarning": "Spieler ist schon für eine {presentGender}-Disziplin gemeldet. Meldung ist eine {conflictingGender}-Disziplin.",
   "withPartner": "mit {partnerName}",
-  "noPartner": "kein Partner gemeldet"
+  "noPartner": "kein Partner gemeldet",
+  "notes": "Notizen"
 }

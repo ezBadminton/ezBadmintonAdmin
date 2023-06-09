@@ -126,7 +126,7 @@ void main() {
     id: 'playerid',
     firstName: 'Kento',
     lastName: 'Momota',
-    eMail: 'x@d.de',
+    notes: 'x@d.de',
     dateOfBirth: DateTime(2000),
     playingLevel: playingLevel,
     club: Club.newClub(name: 'Cool Guys Club'),
@@ -237,7 +237,7 @@ void main() {
           HasFirstNameInput(player.firstName),
           HasLastNameInput(player.lastName),
           HasDateOfBirthInput(DateFormat.yMd().format(player.dateOfBirth!)),
-          HasEMailInput(player.eMail),
+          HasNotesInput(player.notes),
           HasClubNameInput(player.club!.name),
           HasPlayingLevelInput(player.playingLevel),
         ),
@@ -251,7 +251,7 @@ void main() {
       act: (cubit) async {
         cubit.firstNameChanged('changedFirstName');
         cubit.lastNameChanged('changedLastName');
-        cubit.eMailChanged('changedEMail');
+        cubit.notesChanged('changedNotes');
         cubit.clubNameChanged('changedClubName');
         cubit.dateOfBirthChanged('2/2/2000');
         cubit.playingLevelChanged(playingLevel);
@@ -262,7 +262,7 @@ void main() {
       expect: () => [
         HasFirstNameInput('changedFirstName'),
         HasLastNameInput('changedLastName'),
-        HasEMailInput('changedEMail'),
+        HasNotesInput('changedNotes'),
         HasClubNameInput('changedClubName'),
         HasDateOfBirthInput('2/2/2000'),
         HasDateOfBirthInput('2/2/2000'),
@@ -521,7 +521,7 @@ void main() {
         await Future.delayed(Duration.zero);
         cubit.firstNameChanged('changedFirstName');
         cubit.lastNameChanged('changedLastName');
-        cubit.eMailChanged('changedEMail@example.com');
+        cubit.notesChanged('changedEMail@example.com');
         cubit.clubNameChanged('changedClubName');
         cubit.dateOfBirthChanged('2/2/2000');
         cubit.playingLevelChanged(playingLevel);
@@ -532,7 +532,7 @@ void main() {
         HasPlayer(allOf(
           HasFirstName('changedFirstName'),
           HasLastName('changedLastName'),
-          HasEMail('changedEMail@example.com'),
+          HasNotes('changedEMail@example.com'),
           HasClub(HasName('changedClubName')),
           HasDateOfBirth(DateFormat.yMd().parse('2/2/2000')),
           HasPlayingLevel(playingLevel),
@@ -560,7 +560,7 @@ void main() {
         HasPlayer(allOf(
           HasFirstName('changedFirstName'),
           HasLastName('changedLastName'),
-          HasEMail(isEmpty),
+          HasNotes(isEmpty),
           HasClub(HasName('existing club')),
           HasDateOfBirth(isNull),
           HasPlayingLevel(isNull),

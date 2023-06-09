@@ -44,15 +44,15 @@ class HasClub extends CustomMatcher {
   featureValueOf(actual) => actual.club;
 }
 
-class HasEMail extends CustomMatcher {
-  HasEMail(matcher)
+class HasNotes extends CustomMatcher {
+  HasNotes(matcher)
       : super(
-          'Player with eMail of',
-          'eMail',
+          'Player with notes of',
+          'notes',
           matcher,
         );
   @override
-  featureValueOf(actual) => actual.eMail;
+  featureValueOf(actual) => actual.notes;
 }
 
 class HasDateOfBirth extends CustomMatcher {

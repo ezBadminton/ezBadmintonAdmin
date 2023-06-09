@@ -64,7 +64,7 @@ void main() {
           'lastName': 'Axelsen',
           'gender': 'male',
           'dateOfBirth': '1994-01-04T00:00:00.000',
-          'eMail': 'player@example.com',
+          'notes': 'player@example.com',
         },
         {
           // Some fields set as empty
@@ -76,7 +76,7 @@ void main() {
           'lastName': 'Bingjiao',
           'gender': 'female',
           'dateOfBirth': '',
-          'eMail': '',
+          'notes': '',
         },
         {
           // Player with relations
@@ -343,7 +343,7 @@ void main() {
         expect(player.firstName, newPlayer.firstName);
         expect(player.lastName, newPlayer.lastName);
         expect(player.dateOfBirth, newPlayer.dateOfBirth);
-        expect(player.eMail, newPlayer.eMail);
+        expect(player.notes, newPlayer.notes);
         expect(player.gender, newPlayer.gender);
       });
 
@@ -355,7 +355,7 @@ void main() {
         expect(player.firstName, updatedPlayer.firstName);
         expect(player.lastName, updatedPlayer.lastName);
         expect(player.dateOfBirth, updatedPlayer.dateOfBirth);
-        expect(player.eMail, updatedPlayer.eMail);
+        expect(player.notes, updatedPlayer.notes);
         expect(player.gender, updatedPlayer.gender);
       });
 

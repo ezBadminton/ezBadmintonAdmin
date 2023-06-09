@@ -11,6 +11,20 @@
           "panel": "new"
         },
         "problemMatcher": []
-      }
+      },
+      {
+        "label": "Run pocketbase server",
+        "type": "shell",
+        "command": "pocketbase serve",
+        "group": "none",
+        "options": {
+          "cwd": "${workspaceRoot}/../../pocketbase"
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        },
+        "problemMatcher": []
+      },
     ]
   }

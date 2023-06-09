@@ -211,8 +211,9 @@ class _PlayerList extends StatelessWidget {
                   SizedBox(
                     width: 100,
                     child: Text(
-                      player.eMail ?? '-',
-                      overflow: TextOverflow.ellipsis,
+                      player.notes ?? '-',
+                      overflow: TextOverflow.fade,
+                      maxLines: 2,
                     ),
                   ),
                 ),

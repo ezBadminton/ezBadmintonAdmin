@@ -77,6 +77,17 @@ class HasEMailInput extends CustomMatcher {
   featureValueOf(actual) => actual.eMail.value;
 }
 
+class HasNotesInput extends CustomMatcher {
+  HasNotesInput(matcher)
+      : super(
+          'State with notes input value of',
+          'notes',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.notes.value;
+}
+
 class HasDateOfBirthInput extends CustomMatcher {
   HasDateOfBirthInput(matcher)
       : super(

@@ -25,7 +25,7 @@ class Player extends Model with _$Player {
     required String lastName,
     Gender? gender,
     DateTime? dateOfBirth,
-    String? eMail,
+    String? notes,
     Club? club,
     PlayingLevel? playingLevel,
   }) = _Player;

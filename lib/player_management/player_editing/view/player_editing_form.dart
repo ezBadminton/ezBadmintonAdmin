@@ -45,47 +45,54 @@ class _PlayerEditingFormFields extends StatelessWidget {
         ),
         const Divider(height: 25, indent: 20, endIndent: 20),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _NameInput(
-              labelText: '${l10n.firstName}*',
-              onChanged: cubit.firstNameChanged,
-              formInputGetter: (state) => state.firstName,
-              initialValue: cubit.state.firstName.value,
+            Expanded(
+              child: Column(
+                children: [
+                  _NameInput(
+                    labelText: '${l10n.firstName}*',
+                    onChanged: cubit.firstNameChanged,
+                    formInputGetter: (state) => state.firstName,
+                    initialValue: cubit.state.firstName.value,
+                  ),
+                  const SizedBox(height: 3),
+                  _ClubInput(
+                    onChanged: cubit.clubNameChanged,
+                    initialValue: cubit.state.clubName.value,
+                  ),
+                  const SizedBox(height: 3),
+                  _DateOfBirthInput(
+                    onChanged: cubit.dateOfBirthChanged,
+                    formInputGetter: (state) => state.dateOfBirth,
+                    initialValue: cubit.state.dateOfBirth.value,
+                  ),
+                ],
+              ),
             ),
             const SizedBox(width: 25),
-            _NameInput(
-              labelText: '${l10n.lastName}*',
-              onChanged: cubit.lastNameChanged,
-              formInputGetter: (state) => state.lastName,
-              initialValue: cubit.state.lastName.value,
+            Expanded(
+              child: Column(
+                children: [
+                  _NameInput(
+                    labelText: '${l10n.lastName}*',
+                    onChanged: cubit.lastNameChanged,
+                    formInputGetter: (state) => state.lastName,
+                    initialValue: cubit.state.lastName.value,
+                  ),
+                  _PlayingLevelInput(
+                    onChanged: cubit.playingLevelChanged,
+                    formInputGetter: (state) => state.playingLevel,
+                  ),
+                  const SizedBox(height: 3),
+                  _NotesInput(
+                    onChanged: cubit.notesChanged,
+                    formInputGetter: (state) => state.notes,
+                    initialValue: cubit.state.notes.value,
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
-        const SizedBox(height: 5),
-        Row(
-          children: [
-            _DateOfBirthInput(
-              onChanged: cubit.dateOfBirthChanged,
-              formInputGetter: (state) => state.dateOfBirth,
-              initialValue: cubit.state.dateOfBirth.value,
-            ),
-            const SizedBox(width: 25),
-            _EMailInput(
-              onChanged: cubit.eMailChanged,
-              formInputGetter: (state) => state.eMail,
-              initialValue: cubit.state.eMail.value,
-            ),
-          ],
-        ),
-        const SizedBox(height: 5),
-        Row(
-          children: [
-            _ClubInput(
-              onChanged: cubit.clubNameChanged,
-              initialValue: cubit.state.clubName.value,
-            ),
-            const SizedBox(width: 25),
-            const _PlayingLevelInput(),
           ],
         ),
         const SizedBox(height: 60),
@@ -101,29 +108,32 @@ class _PlayerEditingFormFields extends StatelessWidget {
 }
 
 class _PlayingLevelInput extends StatelessWidget {
-  const _PlayingLevelInput();
+  const _PlayingLevelInput({
+    required this.onChanged,
+    required this.formInputGetter,
+  });
+
+  final void Function(PlayingLevel? value) onChanged;
+  final FormzInput Function(PlayerEditingState state) formInputGetter;
 
   @override
   Widget build(BuildContext context) {
-    var cubit = context.read<PlayerEditingCubit>();
     return BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
       buildWhen: (previous, current) =>
           previous.playingLevel != current.playingLevel,
       builder: (context, state) {
-        return Expanded(
-          child: PlayingLevelInput(
-            onChanged: cubit.playingLevelChanged,
-            currentValue: state.playingLevel.value,
-            playingLevelOptions: state.getCollection<PlayingLevel>(),
-          ),
+        return PlayingLevelInput(
+          onChanged: onChanged,
+          currentValue: formInputGetter(state).value,
+          playingLevelOptions: state.getCollection<PlayingLevel>(),
         );
       },
     );
   }
 }
 
-class _EMailInput extends StatelessWidget {
-  _EMailInput({
+class _NotesInput extends StatelessWidget {
+  _NotesInput({
     required this.onChanged,
     required this.formInputGetter,
     required String initialValue,
@@ -138,23 +148,20 @@ class _EMailInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations l10n = AppLocalizations.of(context)!;
-    return Expanded(
-      child: BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
-        builder: (context, state) {
-          return TextField(
-            onChanged: onChanged,
-            controller: _controller,
-            decoration: InputDecoration(
-              label: Text(l10n.eMail),
-              errorText: (state.formStatus == FormzSubmissionStatus.failure &&
-                      formInputGetter(state).isNotValid)
-                  ? l10n.formatError
-                  : null,
-              counterText: ' ',
-            ),
-          );
-        },
-      ),
+    return BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
+      builder: (context, state) {
+        return TextField(
+          keyboardType: TextInputType.multiline,
+          minLines: 1,
+          maxLines: 5,
+          onChanged: onChanged,
+          controller: _controller,
+          decoration: InputDecoration(
+            label: Text(l10n.notes),
+            counterText: ' ',
+          ),
+        );
+      },
     );
   }
 }
@@ -175,42 +182,40 @@ class _DateOfBirthInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations l10n = AppLocalizations.of(context)!;
-    return Expanded(
-      child: BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
-        builder: (context, state) {
-          return TextField(
-            onChanged: onChanged,
-            controller: _controller,
-            decoration: InputDecoration(
-              label: Text(l10n.dateOfBirth),
-              hintText: MaterialLocalizations.of(context)
-                  .dateHelpText, // DateFormat.yMd()
-              errorText: (state.formStatus == FormzSubmissionStatus.failure &&
-                      formInputGetter(state).isNotValid)
-                  ? l10n.formatError
-                  : null,
-              counterText: ' ',
-              suffixIcon: IconButton(
-                onPressed: () => showDatePicker(
-                  context: context,
-                  initialDate: DateTime.now(),
-                  firstDate: DateTime(1900),
-                  lastDate: DateTime.now(),
-                ).then((date) {
-                  if (date == null) {
-                    return;
-                  }
-                  String formatted =
-                      MaterialLocalizations.of(context).formatCompactDate(date);
-                  _controller.text = formatted;
-                  onChanged(formatted);
-                }),
-                icon: const Icon(Icons.calendar_month_outlined),
-              ),
+    return BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
+      builder: (context, state) {
+        return TextField(
+          onChanged: onChanged,
+          controller: _controller,
+          decoration: InputDecoration(
+            label: Text(l10n.dateOfBirth),
+            hintText: MaterialLocalizations.of(context)
+                .dateHelpText, // DateFormat.yMd()
+            errorText: (state.formStatus == FormzSubmissionStatus.failure &&
+                    formInputGetter(state).isNotValid)
+                ? l10n.formatError
+                : null,
+            counterText: ' ',
+            suffixIcon: IconButton(
+              onPressed: () => showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime(1900),
+                lastDate: DateTime.now(),
+              ).then((date) {
+                if (date == null) {
+                  return;
+                }
+                String formatted =
+                    MaterialLocalizations.of(context).formatCompactDate(date);
+                _controller.text = formatted;
+                onChanged(formatted);
+              }),
+              icon: const Icon(Icons.calendar_month_outlined),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -230,36 +235,33 @@ class _ClubInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations l10n = AppLocalizations.of(context)!;
-    return Expanded(
-      child: LayoutBuilder(
-        builder: (context, constraints) =>
-            BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
-          buildWhen: (previous, current) =>
-              previous.clubName != current.clubName,
-          builder: (context, state) {
-            return ConstrainedAutocomplete<String>(
-              optionsBuilder: (clubName) => _createClubSuggestions(
-                clubName.text,
-                state.getCollection<Club>().map((c) => c.name),
+    return LayoutBuilder(
+      builder: (context, constraints) =>
+          BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
+        buildWhen: (previous, current) => previous.clubName != current.clubName,
+        builder: (context, state) {
+          return ConstrainedAutocomplete<String>(
+            optionsBuilder: (clubName) => _createClubSuggestions(
+              clubName.text,
+              state.getCollection<Club>().map((c) => c.name),
+            ),
+            onSelected: onChanged,
+            constraints: constraints,
+            fieldViewBuilder:
+                (context, textEditingController, focusNode, onFieldSubmitted) =>
+                    TextField(
+              controller: textEditingController,
+              focusNode: focusNode,
+              decoration: InputDecoration(
+                label: Text(l10n.club),
+                counterText: ' ',
               ),
-              onSelected: onChanged,
-              constraints: constraints,
-              fieldViewBuilder: (context, textEditingController, focusNode,
-                      onFieldSubmitted) =>
-                  TextField(
-                controller: textEditingController,
-                focusNode: focusNode,
-                decoration: InputDecoration(
-                  label: Text(l10n.club),
-                  counterText: ' ',
-                ),
-                onChanged: onChanged,
-              ),
-              focusNode: _focus,
-              textEditingController: _controller,
-            );
-          },
-        ),
+              onChanged: onChanged,
+            ),
+            focusNode: _focus,
+            textEditingController: _controller,
+          );
+        },
       ),
     );
   }
@@ -303,23 +305,21 @@ class _NameInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    return Expanded(
-      child: BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
-        builder: (context, state) {
-          return TextField(
-            controller: _controller,
-            decoration: InputDecoration(
-              labelText: labelText,
-              errorText: (state.formStatus == FormzSubmissionStatus.failure &&
-                      formInputGetter(state).isNotValid)
-                  ? l10n.pleaseFillIn
-                  : null,
-              counterText: ' ',
-            ),
-            onChanged: onChanged,
-          );
-        },
-      ),
+    return BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
+      builder: (context, state) {
+        return TextField(
+          controller: _controller,
+          decoration: InputDecoration(
+            labelText: labelText,
+            errorText: (state.formStatus == FormzSubmissionStatus.failure &&
+                    formInputGetter(state).isNotValid)
+                ? l10n.pleaseFillIn
+                : null,
+            counterText: ' ',
+          ),
+          onChanged: onChanged,
+        );
+      },
     );
   }
 }

@@ -96,9 +96,9 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     emit(newState);
   }
 
-  void eMailChanged(String eMail) {
+  void notesChanged(String notes) {
     var newState = state.copyWith(
-      eMail: EMailInput.dirty(emptyAllowed: true, value: eMail),
+      notes: NoValidationInput.dirty(notes),
     );
     emit(newState);
   }
@@ -259,7 +259,7 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     return state.player.copyWith(
       firstName: state.firstName.value,
       lastName: state.lastName.value,
-      eMail: state.eMail.value,
+      notes: state.notes.value,
       dateOfBirth: dateOfBirth,
       playingLevel: state.playingLevel.value,
       club: club,
