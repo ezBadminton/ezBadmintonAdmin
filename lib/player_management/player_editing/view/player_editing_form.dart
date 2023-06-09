@@ -312,6 +312,9 @@ class _NameInput extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
     return BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
+      buildWhen: (previous, current) =>
+          formInputGetter(previous) != formInputGetter(current) ||
+          previous.formStatus != current.formStatus,
       builder: (context, state) {
         return TextField(
           controller: _controller,
