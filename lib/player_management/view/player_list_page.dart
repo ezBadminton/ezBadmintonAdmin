@@ -8,6 +8,8 @@ import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dar
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ez_badminton_admin_app/widgets/custom_expansion_panel_list/expansion_panel_list.dart'
+    as custom_expansion_panel;
 import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
     as display_strings;
 
@@ -130,98 +132,100 @@ class _PlayerList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var l10n = AppLocalizations.of(context)!;
     return BlocBuilder<PlayerListCubit, PlayerListState>(
       buildWhen: (previous, current) =>
           previous.filteredPlayers != current.filteredPlayers,
       builder: (context, listState) {
-        return DataTable(
-          columns: [
-            DataColumn(label: Text(l10n.name)),
-            DataColumn(label: Text(l10n.club)),
-            DataColumn(label: Text(l10n.registrations)),
-            DataColumn(label: Text(l10n.playingLevel)),
-            DataColumn(label: Text(l10n.age)),
-            DataColumn(label: Text(l10n.gender)),
-            DataColumn(label: Text(l10n.eMail)),
-          ],
-          sortAscending: true,
-          sortColumnIndex: 0,
-          rows: listState.filteredPlayers.map((player) {
-            return DataRow(
-              cells: [
-                DataCell(
-                  SizedBox(
-                    width: 190,
-                    child: Text(
-                      display_strings.playerName(player),
-                      overflow: TextOverflow.fade,
-                    ),
-                  ),
-                  onTap: () {
-                    Navigator.of(context).push(PlayerEditingPage.route(player));
-                  },
-                ),
-                DataCell(
-                  SizedBox(
-                    width: 190,
-                    child: Text(
-                      player.club?.name ?? '-',
-                      overflow: TextOverflow.fade,
-                    ),
-                  ),
-                ),
-                DataCell(
-                  SizedBox(
-                    width: 73,
-                    child: Text(
-                      _competitionAbbreviations(
-                        listState.competitionRegistrations[player]!
-                            .map((r) => r.competition),
-                        l10n,
-                      ),
-                      overflow: TextOverflow.fade,
-                    ),
-                  ),
-                ),
-                DataCell(
-                  SizedBox(
-                    width: 110,
-                    child: Text(
-                      player.playingLevel?.name ?? '-',
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ),
-                DataCell(
-                  SizedBox(
-                    child: SizedBox(
-                      width: 32,
-                      child: Text('${player.calculateAge()}'),
-                    ),
-                  ),
-                ),
-                DataCell(
-                  SizedBox(
-                    width: 70,
-                    child: Text(player.gender == Gender.male ? 'm' : 'w'),
-                  ),
-                ),
-                DataCell(
-                  SizedBox(
-                    width: 100,
-                    child: Text(
-                      player.notes ?? '-',
-                      overflow: TextOverflow.fade,
-                      maxLines: 2,
-                    ),
-                  ),
-                ),
-              ],
-            );
-          }).toList(),
+        return Expanded(
+          child: SizedBox(
+            width: 1150,
+            child: _panelList(context, listState),
+          ),
         );
       },
+    );
+  }
+
+  Widget _panelList(BuildContext context, PlayerListState listState) {
+    var l10n = AppLocalizations.of(context)!;
+    return Column(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            border: const Border(
+              bottom: BorderSide(
+                color: Colors.black26,
+              ),
+            ),
+          ),
+          child: DefaultTextStyle(
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium!
+                .copyWith(fontWeight: FontWeight.bold),
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 15),
+              child: Row(
+                children: [
+                  const SizedBox(width: 20),
+                  SizedBox(
+                    width: 190,
+                    child: Text(l10n.name),
+                  ),
+                  Flexible(
+                    flex: 1,
+                    child: Container(),
+                  ),
+                  SizedBox(
+                    width: 190,
+                    child: Text(l10n.club),
+                  ),
+                  Flexible(
+                    flex: 1,
+                    child: Container(),
+                  ),
+                  SizedBox(
+                    width: 80,
+                    child: Text(l10n.registrations),
+                  ),
+                  Flexible(
+                    flex: 1,
+                    child: Container(),
+                  ),
+                  SizedBox(
+                    width: 110,
+                    child: Text(l10n.playingLevel),
+                  ),
+                  Flexible(
+                    flex: 1,
+                    child: Container(),
+                  ),
+                  SizedBox(
+                    child: SizedBox(
+                      width: 40,
+                      child: Text(l10n.age),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            clipBehavior: Clip.none,
+            child: custom_expansion_panel.ExpansionPanelList.radio(
+              children: listState.filteredPlayers
+                  .map((p) => PlayerExpansionPanel(p, listState, context))
+                  .toList(),
+              hasExpandIcon: false,
+              elevation: 0,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -246,4 +250,97 @@ String _competitionAbbreviations(
   }
   abbreviations.sort();
   return abbreviations.join(', ');
+}
+
+class PlayerExpansionPanel extends ExpansionPanelRadio {
+  PlayerExpansionPanel(
+    this.player,
+    this.listState,
+    BuildContext context,
+  ) : super(
+            value: player.id,
+            headerBuilder: (BuildContext context, bool isExpanded) =>
+                _headerBuilder(player, listState, context, isExpanded),
+            body: const Placeholder(),
+            canTapOnHeader: true,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor);
+
+  static Widget _headerBuilder(
+    Player player,
+    PlayerListState listState,
+    BuildContext context,
+    bool isExpanded,
+  ) {
+    var l10n = AppLocalizations.of(context)!;
+    return Tooltip(
+      message: 'Ausklappen',
+      waitDuration: const Duration(milliseconds: 600),
+      child: Row(
+        children: [
+          const SizedBox(width: 20),
+          SizedBox(
+            width: 190,
+            child: Text(
+              display_strings.playerName(player),
+              overflow: TextOverflow.fade,
+            ),
+          ),
+          Flexible(
+            flex: 1,
+            child: Container(),
+          ),
+          SizedBox(
+            width: 190,
+            child: Text(
+              player.club?.name ?? '-',
+              overflow: TextOverflow.fade,
+            ),
+          ),
+          Flexible(
+            flex: 1,
+            child: Container(),
+          ),
+          SizedBox(
+            width: 80,
+            child: Text(
+              _competitionAbbreviations(
+                listState.competitionRegistrations[player]!
+                    .map((r) => r.competition),
+                l10n,
+              ),
+              overflow: TextOverflow.fade,
+            ),
+          ),
+          Flexible(
+            flex: 1,
+            child: Container(),
+          ),
+          SizedBox(
+            width: 110,
+            child: Text(
+              player.playingLevel?.name ?? '-',
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Flexible(
+            flex: 1,
+            child: Container(),
+          ),
+          SizedBox(
+            child: SizedBox(
+              width: 40,
+              child: Text(
+                player.dateOfBirth == null ? '-' : ('${player.calculateAge()}'),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+        ],
+      ),
+    );
+  }
+
+  final Player player;
+
+  final PlayerListState listState;
 }
