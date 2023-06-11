@@ -63,5 +63,6 @@
   "noPartner": "kein Partner gemeldet",
   "notes": "Notizen",
   "unsavedChanges": "Ungesicherte Änderungen",
-  "dismissChanges": "Verwerfen"
+  "dismissChanges": "Verwerfen",
+  "expand": "Ausklappen"
 }

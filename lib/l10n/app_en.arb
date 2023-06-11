@@ -63,5 +63,6 @@
   "noPartner": "no partner registered",
   "notes": "Notes",
   "unsavedChanges": "Unsaved changes",
-  "dismissChanges": "Dismiss"
+  "dismissChanges": "Dismiss",
+  "expand": "Expand"
 }

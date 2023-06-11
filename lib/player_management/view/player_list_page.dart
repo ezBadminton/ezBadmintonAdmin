@@ -276,7 +276,7 @@ class PlayerExpansionPanel extends ExpansionPanelRadio {
   ) {
     var l10n = AppLocalizations.of(context)!;
     return Tooltip(
-      message: isExpanded ? '' : 'Ausklappen',
+      message: isExpanded ? '' : l10n.expand,
       waitDuration: const Duration(milliseconds: 600),
       child: Row(
         children: [
@@ -356,6 +356,7 @@ class _PlayerExpansionPanelBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
         Expanded(
@@ -369,10 +370,30 @@ class _PlayerExpansionPanelBody extends StatelessWidget {
                 width: 1,
               ),
             ),
-            child: const Center(
+            child: Center(
               child: Padding(
-                padding: EdgeInsets.all(20.0),
-                child: Text('PlayerInfo here'),
+                padding: const EdgeInsets.all(20.0),
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.of(context).push(PlayerEditingPage.route(player));
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(
+                      Theme.of(context).primaryColorLight.withOpacity(.14),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(60, 10, 60, 10),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.edit, size: 22),
+                        const SizedBox(width: 10),
+                        Text(l10n.editPlayer),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
