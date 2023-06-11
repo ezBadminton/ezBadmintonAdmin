@@ -64,5 +64,7 @@
   "notes": "Notizen",
   "unsavedChanges": "Ungesicherte Änderungen",
   "dismissChanges": "Verwerfen",
-  "expand": "Ausklappen"
+  "expand": "Ausklappen",
+  "status": "Status",
+  "none": "keine"
 }

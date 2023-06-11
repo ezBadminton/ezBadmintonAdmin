@@ -64,5 +64,7 @@
   "notes": "Notes",
   "unsavedChanges": "Unsaved changes",
   "dismissChanges": "Dismiss",
-  "expand": "Expand"
+  "expand": "Expand",
+  "status": "Status",
+  "none": "none"
 }

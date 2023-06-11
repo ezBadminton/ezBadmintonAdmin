@@ -1,4 +1,5 @@
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_list_cubit.dart';
@@ -260,7 +261,10 @@ class PlayerExpansionPanel extends ExpansionPanelRadio {
           value: player.id,
           headerBuilder: (BuildContext context, bool isExpanded) =>
               _headerBuilder(player, listState, context, isExpanded),
-          body: _PlayerExpansionPanelBody(player: player),
+          body: _PlayerExpansionPanelBody(
+            player: player,
+            registrations: listState.competitionRegistrations[player]!,
+          ),
           canTapOnHeader: true,
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         );
@@ -350,18 +354,18 @@ class PlayerExpansionPanel extends ExpansionPanelRadio {
 class _PlayerExpansionPanelBody extends StatelessWidget {
   const _PlayerExpansionPanelBody({
     required this.player,
+    required this.registrations,
   });
 
   final Player player;
+  final List<CompetitionRegistration> registrations;
 
   @override
   Widget build(BuildContext context) {
-    var l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
         Expanded(
           child: Card(
-            elevation: 0,
             color: Theme.of(context).scaffoldBackgroundColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
@@ -370,34 +374,175 @@ class _PlayerExpansionPanelBody extends StatelessWidget {
                 width: 1,
               ),
             ),
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.of(context).push(PlayerEditingPage.route(player));
-                  },
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(
-                      Theme.of(context).primaryColorLight.withOpacity(.14),
-                    ),
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _PlayerNotes(player: player),
+                      const SizedBox(width: 50),
+                      _PlayerStatus(player: player),
+                      const SizedBox(width: 50),
+                      _PlayerRegistrations(registrations: registrations),
+                    ],
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(60, 10, 60, 10),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.edit, size: 22),
-                        const SizedBox(width: 10),
-                        Text(l10n.editPlayer),
-                      ],
-                    ),
+                  const SizedBox(height: 50),
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: _PlayerEditButton(player: player),
                   ),
-                ),
+                ],
               ),
             ),
           ),
         ),
+      ],
+    );
+  }
+}
+
+class _PlayerEditButton extends StatelessWidget {
+  const _PlayerEditButton({
+    required this.player,
+  });
+
+  final Player player;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+    return TextButton(
+      onPressed: () {
+        Navigator.of(context).push(PlayerEditingPage.route(player));
+      },
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all(
+          Theme.of(context).primaryColorLight.withOpacity(.14),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(60, 10, 60, 10),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.edit, size: 22),
+            const SizedBox(width: 10),
+            Text(l10n.editPlayer),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PlayerRegistrations extends StatelessWidget {
+  const _PlayerRegistrations({
+    required this.registrations,
+  });
+
+  final List<CompetitionRegistration> registrations;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+    return Expanded(
+      child: _PlayerDetailsSection(
+        title: l10n.registrations,
+        child: registrations.isEmpty
+            ? Text(
+                '- ${l10n.none} -',
+                style: TextStyle(color: Theme.of(context).disabledColor),
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (final r in registrations)
+                    Text(
+                      display_strings.competitionCategory(
+                        l10n,
+                        r.competition.type,
+                        r.competition.genderCategory,
+                      ),
+                    ),
+                ],
+              ),
+      ),
+    );
+  }
+}
+
+class _PlayerStatus extends StatelessWidget {
+  const _PlayerStatus({
+    required this.player,
+  });
+
+  final Player player;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+    return Expanded(
+      child: _PlayerDetailsSection(
+        title: l10n.status,
+        child: Text(player.status.name),
+      ),
+    );
+  }
+}
+
+class _PlayerNotes extends StatelessWidget {
+  const _PlayerNotes({
+    required this.player,
+  });
+
+  final Player player;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+    return Expanded(
+      child: _PlayerDetailsSection(
+        title: l10n.notes,
+        child: player.notes == null
+            ? Text(
+                '- ${l10n.none} -',
+                style: TextStyle(
+                  color: Theme.of(context).disabledColor,
+                ),
+              )
+            : SelectableText(
+                player.notes!,
+              ),
+      ),
+    );
+  }
+}
+
+class _PlayerDetailsSection extends StatelessWidget {
+  const _PlayerDetailsSection({
+    required this.title,
+    required this.child,
+  });
+
+  final String title;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(color: Theme.of(context).disabledColor),
+        ),
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 7.0),
+          child: Divider(height: 1),
+        ),
+        child,
       ],
     );
   }
