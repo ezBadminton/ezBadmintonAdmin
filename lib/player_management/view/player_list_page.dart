@@ -211,6 +211,16 @@ class _PlayerList extends StatelessWidget {
                       child: Text(l10n.age),
                     ),
                   ),
+                  Flexible(
+                    flex: 1,
+                    child: Container(),
+                  ),
+                  SizedBox(
+                    child: SizedBox(
+                      width: 45,
+                      child: Text(l10n.status),
+                    ),
+                  ),
                   const SizedBox(width: 10),
                 ],
               ),
@@ -347,6 +357,22 @@ class PlayerExpansionPanel extends ExpansionPanelRadio {
               ),
             ),
           ),
+          Flexible(
+            flex: 1,
+            child: Container(),
+          ),
+          SizedBox(
+            child: SizedBox(
+              width: 45,
+              child: Tooltip(
+                message: l10n.playerStatus(player.status.name),
+                child: Icon(
+                  playerStatusIcons[player.status],
+                  size: 21,
+                ),
+              ),
+            ),
+          ),
           const SizedBox(width: 10),
         ],
       ),
@@ -477,9 +503,9 @@ class _PlayerRegistrations extends StatelessWidget {
 }
 
 class _PlayerStatus extends StatelessWidget {
-  const _PlayerStatus({
+  _PlayerStatus({
     required this.player,
-  });
+  }) : super(key: ValueKey(player.id));
 
   final Player player;
 
