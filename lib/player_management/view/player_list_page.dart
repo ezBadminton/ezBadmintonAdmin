@@ -1,4 +1,7 @@
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/constants.dart';
+import 'package:ez_badminton_admin_app/player_management/cubit/player_status_cubit.dart';
+import 'package:ez_badminton_admin_app/player_management/cubit/player_status_state.dart';
 import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
@@ -483,10 +486,106 @@ class _PlayerStatus extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    return Expanded(
-      child: _PlayerDetailsSection(
-        title: l10n.status,
-        child: Text(player.status.name),
+    return BlocProvider(
+      create: (context) => PlayerStatusCubit(
+        player: player,
+        playerRepository: context.read<CollectionRepository<Player>>(),
+      ),
+      child: Expanded(
+        child: _PlayerDetailsSection(
+          title: l10n.status,
+          child: Align(
+            alignment: AlignmentDirectional.center,
+            child: _PlayerStatusSwitcher(player: player),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PlayerStatusSwitcher extends StatelessWidget {
+  const _PlayerStatusSwitcher({
+    required this.player,
+  });
+
+  final Player player;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+    var cubit = context.read<PlayerStatusCubit>();
+    return BlocBuilder<PlayerStatusCubit, PlayerStatusState>(
+      builder: (context, state) {
+        return Column(
+          children: [
+            if (state.player.status == PlayerStatus.notAttending)
+              Tooltip(
+                message: l10n.confirmAttendance,
+                preferBelow: false,
+                child: InkWell(
+                  onTap: () {
+                    cubit.statusChanged(PlayerStatus.attending);
+                  },
+                  customBorder: const CircleBorder(),
+                  child: _statusIcon(context, state),
+                ),
+              )
+            else
+              _statusIcon(context, state),
+            const SizedBox(height: 5),
+            PopupMenuButton<PlayerStatus>(
+              tooltip: l10n.changeStatus,
+              onSelected: cubit.statusChanged,
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      l10n.playerStatus(player.status.name),
+                      style: const TextStyle(fontSize: 15),
+                    ),
+                    const Icon(Icons.arrow_drop_down_sharp),
+                  ],
+                ),
+              ),
+              itemBuilder: (context) => PlayerStatus.values
+                  .map(
+                    (s) => PopupMenuItem<PlayerStatus>(
+                      value: s,
+                      child: Text(l10n.playerStatus(s.name)),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Container _statusIcon(BuildContext context, PlayerStatusState state) {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: player.status == PlayerStatus.attending
+            ? Theme.of(context).primaryColorLight
+            : Theme.of(context).highlightColor,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: SizedBox(
+          width: 40,
+          height: 40,
+          child: state.loadingStatus == LoadingStatus.loading
+              ? const CircularProgressIndicator()
+              : Icon(
+                  playerStatusIcons[player.status],
+                  size: 40,
+                ),
+        ),
       ),
     );
   }

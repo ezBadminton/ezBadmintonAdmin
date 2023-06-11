@@ -66,5 +66,8 @@
   "dismissChanges": "Verwerfen",
   "expand": "Ausklappen",
   "status": "Status",
-  "none": "keine"
+  "none": "keine",
+  "playerStatus": "{type, select, notAttending{Nicht anwesend} attending{Anwesend} forfeited{Aufgegeben} injured{Verletzt} other{Sonst.}}",
+  "changeStatus": "Status ändern",
+  "confirmAttendance": "Anwesenheit bestätigen"
 }

@@ -66,6 +66,17 @@ class HasDateOfBirth extends CustomMatcher {
   featureValueOf(actual) => actual.dateOfBirth;
 }
 
+class HasStatus extends CustomMatcher {
+  HasStatus(matcher)
+      : super(
+          'Player with status of',
+          'PlayerStatus',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.status;
+}
+
 class HasPlayingLevel extends CustomMatcher {
   HasPlayingLevel(matcher)
       : super(
