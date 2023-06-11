@@ -3,8 +3,13 @@
     "tasks": [
       {
         "label": "Watch Flutter Analyzer",
-        "type": "shell",
-        "command": "flutter analyze --watch --write=analyzer_problems.log",
+        "type": "flutter",
+        "command": "flutter",
+        "args": [
+          "analyze",
+          "--watch",
+          "--write=analyzer_problems.log"
+        ],
         "group": "none",
         "presentation": {
           "reveal": "always",
@@ -26,5 +31,23 @@
         },
         "problemMatcher": []
       },
+      {
+        "type": "flutter",
+        "command": "flutter",
+        "args": [
+          "pub",
+          "run",
+          "build_runner",
+          "build"
+        ],
+        "options": {
+          "cwd": "${workspaceRoot}/packages/collection_repository"
+        },
+        "problemMatcher": [
+          "$dart-build_runner"
+        ],
+        "group": "build",
+        "label": "run collection model code-gen"
+      }
     ]
   }
