@@ -257,12 +257,13 @@ class PlayerExpansionPanel extends ExpansionPanelRadio {
     this.listState,
     BuildContext context,
   ) : super(
-            value: player.id,
-            headerBuilder: (BuildContext context, bool isExpanded) =>
-                _headerBuilder(player, listState, context, isExpanded),
-            body: const Placeholder(),
-            canTapOnHeader: true,
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor);
+          value: player.id,
+          headerBuilder: (BuildContext context, bool isExpanded) =>
+              _headerBuilder(player, listState, context, isExpanded),
+          body: _PlayerExpansionPanelBody(player: player),
+          canTapOnHeader: true,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        );
 
   final Player player;
   final PlayerListState listState;
@@ -275,7 +276,7 @@ class PlayerExpansionPanel extends ExpansionPanelRadio {
   ) {
     var l10n = AppLocalizations.of(context)!;
     return Tooltip(
-      message: 'Ausklappen',
+      message: isExpanded ? '' : 'Ausklappen',
       waitDuration: const Duration(milliseconds: 600),
       child: Row(
         children: [
@@ -285,6 +286,9 @@ class PlayerExpansionPanel extends ExpansionPanelRadio {
             child: Text(
               display_strings.playerName(player),
               overflow: TextOverflow.fade,
+              style: TextStyle(
+                fontWeight: isExpanded ? FontWeight.w600 : FontWeight.normal,
+              ),
             ),
           ),
           Flexible(
@@ -339,6 +343,41 @@ class PlayerExpansionPanel extends ExpansionPanelRadio {
           const SizedBox(width: 10),
         ],
       ),
+    );
+  }
+}
+
+class _PlayerExpansionPanelBody extends StatelessWidget {
+  const _PlayerExpansionPanelBody({
+    required this.player,
+  });
+
+  final Player player;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Card(
+            elevation: 0,
+            color: Theme.of(context).scaffoldBackgroundColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              side: BorderSide(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(.05),
+                width: 1,
+              ),
+            ),
+            child: const Center(
+              child: Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Text('PlayerInfo here'),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

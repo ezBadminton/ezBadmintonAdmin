@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 const double _kPanelHeaderCollapsedHeight = kMinInteractiveDimension;
 const EdgeInsets _kPanelHeaderExpandedDefaultPadding = EdgeInsets.symmetric(
-  vertical: 64.0 - _kPanelHeaderCollapsedHeight,
+  vertical: 8,
 );
 const EdgeInsets _kExpandIconPadding = EdgeInsets.all(12.0);
 
@@ -326,17 +326,18 @@ class _ExpansionPanelListState extends State<ExpansionPanelList> {
                 if (!_isChildExpanded(index) &&
                     index != widget.children.length - 1)
                   const BoxShadow(
-                    color: Colors.black38,
+                    color: Colors.black26,
                     blurRadius: 5.0,
                     spreadRadius: -7.0,
                     offset: Offset(0.0, 7.0),
                   ),
-                const BoxShadow(
-                  color: Colors.black38,
-                  blurRadius: 3.0,
-                  spreadRadius: -5.0,
-                  offset: Offset(0.0, -2.0),
-                ),
+                if (index > 0 && _isChildExpanded(index - 1))
+                  const BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 5.0,
+                    spreadRadius: -7.0,
+                    offset: Offset(0.0, -7.0),
+                  ),
               ],
             ),
             child: Material(
