@@ -215,13 +215,12 @@ class _PlayerList extends StatelessWidget {
         ),
         Expanded(
           child: SingleChildScrollView(
-            clipBehavior: Clip.none,
             child: custom_expansion_panel.ExpansionPanelList.radio(
+              hasExpandIcon: false,
+              elevation: 0,
               children: listState.filteredPlayers
                   .map((p) => PlayerExpansionPanel(p, listState, context))
                   .toList(),
-              hasExpandIcon: false,
-              elevation: 0,
             ),
           ),
         ),
@@ -264,6 +263,9 @@ class PlayerExpansionPanel extends ExpansionPanelRadio {
             body: const Placeholder(),
             canTapOnHeader: true,
             backgroundColor: Theme.of(context).scaffoldBackgroundColor);
+
+  final Player player;
+  final PlayerListState listState;
 
   static Widget _headerBuilder(
     Player player,
@@ -339,8 +341,4 @@ class PlayerExpansionPanel extends ExpansionPanelRadio {
       ),
     );
   }
-
-  final Player player;
-
-  final PlayerListState listState;
 }
