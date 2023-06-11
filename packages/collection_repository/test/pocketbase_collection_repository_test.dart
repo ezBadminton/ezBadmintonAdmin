@@ -54,6 +54,7 @@ void main() {
           'updated': '2023-05-18T12:14:24.274',
           'firstName': 'Akane',
           'lastName': 'Yamaguchi',
+          'status': 'notAttending',
         },
         {
           // All non-relation fields for Player
@@ -65,6 +66,7 @@ void main() {
           'gender': 'male',
           'dateOfBirth': '1994-01-04T00:00:00.000',
           'notes': 'player@example.com',
+          'status': 'notAttending',
         },
         {
           // Some fields set as empty
@@ -77,6 +79,7 @@ void main() {
           'gender': 'female',
           'dateOfBirth': '',
           'notes': '',
+          'status': 'notAttending',
         },
         {
           // Player with relations
@@ -87,6 +90,7 @@ void main() {
           'lastName': 'Chong Wei',
           'gender': 'male',
           'playingLevel': 'relatedfield123',
+          'status': 'notAttending',
         },
       ];
 

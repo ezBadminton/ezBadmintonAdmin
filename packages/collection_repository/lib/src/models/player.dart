@@ -27,6 +27,7 @@ class Player extends Model with _$Player {
     DateTime? dateOfBirth,
     String? notes,
     Club? club,
+    required PlayerStatus status,
     PlayingLevel? playingLevel,
   }) = _Player;
 
@@ -40,6 +41,7 @@ class Player extends Model with _$Player {
         updated: DateTime.now(),
         firstName: '',
         lastName: '',
+        status: PlayerStatus.notAttending,
       );
 
   static const List<ExpandedField> expandedFields = [
@@ -78,3 +80,5 @@ class Player extends Model with _$Player {
 }
 
 enum Gender { female, male, none }
+
+enum PlayerStatus { notAttending, attending, injured, forfeited }
