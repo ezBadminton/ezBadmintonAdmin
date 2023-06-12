@@ -31,6 +31,9 @@ untranslated-messages.json
 # Package related
 /packages/*/build
 
+# VSCode related
+.vscode/settings.json
+
 # Test coverage
 lcov.info
 **/coverage/html
