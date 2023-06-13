@@ -22,6 +22,7 @@ class CompetitionRegistrationForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var cubit = context.read<PlayerEditingCubit>();
     return BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
       buildWhen: (previous, current) =>
           previous.registrationFormShown != current.registrationFormShown ||
@@ -35,7 +36,11 @@ class CompetitionRegistrationForm extends StatelessWidget {
               SizedBox(height: 300),
             ] else ...[
               for (var registration in state.registrations.value)
-                _RegistrationDisplayCard(registration),
+                _RegistrationDisplayCard(
+                  registration,
+                  onDelete: (registration) =>
+                      cubit.registrationRemoved(registration),
+                ),
               if (state.registrations.value.isNotEmpty)
                 const SizedBox(height: 25),
               if (state.getCollection<Competition>().length !=
@@ -84,14 +89,20 @@ class _RegistrationAddButton extends StatelessWidget {
 }
 
 class _RegistrationDisplayCard extends StatelessWidget {
-  const _RegistrationDisplayCard(this.registration);
+  const _RegistrationDisplayCard(
+    this.registration, {
+    this.showDeleteButton = true,
+    this.onDelete,
+  }) : assert(showDeleteButton == (onDelete != null));
 
   final CompetitionRegistration registration;
+  final bool showDeleteButton;
+  final void Function(CompetitionRegistration)? onDelete;
+
   Competition get competition => registration.competition;
 
   @override
   Widget build(BuildContext context) {
-    var editingCubit = context.read<PlayerEditingCubit>();
     var l10n = AppLocalizations.of(context)!;
     var divider = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -101,9 +112,6 @@ class _RegistrationDisplayCard extends StatelessWidget {
         color: Theme.of(context).colorScheme.onSurface.withOpacity(.5),
       ),
     );
-    Player? partner = registration.team.players
-        .whereNot((p) => p.id == editingCubit.state.player.id)
-        .firstOrNull;
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -118,16 +126,17 @@ class _RegistrationDisplayCard extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            Align(
-              alignment: AlignmentDirectional.centerEnd,
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                onPressed: () => editingCubit.registrationRemoved(registration),
-                tooltip: l10n.deleteRegistration,
-                icon: const Icon(Icons.close, size: 22),
+            if (showDeleteButton)
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onPressed: () => onDelete!(registration),
+                  tooltip: l10n.deleteRegistration,
+                  icon: const Icon(Icons.close, size: 22),
+                ),
               ),
-            ),
             Column(
               children: [
                 Row(
@@ -173,14 +182,15 @@ class _RegistrationDisplayCard extends StatelessWidget {
                     endIndent: 35,
                   ),
                   Text(
-                    partner == null
+                    registration.partner == null
                         ? l10n.noPartner
                         : l10n.withPartner(
-                            display_strings.playerWithClub(partner),
+                            display_strings
+                                .playerWithClub(registration.partner!),
                           ),
                     style: const TextStyle(fontSize: 12),
                     textAlign: TextAlign.center,
-                  )
+                  ),
                 ],
               ],
             ),

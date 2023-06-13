@@ -76,11 +76,7 @@ class WithPartner extends CustomMatcher {
         );
   final Player ofPlayer;
   @override
-  featureValueOf(actual) => (actual as CompetitionRegistration)
-      .team
-      .players
-      .whereNot((p) => p == ofPlayer)
-      .firstOrNull;
+  featureValueOf(actual) => (actual as CompetitionRegistration).partner;
 }
 
 class TestPlayerEditingCubit extends PlayerEditingCubit {
@@ -292,6 +288,7 @@ void main() {
         RegistrationFormShown(isTrue),
         HasCompetitionRegistration(
           allOf(
+            HasPlayer(player),
             WithCompetition(competition),
             WithPartner(isNull, ofPlayer: player),
           ),
@@ -299,6 +296,7 @@ void main() {
         RegistrationFormShown(isTrue),
         HasCompetitionRegistration(
           allOf(
+            HasPlayer(player),
             WithCompetition(competition),
             WithPartner(player2, ofPlayer: player),
           ),

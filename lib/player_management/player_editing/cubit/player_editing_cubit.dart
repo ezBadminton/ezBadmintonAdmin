@@ -160,6 +160,7 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     assert(team.players.length <= registeredCompetition.teamSize);
 
     var registration = CompetitionRegistration(
+      player: state.player,
       competition: registeredCompetition,
       team: team,
     );
@@ -314,6 +315,7 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
       }
 
       return CompetitionRegistration(
+        player: state.player,
         competition: competition,
         team: registeredTeam,
       );
@@ -342,6 +344,7 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
       leftTeam = leftTeam.copyWith(players: teamMembers);
 
       return CompetitionRegistration(
+        player: state.player,
         competition: competition,
         team: leftTeam,
       );
