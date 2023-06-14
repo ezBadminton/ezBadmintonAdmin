@@ -11,11 +11,18 @@ class RegistrationDisplayCard extends StatelessWidget {
     super.key,
     this.showDeleteButton = false,
     this.onDelete,
-  }) : assert(showDeleteButton == (onDelete != null));
+    this.showPartnerInput = false,
+    this.onPartnerNameChanged,
+  })  : assert(showDeleteButton == (onDelete != null)),
+        assert(showPartnerInput == (onPartnerNameChanged != null));
 
   final CompetitionRegistration registration;
+
   final bool showDeleteButton;
   final void Function(CompetitionRegistration)? onDelete;
+
+  final bool showPartnerInput;
+  final void Function(String)? onPartnerNameChanged;
 
   Competition get competition => registration.competition;
 
@@ -99,15 +106,10 @@ class RegistrationDisplayCard extends StatelessWidget {
                     indent: 35,
                     endIndent: 35,
                   ),
-                  Text(
-                    registration.partner == null
-                        ? l10n.noPartner
-                        : l10n.withPartner(
-                            display_strings
-                                .playerWithClub(registration.partner!),
-                          ),
-                    style: const TextStyle(fontSize: 12),
-                    textAlign: TextAlign.center,
+                  _DoublesPartner(
+                    registration: registration,
+                    showPartnerInput: showPartnerInput,
+                    onPartnerNameChanged: onPartnerNameChanged,
                   ),
                 ],
               ],
@@ -116,5 +118,42 @@ class RegistrationDisplayCard extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _DoublesPartner extends StatelessWidget {
+  const _DoublesPartner({
+    required this.registration,
+    required this.showPartnerInput,
+    required this.onPartnerNameChanged,
+  });
+
+  final CompetitionRegistration registration;
+  final bool showPartnerInput;
+  final void Function(String)? onPartnerNameChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+    TextStyle textStyle = const TextStyle(fontSize: 12);
+    if (registration.partner == null) {
+      if (showPartnerInput) {
+        return const Placeholder();
+      } else {
+        return Text(
+          l10n.noPartner,
+          style: textStyle,
+          textAlign: TextAlign.center,
+        );
+      }
+    } else {
+      return Text(
+        l10n.withPartner(
+          display_strings.playerWithClub(registration.partner!),
+        ),
+        style: textStyle,
+        textAlign: TextAlign.center,
+      );
+    }
   }
 }

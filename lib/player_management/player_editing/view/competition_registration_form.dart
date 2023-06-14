@@ -1,13 +1,12 @@
-import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_state.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/player_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/models/registration_warning.dart';
-import 'package:ez_badminton_admin_app/widgets/constrained_autocomplete/constrained_autocomplete.dart';
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/age_group_input.dart';
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/competition_type_input.dart';
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/gender_category_input.dart';
+import 'package:ez_badminton_admin_app/widgets/custom_input_fields/player_search_input.dart';
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/playing_level_input.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/registration_display_card.dart';
@@ -521,7 +520,7 @@ class _FinalStep extends Step {
     if (state.competitionType.value == CompetitionType.singles) {
       return const SizedBox();
     } else {
-      return _PartnerNameInput();
+      return const _PartnerNameInput();
     }
   }
 
@@ -538,95 +537,27 @@ class _FinalStep extends Step {
 }
 
 class _PartnerNameInput extends StatelessWidget {
-  _PartnerNameInput({
-    String initialValue = '',
-  }) {
-    _controller.text = initialValue;
-  }
-
-  final _controller = TextEditingController();
-  final _focus = FocusNode();
-
-  final String Function(Player) displayStringFunction =
-      display_strings.playerWithClub;
+  const _PartnerNameInput();
 
   @override
   Widget build(BuildContext context) {
-    AppLocalizations l10n = AppLocalizations.of(context)!;
     var cubit = context.read<CompetitionRegistrationCubit>();
-
-    _focus.addListener(() {
-      if (!_focus.hasFocus && cubit.state.partner.value != null) {
-        _controller.text =
-            display_strings.playerWithClub(cubit.state.partner.value!);
-      }
-    });
-
-    return LayoutBuilder(
-      builder: (context, constraints) => BlocBuilder<
-          CompetitionRegistrationCubit, CompetitionRegistrationState>(
-        buildWhen: (previous, current) =>
-            previous.partnerName != current.partnerName ||
-            previous.formStep != current.formStep,
-        builder: (context, state) {
-          return ConstrainedAutocomplete<Player>(
-            optionsBuilder: (playerSearchTerm) =>
-                _partnerOptionsBuilder(context, playerSearchTerm),
-            onSelected: cubit.partnerChanged,
-            constraints: constraints,
-            displayStringForOption: displayStringFunction,
-            fieldViewBuilder:
-                (context, textEditingController, focusNode, onFieldSubmitted) =>
-                    TextField(
-              controller: textEditingController,
-              focusNode: focusNode,
-              decoration: InputDecoration(
-                label: Text('${l10n.partner} (${l10n.optional.toLowerCase()})'),
-                counterText: ' ',
-              ),
-              onChanged: cubit.partnerNameChanged,
-            ),
-            optionsMaxHeight: 100,
-            focusNode: _focus,
-            textEditingController: _controller,
-          );
-        },
-      ),
+    return BlocBuilder<CompetitionRegistrationCubit,
+        CompetitionRegistrationState>(
+      buildWhen: (previous, current) =>
+          previous.formStep != current.formStep ||
+          previous.partner != current.partner ||
+          previous.partnerName != current.partnerName,
+      builder: (context, state) {
+        return PartnerNameInput(
+          player: cubit.player,
+          competition: cubit.getSelectedCompetitions().first,
+          playerCollection: state.getCollection<Player>(),
+          partner: state.partner.value,
+          onPartnerChanged: cubit.partnerChanged,
+          onPartnerNameChanged: cubit.partnerNameChanged,
+        );
+      },
     );
-  }
-
-  Iterable<Player> _partnerOptionsBuilder(
-    BuildContext context,
-    TextEditingValue playerSearchTerm,
-  ) {
-    var cubit = context.read<CompetitionRegistrationCubit>();
-    var selected = cubit.getSelectedCompetitions().first;
-    var players = cubit.state.getCollection<Player>();
-    var alreadyPartnered = selected.registrations.expand(
-      (team) => team.players.length == 2 ? team.players : [],
-    );
-
-    var playerOptions = players
-        .whereNot((p) => alreadyPartnered.contains(p) || p == cubit.player);
-
-    if (playerSearchTerm.text.isNotEmpty) {
-      playerOptions =
-          playerOptions.where((p) => _partnerSearch(p, playerSearchTerm.text));
-    }
-
-    if (playerOptions.length == 1) {
-      cubit.partnerChanged(playerOptions.first);
-    } else if (cubit.state.partner.value != null) {
-      cubit.partnerChanged(null);
-    }
-
-    return playerOptions;
-  }
-
-  bool _partnerSearch(Player partner, String searchTerm) {
-    var cleanSearchTerm = searchTerm.toLowerCase().trim();
-    return displayStringFunction(partner)
-        .toLowerCase()
-        .contains(cleanSearchTerm);
   }
 }
