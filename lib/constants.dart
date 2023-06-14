@@ -9,4 +9,5 @@ const Map<PlayerStatus, IconData> playerStatusIcons = {
   PlayerStatus.attending: Icons.done,
   PlayerStatus.forfeited: Icons.flag_outlined,
   PlayerStatus.injured: Icons.local_hospital_outlined,
+  PlayerStatus.disqualified: Icons.person_off,
 };

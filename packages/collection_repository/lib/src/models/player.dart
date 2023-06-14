@@ -81,4 +81,4 @@ class Player extends Model with _$Player {
 
 enum Gender { female, male, none }
 
-enum PlayerStatus { notAttending, attending, injured, forfeited }
+enum PlayerStatus { notAttending, attending, injured, forfeited, disqualified }

@@ -67,7 +67,7 @@
   "expand": "Ausklappen",
   "status": "Status",
   "none": "keine",
-  "playerStatus": "{type, select, notAttending{Nicht anwesend} attending{Anwesend} forfeited{Aufgegeben} injured{Verletzt} other{Sonst.}}",
+  "playerStatus": "{type, select, notAttending{Nicht anwesend} attending{Anwesend} forfeited{Aufgegeben} injured{Verletzt} disqualified{Disqualifiziert} other{Sonst.}}",
   "changeStatus": "Status ändern",
   "confirmAttendance": "Anwesenheit bestätigen"
 }

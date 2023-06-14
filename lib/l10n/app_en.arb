@@ -67,7 +67,7 @@
   "expand": "Expand",
   "status": "Status",
   "none": "none",
-  "playerStatus": "{type, select, notAttending{Not attending} attending{Attending} forfeited{Gave up} injured{Injured} other{Other}}",
+  "playerStatus": "{type, select, notAttending{Not attending} attending{Attending} forfeited{Gave up} injured{Injured} disqualified{Disqualified} other{Other}}",
   "changeStatus": "Change status",
   "confirmAttendance": "Confirm attendance"
 }
