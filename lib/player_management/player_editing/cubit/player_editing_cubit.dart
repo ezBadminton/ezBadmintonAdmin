@@ -363,30 +363,27 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     for (var registration in removedRegistrations) {
       var competition = registration.competition;
       var leftTeam = registration.team;
-      Competition? updatedCompetition;
+      List<Team> updatedTeams;
       if (leftTeam.players.isEmpty) {
         var teamDeleted = await querier.deleteModel(leftTeam);
         if (!teamDeleted) {
           return false;
         }
-        updatedCompetition = await querier.fetchModel(competition.id);
-        if (updatedCompetition == null) {
-          return false;
-        }
+        updatedTeams = List.of(registration.competition.registrations)
+          ..remove(leftTeam);
       } else {
         var updatedTeam = await querier.updateModel(leftTeam);
         if (updatedTeam == null) {
           return false;
         }
-        var updatedTeams = List.of(registration.competition.registrations)
+        updatedTeams = List.of(registration.competition.registrations)
           ..remove(leftTeam)
           ..add(updatedTeam);
-
-        competition = competition.copyWith(registrations: updatedTeams);
-        updatedCompetition = await querier.updateModel(competition);
-        if (updatedCompetition == null) {
-          return false;
-        }
+      }
+      competition = competition.copyWith(registrations: updatedTeams);
+      Competition? updatedCompetition = await querier.updateModel(competition);
+      if (updatedCompetition == null) {
+        return false;
       }
       deregisteredCompetitions.add(updatedCompetition);
     }

@@ -589,6 +589,12 @@ void main() {
           competitionList.first.registrations.first.players,
           allOf(contains(player), contains(player2)),
         );
+        verify(
+          () => competitionRepository.update(
+            any(),
+            expand: any(named: 'expand'),
+          ),
+        ).called(1);
       },
     );
 
@@ -619,6 +625,12 @@ void main() {
           teamList.first.players,
           allOf(contains(player2), isNot(contains(player))),
         );
+        verify(
+          () => competitionRepository.update(
+            any(),
+            expand: any(named: 'expand'),
+          ),
+        ).called(1);
       },
     );
 
@@ -651,6 +663,12 @@ void main() {
           teamList.first.players,
           allOf(contains(player), contains(player2)),
         );
+        verify(
+          () => competitionRepository.update(
+            any(),
+            expand: any(named: 'expand'),
+          ),
+        ).called(2);
       },
     );
 

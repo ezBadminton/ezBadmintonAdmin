@@ -9,6 +9,7 @@ import 'package:ez_badminton_admin_app/player_management/cubit/player_list_cubit
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/player_editing_page.dart';
 import 'package:ez_badminton_admin_app/player_management/player_filter/view/player_filter.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
+import 'package:ez_badminton_admin_app/widgets/registration_display_card/registration_display_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -137,8 +138,6 @@ class _PlayerList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<PlayerListCubit, PlayerListState>(
-      buildWhen: (previous, current) =>
-          previous.filteredPlayers != current.filteredPlayers,
       builder: (context, listState) {
         return Expanded(
           child: SizedBox(
@@ -410,11 +409,11 @@ class _PlayerExpansionPanelBody extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _PlayerNotes(player: player),
+                      _PlayerRegistrations(registrations: registrations),
                       const SizedBox(width: 50),
                       _PlayerStatus(player: player),
                       const SizedBox(width: 50),
-                      _PlayerRegistrations(registrations: registrations),
+                      _PlayerNotes(player: player),
                     ],
                   ),
                   const SizedBox(height: 50),
@@ -477,6 +476,7 @@ class _PlayerRegistrations extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
     return Expanded(
+      flex: 6,
       child: _PlayerDetailsSection(
         title: l10n.registrations,
         child: registrations.isEmpty
@@ -487,14 +487,7 @@ class _PlayerRegistrations extends StatelessWidget {
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  for (final r in registrations)
-                    Text(
-                      display_strings.competitionCategory(
-                        l10n,
-                        r.competition.type,
-                        r.competition.genderCategory,
-                      ),
-                    ),
+                  for (final r in registrations) RegistrationDisplayCard(r),
                 ],
               ),
       ),
@@ -518,6 +511,7 @@ class _PlayerStatus extends StatelessWidget {
         playerRepository: context.read<CollectionRepository<Player>>(),
       ),
       child: Expanded(
+        flex: 2,
         child: _PlayerDetailsSection(
           title: l10n.status,
           child: Align(
@@ -628,6 +622,7 @@ class _PlayerNotes extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
     return Expanded(
+      flex: 5,
       child: _PlayerDetailsSection(
         title: l10n.notes,
         child: player.notes == null

@@ -10,12 +10,12 @@ import 'package:ez_badminton_admin_app/widgets/custom_input_fields/competition_t
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/gender_category_input.dart';
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/playing_level_input.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
+import 'package:ez_badminton_admin_app/widgets/registration_display_card/registration_display_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
     as display_strings;
-import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 
 class CompetitionRegistrationForm extends StatelessWidget {
   const CompetitionRegistrationForm({super.key});
@@ -36,8 +36,9 @@ class CompetitionRegistrationForm extends StatelessWidget {
               SizedBox(height: 300),
             ] else ...[
               for (var registration in state.registrations.value)
-                _RegistrationDisplayCard(
+                RegistrationDisplayCard(
                   registration,
+                  showDeleteButton: true,
                   onDelete: (registration) =>
                       cubit.registrationRemoved(registration),
                 ),
@@ -84,119 +85,6 @@ class _RegistrationAddButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: cubit.registrationFormOpened,
       child: Text(l10n.addRegistration),
-    );
-  }
-}
-
-class _RegistrationDisplayCard extends StatelessWidget {
-  const _RegistrationDisplayCard(
-    this.registration, {
-    this.showDeleteButton = true,
-    this.onDelete,
-  }) : assert(showDeleteButton == (onDelete != null));
-
-  final CompetitionRegistration registration;
-  final bool showDeleteButton;
-  final void Function(CompetitionRegistration)? onDelete;
-
-  Competition get competition => registration.competition;
-
-  @override
-  Widget build(BuildContext context) {
-    var l10n = AppLocalizations.of(context)!;
-    var divider = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Icon(
-        Icons.circle,
-        size: 7,
-        color: Theme.of(context).colorScheme.onSurface.withOpacity(.5),
-      ),
-    );
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.onSurface.withOpacity(.3),
-          width: 2,
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            if (showDeleteButton)
-              Align(
-                alignment: AlignmentDirectional.centerEnd,
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  onPressed: () => onDelete!(registration),
-                  tooltip: l10n.deleteRegistration,
-                  icon: const Icon(Icons.close, size: 22),
-                ),
-              ),
-            Column(
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 240),
-                      child: Text(
-                        display_strings.playingLevelList(
-                          competition.playingLevels,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    divider,
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 140),
-                      child: Text(
-                        display_strings.ageGroupList(
-                          l10n,
-                          competition.ageGroups,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    divider,
-                    Text(
-                      display_strings.competitionCategory(
-                        l10n,
-                        competition.type,
-                        competition.genderCategory,
-                      ),
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-                if (competition.teamSize == 2) ...[
-                  const Divider(
-                    height: 6,
-                    indent: 35,
-                    endIndent: 35,
-                  ),
-                  Text(
-                    registration.partner == null
-                        ? l10n.noPartner
-                        : l10n.withPartner(
-                            display_strings
-                                .playerWithClub(registration.partner!),
-                          ),
-                    style: const TextStyle(fontSize: 12),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ],
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
