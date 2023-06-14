@@ -10,7 +10,7 @@ import 'package:ez_badminton_admin_app/widgets/custom_input_fields/competition_t
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/gender_category_input.dart';
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/playing_level_input.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
-import 'package:ez_badminton_admin_app/widgets/registration_display_card/registration_display_card.dart';
+import 'package:ez_badminton_admin_app/player_management/player_editing/view/registration_display_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';

@@ -9,7 +9,7 @@ import 'package:ez_badminton_admin_app/player_management/cubit/player_list_cubit
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/player_editing_page.dart';
 import 'package:ez_badminton_admin_app/player_management/player_filter/view/player_filter.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
-import 'package:ez_badminton_admin_app/widgets/registration_display_card/registration_display_card.dart';
+import 'package:ez_badminton_admin_app/player_management/player_editing/view/registration_display_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -586,7 +586,7 @@ class _PlayerStatusSwitcher extends StatelessWidget {
     );
   }
 
-  Container _statusIcon(BuildContext context, PlayerStatusState state) {
+  Widget _statusIcon(BuildContext context, PlayerStatusState state) {
     return Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
