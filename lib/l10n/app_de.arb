@@ -71,5 +71,6 @@
   "changeStatus": "Status ändern",
   "confirmAttendance": "Anwesenheit bestätigen",
   "done": "Fertig",
-  "searchPartner": "Partner suchen"
+  "searchPartner": "Partner suchen",
+  "partnerNeeded": "Partner gesucht"
 }

@@ -242,28 +242,6 @@ class _PlayerList extends StatelessWidget {
   }
 }
 
-String _competitionAbbreviations(
-  Iterable<Competition> competitions,
-  AppLocalizations l10n,
-) {
-  List<String> abbreviations = [];
-  for (var competition in competitions) {
-    String competitionAbbreviation =
-        l10n.competitionTypeAbbreviated(competition.type.name);
-    if (competition.genderCategory == GenderCategory.mixed ||
-        competition.genderCategory == GenderCategory.any) {
-      abbreviations.add(competitionAbbreviation);
-    } else {
-      String genderPrefix = competition.genderCategory == GenderCategory.female
-          ? l10n.womenAbbreviated
-          : l10n.menAbbreviated;
-      abbreviations.add('$genderPrefix$competitionAbbreviation');
-    }
-  }
-  abbreviations.sort();
-  return abbreviations.join(', ');
-}
-
 class PlayerExpansionPanel extends ExpansionPanelRadio {
   PlayerExpansionPanel(
     this.player,
@@ -291,91 +269,146 @@ class PlayerExpansionPanel extends ExpansionPanelRadio {
     bool isExpanded,
   ) {
     var l10n = AppLocalizations.of(context)!;
-    return Tooltip(
-      message: isExpanded ? '' : l10n.expand,
-      waitDuration: const Duration(milliseconds: 600),
-      child: Row(
-        children: [
-          const SizedBox(width: 20),
-          SizedBox(
-            width: 190,
-            child: Text(
-              display_strings.playerName(player),
-              overflow: TextOverflow.fade,
-              style: TextStyle(
-                fontWeight: isExpanded ? FontWeight.w600 : FontWeight.normal,
-              ),
-            ),
-          ),
-          Flexible(
-            flex: 1,
-            child: Container(),
-          ),
-          SizedBox(
-            width: 190,
-            child: Text(
-              player.club?.name ?? '-',
-              overflow: TextOverflow.fade,
-            ),
-          ),
-          Flexible(
-            flex: 1,
-            child: Container(),
-          ),
-          SizedBox(
-            width: 80,
-            child: Text(
-              _competitionAbbreviations(
-                listState.competitionRegistrations[player]!
-                    .map((r) => r.competition),
-                l10n,
-              ),
-              overflow: TextOverflow.fade,
-            ),
-          ),
-          Flexible(
-            flex: 1,
-            child: Container(),
-          ),
-          SizedBox(
-            width: 110,
-            child: Text(
-              player.playingLevel?.name ?? '-',
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          Flexible(
-            flex: 1,
-            child: Container(),
-          ),
-          SizedBox(
-            child: SizedBox(
-              width: 40,
-              child: Text(
-                player.dateOfBirth == null ? '-' : ('${player.calculateAge()}'),
-              ),
-            ),
-          ),
-          Flexible(
-            flex: 1,
-            child: Container(),
-          ),
-          SizedBox(
-            child: SizedBox(
-              width: 45,
-              child: Tooltip(
-                message: l10n.playerStatus(player.status.name),
-                child: Icon(
-                  playerStatusIcons[player.status],
-                  size: 21,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-        ],
-      ),
+    bool needsPartner = _playerNeedsPartner(
+      listState.competitionRegistrations[player]!,
     );
+    return Row(
+      children: [
+        const SizedBox(width: 20),
+        SizedBox(
+          width: 190,
+          child: Text(
+            display_strings.playerName(player),
+            overflow: TextOverflow.fade,
+            style: TextStyle(
+              fontWeight: isExpanded ? FontWeight.w600 : FontWeight.normal,
+            ),
+          ),
+        ),
+        Flexible(
+          flex: 1,
+          child: Container(),
+        ),
+        SizedBox(
+          width: 190,
+          child: Text(
+            player.club?.name ?? '-',
+            overflow: TextOverflow.fade,
+          ),
+        ),
+        Flexible(
+          flex: 1,
+          child: Container(),
+        ),
+        SizedBox(
+          width: 80,
+          child: Text(
+            _competitionAbbreviations(
+              listState.competitionRegistrations[player]!
+                  .map((r) => r.competition),
+              l10n,
+            ),
+            overflow: TextOverflow.fade,
+          ),
+        ),
+        Flexible(
+          flex: 1,
+          child: Container(),
+        ),
+        SizedBox(
+          width: 110,
+          child: Text(
+            player.playingLevel?.name ?? '-',
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        Flexible(
+          flex: 1,
+          child: Container(),
+        ),
+        SizedBox(
+          child: SizedBox(
+            width: 40,
+            child: Text(
+              player.dateOfBirth == null ? '-' : ('${player.calculateAge()}'),
+            ),
+          ),
+        ),
+        Flexible(
+          flex: 1,
+          child: Container(),
+        ),
+        SizedBox(
+          child: SizedBox(
+            width: 45,
+            child: Tooltip(
+              message: _statusTooltip(l10n, player, needsPartner),
+              child: Row(
+                children: [
+                  Icon(
+                    playerStatusIcons[player.status],
+                    size: 21,
+                  ),
+                  if (needsPartner)
+                    const Icon(
+                      partnerMissingIcon,
+                      size: 21,
+                    )
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+      ],
+    );
+  }
+
+  static String _statusTooltip(
+    AppLocalizations l10n,
+    Player player,
+    bool needsPartner,
+  ) {
+    String statusTooltip = l10n.playerStatus(player.status.name);
+    if (needsPartner) {
+      statusTooltip += '\n${l10n.partnerNeeded}';
+    }
+    return statusTooltip;
+  }
+
+  static String _competitionAbbreviations(
+    Iterable<Competition> competitions,
+    AppLocalizations l10n,
+  ) {
+    List<String> abbreviations = [];
+    for (var competition in competitions) {
+      String competitionAbbreviation =
+          l10n.competitionTypeAbbreviated(competition.type.name);
+      if (competition.genderCategory == GenderCategory.mixed ||
+          competition.genderCategory == GenderCategory.any) {
+        abbreviations.add(competitionAbbreviation);
+      } else {
+        String genderPrefix =
+            competition.genderCategory == GenderCategory.female
+                ? l10n.womenAbbreviated
+                : l10n.menAbbreviated;
+        abbreviations.add('$genderPrefix$competitionAbbreviation');
+      }
+    }
+    abbreviations.sort();
+    return abbreviations.join(', ');
+  }
+
+  static bool _playerNeedsPartner(
+    Iterable<CompetitionRegistration> registrations,
+  ) {
+    for (CompetitionRegistration registration in registrations) {
+      if (registration.team.players.length <
+          registration.competition.teamSize) {
+        return true;
+      }
+    }
+    return false;
   }
 }
 

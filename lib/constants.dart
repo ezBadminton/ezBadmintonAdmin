@@ -11,3 +11,5 @@ const Map<PlayerStatus, IconData> playerStatusIcons = {
   PlayerStatus.injured: Icons.local_hospital_outlined,
   PlayerStatus.disqualified: Icons.person_off,
 };
+
+const IconData partnerMissingIcon = Icons.group;
