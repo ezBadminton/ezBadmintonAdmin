@@ -98,3 +98,25 @@ class HasName extends CustomMatcher {
   @override
   featureValueOf(actual) => actual.name;
 }
+
+class HasPlayers extends CustomMatcher {
+  HasPlayers(matcher)
+      : super(
+          'Team with player',
+          'Player list',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.players;
+}
+
+class HasRegistrations extends CustomMatcher {
+  HasRegistrations(matcher)
+      : super(
+          'Competition with registrations',
+          'Team list',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.registrations;
+}

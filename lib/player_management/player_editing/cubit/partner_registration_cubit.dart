@@ -42,10 +42,7 @@ class PartnerRegistrationCubit
       emit(state.copyWith(loadingStatus: LoadingStatus.loading));
     }
     fetchCollectionsAndUpdateState(
-      [
-        collectionFetcher<Player>(),
-        collectionFetcher<Competition>(),
-      ],
+      [collectionFetcher<Player>()],
       onSuccess: (updatedState) {
         updatedState = updatedState.copyWith(
           loadingStatus: LoadingStatus.done,
