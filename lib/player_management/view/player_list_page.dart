@@ -487,7 +487,11 @@ class _PlayerRegistrations extends StatelessWidget {
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  for (final r in registrations) RegistrationDisplayCard(r),
+                  for (final r in registrations)
+                    RegistrationDisplayCard(
+                      r,
+                      showPartnerInput: true,
+                    ),
                 ],
               ),
       ),

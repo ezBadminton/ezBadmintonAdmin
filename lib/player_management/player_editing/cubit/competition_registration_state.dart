@@ -1,6 +1,5 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
-import 'package:ez_badminton_admin_app/input_models/no_validation.dart';
 import 'package:ez_badminton_admin_app/input_models/selection.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/models/registration_warning.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
@@ -22,7 +21,6 @@ class CompetitionRegistrationState extends CollectionFetcherState
     ),
     this.playingLevel =
         const SelectionInput.dirty(emptyAllowed: true, value: null),
-    this.partnerName = const NoValidationInput.dirty(''),
     this.warnings = const [],
   });
 
@@ -37,7 +35,6 @@ class CompetitionRegistrationState extends CollectionFetcherState
   final SelectionInput<GenderCategory> genderCategory;
   final SelectionInput<AgeGroup> ageGroup;
   final SelectionInput<PlayingLevel> playingLevel;
-  final NoValidationInput partnerName;
 
   final List<RegistrationWarning> warnings;
 
@@ -51,7 +48,6 @@ class CompetitionRegistrationState extends CollectionFetcherState
     SelectionInput<GenderCategory>? genderCategory,
     SelectionInput<AgeGroup>? ageGroup,
     SelectionInput<PlayingLevel>? playingLevel,
-    NoValidationInput? partnerName,
     List<RegistrationWarning>? warnings,
   }) =>
       CompetitionRegistrationState(
@@ -62,7 +58,6 @@ class CompetitionRegistrationState extends CollectionFetcherState
         partner: partner ?? this.partner,
         competitionType: competitionType ?? this.competitionType,
         genderCategory: genderCategory ?? this.genderCategory,
-        partnerName: partnerName ?? this.partnerName,
         ageGroup: ageGroup ?? this.ageGroup,
         playingLevel: playingLevel ?? this.playingLevel,
         warnings: warnings ?? this.warnings,
@@ -120,5 +115,5 @@ class CompetitionRegistrationState extends CollectionFetcherState
   }
 
   List<FormzInput> get inputs =>
-      [playingLevel, ageGroup, genderCategory, competitionType, partnerName];
+      [playingLevel, ageGroup, genderCategory, competitionType];
 }

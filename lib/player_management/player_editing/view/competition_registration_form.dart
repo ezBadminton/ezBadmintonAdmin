@@ -6,7 +6,7 @@ import 'package:ez_badminton_admin_app/player_management/player_editing/models/r
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/age_group_input.dart';
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/competition_type_input.dart';
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/gender_category_input.dart';
-import 'package:ez_badminton_admin_app/widgets/custom_input_fields/player_search_input.dart';
+import 'package:ez_badminton_admin_app/widgets/custom_input_fields/player_search_input/player_search_input.dart';
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/playing_level_input.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/registration_display_card.dart';
@@ -542,20 +542,23 @@ class _PartnerNameInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var cubit = context.read<CompetitionRegistrationCubit>();
+
     return BlocBuilder<CompetitionRegistrationCubit,
         CompetitionRegistrationState>(
       buildWhen: (previous, current) =>
           previous.formStep != current.formStep ||
-          previous.partner != current.partner ||
-          previous.partnerName != current.partnerName,
+          previous.partner != current.partner,
       builder: (context, state) {
         return PartnerNameInput(
           player: cubit.player,
           competition: cubit.getSelectedCompetitions().first,
           playerCollection: state.getCollection<Player>(),
-          partner: state.partner.value,
+          partnerGetter: () => cubit.state.partner.value,
           onPartnerChanged: cubit.partnerChanged,
-          onPartnerNameChanged: cubit.partnerNameChanged,
+          initialValue:
+              state.formStep < cubit.getFormStepFromParameterType<Player>()
+                  ? ''
+                  : null,
         );
       },
     );

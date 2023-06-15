@@ -24,18 +24,6 @@ class IsInFormStep extends CustomMatcher {
   featureValueOf(actual) => (actual as CompetitionRegistrationState).formStep;
 }
 
-class HasPartnerNameInput extends CustomMatcher {
-  HasPartnerNameInput(matcher)
-      : super(
-          'State with partner name',
-          'partner name',
-          matcher,
-        );
-  @override
-  featureValueOf(actual) =>
-      (actual as CompetitionRegistrationState).partnerName.value;
-}
-
 class HasPartnerInput extends CustomMatcher {
   HasPartnerInput(matcher)
       : super(
@@ -414,14 +402,12 @@ void main() {
       skip: 1,
       act: (cubit) async {
         await Future.delayed(Duration.zero);
-        cubit.partnerNameChanged('partner name');
         cubit.partnerChanged(player);
         cubit.resetFormStep(1);
       },
       expect: () => [
-        HasPartnerNameInput('partner name'),
         HasPartnerInput(player),
-        HasPartnerNameInput(''),
+        HasPartnerInput(isNull),
       ],
     );
 

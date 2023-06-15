@@ -87,7 +87,6 @@ class _PlayerEditingFormFields extends StatelessWidget {
                   const SizedBox(height: 3),
                   _NotesInput(
                     onChanged: cubit.notesChanged,
-                    formInputGetter: (state) => state.notes,
                     initialValue: cubit.state.notes.value,
                   ),
                 ],
@@ -135,14 +134,12 @@ class _PlayingLevelInput extends StatelessWidget {
 class _NotesInput extends StatelessWidget {
   _NotesInput({
     required this.onChanged,
-    required this.formInputGetter,
     required String initialValue,
   }) {
     _controller.text = initialValue;
   }
 
   final void Function(String value) onChanged;
-  final FormzInput Function(PlayerEditingState state) formInputGetter;
   final _controller = TextEditingController();
 
   @override

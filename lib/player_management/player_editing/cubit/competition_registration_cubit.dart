@@ -2,7 +2,6 @@ import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
-import 'package:ez_badminton_admin_app/input_models/no_validation.dart';
 import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_state.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/models/registration_warning.dart';
@@ -274,12 +273,6 @@ class CompetitionRegistrationCubit
     emit(newState);
   }
 
-  void partnerNameChanged(String partnerName) {
-    var newState =
-        state.copyWith(partnerName: NoValidationInput.dirty(partnerName));
-    emit(newState);
-  }
-
   void partnerChanged(Player? partner) {
     var newState = state.copyWith(
       partner: SelectionInput.dirty(emptyAllowed: true, value: partner),
@@ -308,7 +301,7 @@ class CompetitionRegistrationCubit
           break;
         case Player:
           newState = newState.copyWith(
-            partnerName: const NoValidationInput.dirty(''),
+            partner: const SelectionInput.dirty(),
           );
           break;
         default:

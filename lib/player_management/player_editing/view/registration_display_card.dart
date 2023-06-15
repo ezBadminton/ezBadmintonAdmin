@@ -1,6 +1,11 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
+import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/partner_registration_cubit.dart';
+import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/partner_registration_state.dart';
+import 'package:ez_badminton_admin_app/widgets/custom_input_fields/player_search_input/player_search_input.dart';
+import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
     as display_strings;
@@ -12,9 +17,7 @@ class RegistrationDisplayCard extends StatelessWidget {
     this.showDeleteButton = false,
     this.onDelete,
     this.showPartnerInput = false,
-    this.onPartnerNameChanged,
-  })  : assert(showDeleteButton == (onDelete != null)),
-        assert(showPartnerInput == (onPartnerNameChanged != null));
+  }) : assert(showDeleteButton == (onDelete != null));
 
   final CompetitionRegistration registration;
 
@@ -22,7 +25,6 @@ class RegistrationDisplayCard extends StatelessWidget {
   final void Function(CompetitionRegistration)? onDelete;
 
   final bool showPartnerInput;
-  final void Function(String)? onPartnerNameChanged;
 
   Competition get competition => registration.competition;
 
@@ -109,7 +111,6 @@ class RegistrationDisplayCard extends StatelessWidget {
                   _DoublesPartner(
                     registration: registration,
                     showPartnerInput: showPartnerInput,
-                    onPartnerNameChanged: onPartnerNameChanged,
                   ),
                 ],
               ],
@@ -125,12 +126,10 @@ class _DoublesPartner extends StatelessWidget {
   const _DoublesPartner({
     required this.registration,
     required this.showPartnerInput,
-    required this.onPartnerNameChanged,
   });
 
   final CompetitionRegistration registration;
   final bool showPartnerInput;
-  final void Function(String)? onPartnerNameChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -138,7 +137,18 @@ class _DoublesPartner extends StatelessWidget {
     TextStyle textStyle = const TextStyle(fontSize: 12);
     if (registration.partner == null) {
       if (showPartnerInput) {
-        return const Placeholder();
+        return BlocProvider(
+          create: (context) => PartnerRegistrationCubit(
+            registration: registration,
+            playerRepository: context.read<CollectionRepository<Player>>(),
+            competitionRepository:
+                context.read<CollectionRepository<Competition>>(),
+            teamReposiotry: context.read<CollectionRepository<Team>>(),
+          ),
+          child: _PartnerNameInput(
+            registration: registration,
+          ),
+        );
       } else {
         return Text(
           l10n.noPartner,
@@ -155,5 +165,47 @@ class _DoublesPartner extends StatelessWidget {
         textAlign: TextAlign.center,
       );
     }
+  }
+}
+
+class _PartnerNameInput extends StatelessWidget {
+  const _PartnerNameInput({
+    required this.registration,
+  });
+
+  final CompetitionRegistration registration;
+
+  @override
+  Widget build(BuildContext context) {
+    var cubit = context.read<PartnerRegistrationCubit>();
+    var l10n = AppLocalizations.of(context)!;
+
+    return BlocBuilder<PartnerRegistrationCubit, PartnerRegistrationState>(
+      buildWhen: (previous, current) =>
+          previous.loadingStatus != current.loadingStatus ||
+          previous.showPartnerInput != current.showPartnerInput ||
+          previous.partner != current.partner,
+      builder: (context, state) {
+        bool isLoading = state.loadingStatus == LoadingStatus.loading;
+        if (state.showPartnerInput) {
+          return PartnerNameInput(
+            player: registration.player,
+            competition: registration.competition,
+            playerCollection: isLoading ? [] : state.getCollection<Player>(),
+            partnerGetter: () => cubit.state.partner.value,
+            onPartnerChanged: cubit.partnerChanged,
+            disabled: isLoading,
+            counterText: null,
+          );
+        } else {
+          return TextButton(
+            onPressed: isLoading
+                ? null
+                : () => cubit.partnerInputVisibilityChanged(true),
+            child: Text(l10n.registerPartner),
+          );
+        }
+      },
+    );
   }
 }
