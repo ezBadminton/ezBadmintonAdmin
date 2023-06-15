@@ -69,5 +69,7 @@
   "none": "keine",
   "playerStatus": "{type, select, notAttending{Nicht anwesend} attending{Anwesend} forfeited{Aufgegeben} injured{Verletzt} disqualified{Disqualifiziert} other{Sonst.}}",
   "changeStatus": "Status ändern",
-  "confirmAttendance": "Anwesenheit bestätigen"
+  "confirmAttendance": "Anwesenheit bestätigen",
+  "done": "Fertig",
+  "searchPartner": "Partner suchen"
 }

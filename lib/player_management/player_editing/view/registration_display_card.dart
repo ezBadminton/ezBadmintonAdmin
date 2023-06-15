@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
     as display_strings;
+import 'package:formz/formz.dart';
 
 class RegistrationDisplayCard extends StatelessWidget {
   const RegistrationDisplayCard(
@@ -17,7 +18,10 @@ class RegistrationDisplayCard extends StatelessWidget {
     this.showDeleteButton = false,
     this.onDelete,
     this.showPartnerInput = false,
-  }) : assert(showDeleteButton == (onDelete != null));
+  }) : assert(
+          !showDeleteButton || onDelete != null,
+          'No function for the delete button provided',
+        );
 
   final CompetitionRegistration registration;
 
@@ -111,6 +115,7 @@ class RegistrationDisplayCard extends StatelessWidget {
                   _DoublesPartner(
                     registration: registration,
                     showPartnerInput: showPartnerInput,
+                    showDeleteButton: showDeleteButton,
                   ),
                 ],
               ],
@@ -123,13 +128,19 @@ class RegistrationDisplayCard extends StatelessWidget {
 }
 
 class _DoublesPartner extends StatelessWidget {
-  const _DoublesPartner({
+  _DoublesPartner({
     required this.registration,
     required this.showPartnerInput,
-  });
+    required this.showDeleteButton,
+  }) : super(
+          key: ValueKey<String>(
+            '${registration.player.id}${registration.competition.id}-partnerdisplay',
+          ),
+        );
 
   final CompetitionRegistration registration;
   final bool showPartnerInput;
+  final bool showDeleteButton;
 
   @override
   Widget build(BuildContext context) {
@@ -143,10 +154,11 @@ class _DoublesPartner extends StatelessWidget {
             playerRepository: context.read<CollectionRepository<Player>>(),
             competitionRepository:
                 context.read<CollectionRepository<Competition>>(),
-            teamReposiotry: context.read<CollectionRepository<Team>>(),
+            teamRepository: context.read<CollectionRepository<Team>>(),
           ),
           child: _PartnerNameInput(
             registration: registration,
+            showDeleteButton: showDeleteButton,
           ),
         );
       } else {
@@ -171,9 +183,11 @@ class _DoublesPartner extends StatelessWidget {
 class _PartnerNameInput extends StatelessWidget {
   const _PartnerNameInput({
     required this.registration,
+    required this.showDeleteButton,
   });
 
   final CompetitionRegistration registration;
+  final bool showDeleteButton;
 
   @override
   Widget build(BuildContext context) {
@@ -188,14 +202,29 @@ class _PartnerNameInput extends StatelessWidget {
       builder: (context, state) {
         bool isLoading = state.loadingStatus == LoadingStatus.loading;
         if (state.showPartnerInput) {
-          return PartnerNameInput(
-            player: registration.player,
-            competition: registration.competition,
-            playerCollection: isLoading ? [] : state.getCollection<Player>(),
-            partnerGetter: () => cubit.state.partner.value,
-            onPartnerChanged: cubit.partnerChanged,
-            disabled: isLoading,
-            counterText: null,
+          return Row(
+            children: [
+              Expanded(
+                child: PartnerNameInput(
+                  player: registration.player,
+                  competition: registration.competition,
+                  playerCollection:
+                      isLoading ? [] : state.getCollection<Player>(),
+                  partnerGetter: () => cubit.state.partner.value,
+                  onPartnerChanged: cubit.partnerChanged,
+                  label: l10n.searchPartner,
+                  disabled: isLoading,
+                  counterText: null,
+                  initialValue: state.partner.value == null ? '' : null,
+                ),
+              ),
+              TextButton(
+                onPressed: _getOnPressed(context, state),
+                child: Text(l10n.done),
+              ),
+              // Create space between done button and delete button
+              if (showDeleteButton) const SizedBox(width: 40),
+            ],
           );
         } else {
           return TextButton(
@@ -207,5 +236,21 @@ class _PartnerNameInput extends StatelessWidget {
         }
       },
     );
+  }
+
+  void Function()? _getOnPressed(
+    BuildContext context,
+    PartnerRegistrationState state,
+  ) {
+    var cubit = context.read<PartnerRegistrationCubit>();
+    if (state.formStatus == FormzSubmissionStatus.inProgress ||
+        state.loadingStatus == LoadingStatus.loading) {
+      return null;
+    }
+    if (state.partner.value == null) {
+      return () => cubit.partnerInputVisibilityChanged(false);
+    } else {
+      return cubit.partnerSubmitted;
+    }
   }
 }

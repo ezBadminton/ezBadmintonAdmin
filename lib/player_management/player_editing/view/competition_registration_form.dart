@@ -29,24 +29,25 @@ class CompetitionRegistrationForm extends StatelessWidget {
       builder: (context, state) {
         return Column(
           children: <Widget>[
+            for (var registration in state.registrations.value)
+              RegistrationDisplayCard(
+                registration,
+                showDeleteButton: !state.registrationFormShown,
+                onDelete: (registration) =>
+                    cubit.registrationRemoved(registration),
+                showPartnerInput: !state.registrationFormShown,
+              ),
             if (state.registrationFormShown) ...const [
               _CompetitionForm(),
               _RegistrationCancelButton(),
               SizedBox(height: 300),
-            ] else ...[
-              for (var registration in state.registrations.value)
-                RegistrationDisplayCard(
-                  registration,
-                  showDeleteButton: true,
-                  onDelete: (registration) =>
-                      cubit.registrationRemoved(registration),
-                ),
-              if (state.registrations.value.isNotEmpty)
-                const SizedBox(height: 25),
-              if (state.getCollection<Competition>().length !=
-                  state.registrations.value.length)
-                const _RegistrationAddButton(),
-            ]
+            ],
+            if (state.registrations.value.isNotEmpty)
+              const SizedBox(height: 25),
+            if (state.getCollection<Competition>().length !=
+                    state.registrations.value.length &&
+                !state.registrationFormShown)
+              const _RegistrationAddButton(),
           ],
         );
       },
@@ -541,6 +542,7 @@ class _PartnerNameInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
     var cubit = context.read<CompetitionRegistrationCubit>();
 
     return BlocBuilder<CompetitionRegistrationCubit,
@@ -555,6 +557,7 @@ class _PartnerNameInput extends StatelessWidget {
           playerCollection: state.getCollection<Player>(),
           partnerGetter: () => cubit.state.partner.value,
           onPartnerChanged: cubit.partnerChanged,
+          label: '${l10n.partner} (${l10n.optional.toLowerCase()})',
           initialValue:
               state.formStep < cubit.getFormStepFromParameterType<Player>()
                   ? ''

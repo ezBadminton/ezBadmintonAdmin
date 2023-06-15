@@ -21,8 +21,23 @@ class CompetitionRegistration {
   final Competition competition;
   final Team team;
 
+  /// Returns null if the player is alone on the team
   Player? get partner {
     assert(team.players.contains(player));
     return team.players.whereNot((p) => p == player).firstOrNull;
+  }
+
+  /// Returns a [Team] if the partner of the [player] is already on a [Team].
+  ///
+  /// This can happen when two player were registered on solo teams and are now
+  /// being registered as partners.
+  Team? getPartnerTeam() {
+    if (partner != null) {
+      return competition.registrations
+          .where((t) => t.players.contains(partner))
+          .firstOrNull;
+    } else {
+      return null;
+    }
   }
 }

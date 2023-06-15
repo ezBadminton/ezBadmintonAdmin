@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
     as display_strings;
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PartnerNameInput extends StatelessWidget {
   const PartnerNameInput({
@@ -16,6 +15,7 @@ class PartnerNameInput extends StatelessWidget {
     required this.playerCollection,
     required this.partnerGetter,
     required this.onPartnerChanged,
+    required this.label,
     this.initialValue,
     this.disabled = false,
     this.counterText = ' ',
@@ -28,6 +28,7 @@ class PartnerNameInput extends StatelessWidget {
   final void Function(Player?) onPartnerChanged;
   final String? initialValue;
   final bool disabled;
+  final String label;
   final String? counterText;
 
   final String Function(Player) _displayStringFunction =
@@ -35,8 +36,6 @@ class PartnerNameInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalizations l10n = AppLocalizations.of(context)!;
-
     return LayoutBuilder(
       builder: (context, constraints) {
         return BlocProvider(
@@ -64,8 +63,7 @@ class PartnerNameInput extends StatelessWidget {
                     controller: textEditingController,
                     focusNode: focusNode,
                     decoration: InputDecoration(
-                      label: Text(
-                          '${l10n.partner} (${l10n.optional.toLowerCase()})'),
+                      label: Text(label),
                       counterText: counterText,
                     ),
                     readOnly: disabled,
@@ -95,7 +93,7 @@ class PartnerNameInput extends StatelessWidget {
           playerOptions.where((p) => _partnerSearch(p, playerSearchTerm.text));
     }
 
-    if (playerOptions.length == 1) {
+    if (playerOptions.length == 1 && playerSearchTerm.text.isNotEmpty) {
       onPartnerChanged(playerOptions.first);
     } else if (partnerGetter() != null) {
       onPartnerChanged(null);

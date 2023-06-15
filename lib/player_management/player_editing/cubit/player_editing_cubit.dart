@@ -298,11 +298,8 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
 
       if (registeredTeam.players.length == 2) {
         // Check if partner already has a team
-        var partner =
-            registeredTeam.players.whereNot((p) => p == state.player).first;
-        var partnerTeam = competition.registrations
-            .where((t) => t.players.contains(partner))
-            .firstOrNull;
+        var partner = registration.partner!;
+        var partnerTeam = registration.getPartnerTeam();
         if (partnerTeam != null) {
           assert(
             partnerTeam.players.length == 1,
