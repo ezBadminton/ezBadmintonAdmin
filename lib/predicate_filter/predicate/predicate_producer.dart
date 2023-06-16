@@ -6,9 +6,8 @@ import 'package:meta/meta.dart';
 /// A class producing [FilterPredicate]s and emitting them on a
 /// single subscriber stream
 abstract class PredicateProducer {
-  Stream<FilterPredicate> get predicateStream async* {
-    yield* predicateStreamController.stream;
-  }
+  Stream<FilterPredicate> get predicateStream =>
+      predicateStreamController.stream;
 
   @protected
   final predicateStreamController = StreamController<FilterPredicate>();

@@ -1,9 +1,14 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/constants.dart';
+import 'package:ez_badminton_admin_app/list_sorting/comparator/list_sorting_comparator.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_status_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_status_state.dart';
 import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
+import 'package:ez_badminton_admin_app/player_management/player_sorter/comparators/club_comparator.dart';
+import 'package:ez_badminton_admin_app/player_management/player_sorter/comparators/creation_date_comparator.dart';
+import 'package:ez_badminton_admin_app/player_management/player_sorter/comparators/name_comparator.dart';
+import 'package:ez_badminton_admin_app/player_management/player_sorter/cubit/player_sorting_cubit.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_list_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/player_editing_page.dart';
@@ -36,6 +41,17 @@ class PlayerListPage extends StatelessWidget {
             searchPredicateProducer: SearchPredicateProducer(),
             playingLevelRepository:
                 context.read<CollectionRepository<PlayingLevel>>(),
+          ),
+        ),
+        BlocProvider(
+          create: (context) => PlayerSortingCubit(
+            defaultComparator: const CreationDateComparator(),
+            nameComparator: NameComparator(),
+            clubComparator: ClubComparator(
+              secondaryComparator: NameComparator()
+                  .copyWith(ComparatorMode.ascending)
+                  .comparator!,
+            ),
           ),
         ),
         BlocProvider(
@@ -91,10 +107,19 @@ class _PlayerListWithFilter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations l10n = AppLocalizations.of(context)!;
-    return BlocListener<PredicateFilterCubit, PredicateFilterState>(
-      listener: (context, state) {
-        context.read<PlayerListCubit>().filterChanged(state.filters);
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<PredicateFilterCubit, PredicateFilterState>(
+          listener: (context, state) {
+            context.read<PlayerListCubit>().filterChanged(state.filters);
+          },
+        ),
+        BlocListener<PlayerSortingCubit, ListSortingComparator<Player>>(
+          listener: (context, comparator) {
+            context.read<PlayerListCubit>().comparatorChanged(comparator);
+          },
+        ),
+      ],
       child: BlocBuilder<PlayerListCubit, PlayerListState>(
         buildWhen: (previous, current) =>
             previous.loadingStatus != current.loadingStatus,
@@ -172,17 +197,17 @@ class _PlayerList extends StatelessWidget {
               child: Row(
                 children: [
                   const SizedBox(width: 20),
-                  SizedBox(
+                  _ColumnHeader<NameComparator>(
                     width: 190,
-                    child: Text(l10n.name),
+                    title: l10n.name,
                   ),
                   Flexible(
                     flex: 1,
                     child: Container(),
                   ),
-                  SizedBox(
+                  _ColumnHeader<ClubComparator>(
                     width: 190,
-                    child: Text(l10n.club),
+                    title: l10n.club,
                   ),
                   Flexible(
                     flex: 1,
@@ -238,6 +263,64 @@ class _PlayerList extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ColumnHeader<ComparatorType extends ListSortingComparator<Player>>
+    extends StatelessWidget {
+  const _ColumnHeader({
+    required this.width,
+    required this.title,
+  });
+
+  final double width;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    var cubit = context.read<PlayerSortingCubit>();
+    return BlocBuilder<PlayerListCubit, PlayerListState>(
+      buildWhen: (previous, current) =>
+          previous.sortingComparator != current.sortingComparator,
+      builder: (context, state) {
+        return InkWell(
+          onTap: () => cubit.comparatorToggled<ComparatorType>(),
+          child: SizedBox(
+            width: width,
+            child: Row(
+              children: [
+                Text(title),
+                if (state.sortingComparator is ComparatorType)
+                  _sortIcon(state.sortingComparator.mode!),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  static Widget _sortIcon(ComparatorMode mode) {
+    Icon icon;
+    switch (mode) {
+      case ComparatorMode.ascending:
+        icon = const Icon(
+          Icons.arrow_upward,
+          size: 19,
+        );
+        break;
+      case ComparatorMode.descending:
+        icon = const Icon(
+          Icons.arrow_downward,
+          size: 19,
+        );
+        break;
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 5.0),
+      child: icon,
     );
   }
 }

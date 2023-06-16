@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
+import 'package:ez_badminton_admin_app/list_sorting/comparator/list_sorting_comparator.dart';
 import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
+import 'package:ez_badminton_admin_app/player_management/player_sorter/comparators/creation_date_comparator.dart';
 import 'package:ez_badminton_admin_app/player_management/utils/competition_registration.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
@@ -62,16 +64,16 @@ class PlayerListCubit extends CollectionFetcherCubit<PlayerListState> {
           loadingStatus: LoadingStatus.done,
         );
         emit(updatedState);
-        filterChanged(_lastFilters);
+        filterChanged(null);
       },
       onFailure: () =>
           emit(state.copyWith(loadingStatus: LoadingStatus.failed)),
     );
   }
 
-  Map<Type, Predicate> _lastFilters = {};
-  void filterChanged(Map<Type, Predicate> filters) {
-    _lastFilters = filters;
+  void filterChanged(Map<Type, Predicate>? filters) {
+    // Calling with filters == null just reapplies the current filters
+    filters = filters ?? state.filters;
     var filtered = state.getCollection<Player>();
     List<Player>? filteredByCompetition;
     if (filters.containsKey(Player)) {
@@ -95,12 +97,24 @@ class PlayerListCubit extends CollectionFetcherCubit<PlayerListState> {
           .where((player) => filteredByCompetition!.contains(player))
           .toList();
     }
-    var newState = state.copyWith(filteredPlayers: _sortPlayers(filtered));
+    var newState = state.copyWith(
+      filteredPlayers: _sortPlayers(filtered),
+      filters: filters,
+    );
     emit(newState);
   }
 
+  void comparatorChanged(ListSortingComparator<Player> comparator) {
+    emit(state.copyWith(sortingComparator: comparator));
+    List<Player> sorted = _sortPlayers(state.filteredPlayers);
+    emit(state.copyWith(filteredPlayers: sorted));
+  }
+
   List<Player> _sortPlayers(List<Player> players) {
-    return players.sorted((a, b) => a.created.compareTo(b.created));
+    // Default sorting by creation date descending
+    Comparator<Player> comparator = state.sortingComparator.comparator ??
+        (Player a, Player b) => b.created.compareTo(a.created);
+    return players.sorted(comparator);
   }
 
   void _playerCollectionUpdated(CollectionUpdateEvent event) {

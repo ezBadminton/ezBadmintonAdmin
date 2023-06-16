@@ -148,7 +148,7 @@ void main() {
         expect: () => [
           // Players and competitions fetched
           HasLoadingStatus(LoadingStatus.done),
-          HasFilteredPlayers(players),
+          HasFilteredPlayers(containsAll(players)),
         ],
       );
 
@@ -177,9 +177,12 @@ void main() {
         their registered competitions.""",
         build: () => sut,
         verify: (cubit) {
-          expect(cubit.state.getCollection<Player>(), players);
-          expect(cubit.state.filteredPlayers, players);
-          expect(cubit.state.competitionRegistrations.keys.toList(), players);
+          expect(cubit.state.getCollection<Player>(), containsAll(players));
+          expect(cubit.state.filteredPlayers, containsAll(players));
+          expect(
+            cubit.state.competitionRegistrations.keys.toList(),
+            containsAll(players),
+          );
           for (var player in singlesTeams.expand((t) => t.players)) {
             expect(
               cubit.state.competitionRegistrations[player]!
@@ -204,7 +207,10 @@ void main() {
           Player: (o) => int.parse((o as Player).id) < 5,
         }),
         verify: (cubit) {
-          expect(cubit.state.filteredPlayers, players.sublist(0, 5));
+          expect(
+            cubit.state.filteredPlayers,
+            containsAll(players.sublist(0, 5)),
+          );
         },
       );
 
@@ -217,7 +223,7 @@ void main() {
         verify: (cubit) {
           expect(
             cubit.state.filteredPlayers,
-            mixedDoublesTeams.expand((t) => t.players),
+            containsAll(mixedDoublesTeams.expand((t) => t.players)),
           );
         },
       );
@@ -256,9 +262,9 @@ void main() {
         expect: () => [
           HasLoadingStatus(LoadingStatus.loading),
           HasLoadingStatus(LoadingStatus.done),
-          HasFilteredPlayers(players),
+          HasFilteredPlayers(containsAll(players)),
           HasLoadingStatus(LoadingStatus.done),
-          HasFilteredPlayers(players),
+          HasFilteredPlayers(containsAll(players)),
         ],
         verify: (bloc) {
           verify(

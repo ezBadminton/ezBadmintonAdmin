@@ -6,12 +6,17 @@ class PlayerListState extends CollectionFetcherState with CollectionGetter {
     this.loadingStatus = LoadingStatus.loading,
     this.filteredPlayers = const [],
     this.competitionRegistrations = const {},
+    this.filters = const {},
+    this.sortingComparator = const CreationDateComparator(),
     this.collections = const {},
   });
 
   final LoadingStatus loadingStatus;
   final List<Player> filteredPlayers;
   final Map<Player, List<CompetitionRegistration>> competitionRegistrations;
+
+  final Map<Type, Predicate> filters;
+  final ListSortingComparator<Player> sortingComparator;
 
   @override
   final Map<Type, List<Model>> collections;
@@ -20,6 +25,8 @@ class PlayerListState extends CollectionFetcherState with CollectionGetter {
     LoadingStatus? loadingStatus,
     List<Player>? filteredPlayers,
     Map<Player, List<CompetitionRegistration>>? competitionRegistrations,
+    Map<Type, Predicate>? filters,
+    ListSortingComparator<Player>? sortingComparator,
     Map<Type, List<Model>>? collections,
   }) {
     return PlayerListState(
@@ -27,6 +34,8 @@ class PlayerListState extends CollectionFetcherState with CollectionGetter {
       filteredPlayers: filteredPlayers ?? this.filteredPlayers,
       competitionRegistrations:
           competitionRegistrations ?? this.competitionRegistrations,
+      filters: filters ?? this.filters,
+      sortingComparator: sortingComparator ?? this.sortingComparator,
       collections: collections ?? this.collections,
     );
   }
