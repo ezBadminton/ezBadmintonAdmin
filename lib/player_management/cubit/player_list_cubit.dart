@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
@@ -57,7 +58,7 @@ class PlayerListCubit extends CollectionFetcherCubit<PlayerListState> {
         );
         updatedState = updatedState.copyWith(
           competitionRegistrations: playerCompetitions,
-          filteredPlayers: updatedState.getCollection<Player>(),
+          filteredPlayers: _sortPlayers(updatedState.getCollection<Player>()),
           loadingStatus: LoadingStatus.done,
         );
         emit(updatedState);
@@ -94,8 +95,12 @@ class PlayerListCubit extends CollectionFetcherCubit<PlayerListState> {
           .where((player) => filteredByCompetition!.contains(player))
           .toList();
     }
-    var newState = state.copyWith(filteredPlayers: filtered);
+    var newState = state.copyWith(filteredPlayers: _sortPlayers(filtered));
     emit(newState);
+  }
+
+  List<Player> _sortPlayers(List<Player> players) {
+    return players.sorted((a, b) => a.created.compareTo(b.created));
   }
 
   void _playerCollectionUpdated(CollectionUpdateEvent event) {
