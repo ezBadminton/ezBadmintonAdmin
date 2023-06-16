@@ -23,6 +23,9 @@ class MockPlayingLevelPredicateProducer extends Mock
 class MockCompetitionTypePredicateProducer extends Mock
     implements CompetitionTypePredicateProducer {}
 
+class MockStatusPredicateProducer extends Mock
+    implements StatusPredicateProducer {}
+
 class MockSearchPredicateProducer extends Mock
     implements SearchPredicateProducer {}
 
@@ -67,6 +70,7 @@ void main() {
   late GenderPredicateProducer genderPredicateProducer;
   late PlayingLevelPredicateProducer playingLevelPredicateProducer;
   late CompetitionTypePredicateProducer competitionTypePredicateProducer;
+  late StatusPredicateProducer statusPredicateProducer;
   late SearchPredicateProducer searchPredicateProducer;
 
   void arrangePlayingLevelRepositoryReturns() {
@@ -101,6 +105,7 @@ void main() {
       genderPredicateProducer: genderPredicateProducer,
       playingLevelPredicateProducer: playingLevelPredicateProducer,
       competitionTypePredicateProducer: competitionTypePredicateProducer,
+      statusPredicateProducer: statusPredicateProducer,
       searchPredicateProducer: searchPredicateProducer,
     );
   }
@@ -111,6 +116,7 @@ void main() {
     genderPredicateProducer = MockGenderPredicateProducer();
     playingLevelPredicateProducer = MockPlayingLevelPredicateProducer();
     competitionTypePredicateProducer = MockCompetitionTypePredicateProducer();
+    statusPredicateProducer = MockStatusPredicateProducer();
     searchPredicateProducer = MockSearchPredicateProducer();
 
     producers = [
@@ -118,6 +124,7 @@ void main() {
       genderPredicateProducer,
       playingLevelPredicateProducer,
       competitionTypePredicateProducer,
+      statusPredicateProducer,
       searchPredicateProducer,
     ];
 

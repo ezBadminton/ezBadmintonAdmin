@@ -1,6 +1,7 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/predicate/predicate_producer.dart';
 import 'package:ez_badminton_admin_app/widgets/popover_menu/popover_menu.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -60,6 +61,11 @@ class _FilterMenus extends StatelessWidget {
             filterMenu: _CompetitionFilterForm(backgroudContext: context),
             buttonText: l10n.competition,
           ),
+          const SizedBox(width: 10),
+          FilterPopoverMenu(
+            filterMenu: _StatusFilterForm(backgroudContext: context),
+            buttonText: l10n.status,
+          ),
           const SizedBox(width: 30),
           Expanded(child: _SearchField()),
         ],
@@ -82,13 +88,20 @@ class _PlayingLevelFilterForm extends StatelessWidget {
       buildWhen: (previous, current) =>
           previous.allPlayingLevels != current.allPlayingLevels,
       builder: (_, state) {
+        PlayerFilterCubit cubit = backgroudContext.read<PlayerFilterCubit>();
+        PlayingLevelPredicateProducer predicateProducer =
+            cubit.getPredicateProducer<PlayingLevelPredicateProducer>();
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: state.allPlayingLevels
               .map(
-                (playingLevel) => _PlayingLevelCheckbox(
-                  playingLevel: playingLevel,
-                  filterCubit: backgroudContext.read<PlayerFilterCubit>(),
+                (playingLevel) => _FilterCheckbox(
+                  backgroundContext: backgroudContext,
+                  checkboxValue: playingLevel,
+                  predicateProducer: predicateProducer,
+                  toggledValuesGetter: () => predicateProducer.playingLevels,
+                  onToggle: predicateProducer.playingLevelToggled,
+                  label: playingLevel.name,
                 ),
               )
               .toList(),
@@ -108,101 +121,23 @@ class _CompetitionFilterForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations l10n = AppLocalizations.of(context)!;
+    PlayerFilterCubit cubit = backgroudContext.read<PlayerFilterCubit>();
+    CompetitionTypePredicateProducer predicateProducer =
+        cubit.getPredicateProducer<CompetitionTypePredicateProducer>();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: CompetitionType.values
           .map(
-            (competitionType) => _CompetitionCheckbox(
-              competition: competitionType,
+            (competitionType) => _FilterCheckbox(
+              backgroundContext: backgroudContext,
+              checkboxValue: competitionType,
+              predicateProducer: predicateProducer,
+              toggledValuesGetter: () => predicateProducer.competitionTypes,
+              onToggle: predicateProducer.competitionTypeToggled,
               label: l10n.competitionType(competitionType.name),
-              filterCubit: backgroudContext.read<PlayerFilterCubit>(),
             ),
           )
           .toList(),
-    );
-  }
-}
-
-class _PlayingLevelCheckbox extends StatelessWidget {
-  const _PlayingLevelCheckbox({
-    required this.playingLevel,
-    required this.filterCubit,
-  });
-
-  final PlayingLevel playingLevel;
-  final PlayerFilterCubit filterCubit;
-
-  @override
-  Widget build(BuildContext context) {
-    var predicateProducer =
-        filterCubit.getPredicateProducer<PlayingLevelPredicateProducer>();
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        BlocBuilder<PlayerFilterCubit, PlayerFilterState>(
-          bloc: filterCubit,
-          buildWhen: (_, current) =>
-              current.filterPredicate != null &&
-              predicateProducer.producesDomain(current.filterPredicate!.domain),
-          builder: (_, __) {
-            return Checkbox(
-              value: predicateProducer.playingLevels.contains(playingLevel),
-              onChanged: (value) {
-                predicateProducer.playingLevelToggled(playingLevel);
-              },
-            );
-          },
-        ),
-        Center(
-          child: Text(
-            playingLevel.name,
-            style: const TextStyle(fontWeight: FontWeight.w600),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _CompetitionCheckbox extends StatelessWidget {
-  const _CompetitionCheckbox({
-    required this.competition,
-    required this.label,
-    required this.filterCubit,
-  });
-
-  final CompetitionType competition;
-  final String label;
-  final PlayerFilterCubit filterCubit;
-
-  @override
-  Widget build(BuildContext context) {
-    var predicateProducer =
-        filterCubit.getPredicateProducer<CompetitionTypePredicateProducer>();
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        BlocBuilder<PlayerFilterCubit, PlayerFilterState>(
-          bloc: filterCubit,
-          buildWhen: (_, current) =>
-              current.filterPredicate != null &&
-              predicateProducer.producesDomain(current.filterPredicate!.domain),
-          builder: (_, __) {
-            return Checkbox(
-              value: predicateProducer.competitionTypes.contains(competition),
-              onChanged: (value) {
-                predicateProducer.competitionTypeToggled(competition);
-              },
-            );
-          },
-        ),
-        Center(
-          child: Text(
-            label,
-            style: const TextStyle(fontWeight: FontWeight.w600),
-          ),
-        ),
-      ],
     );
   }
 }
@@ -345,6 +280,84 @@ class _AgeFilterForm extends StatelessWidget {
           overAge: true,
           labelText: l10n.overAge,
           filterCubit: backgroundContext.read<PlayerFilterCubit>(),
+        ),
+      ],
+    );
+  }
+}
+
+class _StatusFilterForm extends StatelessWidget {
+  const _StatusFilterForm({
+    required this.backgroudContext,
+  });
+
+  final BuildContext backgroudContext;
+
+  @override
+  Widget build(BuildContext context) {
+    AppLocalizations l10n = AppLocalizations.of(context)!;
+    PlayerFilterCubit cubit = backgroudContext.read<PlayerFilterCubit>();
+    StatusPredicateProducer predicateProducer =
+        cubit.getPredicateProducer<StatusPredicateProducer>();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: PlayerStatus.values
+          .map(
+            (playerStatus) => _FilterCheckbox(
+              backgroundContext: backgroudContext,
+              checkboxValue: playerStatus,
+              predicateProducer: predicateProducer,
+              toggledValuesGetter: () => predicateProducer.statusList,
+              onToggle: predicateProducer.statusToggled,
+              label: l10n.playerStatus(playerStatus.name),
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
+class _FilterCheckbox<T> extends StatelessWidget {
+  const _FilterCheckbox({
+    required this.backgroundContext,
+    required this.checkboxValue,
+    required this.predicateProducer,
+    required this.toggledValuesGetter,
+    required this.onToggle,
+    required this.label,
+  });
+
+  final BuildContext backgroundContext;
+  final T checkboxValue;
+  final PredicateProducer predicateProducer;
+  final List<T> Function() toggledValuesGetter;
+  final Function(T) onToggle;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        BlocBuilder<PlayerFilterCubit, PlayerFilterState>(
+          bloc: backgroundContext.read<PlayerFilterCubit>(),
+          buildWhen: (_, current) =>
+              current.filterPredicate != null &&
+              predicateProducer.producesDomain(current.filterPredicate!.domain),
+          builder: (_, __) {
+            return Checkbox(
+              value: toggledValuesGetter().contains(checkboxValue),
+              onChanged: (value) {
+                onToggle(checkboxValue);
+              },
+            );
+          },
+        ),
+        Center(
+          child: Text(
+            label,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
         ),
       ],
     );

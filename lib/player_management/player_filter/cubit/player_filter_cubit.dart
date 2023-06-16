@@ -16,6 +16,7 @@ class PlayerFilterCubit extends CollectionQuerierCubit<PlayerFilterState>
     required GenderPredicateProducer genderPredicateProducer,
     required PlayingLevelPredicateProducer playingLevelPredicateProducer,
     required CompetitionTypePredicateProducer competitionTypePredicateProducer,
+    required StatusPredicateProducer statusPredicateProducer,
     required SearchPredicateProducer searchPredicateProducer,
   }) : super(
           const PlayerFilterState(),
@@ -26,6 +27,7 @@ class PlayerFilterCubit extends CollectionQuerierCubit<PlayerFilterState>
       genderPredicateProducer,
       playingLevelPredicateProducer,
       competitionTypePredicateProducer,
+      statusPredicateProducer,
       searchPredicateProducer,
     ]);
     loadPlayingLevels();

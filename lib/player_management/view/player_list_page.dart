@@ -38,6 +38,7 @@ class PlayerListPage extends StatelessWidget {
             playingLevelPredicateProducer: PlayingLevelPredicateProducer(),
             competitionTypePredicateProducer:
                 CompetitionTypePredicateProducer(),
+            statusPredicateProducer: StatusPredicateProducer(),
             searchPredicateProducer: SearchPredicateProducer(),
             playingLevelRepository:
                 context.read<CollectionRepository<PlayingLevel>>(),
