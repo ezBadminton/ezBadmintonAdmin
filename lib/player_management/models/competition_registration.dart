@@ -40,4 +40,15 @@ class CompetitionRegistration {
       return null;
     }
   }
+
+  CompetitionRegistration copyWith({
+    Player? player,
+    Competition? competition,
+    Team? team,
+  }) =>
+      CompetitionRegistration(
+        player: player ?? this.player,
+        competition: competition ?? this.competition,
+        team: team ?? this.team,
+      );
 }

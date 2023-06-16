@@ -35,7 +35,8 @@ class CompetitionRegistrationForm extends StatelessWidget {
                 showDeleteButton: !state.registrationFormShown,
                 onDelete: (registration) =>
                     cubit.registrationRemoved(registration),
-                showPartnerInput: !state.registrationFormShown,
+                showPartnerInput: !state.registrationFormShown &&
+                    registration.team.id.isNotEmpty,
               ),
             if (state.registrationFormShown) ...const [
               _CompetitionForm(),

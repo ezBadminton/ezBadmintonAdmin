@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
@@ -110,6 +112,8 @@ void main() {
   late List<Team> teamList;
   late List<Club> clubList;
 
+  late StreamController<CollectionUpdateEvent<Team>> teamUpdateController;
+
   var playingLevel = PlayingLevel(
     id: 'playinglevelid',
     created: DateTime.now(),
@@ -172,6 +176,8 @@ void main() {
         .thenAnswer((_) async => <PlayingLevel>[]);
     when(() => teamRepository.getList(expand: any(named: 'expand')))
         .thenAnswer((_) async => teamList);
+    when(() => teamRepository.updateStream)
+        .thenAnswer((_) => teamUpdateController.stream);
   }
 
   void arrangeOneRepositoryThrows() {
@@ -186,6 +192,8 @@ void main() {
     clubRepository = MockCollectionRepository<Club>();
     playingLevelRepository = MockCollectionRepository<PlayingLevel>();
     teamRepository = MockCollectionRepository<Team>();
+
+    teamUpdateController = StreamController.broadcast();
 
     playerList = [];
     competitionList = [];

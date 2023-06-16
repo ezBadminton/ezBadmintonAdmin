@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
@@ -93,7 +92,7 @@ class PartnerRegistrationCubit
     }
 
     Team? updatedTeam = await querier.updateModel(teamWithPartner);
-    if (updatedTeam == null) {
+    if (updatedTeam == null && !isClosed) {
       emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
       return;
     }
@@ -102,7 +101,7 @@ class PartnerRegistrationCubit
     List<Team> registrationsWithPartner =
         List.of(registration.competition.registrations)
           ..remove(registration.team)
-          ..add(updatedTeam);
+          ..add(updatedTeam!);
     if (existingPartnerTeam != null) {
       registrationsWithPartner.remove(existingPartnerTeam);
     }
@@ -112,12 +111,17 @@ class PartnerRegistrationCubit
 
     Competition? updatedCompetition =
         await querier.updateModel(competitionWithPartner);
-    if (updatedCompetition == null) {
+
+    if (updatedCompetition == null && !isClosed) {
       emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
       return;
     }
 
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+    // The cubit might already be closed at this point because the
+    // collection update events triggered widget tree updates
+    if (!isClosed) {
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+    }
   }
 
   // If the currently selected partner is registered to another team

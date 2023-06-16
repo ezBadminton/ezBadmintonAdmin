@@ -35,9 +35,12 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
           ],
         ) {
     loadPlayerData();
+    _teamUpdateSubscription =
+        teamRepository.updateStream.listen(_onTeamCollectionUpdate);
   }
 
   final BuildContext _context;
+  late final StreamSubscription _teamUpdateSubscription;
 
   void loadPlayerData() {
     if (state.loadingStatus != LoadingStatus.loading) {
@@ -416,6 +419,29 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     }
 
     return true;
+  }
+
+  // Update the registrations when the partner in a registration
+  // is updated via the RegistrationDisplayCard
+  void _onTeamCollectionUpdate(CollectionUpdateEvent event) {
+    Team updatedTeam = event.model as Team;
+    for (CompetitionRegistration registration in state.registrations.value) {
+      if (registration.team == updatedTeam) {
+        CompetitionRegistration updatedRegistration =
+            registration.copyWith(team: updatedTeam);
+        ListInput<CompetitionRegistration> updatedRegistrations = state
+            .registrations
+            .copyWithReplacedValue(registration, updatedRegistration);
+        emit(state.copyWith(registrations: updatedRegistrations));
+        return;
+      }
+    }
+  }
+
+  @override
+  Future<void> close() async {
+    _teamUpdateSubscription.cancel();
+    return super.close();
   }
 
   String Function(DateTime) get dateFormatter =>

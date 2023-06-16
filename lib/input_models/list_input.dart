@@ -8,8 +8,30 @@ class ListInput<T> extends FormzInput<List<T>, Object> {
 
   const ListInput._dirty(List<T> value, this._pureList) : super.dirty(value);
 
+  final List<T> _pureList;
+
   ListInput<T> copyWith(List<T> list) {
     return ListInput._dirty(list, _pureList);
+  }
+
+  ListInput<T> copyWithReplacedValue(T value, T replaceWith) {
+    List<T> newList = this.value;
+    if (newList.contains(value)) {
+      newList = List.of(this.value)
+        ..remove(value)
+        ..add(replaceWith);
+    }
+    List<T> newPureList = _pureList;
+    if (newPureList.contains(value)) {
+      newPureList = List.of(_pureList)
+        ..remove(value)
+        ..add(replaceWith);
+    }
+    if (isPure) {
+      return ListInput.pure(newPureList);
+    } else {
+      return ListInput._dirty(newList, newPureList);
+    }
   }
 
   ListInput<T> copyWithAddedValue(T value) {
@@ -35,8 +57,6 @@ class ListInput<T> extends FormzInput<List<T>, Object> {
   List<T> getRemovedElements() {
     return _pureList.whereNot((e) => value.contains(e)).toList();
   }
-
-  final List<T> _pureList;
 
   @override
   Object? validator(List<T> value) {
