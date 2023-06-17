@@ -1,10 +1,10 @@
 part of 'player_editing_cubit.dart';
 
 @immutable
-class PlayerEditingState extends CollectionFetcherState
-    with FormzMixin, CollectionGetter {
+class PlayerEditingState extends CollectionFetcherState<PlayerEditingState>
+    with FormzMixin {
   PlayerEditingState({
-    this.collections = const {},
+    super.collections = const {},
     this.loadingStatus = LoadingStatus.loading,
     this.formStatus = FormzSubmissionStatus.initial,
     Player? player,
@@ -17,9 +17,6 @@ class PlayerEditingState extends CollectionFetcherState
     this.playingLevel = const SelectionInput.pure(emptyAllowed: true),
     this.registrationFormShown = false,
   }) : player = player ?? Player.newPlayer();
-
-  @override
-  final Map<Type, List<Model>> collections;
 
   final LoadingStatus loadingStatus;
   final FormzSubmissionStatus formStatus;
@@ -94,15 +91,4 @@ class PlayerEditingState extends CollectionFetcherState
         registrationFormShown:
             registrationFormShown ?? this.registrationFormShown,
       );
-
-  @override
-  PlayerEditingState copyWithCollection({
-    required Type modelType,
-    required List<Model> collection,
-  }) {
-    var newCollections = Map.of(collections);
-    newCollections.remove(modelType);
-    newCollections.putIfAbsent(modelType, () => collection);
-    return copyWith(collections: Map.unmodifiable(newCollections));
-  }
 }

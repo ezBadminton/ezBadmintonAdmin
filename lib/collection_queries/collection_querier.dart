@@ -189,7 +189,7 @@ class CollectionQuerierCubit<State> extends Cubit<State> {
   final CollectionQuerier querier;
 }
 
-class CollectionFetcherCubit<State extends CollectionFetcherState>
+class CollectionFetcherCubit<State extends CollectionFetcherState<State>>
     extends CollectionQuerierCubit<State> {
   /// A CollectionQuerierCubit that can update its [CollectionFetcherState]
   /// with fetched collections.
@@ -246,9 +246,10 @@ class CollectionFetcherCubit<State extends CollectionFetcherState>
       int i = 0;
       for (var collection in fetchResults) {
         updatedState = updatedState.copyWithCollection(
-          modelType: fetchers.elementAt(i++).modelType,
+          modelType: fetchers.elementAt(i).modelType,
           collection: collection!,
         );
+        i += 1;
       }
       if (onSuccess != null) {
         onSuccess(updatedState);
@@ -257,27 +258,51 @@ class CollectionFetcherCubit<State extends CollectionFetcherState>
   }
 }
 
-abstract class CollectionHolder {
-  abstract final Map<Type, List<Model>> collections;
-}
+/// A state object that holds the fetched collections of a
+/// [CollectionFetcherCubit].
+///
+/// The [copyWithCollection] method requires the inheriting class to have a
+/// `copyWith` method with a named `collections` parameter.
+abstract class CollectionFetcherState<I extends CollectionFetcherState<I>> {
+  const CollectionFetcherState({required this.collections});
 
-mixin CollectionGetter implements CollectionHolder {
+  /// The collections that have been fetched.
+  ///
+  /// Maps the specific [Model] subtypes to their collections.
+  final Map<Type, List<Model>> collections;
+
+  /// Returns the fetched collection of model type [M].
+  ///
+  /// Calling with a model type that this fetcher state does not hold results
+  /// in an error.
   List<M> getCollection<M extends Model>() {
     assert(
       collections.keys.contains(M),
-      'The CollectionHolder does not hold the ${M.toString()} collection.',
+      'The CollectionFetcherState does not hold the ${M.toString()} collection.',
     );
     return collections[M] as List<M>;
   }
-}
 
-abstract class CollectionFetcherState {
-  const CollectionFetcherState();
-  copyWithCollection({
+  /// Returns a copy with added [collection] of [modelType].
+  ///
+  /// Replaces possibly present collection of [modelType]
+  I copyWithCollection({
     required Type modelType,
     required List<Model> collection,
-  });
-  List<M> getCollection<M extends Model>();
+  }) {
+    Map<Type, List<Model>> updatedCollections = Map.of(collections);
+    updatedCollections.remove(modelType);
+    updatedCollections.putIfAbsent(modelType, () => collection);
+    updatedCollections = Map.unmodifiable(updatedCollections);
+
+    // Assert existence of copyWith method. Done to be able to
+    // copy the members of the inheriting class [I].
+    assert(
+      (this as dynamic).copyWith(collections: updatedCollections) is I,
+      'Subclasses of CollectionFetcherState have to implement a copyWith method with a named `collections` parameter',
+    );
+    return (this as dynamic).copyWith(collections: updatedCollections);
+  }
 }
 
 class CollectionFetcher<M extends Model> {
