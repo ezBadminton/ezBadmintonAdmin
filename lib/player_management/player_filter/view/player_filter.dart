@@ -154,23 +154,58 @@ class _SearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var predicateProducer = context
+    SearchPredicateProducer predicateProducer = context
         .read<PlayerFilterCubit>()
         .getPredicateProducer<SearchPredicateProducer>();
     var l10n = AppLocalizations.of(context)!;
     return BlocBuilder<PlayerFilterCubit, PlayerFilterState>(
-      buildWhen: (_, current) => predicateProducer.searchTerm.isEmpty,
+      buildWhen: (_, current) =>
+          predicateProducer.producesDomain(current.filterPredicate?.domain),
       builder: (_, __) {
-        _controller.text = predicateProducer.searchTerm;
+        if (predicateProducer.searchTerm.isEmpty) {
+          _controller.text = '';
+        }
         return TextField(
           controller: _controller,
           onChanged: (searchTerm) =>
               predicateProducer.searchTermChanged(searchTerm),
           decoration: InputDecoration(
             hintText: l10n.playerSearchHint,
-            prefixIcon: const Icon(Icons.search),
+            prefixIcon: AnimatedRotation(
+              duration: const Duration(milliseconds: 120),
+              turns: predicateProducer.searchTerm.isEmpty ? 0 : -0.25,
+              child: const _SearchClearButton(),
+            ),
           ),
         );
+      },
+    );
+  }
+}
+
+class _SearchClearButton extends StatelessWidget {
+  const _SearchClearButton();
+
+  @override
+  Widget build(BuildContext context) {
+    SearchPredicateProducer predicateProducer = context
+        .read<PlayerFilterCubit>()
+        .getPredicateProducer<SearchPredicateProducer>();
+    return BlocBuilder<PlayerFilterCubit, PlayerFilterState>(
+      buildWhen: (_, current) =>
+          current.filterPredicate?.domain == FilterGroup.search,
+      builder: (_, state) {
+        bool searchTermPresent = predicateProducer.searchTerm.isNotEmpty;
+
+        if (searchTermPresent) {
+          return IconButton(
+            onPressed: () => predicateProducer.searchTermChanged(''),
+            icon: const Icon(Icons.close),
+            tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
+          );
+        } else {
+          return const Icon(Icons.search);
+        }
       },
     );
   }
@@ -297,8 +332,7 @@ class _FilterCheckbox<T> extends StatelessWidget {
         BlocBuilder<PlayerFilterCubit, PlayerFilterState>(
           bloc: backgroundContext.read<PlayerFilterCubit>(),
           buildWhen: (_, current) =>
-              current.filterPredicate != null &&
-              predicateProducer.producesDomain(current.filterPredicate!.domain),
+              predicateProducer.producesDomain(current.filterPredicate?.domain),
           builder: (_, __) {
             return Checkbox(
               value: toggledValuesGetter().contains(checkboxValue),
@@ -386,6 +420,8 @@ class _AgeInput extends StatelessWidget {
         filterCubit.getPredicateProducer<AgePredicateProducer>();
     return BlocBuilder<PlayerFilterCubit, PlayerFilterState>(
       bloc: filterCubit,
+      buildWhen: (_, current) =>
+          predicateProducer.producesDomain(current.filterPredicate?.domain),
       builder: (context, state) {
         return Card(
           margin: EdgeInsets.zero,
