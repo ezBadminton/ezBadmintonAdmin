@@ -1,12 +1,17 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/predicate_producer.dart';
+import 'package:ez_badminton_admin_app/widgets/multi_chip/multi_chip.dart';
 import 'package:ez_badminton_admin_app/widgets/popover_menu/popover_menu.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
+    as display_strings;
 
 class PlayerFilter extends StatelessWidget {
   const PlayerFilter({super.key});
@@ -43,22 +48,22 @@ class _FilterMenus extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           FilterPopoverMenu(
-            filterMenu: _AgeFilterForm(backgroundContext: context),
-            buttonText: l10n.age,
-          ),
-          const SizedBox(width: 10),
-          FilterPopoverMenu(
-            filterMenu: _GenderFilterForm(backgroundContext: context),
-            buttonText: l10n.gender,
-          ),
-          const SizedBox(width: 10),
-          FilterPopoverMenu(
             filterMenu: _PlayingLevelFilterForm(backgroudContext: context),
             buttonText: l10n.playingLevel,
           ),
           const SizedBox(width: 10),
           FilterPopoverMenu(
-            filterMenu: _CompetitionFilterForm(backgroudContext: context),
+            filterMenu: _AgeFilterForm(backgroundContext: context),
+            buttonText: l10n.age,
+          ),
+          const SizedBox(width: 10),
+          FilterPopoverMenu(
+            filterMenu: _GenderCategoryFilterForm(backgroundContext: context),
+            buttonText: l10n.category,
+          ),
+          const SizedBox(width: 10),
+          FilterPopoverMenu(
+            filterMenu: _CompetitionTypeFilterForm(backgroudContext: context),
             buttonText: l10n.competition,
           ),
           const SizedBox(width: 10),
@@ -111,8 +116,8 @@ class _PlayingLevelFilterForm extends StatelessWidget {
   }
 }
 
-class _CompetitionFilterForm extends StatelessWidget {
-  const _CompetitionFilterForm({
+class _CompetitionTypeFilterForm extends StatelessWidget {
+  const _CompetitionTypeFilterForm({
     required this.backgroudContext,
   });
 
@@ -171,8 +176,8 @@ class _SearchField extends StatelessWidget {
   }
 }
 
-class _GenderFilterForm extends StatelessWidget {
-  const _GenderFilterForm({
+class _GenderCategoryFilterForm extends StatelessWidget {
+  const _GenderCategoryFilterForm({
     required this.backgroundContext,
   });
 
@@ -181,77 +186,27 @@ class _GenderFilterForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations l10n = AppLocalizations.of(context)!;
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 120),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _GenderButton(
-            labelText: l10n.women,
-            gender: Gender.female,
-            filterCubit: backgroundContext.read<PlayerFilterCubit>(),
+    PlayerFilterCubit cubit = backgroundContext.read<PlayerFilterCubit>();
+    GenderCategoryPredicateProducer predicateProducer =
+        cubit.getPredicateProducer<GenderCategoryPredicateProducer>();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (GenderCategory category in [
+          GenderCategory.female,
+          GenderCategory.male,
+        ]) ...[
+          _FilterCheckbox(
+            backgroundContext: backgroundContext,
+            label: l10n.genderCategory(category.name),
+            checkboxValue: category,
+            onToggle: predicateProducer.categoryToggled,
+            predicateProducer: predicateProducer,
+            toggledValuesGetter: () => predicateProducer.categories,
           ),
-          const SizedBox(height: 10),
-          _GenderButton(
-            labelText: l10n.men,
-            gender: Gender.male,
-            filterCubit: backgroundContext.read<PlayerFilterCubit>(),
-          ),
+          if (category != GenderCategory.male) const SizedBox(height: 10),
         ],
-      ),
-    );
-  }
-}
-
-class _GenderButton extends StatelessWidget {
-  const _GenderButton({
-    required this.labelText,
-    required this.gender,
-    required this.filterCubit,
-  });
-
-  final String labelText;
-  final Gender gender;
-  final PlayerFilterCubit filterCubit;
-
-  @override
-  Widget build(BuildContext context) {
-    var predicateProducer =
-        filterCubit.getPredicateProducer<GenderPredicateProducer>();
-    return BlocBuilder<PlayerFilterCubit, PlayerFilterState>(
-      bloc: filterCubit,
-      buildWhen: (_, current) =>
-          current.filterPredicate != null &&
-          predicateProducer.producesDomain(current.filterPredicate!.domain),
-      builder: (_, __) {
-        var buttonBackgroundColor = predicateProducer.gender == gender
-            ? MaterialStateProperty.all(Theme.of(context).colorScheme.primary)
-            : MaterialStateProperty.all(Theme.of(context).colorScheme.surface);
-        var buttonTextColor = predicateProducer.gender == gender
-            ? MaterialStateProperty.all(Theme.of(context).colorScheme.onPrimary)
-            : MaterialStateProperty.all(
-                Theme.of(context).colorScheme.onSurface);
-        var buttonBorder = predicateProducer.gender == gender
-            ? BorderSide(color: Theme.of(context).primaryColor)
-            : BorderSide(color: Theme.of(context).disabledColor);
-        return ElevatedButton(
-          onPressed: () {
-            predicateProducer.genderChanged(gender);
-            PopoverMenu.of(context).close();
-          },
-          style: ButtonStyle(
-            shape: MaterialStatePropertyAll(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5.0),
-                side: buttonBorder,
-              ),
-            ),
-            backgroundColor: buttonBackgroundColor,
-            foregroundColor: buttonTextColor,
-          ),
-          child: Text(labelText),
-        );
-      },
+      ],
     );
   }
 }
@@ -509,22 +464,106 @@ class _FilterChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AppLocalizations l10n = AppLocalizations.of(context)!;
     return BlocBuilder<PredicateFilterCubit, PredicateFilterState>(
       builder: (context, state) {
+        Iterable<FilterPredicate> predicates =
+            state.filterPredicates.values.expand((p) => p);
+        Iterable<FilterPredicate> disjunctPredicates =
+            predicates.where((p) => p.disjunction != null);
+        Iterable<FilterPredicate> conjunctPredicates =
+            predicates.where((p) => p.disjunction == null);
+        Map<FilterGroup, List<FilterPredicate>> disjunctGroups =
+            groupBy<FilterPredicate, FilterGroup>(
+          disjunctPredicates,
+          (p) => p.disjunction!,
+        );
+        Map<FilterGroup, List<FilterPredicate>> conjunctGroups =
+            groupBy<FilterPredicate, FilterGroup>(
+          conjunctPredicates,
+          (p) => p.domain,
+        );
+        Map<FilterGroup, List<FilterPredicate>> filterGroups = conjunctGroups
+          ..removeWhere((key, _) => key == FilterGroup.search)
+          ..addAll(disjunctGroups);
+
+        // Age filters go into the same MultiChip despite being in different
+        // filter groups
+        List<MapEntry<FilterGroup, List<FilterPredicate>>> ageFilters =
+            filterGroups
+                .entries
+                .where((e) =>
+                    [FilterGroup.overAge, FilterGroup.underAge].contains(e.key))
+                .toList();
+        filterGroups.removeWhere(
+          (key, _) => [FilterGroup.overAge, FilterGroup.underAge].contains(key),
+        );
+
         return Wrap(
-          children: state.filterPredicates.values
-              .expand((e) => e)
-              .map((predicate) => Chip(
-                    label: Text(predicate.name),
-                    onDeleted: () {
-                      context
-                          .read<PlayerFilterCubit>()
-                          .onPredicateRemoved(predicate);
-                    },
-                  ))
-              .toList(),
+          children: [
+            for (MapEntry<FilterGroup, List<FilterPredicate>> filterGroup
+                in filterGroups.entries)
+              _FilterGroupChip(
+                filterGroupName:
+                    display_strings.filterChipGroup(l10n, filterGroup.key),
+                namedFilters: {
+                  for (FilterPredicate filter in filterGroup.value)
+                    display_strings.filterChip(
+                      l10n,
+                      filterGroup.key,
+                      filter.name,
+                    ): filter,
+                },
+              ),
+            if (ageFilters.isNotEmpty)
+              _FilterGroupChip(
+                filterGroupName:
+                    display_strings.filterChipGroup(l10n, ageFilters.first.key),
+                namedFilters: {
+                  for (MapEntry<FilterGroup, List<FilterPredicate>> ageFilter
+                      in ageFilters)
+                    display_strings.filterChip(
+                      l10n,
+                      ageFilter.key,
+                      ageFilter.value.first.name,
+                    ): ageFilter.value.first,
+                },
+              ),
+          ],
         );
       },
+    );
+  }
+}
+
+class _FilterGroupChip extends StatelessWidget {
+  const _FilterGroupChip({
+    required this.filterGroupName,
+    required this.namedFilters,
+  });
+
+  final String filterGroupName;
+  final Map<String, FilterPredicate> namedFilters;
+
+  @override
+  Widget build(BuildContext context) {
+    PlayerFilterCubit cubit = context.read<PlayerFilterCubit>();
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 5.0,
+        vertical: 3.0,
+      ),
+      child: MultiChip(
+        title: filterGroupName,
+        items: namedFilters.keys.map((filterName) => Text(filterName)).toList(),
+        onDeleted: namedFilters.values
+            .map(
+              (p) => () {
+                cubit.onPredicateRemoved(p);
+              },
+            )
+            .toList(),
+      ),
     );
   }
 }

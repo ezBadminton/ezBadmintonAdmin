@@ -5,8 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../common_matchers/predicate_matchers.dart';
 
-class HasGender extends CustomMatcher {
-  HasGender(matcher)
+class HasCategories extends CustomMatcher {
+  HasCategories(matcher)
       : super(
           'Producer with gender of',
           'gender',
@@ -14,65 +14,69 @@ class HasGender extends CustomMatcher {
         );
 
   @override
-  featureValueOf(actual) => (actual as GenderPredicateProducer).gender;
+  featureValueOf(actual) =>
+      (actual as GenderCategoryPredicateProducer).categories;
 }
 
 void main() {
-  late GenderPredicateProducer sut;
+  late GenderCategoryPredicateProducer sut;
 
-  setUp(() => sut = GenderPredicateProducer());
+  setUp(() => sut = GenderCategoryPredicateProducer());
 
-  group('GenderPredicateProducer input values', () {
+  group('GenderCategoryPredicateProducer input values', () {
     test(
-      'initial gender is null',
-      () => expect(sut, HasGender(null)),
+      'initial categories',
+      () => expect(sut, HasCategories(isEmpty)),
     );
 
     test(
-      """retains the gender that is put in and resets to null when the same
-      gender is input twice in a row,
-      sets gender to null when Gender.none is put in""",
+      'category toggles',
       () {
-        sut.genderChanged(Gender.female);
-        expect(sut, HasGender(Gender.female));
-        sut.genderChanged(Gender.male);
-        expect(sut, HasGender(Gender.male));
-        sut.genderChanged(Gender.male);
-        expect(sut, HasGender(null));
-        sut.genderChanged(Gender.none);
-        expect(sut, HasGender(null));
+        sut.categoryToggled(GenderCategory.female);
+        expect(sut, HasCategories([GenderCategory.female]));
+        sut.categoryToggled(GenderCategory.male);
+        expect(
+          sut,
+          HasCategories(containsAll([
+            GenderCategory.female,
+            GenderCategory.male,
+          ])),
+        );
+        sut.categoryToggled(GenderCategory.female);
+        expect(sut, HasCategories([GenderCategory.male]));
       },
     );
 
     test(
       'accepts the predicate domain',
-      () => expect(
-          sut.producesDomain(GenderPredicateProducer.genderDomain), true),
+      () {
+        expect(sut.producesDomain(GenderCategory.female), true);
+        expect(sut.producesDomain('somestring'), false);
+      },
     );
   });
 
-  group('GenderPredicateProducer predicate outputs', () {
+  group('GenderCategoryPredicateProducer predicate outputs', () {
     test(
-      """produces a FilterPredicate on change and does not re-emit an empty
-      predicate""",
+      'category toggles',
       () async {
-        sut.genderChanged(Gender.female);
-        sut.genderChanged(null);
-        sut.genderChanged(null);
-        sut.genderChanged(Gender.none);
+        sut.categoryToggled(GenderCategory.female);
+        sut.categoryToggled(GenderCategory.female);
         await expectStream(
           sut.predicateStream,
           [
             allOf(
               HasFunction(isNotNull),
-              HasDomain(GenderPredicateProducer.genderDomain),
-              HasDisjunction(isEmpty),
-              HasInputType(Player),
+              HasDomain(GenderCategory.female),
+              HasDisjunction(
+                GenderCategoryPredicateProducer.categoryDisjunction,
+              ),
+              HasInputType(Competition),
             ),
             allOf(
               HasFunction(isNull),
-              HasDomain(GenderPredicateProducer.genderDomain),
-              HasInputType(Player),
+              HasDomain(GenderCategory.female),
+              HasInputType(Competition),
             ),
           ],
         );
@@ -80,36 +84,46 @@ void main() {
     );
 
     test(
-      """produces empty FilterPredicates when produceEmptyPredicate is
-    called""",
+      'produceEmptyPredicate',
       () async {
-        sut.genderChanged(Gender.female);
-        sut.produceEmptyPredicate(GenderPredicateProducer.genderDomain);
-        expect(sut, HasGender(null));
+        sut.categoryToggled(GenderCategory.female);
+        sut.produceEmptyPredicate(GenderCategory.female);
+        expect(sut, HasCategories(isEmpty));
         await expectStream(
           sut.predicateStream,
           [
             HasFunction(isNotNull),
-            HasFunction(isNull),
+            allOf(
+              HasFunction(isNull),
+              HasDomain(GenderCategory.female),
+            ),
           ],
         );
       },
     );
   });
 
-  group('GenderPredicateProducer player filtering', () {
-    var femalePlayer = Player.newPlayer().copyWith(gender: Gender.female);
-    var malePlayer = Player.newPlayer().copyWith(gender: Gender.male);
+  group('GenderCategoryPredicateProducer competition filtering', () {
+    Competition womensCompetition = Competition.newCompetition(
+        teamSize: 1, genderCategory: GenderCategory.female);
+    Competition mensCompetition = Competition.newCompetition(
+        teamSize: 1, genderCategory: GenderCategory.male);
     test(
-      'produced predicates filter players by gender',
+      'filter results',
       () async {
-        sut.genderChanged(Gender.female);
-        sut.genderChanged(Gender.male);
+        sut.categoryToggled(GenderCategory.female);
+        sut.categoryToggled(GenderCategory.male);
         await expectStream(
           sut.predicateStream,
           [
-            HasFilterResult([femalePlayer], items: [femalePlayer, malePlayer]),
-            HasFilterResult([malePlayer], items: [femalePlayer, malePlayer]),
+            HasFilterResult(
+              [womensCompetition],
+              items: [womensCompetition, mensCompetition],
+            ),
+            HasFilterResult(
+              [mensCompetition],
+              items: [womensCompetition, mensCompetition],
+            ),
           ],
         );
       },

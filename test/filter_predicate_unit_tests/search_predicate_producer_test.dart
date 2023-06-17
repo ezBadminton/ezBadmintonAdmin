@@ -76,7 +76,7 @@ void main() {
             allOf(
               HasFunction(isNotNull),
               HasDomain(SearchPredicateProducer.searchDomain),
-              HasDisjunction(isEmpty),
+              HasDisjunction(isNull),
               HasInputType(Player),
             ),
             allOf(

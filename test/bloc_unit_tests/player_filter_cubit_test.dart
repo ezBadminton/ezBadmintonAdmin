@@ -15,7 +15,7 @@ class MockCollectionRepository<M extends Model> extends Mock
 class MockAgePredicateProducer extends Mock implements AgePredicateProducer {}
 
 class MockGenderPredicateProducer extends Mock
-    implements GenderPredicateProducer {}
+    implements GenderCategoryPredicateProducer {}
 
 class MockPlayingLevelPredicateProducer extends Mock
     implements PlayingLevelPredicateProducer {}
@@ -67,7 +67,7 @@ void main() {
   late PlayerFilterCubit sut;
   late List<PredicateProducer> producers;
   late AgePredicateProducer agePredicateProducer;
-  late GenderPredicateProducer genderPredicateProducer;
+  late GenderCategoryPredicateProducer genderPredicateProducer;
   late PlayingLevelPredicateProducer playingLevelPredicateProducer;
   late CompetitionTypePredicateProducer competitionTypePredicateProducer;
   late StatusPredicateProducer statusPredicateProducer;

@@ -1,3 +1,5 @@
+import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
+
 typedef Predicate = bool Function(Object o);
 
 class FilterPredicate {
@@ -13,11 +15,11 @@ class FilterPredicate {
   /// All filters (of a type) with a matching [disjunction] string get combined
   /// in a disjunction before being conjoined.
   const FilterPredicate(this.function, this.type, this.name, this.domain,
-      [this.disjunction = '']);
+      [this.disjunction]);
 
   final Predicate? function;
   final Type type;
   final String name;
   final dynamic domain;
-  final String disjunction;
+  final FilterGroup? disjunction;
 }

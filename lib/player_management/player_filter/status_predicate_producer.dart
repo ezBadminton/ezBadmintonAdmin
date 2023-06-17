@@ -1,9 +1,10 @@
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/predicate_producer.dart';
 
 class StatusPredicateProducer extends PredicateProducer {
-  static const String statusDisjunction = 'playerStatus';
+  static const FilterGroup statusDisjunction = FilterGroup.playerStatus;
 
   final List<PlayerStatus> _statusList = <PlayerStatus>[];
   List<PlayerStatus> get statusList => List.unmodifiable(_statusList);

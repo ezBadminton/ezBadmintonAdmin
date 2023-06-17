@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
 import 'package:flutter/foundation.dart';
 import "package:collection/collection.dart";
@@ -81,10 +82,10 @@ class PredicateFilterCubit extends Cubit<PredicateFilterState> {
   Predicate _createFilter(
     List<FilterPredicate> predicates,
   ) {
-    Map<String, List<FilterPredicate>> disjunctionGroups =
+    Map<FilterGroup?, List<FilterPredicate>> disjunctionGroups =
         groupBy(predicates, (p) => p.disjunction);
     Iterable<Predicate>? conjunctionPredicates =
-        disjunctionGroups.remove('')?.map((p) => p.function!);
+        disjunctionGroups.remove(null)?.map((p) => p.function!);
     conjunctionPredicates = conjunctionPredicates ?? [];
 
     Iterable<Predicate> disjunctionPredicates = disjunctionGroups.values.map(

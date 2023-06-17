@@ -1,43 +1,43 @@
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/predicate_producer.dart';
 
-class GenderPredicateProducer extends PredicateProducer {
-  static const String genderDomain = 'gender';
-  Gender? _gender;
-  Gender? get gender => _gender;
+class GenderCategoryPredicateProducer extends PredicateProducer {
+  static const FilterGroup categoryDisjunction = FilterGroup.genderCategory;
+  final List<GenderCategory> _categories = [];
+  List<GenderCategory> get categories => List.unmodifiable(_categories);
 
-  void genderChanged(Gender? gender) {
-    if (gender == Gender.none || _gender == gender) {
-      gender = null;
-    }
-    if (_gender == null && gender == null) {
-      return;
-    }
-    _gender = gender;
+  void categoryToggled(GenderCategory category) {
     Predicate? genderFilter;
-    if (gender != null) {
-      genderFilter = (Object p) => (p as Player).gender == gender;
+    if (categories.contains(category)) {
+      _categories.remove(category);
+    } else {
+      _categories.add(category);
+      genderFilter =
+          (Object c) => (c as Competition).genderCategory == category;
     }
-    String filterName = gender == null ? '' : gender.name;
+    String filterName = category.name;
     var predicate = FilterPredicate(
       genderFilter,
-      Player,
+      Competition,
       filterName,
-      genderDomain,
+      category,
+      categoryDisjunction,
     );
     predicateStreamController.add(predicate);
   }
 
   @override
   void produceEmptyPredicate(dynamic predicateDomain) {
-    if (producesDomain(predicateDomain)) {
-      genderChanged(null);
+    if (producesDomain(predicateDomain) &&
+        categories.contains(predicateDomain)) {
+      categoryToggled(predicateDomain);
     }
   }
 
   @override
   bool producesDomain(dynamic predicateDomain) {
-    return predicateDomain == genderDomain;
+    return predicateDomain is GenderCategory;
   }
 }

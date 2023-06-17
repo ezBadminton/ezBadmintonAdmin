@@ -61,13 +61,13 @@ void main() {
           allOf(
             HasFunction(isNotNull),
             HasDomain(AgePredicateProducer.overAgeDomain),
-            HasDisjunction(isEmpty),
+            HasDisjunction(isNull),
             HasInputType(Player),
           ),
           allOf(
             HasFunction(isNotNull),
             HasDomain(AgePredicateProducer.underAgeDomain),
-            HasDisjunction(isEmpty),
+            HasDisjunction(isNull),
             HasInputType(Player),
           ),
         ],

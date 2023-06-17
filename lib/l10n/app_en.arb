@@ -72,5 +72,6 @@
   "confirmAttendance": "Confirm attendance",
   "done": "Done",
   "searchPartner": "Search partner",
-  "partnerNeeded": "Partner needed"
+  "partnerNeeded": "Partner needed",
+  "category": "Category"
 }

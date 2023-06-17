@@ -72,5 +72,6 @@
   "confirmAttendance": "Anwesenheit bestätigen",
   "done": "Fertig",
   "searchPartner": "Partner suchen",
-  "partnerNeeded": "Partner gesucht"
+  "partnerNeeded": "Partner gesucht",
+  "category": "Kategorie"
 }

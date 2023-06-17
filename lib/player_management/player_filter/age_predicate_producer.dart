@@ -1,11 +1,12 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/models/age.dart';
+import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/predicate_producer.dart';
 
 class AgePredicateProducer extends PredicateProducer {
-  static const String overAgeDomain = 'over';
-  static const String underAgeDomain = 'under';
+  static const FilterGroup overAgeDomain = FilterGroup.overAge;
+  static const FilterGroup underAgeDomain = FilterGroup.underAge;
 
   Age _overAge = const Age.dirty('');
   Age _underAge = const Age.dirty('');
@@ -32,7 +33,7 @@ class AgePredicateProducer extends PredicateProducer {
 
   void _produceAgePredicate(bool over) {
     Age newAge = over ? _overAge : _underAge;
-    String filterDomain = over ? overAgeDomain : underAgeDomain;
+    FilterGroup filterDomain = over ? overAgeDomain : underAgeDomain;
     FilterPredicate predicate;
     if (newAge.value.isEmpty) {
       predicate = FilterPredicate(
@@ -43,7 +44,7 @@ class AgePredicateProducer extends PredicateProducer {
       );
     } else {
       int age = int.parse(newAge.value);
-      String filterName = '$filterDomain$age';
+      String filterName = '${filterDomain.name}:$age';
       Predicate ageFilter = over
           ? (Object p) => (p as Player).calculateAge() >= age
           : (Object p) => (p as Player).calculateAge() < age;

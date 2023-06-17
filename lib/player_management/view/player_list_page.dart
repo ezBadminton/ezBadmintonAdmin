@@ -34,7 +34,7 @@ class PlayerListPage extends StatelessWidget {
         BlocProvider(
           create: (_) => PlayerFilterCubit(
             agePredicateProducer: AgePredicateProducer(),
-            genderPredicateProducer: GenderPredicateProducer(),
+            genderPredicateProducer: GenderCategoryPredicateProducer(),
             playingLevelPredicateProducer: PlayingLevelPredicateProducer(),
             competitionTypePredicateProducer:
                 CompetitionTypePredicateProducer(),

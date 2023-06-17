@@ -1,9 +1,10 @@
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/predicate_producer.dart';
 
 class PlayingLevelPredicateProducer extends PredicateProducer {
-  static const String playingLevelDisjunction = 'playingLevel';
+  static const FilterGroup playingLevelDisjunction = FilterGroup.playingLevel;
   final _playingLevels = <PlayingLevel>[];
   List<PlayingLevel> get playingLevels => List.unmodifiable(_playingLevels);
 
