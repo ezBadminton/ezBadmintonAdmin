@@ -83,10 +83,13 @@ class _PlayerListPageScaffold extends StatelessWidget {
       appBar: AppBar(title: Text(l10n.playerManagement)),
       body: const Align(
         alignment: Alignment.topCenter,
-        child: _PlayerListWithFilter(),
+        child: Padding(
+          padding: EdgeInsets.only(top: 8.0),
+          child: _PlayerListWithFilter(),
+        ),
       ),
       floatingActionButton: Padding(
-        padding: const EdgeInsets.fromLTRB(0, 0, 80, 40),
+        padding: const EdgeInsets.only(right: 80, bottom: 40),
         child: FloatingActionButton.extended(
           onPressed: () {
             var listCubit = context.read<PlayerListCubit>();
@@ -146,6 +149,7 @@ class _PlayerListWithFilter extends StatelessWidget {
                 builder: (_) => const Column(
                   children: [
                     PlayerFilter(),
+                    SizedBox(height: 20),
                     _PlayerList(),
                   ],
                 ),

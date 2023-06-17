@@ -73,5 +73,6 @@
   "done": "Done",
   "searchPartner": "Search partner",
   "partnerNeeded": "Partner needed",
-  "category": "Category"
+  "category": "Category",
+  "clearFilter": "Clear filter"
 }

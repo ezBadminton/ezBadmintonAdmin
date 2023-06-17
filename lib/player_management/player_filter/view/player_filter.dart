@@ -23,7 +23,7 @@ class PlayerFilter extends StatelessWidget {
       child: Column(
         children: [
           _FilterMenus(),
-          SizedBox(height: 10),
+          SizedBox(height: 3),
           _FilterChips(),
         ],
       ),
@@ -499,39 +499,77 @@ class _FilterChips extends StatelessWidget {
           (key, _) => [FilterGroup.overAge, FilterGroup.underAge].contains(key),
         );
 
-        return Wrap(
+        return Row(
           children: [
-            for (MapEntry<FilterGroup, List<FilterPredicate>> filterGroup
-                in filterGroups.entries)
-              _FilterGroupChip(
-                filterGroupName:
-                    display_strings.filterChipGroup(l10n, filterGroup.key),
-                namedFilters: {
-                  for (FilterPredicate filter in filterGroup.value)
-                    display_strings.filterChip(
-                      l10n,
-                      filterGroup.key,
-                      filter.name,
-                    ): filter,
-                },
+            _ClearFilterButton(
+              predicates: [...ageFilters, ...filterGroups.entries]
+                  .expand((group) => group.value),
+            ),
+            Expanded(
+              child: Wrap(
+                children: [
+                  for (MapEntry<FilterGroup, List<FilterPredicate>> filterGroup
+                      in filterGroups.entries)
+                    _FilterGroupChip(
+                      filterGroupName: display_strings.filterChipGroup(
+                          l10n, filterGroup.key),
+                      namedFilters: {
+                        for (FilterPredicate filter in filterGroup.value)
+                          display_strings.filterChip(
+                            l10n,
+                            filterGroup.key,
+                            filter.name,
+                          ): filter,
+                      },
+                    ),
+                  if (ageFilters.isNotEmpty)
+                    _FilterGroupChip(
+                      filterGroupName: display_strings.filterChipGroup(
+                        l10n,
+                        ageFilters.first.key,
+                      ),
+                      namedFilters: {
+                        for (MapEntry<FilterGroup,
+                            List<FilterPredicate>> ageFilter in ageFilters)
+                          display_strings.filterChip(
+                            l10n,
+                            ageFilter.key,
+                            ageFilter.value.first.name,
+                          ): ageFilter.value.first,
+                      },
+                    ),
+                ],
               ),
-            if (ageFilters.isNotEmpty)
-              _FilterGroupChip(
-                filterGroupName:
-                    display_strings.filterChipGroup(l10n, ageFilters.first.key),
-                namedFilters: {
-                  for (MapEntry<FilterGroup, List<FilterPredicate>> ageFilter
-                      in ageFilters)
-                    display_strings.filterChip(
-                      l10n,
-                      ageFilter.key,
-                      ageFilter.value.first.name,
-                    ): ageFilter.value.first,
-                },
-              ),
+            ),
           ],
         );
       },
+    );
+  }
+}
+
+class _ClearFilterButton extends StatelessWidget {
+  const _ClearFilterButton({
+    required this.predicates,
+  });
+
+  final Iterable<FilterPredicate> predicates;
+
+  @override
+  Widget build(BuildContext context) {
+    if (predicates.isEmpty) {
+      return const SizedBox();
+    }
+    PlayerFilterCubit cubit = context.read<PlayerFilterCubit>();
+    AppLocalizations l10n = AppLocalizations.of(context)!;
+    return IconButton(
+      onPressed: () {
+        for (FilterPredicate filter in predicates) {
+          cubit.onPredicateRemoved(filter);
+        }
+      },
+      icon: const Icon(Icons.filter_alt_off),
+      tooltip: l10n.clearFilter,
     );
   }
 }

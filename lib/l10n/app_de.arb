@@ -73,5 +73,6 @@
   "done": "Fertig",
   "searchPartner": "Partner suchen",
   "partnerNeeded": "Partner gesucht",
-  "category": "Kategorie"
+  "category": "Kategorie",
+  "clearFilter": "Filter löschen"
 }
