@@ -74,5 +74,8 @@
   "searchPartner": "Search partner",
   "partnerNeeded": "Partner needed",
   "category": "Category",
-  "clearFilter": "Clear filter"
+  "clearFilter": "Clear filter",
+  "deletePlayer": "Delete player",
+  "reallyDeletePlayer": "Really delete player?",
+  "confirm": "Confirm"
 }

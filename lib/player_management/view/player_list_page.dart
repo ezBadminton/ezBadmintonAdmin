@@ -1,6 +1,8 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/constants.dart';
 import 'package:ez_badminton_admin_app/list_sorting/comparator/list_sorting_comparator.dart';
+import 'package:ez_badminton_admin_app/player_management/cubit/player_delete_cubit.dart';
+import 'package:ez_badminton_admin_app/player_management/cubit/player_delete_state.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_status_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_status_state.dart';
 import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
@@ -22,6 +24,7 @@ import 'package:ez_badminton_admin_app/widgets/custom_expansion_panel_list/expan
     as custom_expansion_panel;
 import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
     as display_strings;
+import 'package:formz/formz.dart';
 
 class PlayerListPage extends StatelessWidget {
   const PlayerListPage({super.key});
@@ -538,9 +541,12 @@ class _PlayerExpansionPanelBody extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 50),
-                  Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: _PlayerEditButton(player: player),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _PlayerEditButton(player: player),
+                      _PlayerDeleteMenu(player: player),
+                    ],
                   ),
                 ],
               ),
@@ -549,6 +555,95 @@ class _PlayerExpansionPanelBody extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+class _PlayerDeleteMenu extends StatelessWidget {
+  _PlayerDeleteMenu({
+    required this.player,
+  }) : super(key: ValueKey('${player.id}-delete-menu'));
+
+  final Player player;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => PlayerDeleteCubit(
+        player: player,
+        playerRepository: context.read<CollectionRepository<Player>>(),
+        competitionRepository:
+            context.read<CollectionRepository<Competition>>(),
+        teamRepository: context.read<CollectionRepository<Team>>(),
+      ),
+      child: const _PlayerDeleteButton(),
+    );
+  }
+}
+
+class _PlayerDeleteButton extends StatelessWidget {
+  const _PlayerDeleteButton();
+
+  @override
+  Widget build(BuildContext context) {
+    AppLocalizations l10n = AppLocalizations.of(context)!;
+    PlayerDeleteCubit cubit = context.read<PlayerDeleteCubit>();
+    return BlocConsumer<PlayerDeleteCubit, PlayerDeleteState>(
+      listenWhen: (previous, current) =>
+          !previous.showConfirmDialog && current.showConfirmDialog,
+      listener: (context, state) async {
+        bool confirmed = await _showConfirmDeletionDialog(context);
+        cubit.confirmChoiceMade(confirmed);
+      },
+      buildWhen: (previous, current) =>
+          previous.loadingStatus != current.loadingStatus ||
+          previous.formStatus != current.formStatus,
+      builder: (context, state) {
+        return PopupMenuButton<VoidCallback>(
+          onSelected: (callback) => callback(),
+          tooltip: '',
+          itemBuilder: (context) => [
+            PopupMenuItem(
+              value: () {
+                if (state.loadingStatus == LoadingStatus.done &&
+                    state.formStatus != FormzSubmissionStatus.inProgress) {
+                  cubit.confirmDialogOpened();
+                }
+              },
+              child: Text(
+                l10n.deletePlayer,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.error,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<bool> _showConfirmDeletionDialog(BuildContext context) async {
+    var l10n = AppLocalizations.of(context)!;
+    var confirmDelete = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(l10n.reallyDeletePlayer),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l10n.confirm),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(l10n.cancel),
+            ),
+          ],
+        );
+      },
+    );
+    return confirmDelete!;
   }
 }
 
@@ -623,7 +718,7 @@ class _PlayerRegistrations extends StatelessWidget {
 class _PlayerStatus extends StatelessWidget {
   _PlayerStatus({
     required this.player,
-  }) : super(key: ValueKey(player.id));
+  }) : super(key: ValueKey('${player.id}-status-menu'));
 
   final Player player;
 

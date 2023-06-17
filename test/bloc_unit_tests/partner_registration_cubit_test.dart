@@ -49,6 +49,7 @@ void main() {
   late Competition competition;
   late Team team;
   late StreamController<CollectionUpdateEvent<Team>> teamUpdateController;
+  late StreamController<CollectionUpdateEvent<Player>> playerUpdateController;
 
   PartnerRegistrationCubit createSut() {
     return PartnerRegistrationCubit(
@@ -68,6 +69,10 @@ void main() {
     teamUpdateController = StreamController.broadcast();
     when(() => teamRepository.updateStream)
         .thenAnswer((invocation) => teamUpdateController.stream);
+
+    playerUpdateController = StreamController.broadcast();
+    when(() => playerRepository.updateStream)
+        .thenAnswer((invocation) => playerUpdateController.stream);
   }
 
   void arrangePlayerRepositoryThrows() {
@@ -263,6 +268,32 @@ void main() {
         HasPartner(partner),
         HasPartner(isNull),
         HasPartner(partner),
+      ],
+    );
+
+    blocTest<PartnerRegistrationCubit, PartnerRegistrationState>(
+      'player collection update event',
+      build: createSut,
+      skip: 1,
+      act: (cubit) async {
+        await Future.delayed(Duration.zero);
+        playerUpdateController.add(
+          CollectionUpdateEvent.update(Player.newPlayer()),
+        );
+        await Future.delayed(Duration.zero);
+        playerUpdateController.add(
+          CollectionUpdateEvent.create(Player.newPlayer()),
+        );
+        await Future.delayed(Duration.zero);
+        playerUpdateController.add(
+          CollectionUpdateEvent.delete(Player.newPlayer()),
+        );
+      },
+      expect: () => [
+        HasLoadingStatus(LoadingStatus.loading),
+        HasLoadingStatus(LoadingStatus.done),
+        HasLoadingStatus(LoadingStatus.loading),
+        HasLoadingStatus(LoadingStatus.done),
       ],
     );
 

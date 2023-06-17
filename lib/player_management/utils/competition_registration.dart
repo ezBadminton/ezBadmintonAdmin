@@ -8,11 +8,11 @@ Map<Player, List<CompetitionRegistration>> mapCompetitionRegistrations(
   List<Competition> competitions,
 ) {
   var playerCompetitions = {
-    for (var p in players) p: <CompetitionRegistration>[],
+    for (Player p in players) p: <CompetitionRegistration>[],
   };
-  for (var competition in competitions) {
-    var teams = competition.registrations;
-    var players = teams.expand((team) => team.players);
+  for (Competition competition in competitions) {
+    List<Team> teams = competition.registrations;
+    Iterable<Player> players = teams.expand((team) => team.players);
     for (var player in players) {
       playerCompetitions[player]?.add(
         CompetitionRegistration.fromCompetition(
@@ -23,4 +23,25 @@ Map<Player, List<CompetitionRegistration>> mapCompetitionRegistrations(
     }
   }
   return playerCompetitions;
+}
+
+List<CompetitionRegistration> registrationsOfPlayer(
+  Player player,
+  List<Competition> competitions,
+) {
+  List<CompetitionRegistration> registrations = [];
+  for (Competition competition in competitions) {
+    List<Team> teams = competition.registrations;
+    Iterable<Player> players = teams.expand((team) => team.players);
+    if (players.contains(player)) {
+      registrations.add(
+        CompetitionRegistration.fromCompetition(
+          competition: competition,
+          player: player,
+        ),
+      );
+    }
+  }
+
+  return registrations;
 }

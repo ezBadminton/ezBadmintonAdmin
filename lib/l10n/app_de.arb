@@ -74,5 +74,8 @@
   "searchPartner": "Partner suchen",
   "partnerNeeded": "Partner gesucht",
   "category": "Kategorie",
-  "clearFilter": "Filter löschen"
+  "clearFilter": "Filter löschen",
+  "deletePlayer": "Spieler löschen",
+  "reallyDeletePlayer": "Spieler wirklich löschen?",
+  "confirm": "Bestätigen"
 }

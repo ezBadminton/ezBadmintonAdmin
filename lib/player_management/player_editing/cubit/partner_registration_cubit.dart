@@ -31,10 +31,13 @@ class PartnerRegistrationCubit
     loadPlayerData();
     _teamUpdateSubscription =
         teamRepository.updateStream.listen(_onTeamCollectionUpdate);
+    _playerUpdateSubscription =
+        playerRepository.updateStream.listen(_onPlayerCollectionUpdate);
   }
 
   final CompetitionRegistration registration;
   late final StreamSubscription _teamUpdateSubscription;
+  late final StreamSubscription _playerUpdateSubscription;
 
   void loadPlayerData() {
     if (state.loadingStatus != LoadingStatus.loading) {
@@ -133,9 +136,21 @@ class PartnerRegistrationCubit
     }
   }
 
+  void _onPlayerCollectionUpdate(CollectionUpdateEvent event) {
+    switch (event.updateType) {
+      case UpdateType.create:
+      case UpdateType.delete:
+        loadPlayerData();
+        break;
+      default:
+        break;
+    }
+  }
+
   @override
   Future<void> close() async {
     _teamUpdateSubscription.cancel();
+    _playerUpdateSubscription.cancel();
     return super.close();
   }
 }
