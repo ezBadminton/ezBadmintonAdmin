@@ -29,7 +29,7 @@ class CompetitionRegistration {
 
   /// Returns a [Team] if the partner of the [player] is already on a [Team].
   ///
-  /// This can happen when two player were registered on solo teams and are now
+  /// This can happen when two players were registered on solo teams and are now
   /// being registered as partners.
   Team? getPartnerTeam() {
     if (partner != null) {

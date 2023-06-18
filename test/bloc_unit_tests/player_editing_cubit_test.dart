@@ -647,7 +647,7 @@ void main() {
     blocTest<PlayerEditingCubit, PlayerEditingState>(
       """deregistering from a Competition while in a Team solo deletes the team,
       registering with a partner that is already solo in a Team makes the
-      edited Player join that Team""",
+      partner join the new Team and deletes theirs""",
       setUp: () {
         teamList = [soloTeam, soloTeam2];
         competitionList = [
@@ -666,7 +666,7 @@ void main() {
       verify: (bloc) {
         expect(competitionList, hasLength(1));
         expect(competitionList.first.registrations, hasLength(1));
-        expect(teamList, [HasId(soloTeam2.id)]);
+        expect(teamList, [HasId('newTeamID-aaaaa')]);
         expect(
           teamList.first.players,
           allOf(contains(player), contains(player2)),

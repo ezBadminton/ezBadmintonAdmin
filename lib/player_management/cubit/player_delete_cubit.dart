@@ -68,41 +68,17 @@ class PlayerDeleteCubit extends CollectionFetcherCubit<PlayerDeleteState> {
     );
 
     for (CompetitionRegistration registration in registrations) {
-      Team team = registration.team;
-      Competition competition = registration.competition;
-      List<Team> updatedCompetitionRegistrations =
-          List.of(competition.registrations)..remove(team);
-
-      if (team.players.length == 1) {
-        bool teamDeleted = await querier.deleteModel(team);
-        if (!teamDeleted) {
-          emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-          return;
-        }
-      } else {
-        List<Player> teamMembers = List.of(team.players)..remove(player);
-        Team teamWithoutPlayer = team.copyWith(players: teamMembers);
-        Team? updatedTeam = await querier.updateModel(teamWithoutPlayer);
-        if (updatedTeam == null) {
-          emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-          return;
-        }
-        updatedCompetitionRegistrations.add(updatedTeam);
-      }
-
-      Competition competitionWithoutTeam = competition.copyWith(
-        registrations: updatedCompetitionRegistrations,
-      );
       Competition? updatedCompetition =
-          await querier.updateModel(competitionWithoutTeam);
+          await deregisterCompetition(registration, querier);
+
       if (updatedCompetition == null) {
         emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
         return;
       }
     }
 
-    bool playerDeleted = await querier.deleteModel(player);
-    if (!playerDeleted) {
+    bool deletionSuccessful = await querier.deleteModel(player);
+    if (!deletionSuccessful) {
       emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
       return;
     }

@@ -137,6 +137,17 @@ void main() {
     );
   }
 
+  void arrangePlayerAlreadyHasPartner() {
+    Team partnerTeam = Team.newTeam(players: [player, partner])
+        .copyWith(id: 'already-partnered-team');
+    competition = competition.copyWith(registrations: [partnerTeam]);
+    registration = CompetitionRegistration(
+      player: player,
+      competition: competition,
+      team: partnerTeam,
+    );
+  }
+
   setUpAll(() {
     registerFallbackValue(Competition.newCompetition(
       teamSize: 1,
@@ -296,6 +307,11 @@ void main() {
         HasLoadingStatus(LoadingStatus.done),
       ],
     );
+
+    test('player already has partner', () {
+      arrangePlayerAlreadyHasPartner();
+      expect(() => createSut(), throwsAssertionError);
+    });
 
     blocTest<PartnerRegistrationCubit, PartnerRegistrationState>(
       'submit partner no existing team',

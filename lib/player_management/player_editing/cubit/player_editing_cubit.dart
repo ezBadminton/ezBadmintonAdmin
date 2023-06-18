@@ -299,21 +299,6 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
         registeredTeam = registeredTeam.copyWith(players: teamMembers);
       }
 
-      if (registeredTeam.players.length == 2) {
-        // Check if partner already has a team
-        var partner = registration.partner!;
-        var partnerTeam = registration.getPartnerTeam();
-        if (partnerTeam != null) {
-          assert(
-            partnerTeam.players.length == 1,
-            'registration form selected partner that already has a partner',
-          );
-          registeredTeam = partnerTeam.copyWith(
-            players: [partner, state.player],
-          );
-        }
-      }
-
       return CompetitionRegistration(
         player: state.player,
         competition: competition,
@@ -324,95 +309,29 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     return addedRegistrations;
   }
 
-  /// Updates the [Competition] and [Team] objects according to the removed
-  /// [CompetitionRegistration]s
-  List<CompetitionRegistration> _applyRegistrationRemovals(
-    PlayerEditingState state,
-  ) {
-    assert(state.player.id.isNotEmpty);
-    var removedRegistrations =
-        state.registrations.getRemovedElements().map((registration) {
-      var competition = registration.competition;
-      var leftTeam = registration.team;
-      assert(
-        leftTeam.players.contains(state.player),
-        'tried to remove non-existent registration',
-      );
-      assert(leftTeam.id.isNotEmpty);
-
-      var teamMembers = List.of(leftTeam.players)..remove(state.player);
-      leftTeam = leftTeam.copyWith(players: teamMembers);
-
-      return CompetitionRegistration(
-        player: state.player,
-        competition: competition,
-        team: leftTeam,
-      );
-    }).toList();
-
-    return removedRegistrations;
-  }
-
   /// Persist the updated [Competition]s and [Team]s in their collections
   Future<bool> _updateRegistrations(
     PlayerEditingState state,
   ) async {
-    var removedRegistrations = _applyRegistrationRemovals(state);
+    List<CompetitionRegistration> removedRegistrations =
+        state.registrations.getRemovedElements();
     var deregisteredCompetitions = <Competition>[];
 
     for (var registration in removedRegistrations) {
-      var competition = registration.competition;
-      var leftTeam = registration.team;
-      List<Team> updatedTeams;
-      if (leftTeam.players.isEmpty) {
-        var teamDeleted = await querier.deleteModel(leftTeam);
-        if (!teamDeleted) {
-          return false;
-        }
-        updatedTeams = List.of(registration.competition.registrations)
-          ..remove(leftTeam);
-      } else {
-        var updatedTeam = await querier.updateModel(leftTeam);
-        if (updatedTeam == null) {
-          return false;
-        }
-        updatedTeams = List.of(registration.competition.registrations)
-          ..remove(leftTeam)
-          ..add(updatedTeam);
-      }
-      competition = competition.copyWith(registrations: updatedTeams);
-      Competition? updatedCompetition = await querier.updateModel(competition);
+      Competition? updatedCompetition =
+          await deregisterCompetition(registration, querier);
       if (updatedCompetition == null) {
         return false;
       }
       deregisteredCompetitions.add(updatedCompetition);
     }
 
-    var addedRegistrations = _applyRegistrationAdditions(
-      state,
-      deregisteredCompetitions,
-    );
+    List<CompetitionRegistration> addedRegistrations =
+        _applyRegistrationAdditions(state, deregisteredCompetitions);
 
     for (var registration in addedRegistrations) {
-      var competition = registration.competition;
-      var joinedTeam = registration.team;
-      if (competition.registrations
-          .expand((team) => team.players)
-          .contains(state.player)) {
-        // Tried to register Player twice
-        return false;
-      }
-      var updatedTeam = await querier.updateOrCreateModel(joinedTeam);
-      if (updatedTeam == null) {
-        return false;
-      }
-      var updatedTeams = List.of(competition.registrations)
-        ..remove(joinedTeam)
-        ..add(updatedTeam);
-      competition = competition.copyWith(
-        registrations: updatedTeams,
-      );
-      var updatedCompetition = await querier.updateModel(competition);
+      Competition? updatedCompetition =
+          await registerCompetition(registration, querier);
       if (updatedCompetition == null) {
         return false;
       }
