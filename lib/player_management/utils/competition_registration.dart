@@ -157,12 +157,5 @@ bool _isPlayerAlreadyRegistered(
   Team? registeredTeam = competition.registrations
       .where((team) => team.players.contains(player))
       .firstOrNull;
-  if (registeredTeam == null) {
-    return false;
-  }
-  if (registeredTeam.id != newTeam.id) {
-    // Player already registered
-    return true;
-  }
-  return registeredTeam.players.length >= competition.teamSize;
+  return (registeredTeam != null && registeredTeam.id != newTeam.id);
 }
