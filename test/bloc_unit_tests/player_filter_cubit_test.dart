@@ -10,7 +10,7 @@ import 'package:mocktail/mocktail.dart';
 import '../common_matchers/state_matchers.dart';
 
 class MockCollectionRepository<M extends Model> extends Mock
-    implements PocketbaseCollectionRepository<M> {}
+    implements CollectionRepository<M> {}
 
 class MockAgePredicateProducer extends Mock implements AgePredicateProducer {}
 
@@ -63,7 +63,8 @@ var playingLevels = List<PlayingLevel>.generate(
 );
 
 void main() {
-  late PocketbaseCollectionRepository<PlayingLevel> playingLevelRepository;
+  late CollectionRepository<PlayingLevel> playingLevelRepository;
+  late CollectionRepository<AgeGroup> ageGroupRepository;
   late PlayerFilterCubit sut;
   late List<PredicateProducer> producers;
   late AgePredicateProducer agePredicateProducer;
@@ -73,10 +74,13 @@ void main() {
   late StatusPredicateProducer statusPredicateProducer;
   late SearchPredicateProducer searchPredicateProducer;
 
-  void arrangePlayingLevelRepositoryReturns() {
+  void arrangeRepositoriesReturn() {
     when(
       () => playingLevelRepository.getList(expand: any(named: 'expand')),
     ).thenAnswer((_) async => playingLevels);
+    when(
+      () => ageGroupRepository.getList(expand: any(named: 'expand')),
+    ).thenAnswer((_) async => []);
   }
 
   void arrangePlayingLevelRepositoryThrows() {
@@ -101,6 +105,7 @@ void main() {
   PlayerFilterCubit createSut() {
     return PlayerFilterCubit(
       playingLevelRepository: playingLevelRepository,
+      ageGroupRepository: ageGroupRepository,
       agePredicateProducer: agePredicateProducer,
       genderPredicateProducer: genderPredicateProducer,
       playingLevelPredicateProducer: playingLevelPredicateProducer,
@@ -112,6 +117,7 @@ void main() {
 
   setUp(() {
     playingLevelRepository = MockCollectionRepository();
+    ageGroupRepository = MockCollectionRepository();
     agePredicateProducer = MockAgePredicateProducer();
     genderPredicateProducer = MockGenderPredicateProducer();
     playingLevelPredicateProducer = MockPlayingLevelPredicateProducer();
@@ -130,13 +136,14 @@ void main() {
 
     arrageProducersHaveStream();
     arrageProducersCloseStream();
+    arrangeRepositoriesReturn();
   });
 
   group(
     'PlayerFilterCubit initial state and loading',
     () {
       test('initial LoadingStatus is loading', () {
-        arrangePlayingLevelRepositoryReturns();
+        arrangeRepositoriesReturn();
         expect(
           createSut().state,
           HasLoadingStatus(LoadingStatus.loading),
@@ -153,25 +160,31 @@ void main() {
       blocTest<PlayerFilterCubit, PlayerFilterState>(
         """emits playing levels from PlayingLevelRepository
         and LoadingStatus.done when PlayingLevelRepository returns""",
-        setUp: () => arrangePlayingLevelRepositoryReturns(),
+        setUp: () => arrangeRepositoriesReturn(),
         build: () => createSut(),
         expect: () => [HasLoadingStatus(LoadingStatus.done)],
-        verify: (cubit) => expect(cubit.state.allPlayingLevels, playingLevels),
+        verify: (cubit) => expect(
+          cubit.state.getCollection<PlayingLevel>(),
+          playingLevels,
+        ),
       );
 
       blocTest<PlayerFilterCubit, PlayerFilterState>(
-        'goes back to LoadingStatus.loading when playing levels are reloaded',
+        'goes back to LoadingStatus.loading when collections are reloaded',
         setUp: () {
-          arrangePlayingLevelRepositoryReturns();
+          arrangeRepositoriesReturn();
           sut = createSut();
         },
         build: () => sut,
-        act: (cubit) => cubit.loadPlayingLevels(),
+        act: (cubit) => cubit.loadCollections(),
         expect: () => [
           HasLoadingStatus(LoadingStatus.loading),
           HasLoadingStatus(LoadingStatus.done),
         ],
-        verify: (cubit) => expect(cubit.state.allPlayingLevels, playingLevels),
+        verify: (cubit) => expect(
+          cubit.state.getCollection<PlayingLevel>(),
+          playingLevels,
+        ),
       );
     },
   );
@@ -190,7 +203,7 @@ void main() {
         (_) => Stream<FilterPredicate>.fromFuture(futurePredicate()),
       );
 
-      arrangePlayingLevelRepositoryReturns();
+      arrangeRepositoriesReturn();
     });
 
     blocTest<PlayerFilterCubit, PlayerFilterState>(

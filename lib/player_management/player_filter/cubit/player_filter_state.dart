@@ -1,25 +1,24 @@
 part of 'player_filter_cubit.dart';
 
 @immutable
-class PlayerFilterState {
+class PlayerFilterState extends CollectionFetcherState<PlayerFilterState> {
   const PlayerFilterState({
     this.loadingStatus = LoadingStatus.loading,
-    this.allPlayingLevels = const [],
     this.filterPredicate,
+    super.collections = const {},
   });
 
   final LoadingStatus loadingStatus;
-  final List<PlayingLevel> allPlayingLevels;
-
   final FilterPredicate? filterPredicate;
 
   PlayerFilterState copyWith({
     LoadingStatus? loadingStatus,
     List<PlayingLevel>? allPlayingLevels,
+    Map<Type, List<Model>>? collections,
   }) =>
       PlayerFilterState(
         loadingStatus: loadingStatus ?? this.loadingStatus,
-        allPlayingLevels: allPlayingLevels ?? this.allPlayingLevels,
+        collections: collections ?? this.collections,
         filterPredicate: null,
       );
 
@@ -28,7 +27,7 @@ class PlayerFilterState {
   }) =>
       PlayerFilterState(
         loadingStatus: loadingStatus,
-        allPlayingLevels: allPlayingLevels,
+        collections: collections,
         filterPredicate: filterPredicate,
       );
 }

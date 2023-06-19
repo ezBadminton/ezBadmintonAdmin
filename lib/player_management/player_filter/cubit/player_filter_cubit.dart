@@ -8,10 +8,11 @@ import 'package:meta/meta.dart';
 
 part 'player_filter_state.dart';
 
-class PlayerFilterCubit extends CollectionQuerierCubit<PlayerFilterState>
+class PlayerFilterCubit extends CollectionFetcherCubit<PlayerFilterState>
     with PredicateConsumer {
   PlayerFilterCubit({
     required CollectionRepository<PlayingLevel> playingLevelRepository,
+    required CollectionRepository<AgeGroup> ageGroupRepository,
     required AgePredicateProducer agePredicateProducer,
     required GenderCategoryPredicateProducer genderPredicateProducer,
     required PlayingLevelPredicateProducer playingLevelPredicateProducer,
@@ -20,7 +21,10 @@ class PlayerFilterCubit extends CollectionQuerierCubit<PlayerFilterState>
     required SearchPredicateProducer searchPredicateProducer,
   }) : super(
           const PlayerFilterState(),
-          collectionRepositories: [playingLevelRepository],
+          collectionRepositories: [
+            playingLevelRepository,
+            ageGroupRepository,
+          ],
         ) {
     initPredicateProducers([
       agePredicateProducer,
@@ -30,7 +34,7 @@ class PlayerFilterCubit extends CollectionQuerierCubit<PlayerFilterState>
       statusPredicateProducer,
       searchPredicateProducer,
     ]);
-    loadPlayingLevels();
+    loadCollections();
   }
 
   @override
@@ -38,19 +42,22 @@ class PlayerFilterCubit extends CollectionQuerierCubit<PlayerFilterState>
     emit(state.copyWithPredicate(filterPredicate: predicate));
   }
 
-  void loadPlayingLevels() async {
+  void loadCollections() async {
     if (state.loadingStatus != LoadingStatus.loading) {
       emit(state.copyWith(loadingStatus: LoadingStatus.loading));
     }
-    var playingLevels = await querier.fetchCollection<PlayingLevel>();
-    if (playingLevels == null) {
-      emit(state.copyWith(loadingStatus: LoadingStatus.failed));
-    } else {
-      emit(state.copyWith(
-        loadingStatus: LoadingStatus.done,
-        allPlayingLevels: playingLevels,
-      ));
-    }
+    fetchCollectionsAndUpdateState(
+      [
+        collectionFetcher<PlayingLevel>(),
+        collectionFetcher<AgeGroup>(),
+      ],
+      onSuccess: (updatedState) {
+        emit(updatedState.copyWith(loadingStatus: LoadingStatus.done));
+      },
+      onFailure: () {
+        emit(state.copyWith(loadingStatus: LoadingStatus.failed));
+      },
+    );
   }
 
   @override

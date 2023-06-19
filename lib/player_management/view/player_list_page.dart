@@ -45,6 +45,7 @@ class PlayerListPage extends StatelessWidget {
             searchPredicateProducer: SearchPredicateProducer(),
             playingLevelRepository:
                 context.read<CollectionRepository<PlayingLevel>>(),
+            ageGroupRepository: context.read<CollectionRepository<AgeGroup>>(),
           ),
         ),
         BlocProvider(
@@ -146,7 +147,7 @@ class _PlayerListWithFilter extends StatelessWidget {
                     context.read<PlayerListCubit>().loadPlayerData();
                   }
                   if (filterState.loadingStatus == LoadingStatus.failed) {
-                    context.read<PlayerFilterCubit>().loadPlayingLevels();
+                    context.read<PlayerFilterCubit>().loadCollections();
                   }
                 },
                 builder: (_) => const Column(

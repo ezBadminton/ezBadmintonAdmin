@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
+import 'package:ez_badminton_admin_app/player_management/utils/age_groups.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/predicate_producer.dart';
@@ -91,14 +92,15 @@ class _PlayingLevelFilterForm extends StatelessWidget {
     return BlocBuilder<PlayerFilterCubit, PlayerFilterState>(
       bloc: backgroudContext.read<PlayerFilterCubit>(),
       buildWhen: (previous, current) =>
-          previous.allPlayingLevels != current.allPlayingLevels,
+          previous.collections != current.collections,
       builder: (_, state) {
         PlayerFilterCubit cubit = backgroudContext.read<PlayerFilterCubit>();
         PlayingLevelPredicateProducer predicateProducer =
             cubit.getPredicateProducer<PlayingLevelPredicateProducer>();
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: state.allPlayingLevels
+          children: state
+              .getCollection<PlayingLevel>()
               .map(
                 (playingLevel) => _FilterCheckbox(
                   backgroundContext: backgroudContext,
@@ -271,8 +273,129 @@ class _AgeFilterForm extends StatelessWidget {
           labelText: l10n.overAge,
           filterCubit: backgroundContext.read<PlayerFilterCubit>(),
         ),
+        _AgeGroupChips(backgroundContext: backgroundContext),
       ],
     );
+  }
+}
+
+class _AgeGroupChips extends StatelessWidget {
+  const _AgeGroupChips({
+    required this.backgroundContext,
+  });
+
+  final BuildContext backgroundContext;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+    PlayerFilterCubit cubit = backgroundContext.read<PlayerFilterCubit>();
+    late List<AgeGroup> ageGroups = _getAgeGroups(cubit.state);
+    return BlocBuilder<PlayerFilterCubit, PlayerFilterState>(
+      bloc: cubit,
+      builder: (context, state) {
+        if (ageGroups.isEmpty) {
+          return const SizedBox();
+        } else {
+          return Column(
+            children: [
+              const SizedBox(
+                width: 100,
+                child: Divider(
+                  height: 33,
+                ),
+              ),
+              SizedBox(
+                width: ageGroups.length > 2 ? 200 : 150,
+                child: Wrap(
+                  alignment: WrapAlignment.center,
+                  children: [
+                    for (AgeGroup ageGroup in ageGroups)
+                      _buildAgeGroupChip(
+                        l10n,
+                        cubit,
+                        ageGroup,
+                        ageGroups,
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildAgeGroupChip(
+    AppLocalizations l10n,
+    PlayerFilterCubit filterCubit,
+    AgeGroup ageGroup,
+    List<AgeGroup> ageGroups,
+  ) {
+    List<int> ageRange = ageGroup.getAgeRange(ageGroups);
+    AgePredicateProducer agePredicateProducer =
+        filterCubit.getPredicateProducer<AgePredicateProducer>();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+      child: InputChip(
+        label: Text(display_strings.ageGroup(l10n, ageGroup)),
+        selected: _doesAgeRangeMatchFilter(ageRange, agePredicateProducer),
+        onSelected: (bool selected) {
+          if (selected) {
+            if (ageRange[0] != 0) {
+              agePredicateProducer.overAgeChanged('${ageRange[0]}');
+            } else {
+              agePredicateProducer.overAgeChanged('');
+            }
+            if (ageRange[1] != 999) {
+              agePredicateProducer.underAgeChanged('${ageRange[1] + 1}');
+            } else {
+              agePredicateProducer.underAgeChanged('');
+            }
+          } else {
+            agePredicateProducer.overAgeChanged('');
+            agePredicateProducer.underAgeChanged('');
+          }
+          agePredicateProducer.produceAgePredicates();
+        },
+      ),
+    );
+  }
+
+  bool _doesAgeRangeMatchFilter(
+    List<int> ageRange,
+    AgePredicateProducer agePredicateProducer,
+  ) {
+    int? currentOverAge = int.tryParse(agePredicateProducer.overAge);
+    int? currentUnderAge = int.tryParse(agePredicateProducer.underAge);
+    bool filterMatchesLowerBound = ageRange[0] == 0;
+    if (currentOverAge != null) {
+      filterMatchesLowerBound = ageRange[0] == currentOverAge;
+    }
+    bool filterMatchesUpperBound = ageRange[1] == 999;
+    if (currentUnderAge != null) {
+      // +1 because the age range is inclusive while an under age value of n
+      // means before n-th birthday.
+      filterMatchesUpperBound = ageRange[1] + 1 == currentUnderAge;
+    }
+    bool isSelected = filterMatchesLowerBound && filterMatchesUpperBound;
+    return isSelected;
+  }
+
+  List<AgeGroup> _getAgeGroups(PlayerFilterState filterState) {
+    List<AgeGroup> sortedAgeGroups =
+        filterState.getCollection<AgeGroup>().sorted(
+      (a, b) {
+        int comparison = a.age.compareTo(b.age);
+        if (comparison == 0) {
+          comparison = a.type == AgeGroupType.over ? 1 : -1;
+        }
+        return comparison;
+      },
+    );
+    return sortedAgeGroups;
   }
 }
 
@@ -418,8 +541,17 @@ class _AgeInput extends StatelessWidget {
   Widget build(BuildContext context) {
     var predicateProducer =
         filterCubit.getPredicateProducer<AgePredicateProducer>();
-    return BlocBuilder<PlayerFilterCubit, PlayerFilterState>(
+    return BlocConsumer<PlayerFilterCubit, PlayerFilterState>(
       bloc: filterCubit,
+      listenWhen: (_, current) =>
+          predicateProducer.producesDomain(current.filterPredicate?.domain),
+      listener: (context, state) {
+        _controller.text =
+            overAge ? predicateProducer.overAge : predicateProducer.underAge;
+        _controller.selection = TextSelection.fromPosition(
+          TextPosition(offset: _controller.text.length),
+        );
+      },
       buildWhen: (_, current) =>
           predicateProducer.producesDomain(current.filterPredicate?.domain),
       builder: (context, state) {
