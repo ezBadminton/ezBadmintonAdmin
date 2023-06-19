@@ -1,14 +1,11 @@
-import 'dart:async';
-
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_delete_state.dart';
 import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/utils/competition_registration.dart';
-import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:formz/formz.dart';
 
-class PlayerDeleteCubit extends CollectionFetcherCubit<PlayerDeleteState> {
+class PlayerDeleteCubit extends CollectionQuerierCubit<PlayerDeleteState> {
   PlayerDeleteCubit({
     required Player player,
     required CollectionRepository<Player> playerRepository,
@@ -21,31 +18,7 @@ class PlayerDeleteCubit extends CollectionFetcherCubit<PlayerDeleteState> {
             teamRepository,
           ],
           PlayerDeleteState(player: player),
-        ) {
-    _competitionUpdateSubscription = competitionRepository.updateStream.listen(
-      _onCompetitionCollectionUpdate,
-    );
-    // Since collections are cached we take out a copy of the Team collection
-    // now instead of doing it on delete
-    loadCompetitions();
-  }
-
-  late final StreamSubscription _competitionUpdateSubscription;
-
-  void loadCompetitions() {
-    if (state.loadingStatus != LoadingStatus.loading) {
-      emit(state.copyWith(loadingStatus: LoadingStatus.loading));
-    }
-    fetchCollectionsAndUpdateState(
-      [collectionFetcher<Competition>()],
-      onSuccess: (updatedState) {
-        emit(updatedState.copyWith(loadingStatus: LoadingStatus.done));
-      },
-      onFailure: () {
-        emit(state.copyWith(loadingStatus: LoadingStatus.failed));
-      },
-    );
-  }
+        );
 
   void confirmDialogOpened() {
     emit(state.copyWith(showConfirmDialog: true));
@@ -59,12 +32,21 @@ class PlayerDeleteCubit extends CollectionFetcherCubit<PlayerDeleteState> {
   }
 
   void _deletePlayer() async {
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
+    if (state.formStatus != FormzSubmissionStatus.inProgress) {
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
+    }
+    List<Competition>? competitions =
+        await querier.fetchCollection<Competition>();
+
+    if (competitions == null) {
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      return;
+    }
 
     Player player = state.player;
     Iterable<CompetitionRegistration> registrations = registrationsOfPlayer(
       player,
-      state.getCollection<Competition>(),
+      competitions,
     );
 
     for (CompetitionRegistration registration in registrations) {
@@ -83,21 +65,5 @@ class PlayerDeleteCubit extends CollectionFetcherCubit<PlayerDeleteState> {
       return;
     }
     emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
-  }
-
-  void _onCompetitionCollectionUpdate(CollectionUpdateEvent event) {
-    Competition competition = event.model as Competition;
-    Iterable<Player> players = competition.registrations.expand(
-      (team) => team.players,
-    );
-    if (players.contains(state.player)) {
-      loadCompetitions();
-    }
-  }
-
-  @override
-  Future<void> close() {
-    _competitionUpdateSubscription.cancel();
-    return super.close();
   }
 }

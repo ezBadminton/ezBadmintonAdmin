@@ -595,7 +595,6 @@ class _PlayerDeleteButton extends StatelessWidget {
         cubit.confirmChoiceMade(confirmed);
       },
       buildWhen: (previous, current) =>
-          previous.loadingStatus != current.loadingStatus ||
           previous.formStatus != current.formStatus,
       builder: (context, state) {
         return PopupMenuButton<VoidCallback>(
@@ -604,8 +603,7 @@ class _PlayerDeleteButton extends StatelessWidget {
           itemBuilder: (context) => [
             PopupMenuItem(
               value: () {
-                if (state.loadingStatus == LoadingStatus.done &&
-                    state.formStatus != FormzSubmissionStatus.inProgress) {
+                if (state.formStatus != FormzSubmissionStatus.inProgress) {
                   cubit.confirmDialogOpened();
                 }
               },
