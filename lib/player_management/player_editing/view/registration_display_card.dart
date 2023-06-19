@@ -75,27 +75,31 @@ class RegistrationDisplayCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 240),
-                      child: Text(
-                        display_strings.playingLevelList(
-                          competition.playingLevels,
+                    if (competition.playingLevels.isNotEmpty) ...[
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 240),
+                        child: Text(
+                          display_strings.playingLevelList(
+                            competition.playingLevels,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                    divider,
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 140),
-                      child: Text(
-                        display_strings.ageGroupList(
-                          l10n,
-                          competition.ageGroups,
+                      divider,
+                    ],
+                    if (competition.ageGroups.isNotEmpty) ...[
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 140),
+                        child: Text(
+                          display_strings.ageGroupList(
+                            l10n,
+                            competition.ageGroups,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                    divider,
+                      divider,
+                    ],
                     Text(
                       display_strings.competitionCategory(
                         l10n,
