@@ -130,16 +130,21 @@ class PartnerRegistrationCubit
   // If the currently selected partner is registered to another team
   // remove the selection to avoid double registrations
   void _onTeamCollectionUpdate(CollectionUpdateEvent event) {
+    Team updatedTeam = event.model as Team;
     if (state.partner.value != null &&
-        (event.model as Team).players.contains(state.partner.value)) {
+        updatedTeam.players.contains(state.partner.value)) {
       partnerChanged(null);
     }
   }
 
   void _onPlayerCollectionUpdate(CollectionUpdateEvent event) {
+    Player updatedPlayer = event.model as Player;
     switch (event.updateType) {
       case UpdateType.create:
       case UpdateType.delete:
+        if (state.partner.value == updatedPlayer) {
+          partnerChanged(null);
+        }
         loadPlayerData();
         break;
       default:

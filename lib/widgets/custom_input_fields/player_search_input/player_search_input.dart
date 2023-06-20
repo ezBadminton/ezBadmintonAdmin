@@ -45,7 +45,7 @@ class PartnerNameInput extends StatelessWidget {
           ),
           child: Builder(builder: (context) {
             var cubit = context.read<PartnerNameSearchCubit>();
-            if (initialValue != null) {
+            if (initialValue != null && !cubit.state.focus.hasFocus) {
               cubit.partnerNameChanged(initialValue!);
             }
             return BlocBuilder<PartnerNameSearchCubit, PartnerNameSearchState>(
