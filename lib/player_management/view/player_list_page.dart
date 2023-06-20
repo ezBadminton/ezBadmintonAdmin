@@ -185,8 +185,19 @@ class _PlayerList extends StatelessWidget {
 
   Widget _panelList(BuildContext context, PlayerListState listState) {
     var l10n = AppLocalizations.of(context)!;
+    int filteredLength = listState.filteredPlayers.length;
+    int fullLength = listState.getCollection<Player>().length;
     return Column(
       children: [
+        Text(
+          '${l10n.nPlayersShown(filteredLength)} (${l10n.ofN(fullLength)})',
+          style: TextStyle(
+            color:
+                Theme.of(context).textTheme.bodyMedium!.color!.withOpacity(.4),
+            fontSize: 12,
+          ),
+        ),
+        const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
             color: Theme.of(context).scaffoldBackgroundColor,
@@ -206,7 +217,7 @@ class _PlayerList extends StatelessWidget {
               child: Row(
                 children: [
                   const SizedBox(width: 20),
-                  _ColumnHeader<NameComparator>(
+                  _SortableColumnHeader<NameComparator>(
                     width: 190,
                     title: l10n.name,
                   ),
@@ -214,7 +225,7 @@ class _PlayerList extends StatelessWidget {
                     flex: 1,
                     child: Container(),
                   ),
-                  _ColumnHeader<ClubComparator>(
+                  _SortableColumnHeader<ClubComparator>(
                     width: 190,
                     title: l10n.club,
                   ),
@@ -262,12 +273,17 @@ class _PlayerList extends StatelessWidget {
         ),
         Expanded(
           child: SingleChildScrollView(
-            child: custom_expansion_panel.ExpansionPanelList.radio(
-              hasExpandIcon: false,
-              elevation: 0,
-              children: listState.filteredPlayers
-                  .map((p) => PlayerExpansionPanel(p, listState, context))
-                  .toList(),
+            child: Column(
+              children: [
+                custom_expansion_panel.ExpansionPanelList.radio(
+                  hasExpandIcon: false,
+                  elevation: 0,
+                  children: listState.filteredPlayers
+                      .map((p) => PlayerExpansionPanel(p, listState, context))
+                      .toList(),
+                ),
+                const SizedBox(height: 300),
+              ],
             ),
           ),
         ),
@@ -276,9 +292,10 @@ class _PlayerList extends StatelessWidget {
   }
 }
 
-class _ColumnHeader<ComparatorType extends ListSortingComparator<Player>>
+class _SortableColumnHeader<
+        ComparatorType extends ListSortingComparator<Player>>
     extends StatelessWidget {
-  const _ColumnHeader({
+  const _SortableColumnHeader({
     required this.width,
     required this.title,
   });

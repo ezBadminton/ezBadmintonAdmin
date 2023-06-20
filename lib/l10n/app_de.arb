@@ -77,5 +77,7 @@
   "clearFilter": "Filter löschen",
   "deletePlayer": "Spieler löschen",
   "reallyDeletePlayer": "Spieler wirklich löschen?",
-  "confirm": "Bestätigen"
+  "confirm": "Bestätigen",
+  "nPlayersShown": "{playerNumber} Spieler angezeigt",
+  "ofN": "von {number}"
 }
