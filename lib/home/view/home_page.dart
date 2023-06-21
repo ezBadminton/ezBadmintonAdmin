@@ -1,11 +1,11 @@
 import 'package:ez_badminton_admin_app/assets/badminton_icons_icons.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
-import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_state.dart';
 import 'package:ez_badminton_admin_app/home/widgets/navigation_tab.dart';
 import 'package:ez_badminton_admin_app/player_management/view/player_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,40 +20,11 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with TickerProviderStateMixin<HomePage> {
-  static List<NavigationTab> tabs = const [
-    NavigationTab(
-      index: 0,
-      label: 'Spieler',
-      root: PlayerListPage(),
-      unselectedIcon: Icons.person_outline,
-      selectedIcon: Icons.person,
-    ),
-    NavigationTab(
-      index: 1,
-      label: 'Disziplinen',
-      root: Placeholder(),
-      unselectedIcon: BadmintonIcons.badminton_rackets_crossed,
-      selectedIcon: BadmintonIcons.badminton_rackets_crossed,
-    ),
-    NavigationTab(
-      index: 2,
-      label: 'Felder',
-      root: Placeholder(),
-      unselectedIcon: BadmintonIcons.badminton_court_with_net_outline,
-      selectedIcon: BadmintonIcons.badminton_court_with_net,
-    ),
-    NavigationTab(
-      index: 3,
-      label: 'Spiele',
-      root: Placeholder(),
-      unselectedIcon: BadmintonIcons.badminton_shuttlecock_outline,
-      selectedIcon: BadmintonIcons.badminton_shuttlecock,
-    ),
-  ];
-
   late final List<GlobalKey<NavigatorState>> navigatorKeys;
   late final List<AnimationController> switchAnimationControllers;
-  late final List<Widget> tabViews;
+  final int numTabs = 4;
+  late List<NavigationTab> tabs;
+  late List<Widget> tabViews;
 
   AnimationController tabSwitchController() {
     final AnimationController controller = AnimationController(
@@ -70,27 +41,72 @@ class _HomePageState extends State<HomePage>
   void initState() {
     super.initState();
     navigatorKeys = List<GlobalKey<NavigatorState>>.generate(
-        tabs.length, (int index) => GlobalKey()).toList();
+        numTabs, (int index) => GlobalKey()).toList();
     switchAnimationControllers = List<AnimationController>.generate(
-        tabs.length, (int index) => tabSwitchController()).toList();
+        numTabs, (int index) => tabSwitchController()).toList();
     switchAnimationControllers[0].value = 1.0;
-    tabViews = tabs.map((NavigationTab tab) {
-      return ClipRect(
-        child: FadeTransition(
-          opacity: Tween<double>(
-            begin: 0.0,
-            end: 1.0,
-          ).animate(CurvedAnimation(
-            parent: switchAnimationControllers[tab.index],
-            curve: Curves.fastOutSlowIn,
-          )),
-          child: NavigationTabView(
-            tab: tab,
-            navigatorKey: navigatorKeys[tab.index],
-          ),
+    tabViews = [];
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    var l10n = AppLocalizations.of(context)!;
+    setState(() {
+      tabs = [
+        NavigationTab(
+          index: 0,
+          label: l10n.players,
+          root: const PlayerListPage(),
+          unselectedIcon: Icons.person_outline,
+          selectedIcon: Icons.person,
         ),
+        NavigationTab(
+          index: 1,
+          label: l10n.competitions,
+          root: const Placeholder(),
+          unselectedIcon: BadmintonIcons.badminton_rackets_crossed,
+          selectedIcon: BadmintonIcons.badminton_rackets_crossed,
+        ),
+        NavigationTab(
+          index: 2,
+          label: l10n.courts,
+          root: const Placeholder(),
+          unselectedIcon: BadmintonIcons.badminton_court_with_net_outline,
+          selectedIcon: BadmintonIcons.badminton_court_with_net,
+        ),
+        NavigationTab(
+          index: 3,
+          label: l10n.matches,
+          root: const Placeholder(),
+          unselectedIcon: BadmintonIcons.badminton_shuttlecock_outline,
+          selectedIcon: BadmintonIcons.badminton_shuttlecock,
+        ),
+      ];
+
+      assert(
+        tabs.length == numTabs,
+        'Update numTabs to match the length of the NavigationTab list',
       );
-    }).toList();
+
+      tabViews = tabs.map((NavigationTab tab) {
+        return ClipRect(
+          child: FadeTransition(
+            opacity: Tween<double>(
+              begin: 0.0,
+              end: 1.0,
+            ).animate(CurvedAnimation(
+              parent: switchAnimationControllers[tab.index],
+              curve: Curves.fastOutSlowIn,
+            )),
+            child: NavigationTabView(
+              tab: tab,
+              navigatorKey: navigatorKeys[tab.index],
+            ),
+          ),
+        );
+      }).toList();
+    });
   }
 
   @override
@@ -104,9 +120,9 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => TabNavigationCubit(tabs),
-      child: BlocBuilder<TabNavigationCubit, TabNavigationState>(
-        builder: (context, state) {
+      create: (context) => TabNavigationCubit(),
+      child: BlocBuilder<TabNavigationCubit, int>(
+        builder: (context, selectedIndex) {
           return Row(
             children: [
               NavigationRail(
@@ -119,7 +135,7 @@ class _HomePageState extends State<HomePage>
                           label: Text(tab.label),
                         ))
                     .toList(),
-                selectedIndex: state.selectedIndex,
+                selectedIndex: selectedIndex,
                 backgroundColor: Theme.of(context).drawerTheme.backgroundColor,
                 minWidth: 100,
                 labelType: NavigationRailLabelType.all,
@@ -143,7 +159,7 @@ class _HomePageState extends State<HomePage>
                       children: tabs.map((NavigationTab tab) {
                         final int index = tab.index;
                         final Widget view = tabViews[index];
-                        if (index == state.selectedIndex) {
+                        if (index == selectedIndex) {
                           switchAnimationControllers[index].forward();
                           return Offstage(offstage: false, child: view);
                         } else {
