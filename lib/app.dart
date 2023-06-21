@@ -21,6 +21,7 @@ class _AppState extends State<App> {
   late final PocketBaseProvider _pocketBaseProvider;
   late final AuthenticationRepository _authenticationRepository;
   late final UserRepository _userRepository;
+  late final CollectionRepository<Tournament> _tournamentRepository;
   late final CollectionRepository<Player> _playerRepository;
   late final CollectionRepository<Competition> _competitionRepository;
   late final CollectionRepository<PlayingLevel> _playingLevelRepository;
@@ -37,6 +38,12 @@ class _AppState extends State<App> {
     );
     _userRepository = UserRepository(
       pocketBaseProvider: _pocketBaseProvider,
+    );
+    _tournamentRepository = CachedCollectionRepository(
+      PocketbaseCollectionRepository(
+        modelConstructor: Tournament.fromJson,
+        pocketBaseProvider: _pocketBaseProvider,
+      ),
     );
     _playerRepository = CachedCollectionRepository(
       PocketbaseCollectionRepository(
@@ -79,6 +86,7 @@ class _AppState extends State<App> {
   @override
   void dispose() {
     _authenticationRepository.dispose();
+    _tournamentRepository.dispose();
     _playerRepository.dispose();
     _competitionRepository.dispose();
     _playingLevelRepository.dispose();
@@ -93,6 +101,7 @@ class _AppState extends State<App> {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider.value(value: _authenticationRepository),
+        RepositoryProvider.value(value: _tournamentRepository),
         RepositoryProvider.value(value: _playerRepository),
         RepositoryProvider.value(value: _competitionRepository),
         RepositoryProvider.value(value: _playingLevelRepository),

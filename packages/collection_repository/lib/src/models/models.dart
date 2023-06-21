@@ -1,4 +1,5 @@
 export 'model.dart';
+export 'tournament.dart';
 export 'club.dart';
 export 'playing_level.dart';
 export 'player.dart';
