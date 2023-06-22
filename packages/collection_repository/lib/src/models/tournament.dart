@@ -1,5 +1,7 @@
 import 'package:collection_repository/src/models/models.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+// ignore: unused_import
+import 'package:flutter/foundation.dart';
 
 part 'generated/tournament.freezed.dart';
 part 'generated/tournament.g.dart';

@@ -14,7 +14,7 @@ LoadingStatus loadingStatusConjunction(List<LoadingStatus> statusList) {
 class LoadingScreen extends StatelessWidget {
   const LoadingScreen({
     super.key,
-    required this.loadingStatusGetter,
+    required this.loadingStatus,
     this.errorMessage = 'Could not load!',
     this.onRetry,
     this.retryButtonLabel = 'Retry',
@@ -22,7 +22,7 @@ class LoadingScreen extends StatelessWidget {
     required this.builder,
   });
 
-  final LoadingStatus Function() loadingStatusGetter;
+  final LoadingStatus loadingStatus;
   final String errorMessage;
   final void Function()? onRetry;
   final String retryButtonLabel;
@@ -31,7 +31,7 @@ class LoadingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    switch (loadingStatusGetter()) {
+    switch (loadingStatus) {
       case LoadingStatus.loading:
         return loadingIndicator;
       case LoadingStatus.failed:

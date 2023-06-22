@@ -136,7 +136,7 @@ class _CompetitionRegistrationStepper extends StatelessWidget {
         var registrationCubit = context.read<CompetitionRegistrationCubit>();
         var scrollController = context.read<ScrollController>();
         return LoadingScreen(
-          loadingStatusGetter: () => state.loadingStatus,
+          loadingStatus: state.loadingStatus,
           onRetry: registrationCubit.loadPlayerData,
           builder: (_) {
             _scrollAfterBuild(scrollController);
@@ -279,7 +279,7 @@ class _CompetitionStep extends Step {
   ) {
     var l10n = AppLocalizations.of(context)!;
     return _CompetitionStep._(
-      title: Text(l10n.competition),
+      title: Text(l10n.competition(1)),
       subtitle: createSubtitle(context, state),
       content: const Row(
         children: [
@@ -387,7 +387,7 @@ class _AgeGroupStep extends Step {
   ) {
     var l10n = AppLocalizations.of(context)!;
     return _AgeGroupStep._(
-      title: Text(l10n.ageGroup),
+      title: Text(l10n.ageGroup(1)),
       subtitle: createSubtitle(context, state),
       content: const _AgeGroupInput(),
     );
@@ -450,7 +450,7 @@ class _PlayingLevelStep extends Step {
   ) {
     var l10n = AppLocalizations.of(context)!;
     return _PlayingLevelStep._(
-      title: Text(l10n.playingLevel),
+      title: Text(l10n.playingLevel(1)),
       subtitle: createSubtitle(context, state),
       content: const _PlayingLevelInput(),
     );

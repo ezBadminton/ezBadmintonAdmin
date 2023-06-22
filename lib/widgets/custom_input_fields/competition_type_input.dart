@@ -25,7 +25,7 @@ class CompetitionTypeInput extends StatelessWidget {
     return ClearableDropdownButton<CompetitionType>(
       value: currentValue,
       onChanged: onChanged,
-      label: Text(l10n.competition),
+      label: Text(l10n.competition(1)),
       items: competitionTypeOptions
           .map((type) => DropdownMenuItem(
                 value: type,

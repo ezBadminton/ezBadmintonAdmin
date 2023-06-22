@@ -25,7 +25,7 @@ class PlayingLevelInput extends StatelessWidget {
     return ClearableDropdownButton<PlayingLevel>(
       value: currentValue,
       onChanged: onChanged,
-      label: Text(l10n.playingLevel),
+      label: Text(l10n.playingLevel(1)),
       items: playingLevelOptions
           .map((level) => DropdownMenuItem(
                 value: level,

@@ -57,14 +57,14 @@ class _HomePageState extends State<HomePage>
       tabs = [
         NavigationTab(
           index: 0,
-          label: l10n.players,
+          label: l10n.player(2),
           root: const PlayerListPage(),
           unselectedIcon: Icons.person_outline,
           selectedIcon: Icons.person,
         ),
         NavigationTab(
           index: 1,
-          label: l10n.competitions,
+          label: l10n.competition(2),
           root: const CompetitionListPage(),
           unselectedIcon: BadmintonIcons.badminton_rackets_crossed,
           selectedIcon: BadmintonIcons.badminton_rackets_crossed,

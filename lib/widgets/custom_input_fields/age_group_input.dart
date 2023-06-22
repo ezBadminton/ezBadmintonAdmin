@@ -25,7 +25,7 @@ class AgeGroupInput extends StatelessWidget {
     return ClearableDropdownButton<AgeGroup>(
       value: currentValue,
       onChanged: onChanged,
-      label: Text(l10n.ageGroup),
+      label: Text(l10n.ageGroup(1)),
       items: ageGroupOptions
           .map((group) => DropdownMenuItem(
                 value: group,

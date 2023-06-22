@@ -99,7 +99,7 @@ class _PlayerEditingPageContent extends StatelessWidget {
             }
           },
           child: LoadingScreen(
-            loadingStatusGetter: () => state.loadingStatus,
+            loadingStatus: state.loadingStatus,
             onRetry: () => cubit.loadPlayerData(),
             builder: (_) => Align(
               alignment: Alignment.topCenter,

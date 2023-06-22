@@ -40,9 +40,9 @@ String filterChipGroup(AppLocalizations l10n, FilterGroup filterGroup) {
     case FilterGroup.underAge:
       return l10n.age;
     case FilterGroup.playingLevel:
-      return l10n.playingLevel;
+      return l10n.playingLevel(1);
     case FilterGroup.competitionType:
-      return l10n.competition;
+      return l10n.competition(1);
     case FilterGroup.genderCategory:
       return l10n.category;
     case FilterGroup.playerStatus:

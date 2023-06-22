@@ -137,7 +137,7 @@ class _PlayerListWithFilter extends StatelessWidget {
                 previous.loadingStatus != current.loadingStatus,
             builder: (context, filterState) {
               return LoadingScreen(
-                loadingStatusGetter: () => loadingStatusConjunction(
+                loadingStatus: loadingStatusConjunction(
                   [listState.loadingStatus, filterState.loadingStatus],
                 ),
                 errorMessage: l10n.playerListLoadingError,
@@ -243,7 +243,7 @@ class _PlayerList extends StatelessWidget {
                   ),
                   SizedBox(
                     width: 110,
-                    child: Text(l10n.playingLevel),
+                    child: Text(l10n.playingLevel(1)),
                   ),
                   Flexible(
                     flex: 1,

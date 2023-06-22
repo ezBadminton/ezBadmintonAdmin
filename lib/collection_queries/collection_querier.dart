@@ -286,9 +286,9 @@ abstract class CollectionFetcherState<I extends CollectionFetcherState<I>> {
   /// Returns a copy with added [collection] of [modelType].
   ///
   /// Replaces possibly present collection of [modelType]
-  I copyWithCollection({
+  I copyWithCollection<M extends Model>({
     required Type modelType,
-    required List<Model> collection,
+    required List<M> collection,
   }) {
     Map<Type, List<Model>> updatedCollections = Map.of(collections);
     updatedCollections.remove(modelType);

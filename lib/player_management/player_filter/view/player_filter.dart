@@ -50,7 +50,7 @@ class _FilterMenus extends StatelessWidget {
         children: [
           FilterPopoverMenu(
             filterMenu: _PlayingLevelFilterForm(backgroudContext: context),
-            buttonText: l10n.playingLevel,
+            buttonText: l10n.playingLevel(1),
           ),
           const SizedBox(width: 10),
           FilterPopoverMenu(
@@ -65,7 +65,7 @@ class _FilterMenus extends StatelessWidget {
           const SizedBox(width: 10),
           FilterPopoverMenu(
             filterMenu: _CompetitionTypeFilterForm(backgroudContext: context),
-            buttonText: l10n.competition,
+            buttonText: l10n.competition(1),
           ),
           const SizedBox(width: 10),
           FilterPopoverMenu(
