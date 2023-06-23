@@ -53,7 +53,12 @@ class PlayerEditingPage extends StatelessWidget {
         builder: (context, state) {
           return Scaffold(
             appBar: AppBar(
-                title: Text(player == null ? l10n.addPlayer : l10n.editPlayer)),
+              title: Text(
+                player == null
+                    ? l10n.addSubject(l10n.player(1))
+                    : l10n.editSubject(l10n.player(1)),
+              ),
+            ),
             floatingActionButton: Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 80, 40),
               child: FloatingActionButton.extended(

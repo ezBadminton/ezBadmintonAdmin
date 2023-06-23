@@ -39,8 +39,6 @@
   "competitionManagement": "Disziplinen verwalten",
   "birthday": "Geburtstag",
   "dateOfBirth": "Geburtsdatum",
-  "addPlayer": "Spieler hinzufügen",
-  "editPlayer": "Spieler bearbeiten",
   "personalData": "Zur Person",
   "registeredCompetitions": "Gemeldete Disziplinen",
   "pleaseFillIn": "Bitte ausfüllen",
@@ -85,5 +83,7 @@
   "ofN": "von {number}",
   "categorizationHint": "Kategorisierung der Disziplinen in {category}. Die selbe Disziplin (z.B. Mixed) kann so mehrfach für verschiedene Spielergruppen ausgetragen werden.",
   "activatePlayingLevels": "Spielklassen verwenden",
-  "activateAgeGroups": "Altersklassen verwenden"
+  "activateAgeGroups": "Altersklassen verwenden",
+  "editSubject": "{subject} bearbeiten",
+  "addSubject": "{subject} hinzufügen"
 }

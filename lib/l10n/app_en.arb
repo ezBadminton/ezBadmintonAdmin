@@ -39,8 +39,6 @@
   "competitionManagement": "Disziplinen verwalten",
   "birthday": "birthday",
   "dateOfBirth": "date of birth",
-  "addPlayer": "Add player",
-  "editPlayer": "Edit player",
   "personalData": "Personal",
   "registeredCompetitions": "Registered competitions",
   "pleaseFillIn": "Please fill in",
@@ -85,5 +83,7 @@
   "ofN": "of {number}",
   "categorizationHint": "Enable categorization of the disciplines into {category}. This way the same discipline (e.g. mixed) can be held more than once for different groups of players.",
   "activatePlayingLevels": "Use playing levels",
-  "activateAgeGroups": "Use age groups"
+  "activateAgeGroups": "Use age groups",
+  "editSubject": "Edit {subject}",
+  "addSubject": "Add {subject}"
 }

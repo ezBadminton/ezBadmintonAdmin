@@ -33,17 +33,23 @@ class _CompetitionListPageScaffold extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.competitionManagement)),
-      body: BlocBuilder<TournamentEditingCubit, TournamentEditingState>(
-        buildWhen: (previous, current) =>
-            previous.loadingStatus != current.loadingStatus,
-        builder: (context, state) {
-          return LoadingScreen(
-            loadingStatus: state.loadingStatus,
-            builder: (context) {
-              return const _CategorizationSwitches();
+      body: Align(
+        alignment: AlignmentDirectional.topCenter,
+        child: SizedBox(
+          width: 1150,
+          child: BlocBuilder<TournamentEditingCubit, TournamentEditingState>(
+            buildWhen: (previous, current) =>
+                previous.loadingStatus != current.loadingStatus,
+            builder: (context, state) {
+              return LoadingScreen(
+                loadingStatus: state.loadingStatus,
+                builder: (context) {
+                  return const _CategorizationSwitches();
+                },
+              );
             },
-          );
-        },
+          ),
+        ),
       ),
     );
   }
@@ -61,20 +67,29 @@ class _CategorizationSwitches extends StatelessWidget {
           previous.formStatus != current.formStatus,
       builder: (context, state) {
         return Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _TournamentSwitchWithHelpIcon(
-              valueGetter: (state) => state.tournament!.useAgeGroups,
-              onChanged: cubit.useAgeGroupsChanged,
-              label: l10n.activateAgeGroups,
-              helpMessage: l10n.categorizationHint(l10n.ageGroup(2)),
-              enabled: state.formStatus != FormzSubmissionStatus.inProgress,
+            Expanded(
+              child: _CategoryPanel(
+                valueGetter: (state) => state.tournament!.useAgeGroups,
+                onChanged: cubit.useAgeGroupsChanged,
+                label: l10n.activateAgeGroups,
+                helpMessage: l10n.categorizationHint(l10n.ageGroup(2)),
+                editButtonLabel: l10n.editSubject(l10n.ageGroup(2)),
+                enabled: state.formStatus != FormzSubmissionStatus.inProgress,
+              ),
             ),
-            _TournamentSwitchWithHelpIcon(
-              valueGetter: (state) => state.tournament!.usePlayingLevels,
-              onChanged: cubit.usePlayingLevelsChanged,
-              label: l10n.activatePlayingLevels,
-              helpMessage: l10n.categorizationHint(l10n.playingLevel(2)),
-              enabled: state.formStatus != FormzSubmissionStatus.inProgress,
+            const SizedBox(width: 10),
+            Expanded(
+              child: _CategoryPanel(
+                valueGetter: (state) => state.tournament!.usePlayingLevels,
+                onChanged: cubit.usePlayingLevelsChanged,
+                label: l10n.activatePlayingLevels,
+                helpMessage: l10n.categorizationHint(l10n.playingLevel(2)),
+                editButtonLabel: l10n.editSubject(l10n.playingLevel(2)),
+                enabled: state.formStatus != FormzSubmissionStatus.inProgress,
+              ),
             ),
           ],
         );
@@ -83,29 +98,104 @@ class _CategorizationSwitches extends StatelessWidget {
   }
 }
 
-class _TournamentSwitchWithHelpIcon extends StatelessWidget {
-  const _TournamentSwitchWithHelpIcon({
+class _CategoryPanel extends StatelessWidget {
+  /// A panel with a switch to toggle playing level/age group categorization
+  /// for competitions.
+  ///
+  /// When the switch is on, an edit button appears to add/remove categories.
+  const _CategoryPanel({
     this.enabled = true,
     required this.valueGetter,
     required this.onChanged,
     required this.label,
     required this.helpMessage,
+    required this.editButtonLabel,
   });
 
   final bool enabled;
   final bool Function(TournamentEditingState) valueGetter;
   final void Function(bool) onChanged;
+  // Label next to the switch wigdet
   final String label;
+  // Message being shown as a tooltip on a help icon
+  final String helpMessage;
+  final String editButtonLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<TournamentEditingCubit, TournamentEditingState>(
+      buildWhen: (previous, current) =>
+          valueGetter(previous) != valueGetter(current),
+      builder: (context, state) {
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          height: valueGetter(state) ? 120 : 80,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.background,
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: ScrollConfiguration(
+            behavior: ScrollConfiguration.of(context).copyWith(
+              scrollbars: false,
+            ),
+            child: SingleChildScrollView(
+              clipBehavior: Clip.hardEdge,
+              physics: const NeverScrollableScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    _CategorySwitchWithHelpIcon(
+                      label: label,
+                      valueGetter: valueGetter,
+                      enabled: enabled,
+                      onChanged: onChanged,
+                      helpMessage: helpMessage,
+                    ),
+                    const SizedBox(height: 15),
+                    AnimatedOpacity(
+                      opacity: valueGetter(state) ? 1 : 0,
+                      duration: const Duration(milliseconds: 100),
+                      child: TextButton(
+                        onPressed: () {},
+                        child: Text(editButtonLabel),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _CategorySwitchWithHelpIcon extends StatelessWidget {
+  const _CategorySwitchWithHelpIcon({
+    required this.label,
+    required this.valueGetter,
+    required this.enabled,
+    required this.onChanged,
+    required this.helpMessage,
+  });
+
+  final String label;
+  final bool Function(TournamentEditingState p1) valueGetter;
+  final bool enabled;
+  final void Function(bool p1) onChanged;
   final String helpMessage;
 
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _TournamentSwitch(
+        _CategorySwitch(
           label: label,
           valueGetter: valueGetter,
-          onChanged: enabled ? onChanged : null,
+          onChanged: enabled ? onChanged : (_) {},
         ),
         const SizedBox(width: 8),
         LongTooltip(
@@ -121,9 +211,9 @@ class _TournamentSwitchWithHelpIcon extends StatelessWidget {
   }
 }
 
-class _TournamentSwitch
+class _CategorySwitch
     extends BlocSwitch<TournamentEditingCubit, TournamentEditingState> {
-  const _TournamentSwitch({
+  const _CategorySwitch({
     required super.label,
     required super.valueGetter,
     required super.onChanged,
