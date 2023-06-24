@@ -20,6 +20,18 @@ class AgeGroup extends Model with _$AgeGroup {
   factory AgeGroup.fromJson(Map<String, dynamic> json) =>
       _$AgeGroupFromJson(json);
 
+  factory AgeGroup.newAgeGroup({
+    required AgeGroupType type,
+    required int age,
+  }) =>
+      AgeGroup(
+        id: '',
+        created: DateTime.now(),
+        updated: DateTime.now(),
+        age: age,
+        type: type,
+      );
+
   @override
   Map<String, dynamic> toCollapsedJson() {
     return toJson();

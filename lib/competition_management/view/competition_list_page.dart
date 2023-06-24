@@ -162,13 +162,13 @@ class _CategoryPanel extends StatelessWidget {
                     opacity: valueGetter(state) ? 1 : 0,
                     duration: const Duration(milliseconds: 100),
                     child: TextButton(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          useRootNavigator: false,
-                          builder: (context) => editWidget,
-                        );
-                      },
+                      onPressed: valueGetter(state)
+                          ? () => showDialog(
+                                context: context,
+                                useRootNavigator: false,
+                                builder: (context) => editWidget,
+                              )
+                          : null,
                       child: Text(editButtonLabel),
                     ),
                   ),

@@ -1,15 +1,292 @@
+import 'package:collection/collection.dart';
+import 'package:collection_repository/collection_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:formz/formz.dart';
+import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
+    as display_strings;
+import 'package:ez_badminton_admin_app/competition_management/age_group_editing/cubit/age_group_editing_cubit.dart';
 
 class AgeGroupEditingPopup extends StatelessWidget {
   const AgeGroupEditingPopup({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Dialog(
-      child: SizedBox(
-        width: 600,
-        height: 400,
-        child: Placeholder(),
+    var l10n = AppLocalizations.of(context)!;
+    return BlocProvider(
+      create: (context) => AgeGroupEditingCubit(
+        ageGroupRepository: context.read<CollectionRepository<AgeGroup>>(),
+        competitionRepository:
+            context.read<CollectionRepository<Competition>>(),
+      ),
+      child: Dialog(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 500),
+          child: Padding(
+            padding: const EdgeInsets.all(50.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  l10n.ageGroup(2),
+                  style: const TextStyle(fontSize: 22),
+                ),
+                const Divider(height: 25, indent: 20, endIndent: 20),
+                _AgeGroupForm(),
+                const Divider(height: 25, indent: 20, endIndent: 20),
+                _AgeGroupList(),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AgeGroupList extends StatelessWidget {
+  _AgeGroupList();
+
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
+    List<AgeGroup> ageGroups = [];
+    return BlocConsumer<AgeGroupEditingCubit, AgeGroupEditingState>(
+      listenWhen: (previous, current) {
+        List<AgeGroup> previousList = previous.collections.containsKey(AgeGroup)
+            ? previous.getCollection<AgeGroup>()
+            : [];
+        List<AgeGroup> currentList = current.collections.containsKey(AgeGroup)
+            ? current.getCollection<AgeGroup>()
+            : [];
+        bool isDifferent = previousList != currentList;
+        if (isDifferent) {
+          ageGroups = currentList;
+
+          Iterable<int> removedIndices = previousList
+              .whereNot((g) => currentList.contains(g))
+              .map((g) => previousList.indexOf(g));
+          Iterable<int> addedIndices = currentList
+              .whereNot((g) => previousList.contains(g))
+              .map((g) => currentList.indexOf(g));
+
+          for (int index in removedIndices) {
+            _listKey.currentState!.removeItem(
+              index,
+              duration: const Duration(milliseconds: 120),
+              (context, animation) => SizeTransition(
+                sizeFactor: animation,
+                child: _AgeGroupListItem(
+                  ageGroup: previousList[index],
+                  index: index,
+                  deletable: false,
+                ),
+              ),
+            );
+          }
+          for (int index in addedIndices) {
+            _listKey.currentState!.insertItem(
+              index,
+              duration: const Duration(milliseconds: 120),
+            );
+          }
+        }
+        return false;
+      },
+      listener: (context, state) {},
+      buildWhen: (previous, current) =>
+          previous.isDeletable != current.isDeletable,
+      builder: (context, state) => SizedBox(
+        height: 300,
+        child: AnimatedList(
+          key: _listKey,
+          itemBuilder: (context, index, animation) {
+            return SizeTransition(
+              sizeFactor: animation,
+              child: _AgeGroupListItem(
+                ageGroup: ageGroups[index],
+                index: index,
+                deletable: state.isDeletable,
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _AgeGroupListItem extends StatelessWidget {
+  const _AgeGroupListItem({
+    required this.ageGroup,
+    required this.index,
+    this.deletable = true,
+  });
+
+  final AgeGroup ageGroup;
+  final int index;
+  final bool deletable;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+    var cubit = context.read<AgeGroupEditingCubit>();
+    return Container(
+      color: index % 2 == 1
+          ? Theme.of(context).disabledColor.withOpacity(.05)
+          : null,
+      child: Row(
+        children: [
+          const SizedBox(width: 25),
+          Text(
+            display_strings.ageGroup(l10n, ageGroup),
+            style: const TextStyle(fontSize: 16),
+          ),
+          const Expanded(child: SizedBox()),
+          IconButton(
+            onPressed: () {
+              if (deletable) {
+                cubit.ageGroupRemoved(ageGroup);
+              }
+            },
+            icon: const Icon(Icons.close),
+          ),
+          const SizedBox(width: 10),
+        ],
+      ),
+    );
+  }
+}
+
+class _AgeGroupForm extends StatelessWidget {
+  _AgeGroupForm();
+
+  final FocusNode _focus = FocusNode();
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+    var cubit = context.read<AgeGroupEditingCubit>();
+    return BlocConsumer<AgeGroupEditingCubit, AgeGroupEditingState>(
+      listenWhen: (previous, current) =>
+          previous.formStatus == FormzSubmissionStatus.inProgress &&
+          current.formStatus == FormzSubmissionStatus.success,
+      listener: (context, state) {
+        _controller.text = '';
+        cubit.ageChanged('');
+        _focus.requestFocus();
+      },
+      builder: (context, state) {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _AgeGroupTypeRadio(
+                  ageGroupType: AgeGroupType.over,
+                  selectedAgeGroupType: state.ageGroupType.value,
+                  onChanged: (AgeGroupType? ageGroupType) {
+                    cubit.ageGroupTypeChanged(ageGroupType);
+                    _focus.requestFocus();
+                  },
+                  label: l10n.overAge,
+                ),
+                _AgeGroupTypeRadio(
+                  ageGroupType: AgeGroupType.under,
+                  selectedAgeGroupType: state.ageGroupType.value,
+                  onChanged: (AgeGroupType? ageGroupType) {
+                    cubit.ageGroupTypeChanged(ageGroupType);
+                    _focus.requestFocus();
+                  },
+                  label: l10n.underAge,
+                ),
+              ],
+            ),
+            const SizedBox(width: 12),
+            SizedBox(
+              width: 50,
+              child: TextField(
+                onChanged: (String value) {
+                  cubit.ageChanged(value);
+                },
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(2),
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
+                controller: _controller,
+                focusNode: _focus,
+                onSubmitted: (_) {
+                  if (state.isSubmittable) {
+                    cubit.ageGroupSubmitted();
+                  }
+                },
+                decoration: InputDecoration(
+                  hintText: l10n.age,
+                  filled: true,
+                  fillColor:
+                      Theme.of(context).colorScheme.background.withOpacity(.5),
+                  isDense: true,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+                  enabledBorder:
+                      const OutlineInputBorder(borderSide: BorderSide.none),
+                  focusedBorder:
+                      const OutlineInputBorder(borderSide: BorderSide.none),
+                ),
+              ),
+            ),
+            const SizedBox(width: 20),
+            ElevatedButton(
+              onPressed: state.isSubmittable ? cubit.ageGroupSubmitted : null,
+              child: Text(l10n.add),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _AgeGroupTypeRadio extends StatelessWidget {
+  const _AgeGroupTypeRadio({
+    required this.ageGroupType,
+    required this.selectedAgeGroupType,
+    required this.onChanged,
+    required this.label,
+  });
+
+  final AgeGroupType ageGroupType;
+  final AgeGroupType? selectedAgeGroupType;
+  final void Function(AgeGroupType? ageGroupType) onChanged;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        onChanged(ageGroupType);
+      },
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Radio<AgeGroupType>(
+            value: ageGroupType,
+            groupValue: selectedAgeGroupType,
+            onChanged: (_) {
+              onChanged(ageGroupType);
+            },
+          ),
+          Text(
+            label,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+        ],
       ),
     );
   }
