@@ -1,5 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/competition_management/age_group_editing/view/age_group_editing_popup.dart';
+import 'package:ez_badminton_admin_app/competition_management/playing_level_editing/view/playing_level_editing_popup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -77,6 +79,7 @@ class _CategorizationSwitches extends StatelessWidget {
                 label: l10n.activateAgeGroups,
                 helpMessage: l10n.categorizationHint(l10n.ageGroup(2)),
                 editButtonLabel: l10n.editSubject(l10n.ageGroup(2)),
+                editWidget: const AgeGroupEditingPopup(),
                 enabled: state.formStatus != FormzSubmissionStatus.inProgress,
               ),
             ),
@@ -88,6 +91,7 @@ class _CategorizationSwitches extends StatelessWidget {
                 label: l10n.activatePlayingLevels,
                 helpMessage: l10n.categorizationHint(l10n.playingLevel(2)),
                 editButtonLabel: l10n.editSubject(l10n.playingLevel(2)),
+                editWidget: const PlayingLevelEditingPopup(),
                 enabled: state.formStatus != FormzSubmissionStatus.inProgress,
               ),
             ),
@@ -110,6 +114,7 @@ class _CategoryPanel extends StatelessWidget {
     required this.label,
     required this.helpMessage,
     required this.editButtonLabel,
+    required this.editWidget,
   });
 
   final bool enabled;
@@ -120,6 +125,7 @@ class _CategoryPanel extends StatelessWidget {
   // Message being shown as a tooltip on a help icon
   final String helpMessage;
   final String editButtonLabel;
+  final Widget editWidget;
 
   @override
   Widget build(BuildContext context) {
@@ -141,28 +147,32 @@ class _CategoryPanel extends StatelessWidget {
             child: SingleChildScrollView(
               clipBehavior: Clip.hardEdge,
               physics: const NeverScrollableScrollPhysics(),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    _CategorySwitchWithHelpIcon(
-                      label: label,
-                      valueGetter: valueGetter,
-                      enabled: enabled,
-                      onChanged: onChanged,
-                      helpMessage: helpMessage,
+              child: Column(
+                children: [
+                  const SizedBox(height: 18),
+                  _CategorySwitchWithHelpIcon(
+                    label: label,
+                    valueGetter: valueGetter,
+                    enabled: enabled,
+                    onChanged: onChanged,
+                    helpMessage: helpMessage,
+                  ),
+                  const SizedBox(height: 15),
+                  AnimatedOpacity(
+                    opacity: valueGetter(state) ? 1 : 0,
+                    duration: const Duration(milliseconds: 100),
+                    child: TextButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          useRootNavigator: false,
+                          builder: (context) => editWidget,
+                        );
+                      },
+                      child: Text(editButtonLabel),
                     ),
-                    const SizedBox(height: 15),
-                    AnimatedOpacity(
-                      opacity: valueGetter(state) ? 1 : 0,
-                      duration: const Duration(milliseconds: 100),
-                      child: TextButton(
-                        onPressed: () {},
-                        child: Text(editButtonLabel),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
