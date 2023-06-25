@@ -1,5 +1,5 @@
-import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/widgets/implicit_animated_list/implicit_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,7 +36,7 @@ class AgeGroupEditingPopup extends StatelessWidget {
                 const Divider(height: 25, indent: 20, endIndent: 20),
                 _AgeGroupForm(),
                 const Divider(height: 25, indent: 20, endIndent: 20),
-                _AgeGroupList(),
+                const _AgeGroupList(),
               ],
             ),
           ),
@@ -47,74 +47,35 @@ class AgeGroupEditingPopup extends StatelessWidget {
 }
 
 class _AgeGroupList extends StatelessWidget {
-  _AgeGroupList();
-
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey();
+  const _AgeGroupList();
 
   @override
   Widget build(BuildContext context) {
-    List<AgeGroup> ageGroups = [];
-    return BlocConsumer<AgeGroupEditingCubit, AgeGroupEditingState>(
-      listenWhen: (previous, current) {
-        List<AgeGroup> previousList = previous.collections.containsKey(AgeGroup)
-            ? previous.getCollection<AgeGroup>()
-            : [];
-        List<AgeGroup> currentList = current.collections.containsKey(AgeGroup)
-            ? current.getCollection<AgeGroup>()
-            : [];
-        bool isDifferent = previousList != currentList;
-        if (isDifferent) {
-          ageGroups = currentList;
-
-          Iterable<int> removedIndices = previousList
-              .whereNot((g) => currentList.contains(g))
-              .map((g) => previousList.indexOf(g));
-          Iterable<int> addedIndices = currentList
-              .whereNot((g) => previousList.contains(g))
-              .map((g) => currentList.indexOf(g));
-
-          for (int index in removedIndices) {
-            _listKey.currentState!.removeItem(
-              index,
-              duration: const Duration(milliseconds: 120),
-              (context, animation) => SizeTransition(
+    return BlocBuilder<AgeGroupEditingCubit, AgeGroupEditingState>(
+      buildWhen: (previous, current) =>
+          previous.isDeletable != current.isDeletable ||
+          previous.getCollection<AgeGroup>() !=
+              current.getCollection<AgeGroup>(),
+      builder: (context, state) {
+        List<AgeGroup> ageGroups =
+            state.collections[AgeGroup] as List<AgeGroup>? ?? [];
+        return SizedBox(
+          height: 300,
+          child: ImplicitAnimatedList<AgeGroup>(
+            elements: ageGroups,
+            itemBuilder: (ageGroup, animation) {
+              return SizeTransition(
                 sizeFactor: animation,
                 child: _AgeGroupListItem(
-                  ageGroup: previousList[index],
-                  index: index,
-                  deletable: false,
+                  ageGroup: ageGroup,
+                  index: ageGroups.indexOf(ageGroup),
+                  deletable: state.isDeletable,
                 ),
-              ),
-            );
-          }
-          for (int index in addedIndices) {
-            _listKey.currentState!.insertItem(
-              index,
-              duration: const Duration(milliseconds: 120),
-            );
-          }
-        }
-        return false;
+              );
+            },
+          ),
+        );
       },
-      listener: (context, state) {},
-      buildWhen: (previous, current) =>
-          previous.isDeletable != current.isDeletable,
-      builder: (context, state) => SizedBox(
-        height: 300,
-        child: AnimatedList(
-          key: _listKey,
-          itemBuilder: (context, index, animation) {
-            return SizeTransition(
-              sizeFactor: animation,
-              child: _AgeGroupListItem(
-                ageGroup: ageGroups[index],
-                index: index,
-                deletable: state.isDeletable,
-              ),
-            );
-          },
-        ),
-      ),
     );
   }
 }
