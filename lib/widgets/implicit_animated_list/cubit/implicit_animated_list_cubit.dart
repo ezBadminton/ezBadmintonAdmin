@@ -5,26 +5,54 @@ import 'package:flutter/material.dart';
 part 'implicit_animated_list_state.dart';
 
 class ImplicitAnimatedListCubit<T> extends Cubit<ImplicitAnimatedListState<T>> {
-  ImplicitAnimatedListCubit() : super(ImplicitAnimatedListState());
+  ImplicitAnimatedListCubit({this.reorderable = false})
+      : super(ImplicitAnimatedListState());
+
+  final bool reorderable;
 
   void elementsChanged(List<T> elements) {
+    List<List<T>> changedElements =
+        _getChangedElements(state.elements, elements);
     emit(state.copyWith(
       elements: elements,
       previousElements: state.elements,
-      removedIndices: _getRemovedIndices(state.elements, elements),
-      addedIndices: _getAddedIndices(state.elements, elements),
+      removedElements: changedElements[0],
+      addedElements: changedElements[1],
     ));
   }
 
-  Iterable<int> _getRemovedIndices(List<T> before, List<T> after) {
-    return before
+  List<List<T>> _getChangedElements(List<T> before, List<T> after) {
+    List<T> removedElements = before
         .whereNot((e) => after.contains(e))
-        .map((e) => before.indexOf(e));
-  }
+        //.map((e) => before.indexOf(e))
+        .toList();
 
-  Iterable<int> _getAddedIndices(List<T> before, List<T> after) {
-    return after
+    List<T> addedElements = after
         .whereNot((e) => before.contains(e))
-        .map((e) => after.indexOf(e));
+        //.map((e) => after.indexOf(e))
+        .toList();
+
+    if (reorderable) {
+      List<T> cleanedBefore = List.of(before)
+        ..removeWhere((e) => removedElements.contains(e));
+      List<T> cleanedAfter = List.of(after)
+        ..removeWhere((e) => addedElements.contains(e));
+
+      assert(
+        cleanedBefore.isEmpty && cleanedAfter.isEmpty ||
+            cleanedBefore
+                .map((element) => cleanedAfter.contains(element))
+                .reduce((value, element) => value && element),
+      );
+
+      List<T> reorderedElements = cleanedBefore
+          .whereIndexed((index, e) => cleanedAfter[index] != e)
+          .toList();
+
+      removedElements = [...removedElements, ...reorderedElements];
+      addedElements = [...addedElements, ...reorderedElements];
+    }
+
+    return [removedElements, addedElements];
   }
 }

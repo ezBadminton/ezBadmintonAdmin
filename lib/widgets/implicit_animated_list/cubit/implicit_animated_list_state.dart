@@ -5,28 +5,28 @@ class ImplicitAnimatedListState<T> {
   ImplicitAnimatedListState({
     this.elements = const [],
     this.previousElements = const [],
-    this.addedIndices = const [],
-    this.removedIndices = const [],
+    this.addedElements = const [],
+    this.removedElements = const [],
     GlobalKey<AnimatedListState>? animatedListKey,
   }) : animatedListKey = animatedListKey ?? GlobalKey<AnimatedListState>();
 
   final GlobalKey<AnimatedListState> animatedListKey;
   final List<T> elements;
   final List<T> previousElements;
-  final Iterable<int> removedIndices;
-  final Iterable<int> addedIndices;
+  final List<T> removedElements;
+  final List<T> addedElements;
 
   ImplicitAnimatedListState<T> copyWith({
     List<T>? elements,
     List<T>? previousElements,
-    Iterable<int>? removedIndices,
-    Iterable<int>? addedIndices,
+    List<T>? removedElements,
+    List<T>? addedElements,
   }) {
     return ImplicitAnimatedListState<T>(
       elements: elements ?? this.elements,
       previousElements: previousElements ?? this.previousElements,
-      removedIndices: removedIndices ?? this.removedIndices,
-      addedIndices: addedIndices ?? this.addedIndices,
+      removedElements: removedElements ?? this.removedElements,
+      addedElements: addedElements ?? this.addedElements,
       animatedListKey: this.animatedListKey,
     );
   }
