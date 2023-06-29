@@ -4,13 +4,15 @@ import 'package:flutter/material.dart';
 
 part 'implicit_animated_list_state.dart';
 
-class ImplicitAnimatedListCubit<T> extends Cubit<ImplicitAnimatedListState<T>> {
+class ImplicitAnimatedListCubit<T extends Object>
+    extends Cubit<ImplicitAnimatedListState<T>> {
   ImplicitAnimatedListCubit({this.reorderable = false})
       : super(ImplicitAnimatedListState());
 
   final bool reorderable;
 
   void elementsChanged(List<T> elements) {
+    elements = List.of(elements);
     List<List<T>> changedElements =
         _getChangedElements(state.elements, elements);
     emit(state.copyWith(
@@ -21,16 +23,20 @@ class ImplicitAnimatedListCubit<T> extends Cubit<ImplicitAnimatedListState<T>> {
     ));
   }
 
-  List<List<T>> _getChangedElements(List<T> before, List<T> after) {
-    List<T> removedElements = before
-        .whereNot((e) => after.contains(e))
-        //.map((e) => before.indexOf(e))
-        .toList();
+  void dragStarted(int draggingIndex) {
+    assert(reorderable);
+    emit(state.copyWith(draggingIndex: draggingIndex));
+  }
 
-    List<T> addedElements = after
-        .whereNot((e) => before.contains(e))
-        //.map((e) => after.indexOf(e))
-        .toList();
+  void dragEnded() {
+    emit(state.copyWith(draggingIndex: -1));
+  }
+
+  List<List<T>> _getChangedElements(List<T> before, List<T> after) {
+    List<T> removedElements =
+        before.whereNot((e) => after.contains(e)).toList();
+
+    List<T> addedElements = after.whereNot((e) => before.contains(e)).toList();
 
     if (reorderable) {
       List<T> cleanedBefore = List.of(before)
@@ -52,6 +58,8 @@ class ImplicitAnimatedListCubit<T> extends Cubit<ImplicitAnimatedListState<T>> {
       removedElements = [...removedElements, ...reorderedElements];
       addedElements = [...addedElements, ...reorderedElements];
     }
+
+    addedElements.sort((a, b) => after.indexOf(a).compareTo(after.indexOf(b)));
 
     return [removedElements, addedElements];
   }

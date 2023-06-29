@@ -63,7 +63,8 @@ class _AgeGroupList extends StatelessWidget {
           height: 300,
           child: ImplicitAnimatedList<AgeGroup>(
             elements: ageGroups,
-            itemBuilder: (ageGroup, animation) {
+            duration: const Duration(milliseconds: 120),
+            itemBuilder: (context, ageGroup, animation) {
               return SizeTransition(
                 sizeFactor: animation,
                 child: _AgeGroupListItem(
