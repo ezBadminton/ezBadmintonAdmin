@@ -59,55 +59,71 @@ class _PlayingLevelList extends StatelessWidget {
               onReorder: cubit.playingLevelsReordered,
               enabled: state.formInteractable,
               duration: const Duration(milliseconds: 120),
-              itemBuilder: (
-                playingLevel,
-                animation,
-                draggableWrapper,
-              ) {
-                return SizeTransition(
-                  sizeFactor: animation,
-                  child: Row(
-                    children: [
-                      Text(playingLevel.name),
-                      const Expanded(child: SizedBox()),
-                      draggableWrapper(const Icon(Icons.format_line_spacing)),
-                    ],
-                  ),
-                );
-              },
-              reorderedItemBuilder: (
-                playingLevel,
-                animation,
-                draggableWrapper,
-                indexDelta,
-              ) {
-                return SlideTransition(
-                  position: animation.drive(Tween<Offset>(
-                    begin: Offset(0, -indexDelta.toDouble() * 1.6666),
-                    end: Offset.zero,
-                  )),
-                  child: Row(
-                    children: [
-                      Text(playingLevel.name),
-                      const Expanded(child: SizedBox()),
-                      draggableWrapper(const Icon(Icons.format_line_spacing)),
-                    ],
-                  ),
-                );
-              },
-              itemDragBuilder: (playingLevel) {
-                return Text(playingLevel.name);
-              },
-              itemPlaceholderBuilder: (playingLevel) {
-                return Text(
-                  playingLevel.name,
-                  style: TextStyle(color: Theme.of(context).disabledColor),
-                );
-              },
+              itemBuilder: _itemBuilder,
+              itemReorderBuilder: _itemReorderBuilder,
+              itemDragBuilder: _itemDragBuilder,
+              itemPlaceholderBuilder: _itemPlaceholderBuilder,
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _itemPlaceholderBuilder(
+    BuildContext context,
+    PlayingLevel playingLevel,
+  ) {
+    return Text(
+      playingLevel.name,
+      style: TextStyle(color: Theme.of(context).disabledColor),
+    );
+  }
+
+  Widget _itemDragBuilder(
+    BuildContext context,
+    PlayingLevel playingLevel,
+  ) {
+    return Text(playingLevel.name);
+  }
+
+  Widget _itemReorderBuilder(
+    BuildContext context,
+    PlayingLevel playingLevel,
+    Animation<double> animation,
+    DraggableWrapper draggableWrapper,
+    int indexDelta,
+  ) {
+    return SlideTransition(
+      position: animation.drive(Tween<Offset>(
+        begin: Offset(0, -indexDelta.toDouble() * 1.6666),
+        end: Offset.zero,
+      )),
+      child: Row(
+        children: [
+          Text(playingLevel.name),
+          const Expanded(child: SizedBox()),
+          draggableWrapper(const Icon(Icons.format_line_spacing)),
+        ],
+      ),
+    );
+  }
+
+  Widget _itemBuilder(
+    BuildContext context,
+    PlayingLevel playingLevel,
+    Animation<double> animation,
+    DraggableWrapper draggableWrapper,
+  ) {
+    return SizeTransition(
+      sizeFactor: animation,
+      child: Row(
+        children: [
+          Text(playingLevel.name),
+          const Expanded(child: SizedBox()),
+          draggableWrapper(const Icon(Icons.format_line_spacing)),
+        ],
+      ),
     );
   }
 }

@@ -5,31 +5,42 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 typedef DraggableWrapper = Draggable Function(Widget child);
 
+typedef DraggableItemBuilder<T extends Object> = Widget Function(
+  BuildContext context,
+  T element,
+  Animation<double> animation,
+  DraggableWrapper draggableWrapper,
+);
+
+typedef ReorderedDraggableItemBuilder<T extends Object> = Widget Function(
+  BuildContext context,
+  T element,
+  Animation<double> animation,
+  DraggableWrapper draggableWrapper,
+  int indexDelta,
+);
+
+typedef ItemBuilder<T extends Object> = Widget Function(
+  BuildContext context,
+  T element,
+);
+
 class ReorderableImplicitAnimatedList<T extends Object>
     extends ImplicitAnimatedList<T> {
   ReorderableImplicitAnimatedList({
     super.key,
     required super.elements,
-    required Widget Function(
-      T element,
-      Animation<double> animation,
-      DraggableWrapper draggableWrapper,
-    ) itemBuilder,
-    required Widget Function(
-      T element,
-      Animation<double> animation,
-      DraggableWrapper draggableWrapper,
-      int indexDelta,
-    ) reorderedItemBuilder,
-    required Widget Function(T element) itemDragBuilder,
-    required Widget Function(T element) itemPlaceholderBuilder,
+    required DraggableItemBuilder<T> itemBuilder,
+    required ReorderedDraggableItemBuilder<T> itemReorderBuilder,
+    required ItemBuilder<T> itemDragBuilder,
+    required ItemBuilder<T> itemPlaceholderBuilder,
     void Function(int from, int to)? onReorder,
     this.enabled = true,
     super.duration,
   }) : super(
             itemBuilder: _reorderableItemBuilder(
           itemBuilder,
-          reorderedItemBuilder,
+          itemReorderBuilder,
           itemDragBuilder,
           itemPlaceholderBuilder,
           onReorder,
@@ -43,19 +54,10 @@ class ReorderableImplicitAnimatedList<T extends Object>
     T element,
     Animation<double> animation,
   ) _reorderableItemBuilder<T extends Object>(
-    Widget Function(
-      T element,
-      Animation<double> animation,
-      DraggableWrapper draggableWrapper,
-    ) itemBuilder,
-    Widget Function(
-      T element,
-      Animation<double> animation,
-      DraggableWrapper draggableWrapper,
-      int indexDelta,
-    ) reorderedItemBuilder,
-    Widget Function(T element) itemDragBuilder,
-    Widget Function(T element) itemPlaceholderBuilder,
+    DraggableItemBuilder<T> itemBuilder,
+    ReorderedDraggableItemBuilder<T> itemReorderBuilder,
+    ItemBuilder<T> itemDragBuilder,
+    ItemBuilder<T> itemPlaceholderBuilder,
     void Function(int from, int to)? onReorder,
     bool enabled,
   ) {
@@ -66,11 +68,7 @@ class ReorderableImplicitAnimatedList<T extends Object>
       assert(index >= 0);
       int draggingIndex = state.draggingIndex;
 
-      Widget Function(
-        T element,
-        Animation<double> animation,
-        DraggableWrapper draggableWrapper,
-      ) currentItemBuilder = itemBuilder;
+      DraggableItemBuilder<T> currentItemBuilder = itemBuilder;
 
       if (state.removedElements.contains(element) &&
           state.addedElements.contains(element) &&
@@ -82,13 +80,19 @@ class ReorderableImplicitAnimatedList<T extends Object>
 
         int indexDelta = indexAfterReorder - indexBeforeReorder;
 
-        currentItemBuilder =
-            (element, animation, draggableWrapper) => reorderedItemBuilder(
-                  element,
-                  animation,
-                  draggableWrapper,
-                  indexDelta,
-                );
+        currentItemBuilder = (
+          context,
+          element,
+          animation,
+          draggableWrapper,
+        ) =>
+            itemReorderBuilder(
+              context,
+              element,
+              animation,
+              draggableWrapper,
+              indexDelta,
+            );
       }
 
       draggableWrapper(child) => Draggable<int>(
@@ -96,7 +100,7 @@ class ReorderableImplicitAnimatedList<T extends Object>
             data: index,
             dragAnchorStrategy: (draggable, context, position) =>
                 const Offset(100, 0),
-            feedback: itemDragBuilder(element),
+            feedback: itemDragBuilder(context, element),
             maxSimultaneousDrags: enabled ? 1 : 0,
             onDragStarted: () {
               cubit.dragStarted(index);
@@ -136,11 +140,12 @@ class ReorderableImplicitAnimatedList<T extends Object>
               Row(
                 children: [
                   if (draggingIndex == index) ...[
-                    Expanded(child: itemPlaceholderBuilder(element)),
+                    Expanded(child: itemPlaceholderBuilder(context, element)),
                     draggableWrapper(const Icon(Icons.unfold_more)),
                   ] else
                     Expanded(
                       child: currentItemBuilder(
+                        context,
                         element,
                         animation,
                         draggableWrapper,
