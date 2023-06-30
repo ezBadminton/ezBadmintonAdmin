@@ -8,7 +8,13 @@ class PlayingLevelEditingState
     this.loadingStatus = LoadingStatus.loading,
     this.formStatus = FormzSubmissionStatus.initial,
     super.collections = const {},
-  }) : formInteractable = _isFormInteractable(loadingStatus, formStatus);
+  })  : formInteractable = _isFormInteractable(loadingStatus, formStatus),
+        formSubmittable = _isFormSubmittable(
+          loadingStatus,
+          formStatus,
+          playingLevelName.value,
+          (collections[PlayingLevel] as List<PlayingLevel>?) ?? [],
+        );
 
   final NoValidationInput playingLevelName;
 
@@ -20,6 +26,7 @@ class PlayingLevelEditingState
   final FormzSubmissionStatus formStatus;
 
   final bool formInteractable;
+  final bool formSubmittable;
 
   PlayingLevelEditingState copyWith({
     NoValidationInput? playingLevelName,
@@ -42,5 +49,25 @@ class PlayingLevelEditingState
   ) {
     return loadingStatus == LoadingStatus.done &&
         formStatus != FormzSubmissionStatus.inProgress;
+  }
+
+  static bool _isFormSubmittable(
+    LoadingStatus loadingStatus,
+    FormzSubmissionStatus formStatus,
+    String playingLevelName,
+    List<PlayingLevel> playingLevelCollection,
+  ) {
+    if (!_isFormInteractable(loadingStatus, formStatus) ||
+        playingLevelName.isEmpty) {
+      return false;
+    }
+
+    PlayingLevel? existingPlayingLevel = playingLevelCollection
+        .where(
+          (level) => level.name.toLowerCase() == playingLevelName.toLowerCase(),
+        )
+        .firstOrNull;
+
+    return existingPlayingLevel == null;
   }
 }

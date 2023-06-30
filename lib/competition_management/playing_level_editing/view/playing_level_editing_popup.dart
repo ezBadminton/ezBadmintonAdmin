@@ -1,10 +1,13 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/playing_level_editing/cubit/playing_level_editing_cubit.dart';
+import 'package:ez_badminton_admin_app/constants.dart';
 import 'package:ez_badminton_admin_app/widgets/implicit_animated_list/reorderable_implicit_animated_list.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:formz/formz.dart';
 
 class PlayingLevelEditingPopup extends StatelessWidget {
   const PlayingLevelEditingPopup({super.key});
@@ -32,6 +35,8 @@ class PlayingLevelEditingPopup extends StatelessWidget {
                   style: const TextStyle(fontSize: 22),
                 ),
                 const Divider(height: 25, indent: 20, endIndent: 20),
+                _PlayingLevelForm(),
+                const Divider(height: 35, indent: 20, endIndent: 20),
                 const _PlayingLevelList(),
               ],
             ),
@@ -42,16 +47,73 @@ class PlayingLevelEditingPopup extends StatelessWidget {
   }
 }
 
+class _PlayingLevelForm extends StatelessWidget {
+  _PlayingLevelForm();
+
+  final FocusNode _focus = FocusNode();
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+    var cubit = context.read<PlayingLevelEditingCubit>();
+    return BlocConsumer<PlayingLevelEditingCubit, PlayingLevelEditingState>(
+      listenWhen: (previous, current) =>
+          previous.formStatus == FormzSubmissionStatus.inProgress &&
+          current.formStatus == FormzSubmissionStatus.success,
+      listener: (context, state) {
+        cubit.playingLevelNameChanged('');
+        _controller.text = '';
+        _focus.requestFocus();
+      },
+      builder: (context, state) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  onChanged: cubit.playingLevelNameChanged,
+                  onSubmitted: (_) => cubit.playingLevelSubmitted(),
+                  decoration: InputDecoration(
+                    hintText: l10n.nameSubject(l10n.playingLevel(1)),
+                  ),
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(playingLevelNameMaxLength),
+                  ],
+                  controller: _controller,
+                  focusNode: _focus,
+                ),
+              ),
+              const SizedBox(width: 15),
+              ElevatedButton(
+                onPressed:
+                    state.formSubmittable ? cubit.playingLevelSubmitted : null,
+                child: Text(l10n.add),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
 class _PlayingLevelList extends StatelessWidget {
   const _PlayingLevelList();
 
   @override
   Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
     var cubit = context.read<PlayingLevelEditingCubit>();
     return BlocBuilder<PlayingLevelEditingCubit, PlayingLevelEditingState>(
+      buildWhen: (previous, current) =>
+          previous.loadingStatus != current.loadingStatus ||
+          previous.displayPlayingLevels != current.displayPlayingLevels ||
+          previous.formInteractable != current.formInteractable,
       builder: (context, state) {
         return LoadingScreen(
-          loadingStatus: state.loadingStatus,
+          loadingStatus: _getLoadingStatus(state),
           builder: (context) => SizedBox(
             height: 300,
             child: ReorderableImplicitAnimatedList<PlayingLevel>(
@@ -63,11 +125,20 @@ class _PlayingLevelList extends StatelessWidget {
               itemReorderBuilder: _itemReorderBuilder,
               itemDragBuilder: _itemDragBuilder,
               itemPlaceholderBuilder: _itemPlaceholderBuilder,
+              reorderTooltip: l10n.reorder,
             ),
           ),
         );
       },
     );
+  }
+
+  LoadingStatus _getLoadingStatus(PlayingLevelEditingState state) {
+    if (state.collections[PlayingLevel] != null &&
+        state.loadingStatus == LoadingStatus.loading) {
+      return LoadingStatus.done;
+    }
+    return state.loadingStatus;
   }
 
   Widget _itemPlaceholderBuilder(
@@ -76,15 +147,11 @@ class _PlayingLevelList extends StatelessWidget {
     Animation<double> animation,
     DraggableWrapper draggableWrapper,
   ) {
-    return Row(
-      children: [
-        Text(
-          playingLevel.name,
-          style: TextStyle(color: Theme.of(context).disabledColor),
-        ),
-        const Expanded(child: SizedBox()),
-        draggableWrapper(context, const Icon(Icons.unfold_more)),
-      ],
+    return _PlayingLevelListItem(
+      playingLevel: playingLevel,
+      draggableWrapper: draggableWrapper,
+      dragIcon: Icons.unfold_more,
+      textStyle: TextStyle(color: Theme.of(context).disabledColor),
     );
   }
 
@@ -92,7 +159,14 @@ class _PlayingLevelList extends StatelessWidget {
     BuildContext context,
     PlayingLevel playingLevel,
   ) {
-    return Text(playingLevel.name);
+    // Position the dragging widget left of the cursor
+    return Transform.translate(
+      offset: const Offset(-10, -5),
+      child: FractionalTranslation(
+        translation: const Offset(-1, 0),
+        child: Text(playingLevel.name),
+      ),
+    );
   }
 
   Widget _itemReorderBuilder(
@@ -107,12 +181,9 @@ class _PlayingLevelList extends StatelessWidget {
         begin: Offset(0, -indexDelta.toDouble() * 1.6666),
         end: Offset.zero,
       )),
-      child: Row(
-        children: [
-          Text(playingLevel.name),
-          const Expanded(child: SizedBox()),
-          draggableWrapper(context, const Icon(Icons.format_line_spacing)),
-        ],
+      child: _PlayingLevelListItem(
+        playingLevel: playingLevel,
+        draggableWrapper: draggableWrapper,
       ),
     );
   }
@@ -125,13 +196,65 @@ class _PlayingLevelList extends StatelessWidget {
   ) {
     return SizeTransition(
       sizeFactor: animation,
-      child: Row(
-        children: [
-          Text(playingLevel.name),
-          const Expanded(child: SizedBox()),
-          draggableWrapper(context, const Icon(Icons.format_line_spacing)),
-        ],
+      child: _PlayingLevelListItem(
+        playingLevel: playingLevel,
+        draggableWrapper: draggableWrapper,
       ),
+    );
+  }
+}
+
+class _PlayingLevelListItem extends StatelessWidget {
+  const _PlayingLevelListItem({
+    required this.playingLevel,
+    required this.draggableWrapper,
+    this.dragIcon = Icons.drag_indicator,
+    this.textStyle,
+  });
+
+  final PlayingLevel playingLevel;
+  final IconData dragIcon;
+  final DraggableWrapper draggableWrapper;
+  final TextStyle? textStyle;
+
+  @override
+  Widget build(BuildContext context) {
+    var cubit = context.read<PlayingLevelEditingCubit>();
+    var l10n = AppLocalizations.of(context)!;
+    bool deletable = cubit.state.formInteractable;
+
+    return Row(
+      children: [
+        const SizedBox(width: 10),
+        Text(
+          playingLevel.name,
+          style: textStyle,
+        ),
+        const Expanded(child: SizedBox()),
+        draggableWrapper(
+          context,
+          Icon(
+            dragIcon,
+            color: Theme.of(context).disabledColor,
+          ),
+        ),
+        const SizedBox(width: 15),
+        Tooltip(
+          message: l10n.deleteSubject(l10n.playingLevel(1)),
+          waitDuration: const Duration(milliseconds: 600),
+          triggerMode: TooltipTriggerMode.manual,
+          child: InkResponse(
+            radius: 16,
+            onTap: () {
+              if (deletable) {
+                cubit.playingLevelRemoved(playingLevel);
+              }
+            },
+            child: const Icon(Icons.close),
+          ),
+        ),
+        const SizedBox(width: 10),
+      ],
     );
   }
 }

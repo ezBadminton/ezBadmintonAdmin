@@ -25,6 +25,18 @@ class PlayingLevel extends Model with _$PlayingLevel {
   factory PlayingLevel.fromJson(Map<String, dynamic> json) =>
       _$PlayingLevelFromJson(json);
 
+  factory PlayingLevel.newPlayingLevel(
+    String name,
+    int index,
+  ) =>
+      PlayingLevel(
+        id: '',
+        created: DateTime.now(),
+        updated: DateTime.now(),
+        name: name,
+        index: index,
+      );
+
   @override
   Map<String, dynamic> toCollapsedJson() {
     return toJson();

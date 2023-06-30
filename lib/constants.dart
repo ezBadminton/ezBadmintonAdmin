@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 // Max characters in the player search text field
 const int playerSearchMaxLength = 50;
 
+const int playingLevelNameMaxLength = 30;
+
 const Map<PlayerStatus, IconData> playerStatusIcons = {
   PlayerStatus.notAttending: Icons.question_mark,
   PlayerStatus.attending: Icons.done,

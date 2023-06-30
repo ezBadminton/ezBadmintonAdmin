@@ -238,7 +238,7 @@ class CollectionFetcherCubit<State extends CollectionFetcherState<State>>
     var fetchResults =
         await querier.fetchCollections(fetchers.map((f) => f.fetcherFunction));
     if (fetchResults.contains(null)) {
-      if (onFailure != null) {
+      if (onFailure != null && !isClosed) {
         onFailure();
       }
     } else {
@@ -251,7 +251,7 @@ class CollectionFetcherCubit<State extends CollectionFetcherState<State>>
         );
         i += 1;
       }
-      if (onSuccess != null) {
+      if (onSuccess != null && !isClosed) {
         onSuccess(updatedState);
       }
     }

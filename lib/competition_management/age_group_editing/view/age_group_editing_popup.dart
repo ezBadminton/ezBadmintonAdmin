@@ -108,13 +108,18 @@ class _AgeGroupListItem extends StatelessWidget {
             style: const TextStyle(fontSize: 16),
           ),
           const Expanded(child: SizedBox()),
-          IconButton(
-            onPressed: () {
-              if (deletable) {
-                cubit.ageGroupRemoved(ageGroup);
-              }
-            },
-            icon: const Icon(Icons.close),
+          Tooltip(
+            message: l10n.deleteSubject(l10n.ageGroup(1)),
+            waitDuration: const Duration(milliseconds: 600),
+            triggerMode: TooltipTriggerMode.manual,
+            child: IconButton(
+              onPressed: () {
+                if (deletable) {
+                  cubit.ageGroupRemoved(ageGroup);
+                }
+              },
+              icon: const Icon(Icons.close),
+            ),
           ),
           const SizedBox(width: 10),
         ],

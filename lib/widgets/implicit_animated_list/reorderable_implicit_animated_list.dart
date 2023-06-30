@@ -64,6 +64,7 @@ class ReorderableImplicitAnimatedList<T extends Object>
     this.onReorder,
     this.draggingEnabled = true,
     this.duration,
+    this.reorderTooltip,
   });
 
   final List<T> elements;
@@ -110,6 +111,8 @@ class ReorderableImplicitAnimatedList<T extends Object>
   /// Duration of the transition animations.
   final Duration? duration;
 
+  final String? reorderTooltip;
+
   @override
   Widget build(BuildContext context) {
     reorderableItemBuilder(
@@ -127,6 +130,7 @@ class ReorderableImplicitAnimatedList<T extends Object>
         onReorder: onReorder,
         draggingEnabled: draggingEnabled,
         duration: duration,
+        reorderTooltip: reorderTooltip,
       );
     }
 
@@ -167,9 +171,14 @@ class _ReorderableItem<T extends Object> extends StatelessWidget {
     this.onReorder,
     this.draggingEnabled = true,
     this.duration,
+    this.reorderTooltip,
   });
 
   final T element;
+
+  /// The animation is being controlled by the underlying [AnimatedList]
+  ///
+  /// It plays on add, remove (backwards in this case) and reorder of the item.
   final Animation<double> animation;
 
   final DraggableItemBuilder<T> itemBuilder;
@@ -180,6 +189,8 @@ class _ReorderableItem<T extends Object> extends StatelessWidget {
   final bool draggingEnabled;
   final Duration? duration;
 
+  final String? reorderTooltip;
+
   @override
   Widget build(BuildContext context) {
     var cubit = context.read<ImplicitAnimatedListCubit>()
@@ -187,11 +198,10 @@ class _ReorderableItem<T extends Object> extends StatelessWidget {
     ImplicitAnimatedListState<T> state = cubit.state;
 
     return DragTarget(
-      onAccept: (int draggedIndex) =>
-          _onAcceptDraggable(state, element, draggedIndex),
+      onAccept: (int draggedIndex) => _onAcceptDraggable(state, draggedIndex),
       builder: (context, candidateData, rejectedData) {
         DraggableItemBuilder<T> currentItemBuilder =
-            _getCurrentItemBuilder(state, element, animation);
+            _getCurrentItemBuilder(state);
 
         return Column(
           children: [
@@ -205,7 +215,7 @@ class _ReorderableItem<T extends Object> extends StatelessWidget {
               context,
               element,
               animation,
-              _getDraggableWrapper(cubit, element),
+              _getDraggableWrapper(cubit),
             ),
             _ReorderableItemGap(
               dropCandidates: candidateData,
@@ -219,29 +229,35 @@ class _ReorderableItem<T extends Object> extends StatelessWidget {
     );
   }
 
-  /// Returns wether a given [element] is currently being reordered
+  /// Returns wether the item is currently being reordered
   /// from one place in the list to another.
   ///
   /// Reordering elements are built by [itemReorderBuilder].
   bool _isReordering(
     ImplicitAnimatedListState<T> state,
-    T element,
-    Animation animation,
   ) {
     return state.removedElements.contains(element) &&
         state.addedElements.contains(element) &&
         !animation.isCompleted;
   }
 
-  /// Returns the change in index of a reordering [element].
+  /// Returns wether the item is currently being dragged by the cursor.
+  bool _isDragged(
+    ImplicitAnimatedListState<T> state,
+  ) {
+    int elementIndex = state.elements.indexOf(element);
+
+    return state.draggingIndex != -1 && elementIndex == state.draggingIndex;
+  }
+
+  /// Returns the change in index when reordering.
   ///
-  /// An element moving from index `3` to `1` has an index delta of `-2`.
+  /// The item moving from index `3` to `1` makes an index delta of `-2`.
   /// This is useful for the [itemReorderBuilder] to animate the reorder.
   ///
-  /// Returns 0 if the element is not currently reordering.
+  /// Returns 0 if the item is not currently reordering.
   int _getIndexDelta(
     ImplicitAnimatedListState<T> state,
-    T element,
   ) {
     int from = state.previousElements.indexOf(element);
     int to = state.elements.indexOf(element);
@@ -254,33 +270,22 @@ class _ReorderableItem<T extends Object> extends StatelessWidget {
   }
 
   /// Returns the [DraggableItemBuilder] that is currently responsible for
-  /// building the [Widget] representing [element] in the animated list.
+  /// building the item.
   ///
   /// In the basic case of no current interaction [itemBuilder] is returned.
   /// When the element is being dragged the [itemPlaceholderBuilder]
   /// is returned.
-  /// When the element is being reordered (according to [_isReordering])
-  /// [itemReorderBuilder] is returned.
+  /// When the element is being reordered [itemReorderBuilder] is returned.
   ///
   /// If [itemPlaceholderBuilder] or [itemReorderBuilder] are `null`,
   /// [itemBuilder] is the fallback.
-  ///
-  /// The [animation] is being controlled by the underlying [AnimatedList]. It
-  /// runs each time the element is added, removed (backwards in this case)
-  /// or reordered.
   DraggableItemBuilder<T> _getCurrentItemBuilder(
     ImplicitAnimatedListState<T> state,
-    T element,
-    Animation<double> animation,
   ) {
-    int elementIndex = state.elements.indexOf(element);
-    int draggingIndex = state.draggingIndex;
-
     DraggableItemBuilder<T> currentItemBuilder = itemBuilder;
 
-    if (_isReordering(state, element, animation) &&
-        itemReorderBuilder != null) {
-      int indexDelta = _getIndexDelta(state, element);
+    if (_isReordering(state) && itemReorderBuilder != null) {
+      int indexDelta = _getIndexDelta(state);
 
       currentItemBuilder = (
         context,
@@ -295,8 +300,7 @@ class _ReorderableItem<T extends Object> extends StatelessWidget {
             draggableWrapper,
             indexDelta,
           );
-    } else if (elementIndex == draggingIndex &&
-        itemPlaceholderBuilder != null) {
+    } else if (_isDragged(state) && itemPlaceholderBuilder != null) {
       currentItemBuilder = itemPlaceholderBuilder!;
     }
 
@@ -313,7 +317,6 @@ class _ReorderableItem<T extends Object> extends StatelessWidget {
   /// cursor during dragging.
   DraggableWrapper _getDraggableWrapper(
     ImplicitAnimatedListCubit<T> cubit,
-    T element,
   ) {
     int elementIndex = cubit.state.elements.indexOf(element);
 
@@ -321,7 +324,7 @@ class _ReorderableItem<T extends Object> extends StatelessWidget {
           key: _DraggableKey(element),
           data: elementIndex,
           dragAnchorStrategy: (draggable, context, position) =>
-              const Offset(100, 0),
+              const Offset(0, 0),
           feedback: itemDragBuilder(context, element),
           maxSimultaneousDrags: draggingEnabled ? 1 : 0,
           onDragStarted: () {
@@ -330,7 +333,12 @@ class _ReorderableItem<T extends Object> extends StatelessWidget {
           onDragEnd: (_) {
             cubit.dragEnded();
           },
-          child: child,
+          child: Tooltip(
+            message: reorderTooltip ?? '',
+            triggerMode: TooltipTriggerMode.manual,
+            waitDuration: const Duration(milliseconds: 500),
+            child: child,
+          ),
         );
 
     return draggableWrapper;
@@ -344,7 +352,6 @@ class _ReorderableItem<T extends Object> extends StatelessWidget {
   /// Does nothing if [onReorder] is null.
   void _onAcceptDraggable(
     ImplicitAnimatedListState<T> state,
-    T element,
     int draggedIndex,
   ) {
     if (onReorder != null) {
@@ -407,7 +414,7 @@ class _ReorderIndicator extends StatelessWidget {
       height: 2,
       thickness: 2,
       indent: 2,
-      endIndent: 30,
+      endIndent: 85,
     );
   }
 }

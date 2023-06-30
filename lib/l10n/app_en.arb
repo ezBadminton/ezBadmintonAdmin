@@ -85,5 +85,8 @@
   "activatePlayingLevels": "Use playing levels",
   "activateAgeGroups": "Use age groups",
   "editSubject": "Edit {subject}",
-  "addSubject": "Add {subject}"
+  "addSubject": "Add {subject}",
+  "deleteSubject": "Delete {subject}",
+  "nameSubject": "name {subject}",
+  "reorder": "Reorder"
 }

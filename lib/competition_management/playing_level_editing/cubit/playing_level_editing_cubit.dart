@@ -52,6 +52,89 @@ class PlayingLevelEditingCubit
     );
   }
 
+  void playingLevelNameChanged(String playingLevelName) {
+    emit(state.copyWith(
+      playingLevelName: NoValidationInput.dirty(playingLevelName),
+    ));
+  }
+
+  void playingLevelSubmitted() {
+    if (!state.formSubmittable) {
+      return;
+    }
+
+    PlayingLevel newPlayingLevel = PlayingLevel.newPlayingLevel(
+      state.playingLevelName.value,
+      state.getCollection<PlayingLevel>().length,
+    );
+
+    _addPlayingLevel(newPlayingLevel);
+  }
+
+  void playingLevelRemoved(PlayingLevel removedPlayingLevel) async {
+    assert(
+      removedPlayingLevel.id.isNotEmpty,
+      'Given PlayingLevel does not exist on DB',
+    );
+    if (state.formStatus == FormzSubmissionStatus.inProgress) {
+      return;
+    }
+    emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
+
+    Iterable<Competition> competitionsUsingPlayingLevel = state
+        .getCollection<Competition>()
+        .where((c) => c.playingLevels.contains(removedPlayingLevel));
+    if (competitionsUsingPlayingLevel.isNotEmpty) {
+      // Don't delete playing levels that are used
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      return;
+    }
+
+    bool playingLevelDeleted = await querier.deleteModel(removedPlayingLevel);
+    if (isClosed) {
+      return;
+    }
+    if (!playingLevelDeleted) {
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      return;
+    }
+
+    bool indicesUpdated = await _updatePlayingLevelIndices(
+      removedPlayingLevel: removedPlayingLevel,
+    );
+    if (isClosed) {
+      return;
+    }
+    if (!indicesUpdated) {
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      return;
+    }
+
+    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+    loadPlayingLevels();
+  }
+
+  void _addPlayingLevel(PlayingLevel newPlayingLevel) async {
+    if (state.formStatus == FormzSubmissionStatus.inProgress) {
+      return;
+    }
+    emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
+
+    PlayingLevel? newPlayingLevelFromDB =
+        await querier.createModel(newPlayingLevel);
+
+    if (isClosed) {
+      return;
+    }
+    if (newPlayingLevelFromDB == null) {
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      return;
+    }
+
+    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+    loadPlayingLevels();
+  }
+
   void playingLevelsReordered(int from, int to) async {
     if (state.formStatus == FormzSubmissionStatus.inProgress) {
       return;
@@ -75,26 +158,42 @@ class PlayingLevelEditingCubit
       displayPlayingLevels: reorderedPlayingLevels,
     ));
 
-    // Update order in the DB collection
+    bool indicesUpdated = await _updatePlayingLevelIndices();
+    if (isClosed) {
+      return;
+    }
+    if (!indicesUpdated) {
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      return;
+    }
+
+    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+    loadPlayingLevels();
+  }
+
+  /// Apply the order of the displayPlayingLevels to the `index` member of each
+  /// PlayingLevel and update it on DB.
+  ///
+  /// If the indices have to shift because a PlayingLevel was removed, pass the
+  /// [removedPlayingLevel].
+  Future<bool> _updatePlayingLevelIndices({
+    PlayingLevel? removedPlayingLevel,
+  }) async {
     int index = 0;
-    for (PlayingLevel playingLevel in reorderedPlayingLevels) {
-      if (playingLevel.index != index) {
+    for (PlayingLevel playingLevel in state.displayPlayingLevels) {
+      if (playingLevel.index != index && playingLevel != removedPlayingLevel) {
         PlayingLevel reorderedPlayingLevel =
             playingLevel.copyWith(index: index);
         PlayingLevel? updatedPlayingLevel =
             await querier.updateModel(reorderedPlayingLevel);
         if (updatedPlayingLevel == null) {
-          emit(state.copyWith(
-            formStatus: FormzSubmissionStatus.failure,
-            displayPlayingLevels: state.getCollection<PlayingLevel>(),
-          ));
-          return;
+          return false;
         }
       }
-      index += 1;
+      if (playingLevel != removedPlayingLevel) {
+        index += 1;
+      }
     }
-
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
-    loadPlayingLevels();
+    return true;
   }
 }

@@ -76,6 +76,9 @@ class AgeGroupEditingCubit
     emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
     AgeGroup? newAgeGroupFromDB = await querier.createModel(newAgeGroup);
+    if (isClosed) {
+      return;
+    }
     if (newAgeGroupFromDB == null) {
       emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
       return;
@@ -104,6 +107,9 @@ class AgeGroupEditingCubit
     }
 
     bool ageGroupDeleted = await querier.deleteModel(removedAgeGroup);
+    if (isClosed) {
+      return;
+    }
     if (!ageGroupDeleted) {
       emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
       return;

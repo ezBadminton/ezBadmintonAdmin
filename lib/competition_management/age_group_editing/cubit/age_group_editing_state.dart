@@ -13,7 +13,7 @@ class AgeGroupEditingState
           formStatus,
           ageGroupType.value,
           age.value,
-          collections[AgeGroup] as List<AgeGroup>?,
+          (collections[AgeGroup] as List<AgeGroup>?) ?? [],
         ),
         isDeletable = _isDeletable(
           loadingStatus,
@@ -50,13 +50,12 @@ class AgeGroupEditingState
     FormzSubmissionStatus formStatus,
     AgeGroupType? ageGroupType,
     String age,
-    List<AgeGroup>? ageGroupCollection,
+    List<AgeGroup> ageGroupCollection,
   ) {
     if (loadingStatus != LoadingStatus.done ||
         formStatus == FormzSubmissionStatus.inProgress ||
         ageGroupType == null ||
-        age.isEmpty ||
-        ageGroupCollection == null) {
+        age.isEmpty) {
       return false;
     }
 

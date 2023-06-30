@@ -85,5 +85,8 @@
   "activatePlayingLevels": "Spielklassen verwenden",
   "activateAgeGroups": "Altersklassen verwenden",
   "editSubject": "{subject} bearbeiten",
-  "addSubject": "{subject} hinzufügen"
+  "addSubject": "{subject} hinzufügen",
+  "deleteSubject": "{subject} löschen",
+  "nameSubject": "{subject} benennen",
+  "reorder": "Umordnen"
 }
