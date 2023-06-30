@@ -57,7 +57,7 @@ class _PlayingLevelList extends StatelessWidget {
             child: ReorderableImplicitAnimatedList<PlayingLevel>(
               elements: state.displayPlayingLevels,
               onReorder: cubit.playingLevelsReordered,
-              enabled: state.formInteractable,
+              draggingEnabled: state.formInteractable,
               duration: const Duration(milliseconds: 120),
               itemBuilder: _itemBuilder,
               itemReorderBuilder: _itemReorderBuilder,

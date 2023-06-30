@@ -51,7 +51,7 @@ class ReorderableImplicitAnimatedList<T extends Object>
   ///
   /// [onReorder] is called with the dragged item's old and new index.
   ///
-  /// The dragging ability can be turned off with the [enabled] flag.
+  /// The dragging ability can be turned off with the [draggingEnabled] flag.
   ///
   /// The animations that the builders receive run for [duration].
   const ReorderableImplicitAnimatedList({
@@ -62,35 +62,41 @@ class ReorderableImplicitAnimatedList<T extends Object>
     this.itemPlaceholderBuilder,
     required this.itemDragBuilder,
     this.onReorder,
-    this.enabled = true,
+    this.draggingEnabled = true,
     this.duration,
   });
 
   final List<T> elements;
 
-  /// Builds the items while they are not dragged.
+  /// Builds the items when they are added or removed.
   ///
-  /// Use the given [Animation] to drive add and remove animations.
-  /// The animation plays backwards when the element was removed.
+  /// Use the given [Animation] to drive the add/remove transition.
+  /// The animation plays backwards when the element is removed.
   ///
-  /// If the item is supposed to be draggable the given [DraggableWrapper]
-  /// has to  be used to wrap an area or the entire item.
+  /// If the item is supposed to be reorderable by drag & drop, the given
+  /// [DraggableWrapper] has to  be used to wrap an area or the entire item.
   final DraggableItemBuilder<T> itemBuilder;
 
   /// Builds the items when they are reordered.
   ///
-  /// Use the given [Animation] to drive the reorder animation.
+  /// Use the given [Animation] to drive the reorder transition.
   /// The [indexDelta] provides the amount of places that the element moved
   /// because of the reorder.
+  /// E.g. an item that moves from index `3` to `1` has
+  /// an index delta of `-2`. This can be used to animate a transition that
+  /// moves the item to its new position in the list.
   ///
-  /// The item should look the same as with [itemBuilder] just with
-  /// different animation.
+  /// The item should be the same as with [itemBuilder] just with
+  /// different transition animation.
   final ReorderedDraggableItemBuilder<T>? itemReorderBuilder;
 
   /// Builds the items while they are dragged.
   ///
+  /// The given [DraggableWrapper] still has to be part of the build to keep it
+  /// in the widget tree. Otherwise the other items can't accept the Draggable.
+  ///
   /// If the drag is cancelled it goes back to [itemBuilder].
-  /// If the drag ends in a reorder it goes to [itemReorderBuilder];
+  /// If the drag ends in a reorder it goes to [itemReorderBuilder].
   final DraggableItemBuilder<T>? itemPlaceholderBuilder;
 
   /// Builds the widget that sticks to the cursor during dragging.
@@ -98,7 +104,10 @@ class ReorderableImplicitAnimatedList<T extends Object>
 
   /// Is called when a reorder happens due to drag and drop.
   final void Function(int from, int to)? onReorder;
-  final bool enabled;
+
+  final bool draggingEnabled;
+
+  /// Duration of the transition animations.
   final Duration? duration;
 
   @override
@@ -116,7 +125,7 @@ class ReorderableImplicitAnimatedList<T extends Object>
         itemPlaceholderBuilder: itemPlaceholderBuilder,
         itemDragBuilder: itemDragBuilder,
         onReorder: onReorder,
-        enabled: enabled,
+        draggingEnabled: draggingEnabled,
         duration: duration,
       );
     }
@@ -156,7 +165,7 @@ class _ReorderableItem<T extends Object> extends StatelessWidget {
     this.itemPlaceholderBuilder,
     required this.itemDragBuilder,
     this.onReorder,
-    this.enabled = true,
+    this.draggingEnabled = true,
     this.duration,
   });
 
@@ -168,7 +177,7 @@ class _ReorderableItem<T extends Object> extends StatelessWidget {
   final DraggableItemBuilder<T>? itemPlaceholderBuilder;
   final ItemBuilder<T> itemDragBuilder;
   final void Function(int from, int to)? onReorder;
-  final bool enabled;
+  final bool draggingEnabled;
   final Duration? duration;
 
   @override
@@ -234,13 +243,13 @@ class _ReorderableItem<T extends Object> extends StatelessWidget {
     ImplicitAnimatedListState<T> state,
     T element,
   ) {
-    int indexBeforeReorder = state.previousElements.indexOf(element);
-    int indexAfterReorder = state.elements.indexOf(element);
-    if (indexBeforeReorder == -1 || indexAfterReorder == -1) {
+    int from = state.previousElements.indexOf(element);
+    int to = state.elements.indexOf(element);
+    if (from == -1 || to == -1) {
       return 0;
     }
 
-    int indexDelta = indexAfterReorder - indexBeforeReorder;
+    int indexDelta = to - from;
     return indexDelta;
   }
 
@@ -314,7 +323,7 @@ class _ReorderableItem<T extends Object> extends StatelessWidget {
           dragAnchorStrategy: (draggable, context, position) =>
               const Offset(100, 0),
           feedback: itemDragBuilder(context, element),
-          maxSimultaneousDrags: enabled ? 1 : 0,
+          maxSimultaneousDrags: draggingEnabled ? 1 : 0,
           onDragStarted: () {
             cubit.dragStarted(elementIndex);
           },
