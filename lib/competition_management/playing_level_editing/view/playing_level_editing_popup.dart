@@ -73,10 +73,18 @@ class _PlayingLevelList extends StatelessWidget {
   Widget _itemPlaceholderBuilder(
     BuildContext context,
     PlayingLevel playingLevel,
+    Animation<double> animation,
+    DraggableWrapper draggableWrapper,
   ) {
-    return Text(
-      playingLevel.name,
-      style: TextStyle(color: Theme.of(context).disabledColor),
+    return Row(
+      children: [
+        Text(
+          playingLevel.name,
+          style: TextStyle(color: Theme.of(context).disabledColor),
+        ),
+        const Expanded(child: SizedBox()),
+        draggableWrapper(context, const Icon(Icons.unfold_more)),
+      ],
     );
   }
 
@@ -103,7 +111,7 @@ class _PlayingLevelList extends StatelessWidget {
         children: [
           Text(playingLevel.name),
           const Expanded(child: SizedBox()),
-          draggableWrapper(const Icon(Icons.format_line_spacing)),
+          draggableWrapper(context, const Icon(Icons.format_line_spacing)),
         ],
       ),
     );
@@ -121,7 +129,7 @@ class _PlayingLevelList extends StatelessWidget {
         children: [
           Text(playingLevel.name),
           const Expanded(child: SizedBox()),
-          draggableWrapper(const Icon(Icons.format_line_spacing)),
+          draggableWrapper(context, const Icon(Icons.format_line_spacing)),
         ],
       ),
     );

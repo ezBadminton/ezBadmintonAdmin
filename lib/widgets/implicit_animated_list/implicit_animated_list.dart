@@ -5,6 +5,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+typedef AnimatedObjectItemBuilder<T extends Object> = Widget Function(
+  BuildContext context,
+  T element,
+  Animation<double> animation,
+);
+
 class ImplicitAnimatedList<T extends Object> extends StatelessWidget {
   const ImplicitAnimatedList({
     super.key,
@@ -14,11 +20,7 @@ class ImplicitAnimatedList<T extends Object> extends StatelessWidget {
   });
 
   final List<T> elements;
-  final Widget Function(
-    BuildContext context,
-    T element,
-    Animation<double> animation,
-  ) itemBuilder;
+  final AnimatedObjectItemBuilder<T> itemBuilder;
   final Duration? duration;
 
   @override
@@ -47,11 +49,7 @@ class ImplicitAnimatedListBuilder<T extends Object> extends StatelessWidget {
   });
 
   final List<T> elements;
-  final Widget Function(
-    BuildContext context,
-    T element,
-    Animation<double> animation,
-  ) itemBuilder;
+  final AnimatedObjectItemBuilder<T> itemBuilder;
   final Duration duration;
 
   @override
