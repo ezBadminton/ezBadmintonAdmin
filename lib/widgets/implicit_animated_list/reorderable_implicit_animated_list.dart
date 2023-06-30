@@ -67,10 +67,36 @@ class ReorderableImplicitAnimatedList<T extends Object>
   });
 
   final List<T> elements;
+
+  /// Builds the items while they are not dragged.
+  ///
+  /// Use the given [Animation] to drive add and remove animations.
+  /// The animation plays backwards when the element was removed.
+  ///
+  /// If the item is supposed to be draggable the given [DraggableWrapper]
+  /// has to  be used to wrap an area or the entire item.
   final DraggableItemBuilder<T> itemBuilder;
+
+  /// Builds the items when they are reordered.
+  ///
+  /// Use the given [Animation] to drive the reorder animation.
+  /// The [indexDelta] provides the amount of places that the element moved
+  /// because of the reorder.
+  ///
+  /// The item should look the same as with [itemBuilder] just with
+  /// different animation.
   final ReorderedDraggableItemBuilder<T>? itemReorderBuilder;
+
+  /// Builds the items while they are dragged.
+  ///
+  /// If the drag is cancelled it goes back to [itemBuilder].
+  /// If the drag ends in a reorder it goes to [itemReorderBuilder];
   final DraggableItemBuilder<T>? itemPlaceholderBuilder;
+
+  /// Builds the widget that sticks to the cursor during dragging.
   final ItemBuilder<T> itemDragBuilder;
+
+  /// Is called when a reorder happens due to drag and drop.
   final void Function(int from, int to)? onReorder;
   final bool enabled;
   final Duration? duration;
