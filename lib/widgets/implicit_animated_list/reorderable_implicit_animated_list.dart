@@ -13,6 +13,7 @@ typedef DraggableItemBuilder<T extends Object> = Widget Function(
   T element,
   Animation<double> animation,
   DraggableWrapper draggableWrapper,
+  int? hoveringIndex,
 );
 
 typedef ReorderedDraggableItemBuilder<T extends Object> = Widget Function(
@@ -197,33 +198,18 @@ class _ReorderableItem<T extends Object> extends StatelessWidget {
         as ImplicitAnimatedListCubit<T>;
     ImplicitAnimatedListState<T> state = cubit.state;
 
-    return DragTarget(
+    return DragTarget<int>(
       onAccept: (int draggedIndex) => _onAcceptDraggable(state, draggedIndex),
       builder: (context, candidateData, rejectedData) {
         DraggableItemBuilder<T> currentItemBuilder =
             _getCurrentItemBuilder(state);
 
-        return Column(
-          children: [
-            _ReorderableItemGap(
-              dropCandidates: candidateData,
-              state: state,
-              element: element,
-              top: true,
-            ),
-            currentItemBuilder(
-              context,
-              element,
-              animation,
-              _getDraggableWrapper(cubit),
-            ),
-            _ReorderableItemGap(
-              dropCandidates: candidateData,
-              state: state,
-              element: element,
-              top: false,
-            ),
-          ],
+        return currentItemBuilder(
+          context,
+          element,
+          animation,
+          _getDraggableWrapper(cubit),
+          candidateData.firstOrNull,
         );
       },
     );
@@ -292,6 +278,7 @@ class _ReorderableItem<T extends Object> extends StatelessWidget {
         element,
         animation,
         draggableWrapper,
+        hoveringIndex,
       ) =>
           itemReorderBuilder!(
             context,
@@ -360,62 +347,6 @@ class _ReorderableItem<T extends Object> extends StatelessWidget {
         onReorder!(draggedIndex, elementIndex);
       }
     }
-  }
-}
-
-class _ReorderableItemGap<T extends Object> extends StatelessWidget {
-  /// A gap between reorderable items that highlights the position where a
-  /// hovering item will land if dropped there.
-  _ReorderableItemGap({
-    required this.dropCandidates,
-    required ImplicitAnimatedListState<T> state,
-    required T element,
-    required this.top,
-  })  : elementIndex = state.elements.indexOf(element),
-        draggingIndex = state.draggingIndex;
-
-  final List<Object?> dropCandidates;
-  final int elementIndex;
-  final int draggingIndex;
-
-  final bool top;
-
-  @override
-  Widget build(BuildContext context) {
-    if (top) {
-      if (dropCandidates.isNotEmpty && elementIndex < draggingIndex) {
-        return const Padding(
-          padding: EdgeInsets.only(bottom: 4),
-          child: _ReorderIndicator(),
-        );
-      } else {
-        return const SizedBox(height: 6);
-      }
-    } else {
-      if (dropCandidates.isNotEmpty && elementIndex > draggingIndex) {
-        return const Padding(
-          padding: EdgeInsets.only(top: 8),
-          child: _ReorderIndicator(),
-        );
-      } else {
-        return const SizedBox(height: 10);
-      }
-    }
-  }
-}
-
-class _ReorderIndicator extends StatelessWidget {
-  const _ReorderIndicator();
-
-  @override
-  Widget build(BuildContext context) {
-    return Divider(
-      color: Theme.of(context).primaryColor,
-      height: 2,
-      thickness: 2,
-      indent: 2,
-      endIndent: 85,
-    );
   }
 }
 

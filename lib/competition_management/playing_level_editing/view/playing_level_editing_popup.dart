@@ -146,12 +146,14 @@ class _PlayingLevelList extends StatelessWidget {
     PlayingLevel playingLevel,
     Animation<double> animation,
     DraggableWrapper draggableWrapper,
+    int? hoveringIndex,
   ) {
     return _PlayingLevelListItem(
       playingLevel: playingLevel,
       draggableWrapper: draggableWrapper,
       dragIcon: Icons.unfold_more,
       textStyle: TextStyle(color: Theme.of(context).disabledColor),
+      hoveringIndex: hoveringIndex,
     );
   }
 
@@ -193,12 +195,14 @@ class _PlayingLevelList extends StatelessWidget {
     PlayingLevel playingLevel,
     Animation<double> animation,
     DraggableWrapper draggableWrapper,
+    int? hoveringIndex,
   ) {
     return SizeTransition(
       sizeFactor: animation,
       child: _PlayingLevelListItem(
         playingLevel: playingLevel,
         draggableWrapper: draggableWrapper,
+        hoveringIndex: hoveringIndex,
       ),
     );
   }
@@ -210,51 +214,128 @@ class _PlayingLevelListItem extends StatelessWidget {
     required this.draggableWrapper,
     this.dragIcon = Icons.drag_indicator,
     this.textStyle,
+    this.hoveringIndex,
   });
 
   final PlayingLevel playingLevel;
   final IconData dragIcon;
   final DraggableWrapper draggableWrapper;
   final TextStyle? textStyle;
+  final int? hoveringIndex;
 
   @override
   Widget build(BuildContext context) {
     var cubit = context.read<PlayingLevelEditingCubit>();
     var l10n = AppLocalizations.of(context)!;
-    bool deletable = cubit.state.formInteractable;
 
-    return Row(
-      children: [
-        const SizedBox(width: 10),
-        Text(
-          playingLevel.name,
-          style: textStyle,
-        ),
-        const Expanded(child: SizedBox()),
-        draggableWrapper(
-          context,
-          Icon(
-            dragIcon,
-            color: Theme.of(context).disabledColor,
+    bool deletable = cubit.state.formInteractable;
+    int playingLevelIndex =
+        cubit.state.getCollection<PlayingLevel>().indexOf(playingLevel);
+
+    return Container(
+      color: playingLevelIndex % 2 == 1
+          ? Theme.of(context).disabledColor.withOpacity(.05)
+          : null,
+      child: Column(
+        children: [
+          _PlayingLevelItemGap(
+            elementIndex: playingLevelIndex,
+            hoveringIndex: hoveringIndex,
+            top: true,
           ),
-        ),
-        const SizedBox(width: 15),
-        Tooltip(
-          message: l10n.deleteSubject(l10n.playingLevel(1)),
-          waitDuration: const Duration(milliseconds: 600),
-          triggerMode: TooltipTriggerMode.manual,
-          child: InkResponse(
-            radius: 16,
-            onTap: () {
-              if (deletable) {
-                cubit.playingLevelRemoved(playingLevel);
-              }
-            },
-            child: const Icon(Icons.close),
+          Row(
+            children: [
+              const SizedBox(width: 10),
+              Text(
+                playingLevel.name,
+                style: textStyle,
+              ),
+              const Expanded(child: SizedBox()),
+              draggableWrapper(
+                context,
+                Icon(
+                  dragIcon,
+                  color: Theme.of(context).disabledColor,
+                ),
+              ),
+              const SizedBox(width: 15),
+              Tooltip(
+                message: l10n.deleteSubject(l10n.playingLevel(1)),
+                waitDuration: const Duration(milliseconds: 600),
+                triggerMode: TooltipTriggerMode.manual,
+                child: InkResponse(
+                  radius: 16,
+                  onTap: () {
+                    if (deletable) {
+                      cubit.playingLevelRemoved(playingLevel);
+                    }
+                  },
+                  child: const Icon(Icons.close),
+                ),
+              ),
+              const SizedBox(width: 10),
+            ],
           ),
-        ),
-        const SizedBox(width: 10),
-      ],
+          _PlayingLevelItemGap(
+            elementIndex: playingLevelIndex,
+            hoveringIndex: hoveringIndex,
+            top: false,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PlayingLevelItemGap extends StatelessWidget {
+  /// A gap between reorderable items that highlights the position where a
+  /// hovering item will land if dropped there.
+  const _PlayingLevelItemGap({
+    required this.elementIndex,
+    this.hoveringIndex,
+    required this.top,
+  });
+
+  final int elementIndex;
+  final int? hoveringIndex;
+
+  final bool top;
+
+  @override
+  Widget build(BuildContext context) {
+    if (top) {
+      if (hoveringIndex != null && elementIndex < hoveringIndex!) {
+        return const Padding(
+          padding: EdgeInsets.only(bottom: 4),
+          child: _ReorderIndicator(),
+        );
+      } else {
+        return const SizedBox(height: 6);
+      }
+    } else {
+      if (hoveringIndex != null && elementIndex > hoveringIndex!) {
+        return const Padding(
+          padding: EdgeInsets.only(top: 8),
+          child: _ReorderIndicator(),
+        );
+      } else {
+        return const SizedBox(height: 10);
+      }
+    }
+  }
+}
+
+class _ReorderIndicator extends StatelessWidget {
+  const _ReorderIndicator();
+
+  @override
+  Widget build(BuildContext context) {
+    return Divider(
+      color: Theme.of(context).primaryColor,
+      height: 2,
+      thickness: 2,
+      indent: 2,
+      endIndent: 85,
     );
   }
 }
