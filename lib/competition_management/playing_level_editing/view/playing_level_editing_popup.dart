@@ -180,7 +180,7 @@ class _PlayingLevelList extends StatelessWidget {
   ) {
     return SlideTransition(
       position: animation.drive(Tween<Offset>(
-        begin: Offset(0, -indexDelta.toDouble() * 1.6666),
+        begin: Offset(0, -indexDelta.toDouble()),
         end: Offset.zero,
       )),
       child: _PlayingLevelListItem(
