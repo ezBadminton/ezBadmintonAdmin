@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:formz/formz.dart';
 
 class PlayingLevelEditingPopup extends StatelessWidget {
   const PlayingLevelEditingPopup({super.key});
@@ -59,8 +58,8 @@ class _PlayingLevelForm extends StatelessWidget {
     var cubit = context.read<PlayingLevelEditingCubit>();
     return BlocConsumer<PlayingLevelEditingCubit, PlayingLevelEditingState>(
       listenWhen: (previous, current) =>
-          previous.formStatus == FormzSubmissionStatus.inProgress &&
-          current.formStatus == FormzSubmissionStatus.success,
+          previous.displayPlayingLevels.length <
+          current.displayPlayingLevels.length,
       listener: (context, state) {
         cubit.playingLevelNameChanged('');
         _controller.text = '';

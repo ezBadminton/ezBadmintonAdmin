@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:formz/formz.dart';
 import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
     as display_strings;
 import 'package:ez_badminton_admin_app/competition_management/age_group_editing/cubit/age_group_editing_cubit.dart';
@@ -140,8 +139,9 @@ class _AgeGroupForm extends StatelessWidget {
     var cubit = context.read<AgeGroupEditingCubit>();
     return BlocConsumer<AgeGroupEditingCubit, AgeGroupEditingState>(
       listenWhen: (previous, current) =>
-          previous.formStatus == FormzSubmissionStatus.inProgress &&
-          current.formStatus == FormzSubmissionStatus.success,
+          previous.collections.containsKey(AgeGroup) &&
+          previous.getCollection<AgeGroup>().length <
+              current.getCollection<AgeGroup>().length,
       listener: (context, state) {
         _controller.text = '';
         cubit.ageChanged('');
