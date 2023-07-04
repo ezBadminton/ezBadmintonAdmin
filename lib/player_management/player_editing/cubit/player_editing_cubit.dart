@@ -5,7 +5,6 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/input_models/list_input.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
-import 'package:ez_badminton_admin_app/input_models/no_validation.dart';
 import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/utils/competition_registration.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';

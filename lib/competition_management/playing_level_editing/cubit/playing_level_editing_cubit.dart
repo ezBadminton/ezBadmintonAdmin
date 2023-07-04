@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
-import 'package:ez_badminton_admin_app/input_models/no_validation.dart';
+import 'package:ez_badminton_admin_app/input_models/models.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:formz/formz.dart';
 
@@ -44,6 +44,8 @@ class PlayingLevelEditingCubit
         emit(updatedState.copyWith(
           loadingStatus: LoadingStatus.done,
           displayPlayingLevels: updatedState.getCollection<PlayingLevel>(),
+          renamingPlayingLevel: const SelectionInput.pure(),
+          playingLevelRename: const NonEmptyInput.pure(),
         ));
       },
       onFailure: () {
@@ -54,7 +56,7 @@ class PlayingLevelEditingCubit
 
   void playingLevelNameChanged(String playingLevelName) {
     emit(state.copyWith(
-      playingLevelName: NoValidationInput.dirty(playingLevelName),
+      playingLevelName: NonEmptyInput.dirty(playingLevelName),
     ));
   }
 
@@ -194,6 +196,73 @@ class PlayingLevelEditingCubit
         index += 1;
       }
     }
+    return true;
+  }
+
+  void playingLevelRenameFormOpened(PlayingLevel playingLevel) {
+    assert(state.renamingPlayingLevel.value == null);
+    emit(state.copyWith(
+      renamingPlayingLevel: SelectionInput.dirty(value: playingLevel),
+      playingLevelRename: NonEmptyInput.pure(playingLevel.name),
+    ));
+  }
+
+  void playingLevelRenameFormClosed() {
+    assert(state.renamingPlayingLevel.value != null);
+    if (_doSubmitRename()) {
+      _submitRename();
+    } else {
+      emit(state.copyWith(
+        renamingPlayingLevel: const SelectionInput.pure(),
+        playingLevelRename: const NonEmptyInput.pure(),
+      ));
+    }
+  }
+
+  void playingLevelRenameChanged(String name) {
+    assert(state.renamingPlayingLevel.value != null);
+    emit(state.copyWith(playingLevelRename: NonEmptyInput.dirty(name)));
+  }
+
+  void _submitRename() async {
+    if (state.formStatus == FormzSubmissionStatus.inProgress) {
+      return;
+    }
+    emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
+
+    PlayingLevel renamedPlayingLevel = state.renamingPlayingLevel.value!
+        .copyWith(name: state.playingLevelRename.value);
+
+    PlayingLevel? updatedPlayingLevel =
+        await querier.updateModel(renamedPlayingLevel);
+
+    if (isClosed) {
+      return;
+    }
+    if (updatedPlayingLevel == null) {
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      return;
+    }
+
+    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+    loadPlayingLevels();
+  }
+
+  bool _doSubmitRename() {
+    if (state.playingLevelRename.isNotValid ||
+        state.playingLevelRename.isPure) {
+      return false;
+    }
+
+    Iterable<PlayingLevel> sameName = state.getCollection<PlayingLevel>().where(
+          (lvl) =>
+              lvl.name.toLowerCase() ==
+              state.playingLevelRename.value.toLowerCase(),
+        );
+    if (sameName.isNotEmpty) {
+      return false;
+    }
+
     return true;
   }
 }

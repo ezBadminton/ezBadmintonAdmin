@@ -88,5 +88,6 @@
   "addSubject": "{subject} hinzufügen",
   "deleteSubject": "{subject} löschen",
   "nameSubject": "{subject} benennen",
-  "reorder": "Umordnen"
+  "reorder": "Umordnen",
+  "rename": "Umbenennen"
 }

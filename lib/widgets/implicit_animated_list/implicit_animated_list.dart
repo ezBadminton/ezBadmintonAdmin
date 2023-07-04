@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:ez_badminton_admin_app/widgets/implicit_animated_list/cubit/implicit_animated_list_cubit.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -17,11 +16,18 @@ class ImplicitAnimatedList<T extends Object> extends StatelessWidget {
     required this.elements,
     required this.itemBuilder,
     this.duration,
+    this.elementsEqual,
   });
 
   final List<T> elements;
   final AnimatedObjectItemBuilder<T> itemBuilder;
   final Duration? duration;
+
+  /// Optional element equality function. It is used to check for changes in the
+  /// [elements] list.
+  ///
+  /// If omitted the [Object.==] operator is used.
+  final bool Function(T element1, T element2)? elementsEqual;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +37,7 @@ class ImplicitAnimatedList<T extends Object> extends StatelessWidget {
         elements: elements,
         itemBuilder: itemBuilder,
         duration: duration ?? const Duration(milliseconds: 200),
+        elementsEqual: elementsEqual,
       ),
     );
   }
@@ -46,19 +53,20 @@ class ImplicitAnimatedListBuilder<T extends Object> extends StatelessWidget {
     required this.elements,
     required this.itemBuilder,
     required this.duration,
+    this.elementsEqual,
   });
 
   final List<T> elements;
   final AnimatedObjectItemBuilder<T> itemBuilder;
   final Duration duration;
+  final bool Function(T element1, T element2)? elementsEqual;
 
   @override
   Widget build(BuildContext context) {
-    var cubit = context.read<ImplicitAnimatedListCubit>();
+    var cubit = context.read<ImplicitAnimatedListCubit>()
+        as ImplicitAnimatedListCubit<T>;
 
-    if (!listEquals(elements, cubit.state.elements)) {
-      cubit.elementsChanged(elements);
-    }
+    cubit.elementsChanged(elements, elementsEqual: elementsEqual);
 
     return BlocConsumer<ImplicitAnimatedListCubit, ImplicitAnimatedListState>(
       listenWhen: (previous, current) => previous.elements != current.elements,
@@ -88,11 +96,7 @@ class ImplicitAnimatedListBuilder<T extends Object> extends StatelessWidget {
 
     for (T element in state.removedElements) {
       Duration removeDuration = duration;
-      Widget Function(
-        BuildContext context,
-        T element,
-        Animation<double> animation,
-      ) removeBuilder = itemBuilder;
+      AnimatedObjectItemBuilder<T> removeBuilder = itemBuilder;
 
       if (state.addedElements.contains(element)) {
         // Don't play remove animation if element is re-added
@@ -112,11 +116,19 @@ class ImplicitAnimatedListBuilder<T extends Object> extends StatelessWidget {
       currentElements.remove(element);
     }
     for (T element in state.addedElements) {
+      Duration addDuration = duration;
       int insertIndex =
           min(state.elements.indexOf(element), currentElements.length);
+      int removedFromIndex = state.previousElements.indexOf(element);
+
+      if (insertIndex == removedFromIndex) {
+        // Don't play add animation if element is re-added into the same index
+        addDuration = Duration.zero;
+      }
+
       listState.insertItem(
         insertIndex,
-        duration: duration,
+        duration: addDuration,
       );
       currentElements.add(element);
     }
