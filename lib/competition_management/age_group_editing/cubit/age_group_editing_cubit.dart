@@ -31,6 +31,14 @@ class AgeGroupEditingCubit
         collectionFetcher<Competition>(),
       ],
       onSuccess: (updatedState) {
+        List<AgeGroup> ageGroups = updatedState.getCollection<AgeGroup>();
+
+        ageGroups.sort(_compareAgeGroups);
+        updatedState = updatedState.copyWithCollection(
+          modelType: AgeGroup,
+          collection: ageGroups,
+        );
+
         emit(updatedState.copyWith(loadingStatus: LoadingStatus.done));
       },
       onFailure: () {
@@ -115,5 +123,20 @@ class AgeGroupEditingCubit
     }
     emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
     loadAgeGroups();
+  }
+
+  static int _compareAgeGroups(AgeGroup ageGroup1, AgeGroup ageGroup2) {
+    int typeIndex1 = AgeGroupType.values.indexOf(ageGroup1.type);
+    int typeIndex2 = AgeGroupType.values.indexOf(ageGroup2.type);
+    // Sort by age group type over then under
+    int typeComparison = typeIndex1.compareTo(typeIndex2);
+
+    if (typeComparison != 0) {
+      return typeComparison;
+    }
+
+    // Sort by age descending
+    int ageComparison = ageGroup2.age.compareTo(ageGroup1.age);
+    return ageComparison;
   }
 }
