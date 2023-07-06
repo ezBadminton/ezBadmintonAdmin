@@ -239,34 +239,37 @@ class _PlayingLevelListItem extends StatelessWidget {
 
     return BlocProvider(
       create: (context) => MouseHoverCubit(),
-      child: Container(
-        color: playingLevelIndex % 2 == 1
-            ? Theme.of(context).disabledColor.withOpacity(.05)
-            : null,
-        child: Column(
-          children: [
-            _PlayingLevelItemGap(
-              elementIndex: playingLevelIndex,
-              hoveringIndex: hoveringIndex,
-              top: true,
+      child: Column(
+        children: [
+          if (playingLevelIndex != 0)
+            const Divider(
+              height: 1,
+              thickness: 1,
             ),
-            if (cubit.state.renamingPlayingLevel.value != playingLevel)
-              _PlayingLevelDisplayWithControls(
+          _PlayingLevelItemGap(
+            elementIndex: playingLevelIndex,
+            hoveringIndex: hoveringIndex,
+            top: true,
+          ),
+          if (cubit.state.renamingPlayingLevel.value != playingLevel)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: _PlayingLevelDisplayWithControls(
                 playingLevel: playingLevel,
                 textStyle: textStyle,
                 draggableWrapper: draggableWrapper,
                 dragIcon: dragIcon,
                 hoveringIndex: hoveringIndex,
-              )
-            else
-              _PlayingLevelRenameForm(playingLevel: playingLevel),
-            _PlayingLevelItemGap(
-              elementIndex: playingLevelIndex,
-              hoveringIndex: hoveringIndex,
-              top: false,
-            ),
-          ],
-        ),
+              ),
+            )
+          else
+            _PlayingLevelRenameForm(playingLevel: playingLevel),
+          _PlayingLevelItemGap(
+            elementIndex: playingLevelIndex,
+            hoveringIndex: hoveringIndex,
+            top: false,
+          ),
+        ],
       ),
     );
   }
@@ -289,7 +292,6 @@ class _PlayingLevelRenameForm extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
-        const SizedBox(width: 10),
         Expanded(
           child: TextField(
             onChanged: cubit.playingLevelRenameChanged,
@@ -309,7 +311,6 @@ class _PlayingLevelRenameForm extends StatelessWidget {
           onPressed: cubit.playingLevelRenameFormClosed,
           child: Text(l10n.done),
         ),
-        const SizedBox(width: 10),
       ],
     );
   }
@@ -341,7 +342,6 @@ class _PlayingLevelDisplayWithControls extends StatelessWidget {
       onExit: (_) => mouseHoverCubit.mouseExited(),
       child: Row(
         children: [
-          const SizedBox(width: 10),
           Text(
             playingLevel.name,
             style: textStyle,
@@ -397,7 +397,6 @@ class _PlayingLevelDisplayWithControls extends StatelessWidget {
                 child: const Icon(Icons.close),
               ),
             ),
-            const SizedBox(width: 10),
           ],
         ],
       ),
@@ -417,29 +416,26 @@ class _PlayingLevelItemGap extends StatelessWidget {
   final int elementIndex;
   final int? hoveringIndex;
 
+  /// Whether this [_PlayingLevelItemGap] is above or below its item.
+  ///
+  /// Each item is padded by two [_PlayingLevelItemGap]s one above one below
+  /// with [top] set accrodingly.
   final bool top;
 
   @override
   Widget build(BuildContext context) {
-    if (top) {
-      if (hoveringIndex != null && elementIndex < hoveringIndex!) {
-        return const Padding(
-          padding: EdgeInsets.only(bottom: 4),
-          child: _ReorderIndicator(),
-        );
-      } else {
-        return const SizedBox(height: 6);
-      }
-    } else {
-      if (hoveringIndex != null && elementIndex > hoveringIndex!) {
-        return const Padding(
-          padding: EdgeInsets.only(top: 8),
-          child: _ReorderIndicator(),
-        );
-      } else {
-        return const SizedBox(height: 10);
-      }
+    if (hoveringIndex != null &&
+        elementIndex != hoveringIndex &&
+        elementIndex < hoveringIndex! == top) {
+      return Padding(
+        padding: top
+            ? const EdgeInsets.only(bottom: 6)
+            : const EdgeInsets.only(top: 6),
+        child: const _ReorderIndicator(),
+      );
     }
+
+    return const SizedBox(height: 8);
   }
 }
 

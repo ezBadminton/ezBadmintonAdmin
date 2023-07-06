@@ -128,7 +128,7 @@ class AgeGroupEditingCubit
   static int _compareAgeGroups(AgeGroup ageGroup1, AgeGroup ageGroup2) {
     int typeIndex1 = AgeGroupType.values.indexOf(ageGroup1.type);
     int typeIndex2 = AgeGroupType.values.indexOf(ageGroup2.type);
-    // Sort by age group type over then under
+    // Sort by age group type over < under
     int typeComparison = typeIndex1.compareTo(typeIndex2);
 
     if (typeComparison != 0) {
