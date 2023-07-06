@@ -95,34 +95,39 @@ class _AgeGroupListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
     var cubit = context.read<AgeGroupEditingCubit>();
-    return Container(
-      color: index % 2 == 1
-          ? Theme.of(context).disabledColor.withOpacity(.05)
-          : null,
-      child: Row(
-        children: [
-          const SizedBox(width: 25),
-          Text(
-            display_strings.ageGroup(l10n, ageGroup),
-            style: const TextStyle(fontSize: 16),
+    return Column(
+      children: [
+        if (index != 0)
+          const Divider(
+            height: 1,
+            thickness: 1,
           ),
-          const Expanded(child: SizedBox()),
-          Tooltip(
-            message: l10n.deleteSubject(l10n.ageGroup(1)),
-            waitDuration: const Duration(milliseconds: 600),
-            triggerMode: TooltipTriggerMode.manual,
-            child: IconButton(
-              onPressed: () {
-                if (deletable) {
-                  cubit.ageGroupRemoved(ageGroup);
-                }
-              },
-              icon: const Icon(Icons.close),
-            ),
+        Padding(
+          padding: const EdgeInsets.only(left: 30, right: 10),
+          child: Row(
+            children: [
+              Text(
+                display_strings.ageGroup(l10n, ageGroup),
+                style: const TextStyle(fontSize: 16),
+              ),
+              const Expanded(child: SizedBox()),
+              Tooltip(
+                message: l10n.deleteSubject(l10n.ageGroup(1)),
+                waitDuration: const Duration(milliseconds: 600),
+                triggerMode: TooltipTriggerMode.manual,
+                child: IconButton(
+                  onPressed: () {
+                    if (deletable) {
+                      cubit.ageGroupRemoved(ageGroup);
+                    }
+                  },
+                  icon: const Icon(Icons.close),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 10),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
