@@ -263,7 +263,10 @@ class _PlayingLevelListItem extends StatelessWidget {
               ),
             )
           else
-            _PlayingLevelRenameForm(playingLevel: playingLevel),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: _PlayingLevelRenameForm(playingLevel: playingLevel),
+            ),
           _PlayingLevelItemGap(
             elementIndex: playingLevelIndex,
             hoveringIndex: hoveringIndex,
