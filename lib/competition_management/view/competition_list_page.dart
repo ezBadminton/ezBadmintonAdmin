@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/age_group_editing/view/age_group_editing_popup.dart';
+import 'package:ez_badminton_admin_app/competition_management/competition_editing/view/competition_editing_page.dart';
 import 'package:ez_badminton_admin_app/competition_management/playing_level_editing/view/playing_level_editing_popup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,6 +36,16 @@ class _CompetitionListPageScaffold extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.competitionManagement)),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(right: 80, bottom: 40),
+        child: FloatingActionButton.extended(
+          onPressed: () {
+            Navigator.of(context).push(CompetitionEditingPage.route());
+          },
+          icon: const Icon(Icons.add),
+          label: Text(l10n.add),
+        ),
+      ),
       body: Align(
         alignment: AlignmentDirectional.topCenter,
         child: SizedBox(
