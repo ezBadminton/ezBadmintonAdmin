@@ -306,10 +306,10 @@ class _CompetitionStep extends Step {
     } else {
       var competitionType = state.getCompetitionParameter<CompetitionType>()!;
       var genderCategory = state.getCompetitionParameter<GenderCategory>()!;
-      return Text(display_strings.competitionCategory(
+      return Text(display_strings.competitionGenderAndType(
         l10n,
-        competitionType,
         genderCategory,
+        competitionType,
       ));
     }
   }

@@ -1,4 +1,5 @@
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
 import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -24,14 +25,25 @@ String playerWithClub(Player player) {
   return name + club;
 }
 
-String competitionCategory(
+String competitionGenderAndType(
   AppLocalizations l10n,
-  CompetitionType type,
   GenderCategory genderCategory,
+  CompetitionType type,
 ) {
   var genderPrefix = l10n.genderCategory(genderCategory.name);
   var competitionSuffix = l10n.competitionSuffix(type.name);
   return genderPrefix + competitionSuffix;
+}
+
+String competitionCategory(
+  AppLocalizations l10n,
+  CompetitionCategory competitionCategory,
+) {
+  return competitionGenderAndType(
+    l10n,
+    competitionCategory.genderCategory,
+    competitionCategory.competitionType,
+  );
 }
 
 String filterChipGroup(AppLocalizations l10n, FilterGroup filterGroup) {

@@ -103,6 +103,7 @@ class _PlayerListPageScaffold extends StatelessWidget {
           },
           icon: const Icon(Icons.person_add_alt_1),
           label: Text(l10n.add),
+          heroTag: 'player_add_button',
         ),
       ),
     );
@@ -683,7 +684,7 @@ class _PlayerEditButton extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(60, 10, 60, 10),
+        padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 10),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

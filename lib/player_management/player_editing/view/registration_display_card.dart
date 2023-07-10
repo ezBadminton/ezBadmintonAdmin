@@ -101,10 +101,10 @@ class RegistrationDisplayCard extends StatelessWidget {
                       divider,
                     ],
                     Text(
-                      display_strings.competitionCategory(
+                      display_strings.competitionGenderAndType(
                         l10n,
-                        competition.type,
                         competition.genderCategory,
+                        competition.type,
                       ),
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),

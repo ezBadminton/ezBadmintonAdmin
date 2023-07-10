@@ -20,6 +20,7 @@
   "gender": "gender",
   "playingLevel": "{count, plural, =1{Playing level} other{Playing levels}}",
   "competition": "{count, plural, =1{Competition} other{Competitions}}",
+  "basicCompetition": "{count, plural, =1{Base competition} other{Base competitions}}",
   "courts": "Courts",
   "matches": "Matches",
   "women": "women",

@@ -44,6 +44,7 @@ class _CompetitionListPageScaffold extends StatelessWidget {
           },
           icon: const Icon(Icons.add),
           label: Text(l10n.add),
+          heroTag: 'competition_add_button',
         ),
       ),
       body: Align(
