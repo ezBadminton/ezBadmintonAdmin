@@ -19,11 +19,14 @@ class CheckboxGroup<T extends Object> extends StatelessWidget {
     required this.elements,
     required this.title,
     required this.groupBuilder,
+    this.onChange,
   });
 
   final List<T> elements;
   final Widget title;
   final CheckboxGroupBuilder<T> groupBuilder;
+
+  final void Function(List<T> enabledElements)? onChange;
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +34,18 @@ class CheckboxGroup<T extends Object> extends StatelessWidget {
       create: (context) => CheckboxGroupCubit(elements: elements),
       child: Builder(
         builder: (context) {
-          return BlocBuilder<CheckboxGroupCubit<T>, CheckboxGroupState<T>>(
+          return BlocConsumer<CheckboxGroupCubit<T>, CheckboxGroupState<T>>(
+            listener: (context, state) {
+              if (onChange != null) {
+                onChange!(state.enabledElements);
+              }
+            },
+            buildWhen: (previous, current) =>
+                previous.allElements != current.allElements,
             builder: (context, state) {
               var cubit = context.read<CheckboxGroupCubit<T>>();
               return RawCheckboxGroup<T>(
-                elements: elements,
+                elements: state.allElements,
                 title: title,
                 groupBuilder: groupBuilder,
                 onToggle: cubit.elementToggled,
@@ -84,36 +94,38 @@ class RawCheckboxGroup<T extends Object> extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: Theme.of(context).colorScheme.onSurface),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.onSurface.withOpacity(.25),
+        ),
         borderRadius: const BorderRadius.all(Radius.circular(12)),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: Row(
-                children: [
-                  const SizedBox(width: 12),
-                  Transform.scale(
-                    scale: 1.2,
-                    child: Checkbox(
-                      value: isGroupEnabled(),
-                      onChanged: (_) => onGroupToggle(),
-                      tristate: true,
-                    ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10.0),
+            child: Row(
+              children: [
+                const SizedBox(width: 15),
+                Transform.scale(
+                  scale: 1.2,
+                  child: Checkbox(
+                    value: isGroupEnabled(),
+                    onChanged: (_) => onGroupToggle(),
+                    tristate: true,
                   ),
-                  const SizedBox(width: 10),
-                  title,
-                ],
-              ),
+                ),
+                const SizedBox(width: 10),
+                title,
+              ],
             ),
           ),
           Divider(
             height: 1,
             thickness: 1,
-            color: Theme.of(context).colorScheme.onSurface,
+            indent: 12,
+            endIndent: 12,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(.25),
           ),
           groupBuilder(
             context,
