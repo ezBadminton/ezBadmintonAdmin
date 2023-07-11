@@ -1,6 +1,8 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
+import 'package:ez_badminton_admin_app/competition_management/utils/sorting.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:formz/formz.dart';
 
@@ -12,11 +14,13 @@ class CompetitionAddingCubit
     required CollectionRepository<Competition> competitionRepository,
     required CollectionRepository<AgeGroup> ageGroupRepository,
     required CollectionRepository<PlayingLevel> playingLevelRepository,
+    required CollectionRepository<Tournament> tournamentRepository,
   }) : super(
           collectionRepositories: [
             competitionRepository,
             ageGroupRepository,
             playingLevelRepository,
+            tournamentRepository
           ],
           const CompetitionAddingState(),
         ) {
@@ -29,8 +33,12 @@ class CompetitionAddingCubit
         collectionFetcher<Competition>(),
         collectionFetcher<AgeGroup>(),
         collectionFetcher<PlayingLevel>(),
+        collectionFetcher<Tournament>(),
       ],
       onSuccess: (updatedState) {
+        updatedState = updatedState.copyWithAgeGroupSorting();
+        updatedState = updatedState.copyWithPlayingLevelSorting();
+
         emit(updatedState.copyWith(loadingStatus: LoadingStatus.done));
       },
       onFailure: () {
@@ -40,10 +48,12 @@ class CompetitionAddingCubit
   }
 
   void ageGroupsChanged(List<AgeGroup> ageGroups) {
+    ageGroups = ageGroups..sort(compareAgeGroups);
     emit(state.copyWith(ageGroups: ageGroups));
   }
 
   void playingLevelsChanged(List<PlayingLevel> playingLevels) {
+    playingLevels = playingLevels..sortBy<num>((lvl) => lvl.index);
     emit(state.copyWith(playingLevels: playingLevels));
   }
 

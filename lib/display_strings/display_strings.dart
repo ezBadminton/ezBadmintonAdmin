@@ -20,8 +20,8 @@ String playerName(Player player) {
 }
 
 String playerWithClub(Player player) {
-  var name = '${player.firstName} ${player.lastName}';
-  var club = player.club == null ? '' : ' (${player.club!.name})';
+  String name = '${player.firstName} ${player.lastName}';
+  String club = player.club == null ? '' : ' (${player.club!.name})';
   return name + club;
 }
 
@@ -30,8 +30,26 @@ String competitionGenderAndType(
   GenderCategory genderCategory,
   CompetitionType type,
 ) {
-  var genderPrefix = l10n.genderCategory(genderCategory.name);
-  var competitionSuffix = l10n.competitionSuffix(type.name);
+  String genderPrefix = l10n.genderCategory(genderCategory.name);
+  String competitionSuffix = l10n.competitionSuffix(type.name);
+  return genderPrefix + competitionSuffix;
+}
+
+String competitionGenderAndTypeAbbreviation(
+  AppLocalizations l10n,
+  GenderCategory genderCategory,
+  CompetitionType type,
+) {
+  String genderPrefix = '';
+  if (genderCategory != GenderCategory.mixed &&
+      genderCategory != GenderCategory.any) {
+    genderPrefix = genderCategory == GenderCategory.female
+        ? l10n.womenAbbreviated
+        : l10n.menAbbreviated;
+  }
+
+  String competitionSuffix = l10n.competitionTypeAbbreviated(type.name);
+
   return genderPrefix + competitionSuffix;
 }
 
@@ -40,6 +58,17 @@ String competitionCategory(
   CompetitionCategory competitionCategory,
 ) {
   return competitionGenderAndType(
+    l10n,
+    competitionCategory.genderCategory,
+    competitionCategory.competitionType,
+  );
+}
+
+String competitionCategoryAbbreviation(
+  AppLocalizations l10n,
+  CompetitionCategory competitionCategory,
+) {
+  return competitionGenderAndTypeAbbreviation(
     l10n,
     competitionCategory.genderCategory,
     competitionCategory.competitionType,

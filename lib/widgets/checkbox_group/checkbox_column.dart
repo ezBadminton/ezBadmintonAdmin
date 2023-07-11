@@ -26,7 +26,7 @@ class CheckboxColumn<T extends Object> extends StatelessWidget {
             CheckboxListTile(
               title: Text(displayStringFunction(element)),
               controlAffinity: ListTileControlAffinity.leading,
-              visualDensity: const VisualDensity(vertical: -2),
+              visualDensity: const VisualDensity(vertical: -4),
               value: isEnabled(element),
               onChanged: (_) => onToggle(element),
             ),

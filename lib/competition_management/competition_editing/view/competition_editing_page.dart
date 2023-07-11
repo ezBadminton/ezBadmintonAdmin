@@ -29,6 +29,7 @@ class CompetitionEditingPage extends StatelessWidget {
         ageGroupRepository: context.read<CollectionRepository<AgeGroup>>(),
         playingLevelRepository:
             context.read<CollectionRepository<PlayingLevel>>(),
+        tournamentRepository: context.read<CollectionRepository<Tournament>>(),
       ),
       child: const _CompetitionEditingPageScaffold(),
     );
@@ -46,33 +47,66 @@ class _CompetitionEditingPageScaffold extends StatelessWidget {
         title: Text(l10n.addSubject(l10n.competition(2))),
       ),
       body: Align(
-        alignment: Alignment.center,
+        alignment: Alignment.topCenter,
         child: SizedBox(
-          width: 1150,
+          width: 870,
           child: BlocBuilder<CompetitionAddingCubit, CompetitionAddingState>(
             builder: (context, state) {
               return LoadingScreen(
                 loadingStatus: _getLoadingScreenStatus(state),
-                builder: (_) => const Column(
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: _AgeGroupSelectionForm(),
-                        ),
-                        SizedBox(width: 15),
-                        Expanded(
-                          child: _PlayingLevelSelectionForm(),
-                        ),
-                      ],
+                builder: (_) {
+                  bool useAgeGroups =
+                      state.getCollection<Tournament>().first.useAgeGroups;
+                  bool usePlayingLevels =
+                      state.getCollection<Tournament>().first.usePlayingLevels;
+                  bool noCategories = !useAgeGroups && !usePlayingLevels;
+                  return SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        top: 20,
+                        left: 10,
+                        right: 10,
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                noCategories
+                                    ? l10n.chooseDisciplines
+                                    : l10n.chooseCategoriesAndDisciplines,
+                                style: const TextStyle(fontSize: 22),
+                              ),
+                            ],
+                          ),
+                          const Divider(height: 25, indent: 20, endIndent: 20),
+                          const SizedBox(height: 15),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (useAgeGroups)
+                                const Expanded(
+                                  child: _AgeGroupSelectionForm(),
+                                ),
+                              if (useAgeGroups && usePlayingLevels)
+                                const SizedBox(width: 15),
+                              if (usePlayingLevels)
+                                const Expanded(
+                                  child: _PlayingLevelSelectionForm(),
+                                ),
+                            ],
+                          ),
+                          if (!noCategories) const SizedBox(height: 15),
+                          const _CompetitionCategorySelectionForm(),
+                          const SizedBox(height: 60),
+                          const CompetitionAdditionPreview(),
+                          const SizedBox(height: 100),
+                        ],
+                      ),
                     ),
-                    SizedBox(height: 15),
-                    _CompetitionCategorySelectionForm(),
-                    SizedBox(height: 40),
-                    CompetitionAdditionPreview(),
-                  ],
-                ),
+                  );
+                },
               );
             },
           ),
@@ -81,7 +115,7 @@ class _CompetitionEditingPageScaffold extends StatelessWidget {
     );
   }
 
-  LoadingStatus _getLoadingScreenStatus(CompetitionAddingState state) {
+  static LoadingStatus _getLoadingScreenStatus(CompetitionAddingState state) {
     if (state.collections.isNotEmpty &&
         state.loadingStatus == LoadingStatus.loading) {
       return LoadingStatus.done;
@@ -177,25 +211,29 @@ class _CompetitionCategorySelectionForm extends StatelessWidget {
           elements: CompetitionCategory.defaultCompetitions,
           onChange: cubit.competitionCategoriesChanged,
           groupBuilder: (context, competitionCategories, onToggle, isEnabled) {
-            return Wrap(
-              children: [
-                for (CompetitionCategory competitionCategory
-                    in competitionCategories)
-                  FractionallySizedBox(
-                    widthFactor: .5,
-                    child: CheckboxListTile(
-                      title: Text(
-                        display_strings.competitionCategory(
-                          l10n,
-                          competitionCategory,
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Wrap(
+                children: [
+                  for (CompetitionCategory competitionCategory
+                      in competitionCategories)
+                    FractionallySizedBox(
+                      widthFactor: .5,
+                      child: CheckboxListTile(
+                        title: Text(
+                          display_strings.competitionCategory(
+                            l10n,
+                            competitionCategory,
+                          ),
                         ),
+                        controlAffinity: ListTileControlAffinity.leading,
+                        visualDensity: const VisualDensity(vertical: -4),
+                        value: isEnabled(competitionCategory),
+                        onChanged: (_) => onToggle(competitionCategory),
                       ),
-                      controlAffinity: ListTileControlAffinity.leading,
-                      value: isEnabled(competitionCategory),
-                      onChanged: (_) => onToggle(competitionCategory),
                     ),
-                  ),
-              ],
+                ],
+              ),
             );
           },
         );
