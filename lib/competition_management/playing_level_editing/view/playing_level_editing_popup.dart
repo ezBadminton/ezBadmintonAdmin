@@ -1,7 +1,7 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/playing_level_editing/cubit/playing_level_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/constants.dart';
-import 'package:ez_badminton_admin_app/layout/mouse_hover_cubit.dart';
+import 'package:ez_badminton_admin_app/widgets/mouse_hover_builder/mouse_hover_builder.dart';
 import 'package:ez_badminton_admin_app/widgets/implicit_animated_list/reorderable_implicit_animated_list.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter/material.dart';
@@ -237,43 +237,40 @@ class _PlayingLevelListItem extends StatelessWidget {
     int playingLevelIndex =
         cubit.state.getCollection<PlayingLevel>().indexOf(playingLevel);
 
-    return BlocProvider(
-      create: (context) => MouseHoverCubit(),
-      child: Column(
-        children: [
-          if (playingLevelIndex != 0)
-            const Divider(
-              height: 1,
-              thickness: 1,
-            ),
-          _PlayingLevelItemGap(
-            elementIndex: playingLevelIndex,
-            hoveringIndex: hoveringIndex,
-            top: true,
+    return Column(
+      children: [
+        if (playingLevelIndex != 0)
+          const Divider(
+            height: 1,
+            thickness: 1,
           ),
-          if (cubit.state.renamingPlayingLevel.value != playingLevel)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: _PlayingLevelDisplayWithControls(
-                playingLevel: playingLevel,
-                textStyle: textStyle,
-                draggableWrapper: draggableWrapper,
-                dragIcon: dragIcon,
-                hoveringIndex: hoveringIndex,
-              ),
-            )
-          else
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: _PlayingLevelRenameForm(playingLevel: playingLevel),
+        _PlayingLevelItemGap(
+          elementIndex: playingLevelIndex,
+          hoveringIndex: hoveringIndex,
+          top: true,
+        ),
+        if (cubit.state.renamingPlayingLevel.value != playingLevel)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: _PlayingLevelDisplayWithControls(
+              playingLevel: playingLevel,
+              textStyle: textStyle,
+              draggableWrapper: draggableWrapper,
+              dragIcon: dragIcon,
+              hoveringIndex: hoveringIndex,
             ),
-          _PlayingLevelItemGap(
-            elementIndex: playingLevelIndex,
-            hoveringIndex: hoveringIndex,
-            top: false,
+          )
+        else
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: _PlayingLevelRenameForm(playingLevel: playingLevel),
           ),
-        ],
-      ),
+        _PlayingLevelItemGap(
+          elementIndex: playingLevelIndex,
+          hoveringIndex: hoveringIndex,
+          top: false,
+        ),
+      ],
     );
   }
 }
@@ -338,44 +335,36 @@ class _PlayingLevelDisplayWithControls extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
     var cubit = context.read<PlayingLevelEditingCubit>();
-    var mouseHoverCubit = context.read<MouseHoverCubit>();
     bool interactable = cubit.state.formInteractable;
-    return MouseRegion(
-      onEnter: (_) => mouseHoverCubit.mouseEntered(),
-      onExit: (_) => mouseHoverCubit.mouseExited(),
-      child: Row(
+    return MouseHoverBuilder(
+      builder: (context, isHovered) => Row(
         children: [
           Text(
             playingLevel.name,
             style: textStyle,
           ),
           const SizedBox(width: 10),
-          BlocBuilder<MouseHoverCubit, bool>(
-            builder: (context, mouseHover) {
-              if (mouseHover && hoveringIndex == null && interactable) {
-                return Tooltip(
-                  message: l10n.rename,
-                  waitDuration: const Duration(milliseconds: 600),
-                  triggerMode: TooltipTriggerMode.manual,
-                  child: InkResponse(
-                    radius: 16,
-                    onTap: () {
-                      if (interactable) {
-                        cubit.playingLevelRenameFormOpened(playingLevel);
-                      }
-                    },
-                    child: Icon(
-                      Icons.edit,
-                      size: 19,
-                      color: Theme.of(context).disabledColor,
-                    ),
-                  ),
-                );
-              } else {
-                return const SizedBox();
-              }
-            },
-          ),
+          if (isHovered && hoveringIndex == null && interactable)
+            Tooltip(
+              message: l10n.rename,
+              waitDuration: const Duration(milliseconds: 600),
+              triggerMode: TooltipTriggerMode.manual,
+              child: InkResponse(
+                radius: 16,
+                onTap: () {
+                  if (interactable) {
+                    cubit.playingLevelRenameFormOpened(playingLevel);
+                  }
+                },
+                child: Icon(
+                  Icons.edit,
+                  size: 19,
+                  color: Theme.of(context).disabledColor,
+                ),
+              ),
+            )
+          else
+            const SizedBox(),
           const Expanded(child: SizedBox(height: 24)),
           if (cubit.state.renamingPlayingLevel.value == null) ...[
             draggableWrapper(
