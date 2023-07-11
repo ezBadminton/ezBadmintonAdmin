@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
+import 'package:ez_badminton_admin_app/competition_management/utils/sorting.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:formz/formz.dart';
@@ -32,14 +33,7 @@ class PlayingLevelEditingCubit
         collectionFetcher<Competition>(),
       ],
       onSuccess: (updatedState) {
-        List<PlayingLevel> playingLevels =
-            List.of(updatedState.getCollection<PlayingLevel>());
-
-        playingLevels.sortBy<num>((element) => element.index);
-        updatedState = updatedState.copyWithCollection(
-          modelType: PlayingLevel,
-          collection: playingLevels,
-        );
+        updatedState = updatedState.copyWithPlayingLevelSorting();
 
         emit(updatedState.copyWith(
           loadingStatus: LoadingStatus.done,

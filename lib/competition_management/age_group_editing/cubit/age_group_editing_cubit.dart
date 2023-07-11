@@ -1,5 +1,6 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
+import 'package:ez_badminton_admin_app/competition_management/utils/sorting.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:formz/formz.dart';
@@ -31,13 +32,7 @@ class AgeGroupEditingCubit
         collectionFetcher<Competition>(),
       ],
       onSuccess: (updatedState) {
-        List<AgeGroup> ageGroups = updatedState.getCollection<AgeGroup>();
-
-        ageGroups.sort(_compareAgeGroups);
-        updatedState = updatedState.copyWithCollection(
-          modelType: AgeGroup,
-          collection: ageGroups,
-        );
+        updatedState = updatedState.copyWithAgeGroupSorting();
 
         emit(updatedState.copyWith(loadingStatus: LoadingStatus.done));
       },
@@ -123,20 +118,5 @@ class AgeGroupEditingCubit
     }
     emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
     loadAgeGroups();
-  }
-
-  static int _compareAgeGroups(AgeGroup ageGroup1, AgeGroup ageGroup2) {
-    int typeIndex1 = AgeGroupType.values.indexOf(ageGroup1.type);
-    int typeIndex2 = AgeGroupType.values.indexOf(ageGroup2.type);
-    // Sort by age group type over < under
-    int typeComparison = typeIndex1.compareTo(typeIndex2);
-
-    if (typeComparison != 0) {
-      return typeComparison;
-    }
-
-    // Sort by age descending
-    int ageComparison = ageGroup2.age.compareTo(ageGroup1.age);
-    return ageComparison;
   }
 }
