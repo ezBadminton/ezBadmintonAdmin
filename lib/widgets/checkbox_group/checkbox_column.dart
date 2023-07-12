@@ -7,14 +7,16 @@ class CheckboxColumn<T extends Object> extends StatelessWidget {
     super.key,
     required this.children,
     required this.onToggle,
-    required this.isEnabled,
+    required this.valueGetter,
     required this.displayStringFunction,
+    this.isEnabled,
   });
 
   final List<T> children;
   final void Function(T) onToggle;
-  final bool Function(T) isEnabled;
+  final bool Function(T) valueGetter;
   final String Function(T) displayStringFunction;
+  final bool Function(T)? isEnabled;
 
   @override
   Widget build(BuildContext context) {
@@ -27,8 +29,9 @@ class CheckboxColumn<T extends Object> extends StatelessWidget {
               title: Text(displayStringFunction(element)),
               controlAffinity: ListTileControlAffinity.leading,
               visualDensity: const VisualDensity(vertical: -4),
-              value: isEnabled(element),
+              value: valueGetter(element),
               onChanged: (_) => onToggle(element),
+              enabled: isEnabled != null ? isEnabled!(element) : true,
             ),
         ],
       ),

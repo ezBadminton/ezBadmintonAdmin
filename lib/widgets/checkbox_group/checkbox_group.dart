@@ -6,7 +6,7 @@ typedef CheckboxGroupBuilder<T extends Object> = Widget Function(
   BuildContext context,
   List<T> elements,
   void Function(T element) onToggle,
-  bool Function(T element) isEnabled,
+  bool Function(T element) valueGetter,
 );
 
 class CheckboxGroup<T extends Object> extends StatelessWidget {
@@ -28,6 +28,7 @@ class CheckboxGroup<T extends Object> extends StatelessWidget {
   final CheckboxGroupBuilder<T> groupBuilder;
 
   final List<T> initialEnabledElements;
+
   final void Function(List<T> enabledElements)? onChange;
 
   @override
@@ -54,9 +55,9 @@ class CheckboxGroup<T extends Object> extends StatelessWidget {
                 title: title,
                 groupBuilder: groupBuilder,
                 onToggle: cubit.elementToggled,
-                isEnabled: cubit.isElementEnabled,
+                valueGetter: cubit.isElementEnabled,
                 onGroupToggle: cubit.groupToggled,
-                isGroupEnabled: cubit.isGroupEnabled,
+                groupValueGetter: cubit.isGroupEnabled,
               );
             },
           );
@@ -73,27 +74,27 @@ class RawCheckboxGroup<T extends Object> extends StatelessWidget {
   /// This raw widget does not maintain a state and only builds the group by
   /// using the list of [elements] given to the [groupBuilder].
   /// The [groupBuilder] accesses and modifies the state of each element using
-  /// the given [onToggle] and [isEnabled] functions.
+  /// the given [onToggle] and [valueGetter] functions.
   /// The super-checkbox's state is controlled by [onGroupToggle] and read
-  /// as a tristate with [isGroupEnabled].
+  /// as a tristate with [groupValueGetter].
   const RawCheckboxGroup({
     super.key,
     required this.elements,
     required this.title,
     required this.groupBuilder,
     required this.onToggle,
-    required this.isEnabled,
+    required this.valueGetter,
     required this.onGroupToggle,
-    required this.isGroupEnabled,
+    required this.groupValueGetter,
   });
 
   final List<T> elements;
   final Widget title;
   final CheckboxGroupBuilder<T> groupBuilder;
   final void Function(T element) onToggle;
-  final bool Function(T element) isEnabled;
+  final bool Function(T element) valueGetter;
   final VoidCallback onGroupToggle;
-  final bool? Function() isGroupEnabled;
+  final bool? Function() groupValueGetter;
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +116,7 @@ class RawCheckboxGroup<T extends Object> extends StatelessWidget {
                 Transform.scale(
                   scale: 1.2,
                   child: Checkbox(
-                    value: isGroupEnabled(),
+                    value: groupValueGetter(),
                     onChanged: (_) => onGroupToggle(),
                     tristate: true,
                   ),
@@ -136,7 +137,7 @@ class RawCheckboxGroup<T extends Object> extends StatelessWidget {
             context,
             elements,
             onToggle,
-            isEnabled,
+            valueGetter,
           ),
         ],
       ),

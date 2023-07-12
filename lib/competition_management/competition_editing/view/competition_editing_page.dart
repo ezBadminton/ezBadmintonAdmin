@@ -147,9 +147,11 @@ class _AgeGroupSelectionForm extends StatelessWidget {
             return CheckboxColumn(
               children: ageGroups,
               onToggle: onToggle,
-              isEnabled: isEnabled,
+              valueGetter: isEnabled,
               displayStringFunction: (ageGroup) =>
                   display_strings.ageGroup(l10n, ageGroup),
+              isEnabled: (ageGroup) =>
+                  !state.disabledAgeGroups.contains(ageGroup),
             );
           },
         );
@@ -181,8 +183,10 @@ class _PlayingLevelSelectionForm extends StatelessWidget {
             return CheckboxColumn(
               children: playingLevels,
               onToggle: onToggle,
-              isEnabled: isEnabled,
+              valueGetter: isEnabled,
               displayStringFunction: (playingLevel) => playingLevel.name,
+              isEnabled: (playingLevel) =>
+                  !state.disabledPlayingLevels.contains(playingLevel),
             );
           },
         );
@@ -209,7 +213,7 @@ class _CompetitionCategorySelectionForm extends StatelessWidget {
             ),
           ),
           elements: CompetitionCategory.defaultCompetitions,
-          initialEnabledElements: CompetitionCategory.defaultCompetitions,
+          initialEnabledElements: state.competitionCategories,
           onChange: cubit.competitionCategoriesChanged,
           groupBuilder: (context, competitionCategories, onToggle, isEnabled) {
             return Padding(
@@ -231,6 +235,8 @@ class _CompetitionCategorySelectionForm extends StatelessWidget {
                         visualDensity: const VisualDensity(vertical: -4),
                         value: isEnabled(competitionCategory),
                         onChanged: (_) => onToggle(competitionCategory),
+                        enabled: !state.disabledCompetitionCategories
+                            .contains(competitionCategory),
                       ),
                     ),
                 ],
