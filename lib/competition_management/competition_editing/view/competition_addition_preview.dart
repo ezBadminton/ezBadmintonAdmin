@@ -1,6 +1,8 @@
 import 'package:collection_repository/collection_repository.dart';
+import 'package:equatable/equatable.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_editing/cubit/competition_adding_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
+import 'package:ez_badminton_admin_app/widgets/implicit_animated_list/implicit_animated_list.dart';
 import 'package:ez_badminton_admin_app/widgets/long_tooltip/long_tooltip.dart';
 import 'package:ez_badminton_admin_app/widgets/mouse_hover_builder/mouse_hover_builder.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +29,7 @@ class CompetitionAdditionPreview extends StatelessWidget {
             state.getCollection<Tournament>().first.usePlayingLevels;
         bool noCategories = !useAgeGroups && !usePlayingLevels;
 
-        List<Widget> previewList = _buildPreviewList(
+        List<_CategoryTuple> previewList = _buildPreviewList(
           useAgeGroups,
           usePlayingLevels,
           state.ageGroups,
@@ -35,7 +37,8 @@ class CompetitionAdditionPreview extends StatelessWidget {
           state.competitionCategories,
         );
 
-        int numNewCategories = previewList.length;
+        int numNewCategories =
+            state.ageGroups.length * state.playingLevels.length;
         int numBaseDisciplines = state.competitionCategories.length;
         int numNewCompetitions = numNewCategories * numBaseDisciplines;
 
@@ -91,10 +94,21 @@ class CompetitionAdditionPreview extends StatelessWidget {
             ),
             SizedBox(
               height: 160,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: previewList,
-                ),
+              child: ImplicitAnimatedList<_CategoryTuple>(
+                elements: previewList,
+                itemBuilder: (context, element, animation) {
+                  return SizeTransition(
+                    sizeFactor: animation,
+                    child: _PreviewListItem(element),
+                  );
+                },
+                duration: const Duration(milliseconds: 120),
+                elementsEqual: (element1, element2) {
+                  return element1.ageGroup == element2.ageGroup &&
+                      element1.playingLevel == element2.playingLevel &&
+                      element1.baseCategories.length ==
+                          element2.baseCategories.length;
+                },
               ),
             ),
           ],
@@ -103,7 +117,7 @@ class CompetitionAdditionPreview extends StatelessWidget {
     );
   }
 
-  static List<Widget> _buildPreviewList(
+  static List<_CategoryTuple> _buildPreviewList(
     bool useAgeGroups,
     bool usePlayingLevels,
     List<AgeGroup> selectedAgeGroups,
@@ -118,13 +132,13 @@ class CompetitionAdditionPreview extends StatelessWidget {
     List<PlayingLevel?> playingLevels =
         usePlayingLevels ? selectedPlayingLevels : [null];
 
-    List<Widget> items = [
+    List<_CategoryTuple> items = [
       for (AgeGroup? ageGroup in ageGroups)
         for (PlayingLevel? playingLevel in playingLevels) ...[
-          _PreviewListItem(
+          _CategoryTuple(
             ageGroup: ageGroup,
             playingLevel: playingLevel,
-            competitionCategories: selectedCompetitionCategories,
+            baseCategories: selectedCompetitionCategories,
           ),
         ],
     ];
@@ -230,19 +244,19 @@ class _PreviewListHeader extends StatelessWidget {
 }
 
 class _PreviewListItem extends StatelessWidget {
-  const _PreviewListItem({
-    this.ageGroup,
-    this.playingLevel,
-    required this.competitionCategories,
-  });
+  const _PreviewListItem(
+    this.categoryTuple,
+  );
 
-  final AgeGroup? ageGroup;
-  final PlayingLevel? playingLevel;
-  final List<CompetitionCategory> competitionCategories;
+  final _CategoryTuple categoryTuple;
 
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
+
+    AgeGroup? ageGroup = categoryTuple.ageGroup;
+    PlayingLevel? playingLevel = categoryTuple.playingLevel;
+
     return MouseHoverBuilder(
       builder: (context, isHovered) => Container(
         color: isHovered ? Theme.of(context).hoverColor : null,
@@ -254,7 +268,7 @@ class _PreviewListItem extends StatelessWidget {
               if (ageGroup != null) ...[
                 SizedBox(
                   width: 200,
-                  child: Text(display_strings.ageGroup(l10n, ageGroup!)),
+                  child: Text(display_strings.ageGroup(l10n, ageGroup)),
                 ),
                 Flexible(
                   flex: 1,
@@ -264,7 +278,7 @@ class _PreviewListItem extends StatelessWidget {
               if (playingLevel != null) ...[
                 SizedBox(
                   width: 300,
-                  child: Text(playingLevel!.name),
+                  child: Text(playingLevel.name),
                 ),
                 Flexible(
                   flex: 1,
@@ -287,10 +301,29 @@ class _PreviewListItem extends StatelessWidget {
   }
 
   String _competitionCategoryListToString(AppLocalizations l10n) {
-    String categoryList = competitionCategories
+    String categoryList = categoryTuple.baseCategories
         .map((c) => display_strings.competitionCategoryAbbreviation(l10n, c))
         .join(', ');
 
     return categoryList;
   }
+}
+
+class _CategoryTuple extends Equatable {
+  /// A tuple of [ageGroup] and [playingLevel] forming a playing category.
+  ///
+  /// The [baseCategories] list contains the [CompetitionCategory]s that are
+  /// available in this category.
+  const _CategoryTuple({
+    required this.ageGroup,
+    required this.playingLevel,
+    required this.baseCategories,
+  });
+
+  final AgeGroup? ageGroup;
+  final PlayingLevel? playingLevel;
+  final List<CompetitionCategory> baseCategories;
+
+  @override
+  List<Object?> get props => [ageGroup, playingLevel];
 }
