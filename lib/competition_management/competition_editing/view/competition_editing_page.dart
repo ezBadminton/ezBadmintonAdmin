@@ -209,6 +209,7 @@ class _CompetitionCategorySelectionForm extends StatelessWidget {
             ),
           ),
           elements: CompetitionCategory.defaultCompetitions,
+          initialEnabledElements: CompetitionCategory.defaultCompetitions,
           onChange: cubit.competitionCategoriesChanged,
           groupBuilder: (context, competitionCategories, onToggle, isEnabled) {
             return Padding(

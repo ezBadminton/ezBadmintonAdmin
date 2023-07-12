@@ -6,8 +6,12 @@ class CheckboxGroupCubit<T extends Object>
     extends Cubit<CheckboxGroupState<T>> {
   CheckboxGroupCubit({
     required List<T> elements,
+    List<T> intialEnabledElements = const [],
   }) : super(
-          CheckboxGroupState(allElements: elements),
+          CheckboxGroupState(
+            allElements: elements,
+            enabledElements: intialEnabledElements,
+          ),
         );
 
   void elementToggled(T element) {

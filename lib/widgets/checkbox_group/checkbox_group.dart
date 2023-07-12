@@ -19,6 +19,7 @@ class CheckboxGroup<T extends Object> extends StatelessWidget {
     required this.elements,
     required this.title,
     required this.groupBuilder,
+    this.initialEnabledElements = const [],
     this.onChange,
   });
 
@@ -26,12 +27,16 @@ class CheckboxGroup<T extends Object> extends StatelessWidget {
   final Widget title;
   final CheckboxGroupBuilder<T> groupBuilder;
 
+  final List<T> initialEnabledElements;
   final void Function(List<T> enabledElements)? onChange;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => CheckboxGroupCubit(elements: elements),
+      create: (context) => CheckboxGroupCubit(
+        elements: elements,
+        intialEnabledElements: initialEnabledElements,
+      ),
       child: Builder(
         builder: (context) {
           return BlocConsumer<CheckboxGroupCubit<T>, CheckboxGroupState<T>>(
