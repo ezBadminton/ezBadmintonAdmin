@@ -1,4 +1,5 @@
 import 'package:ez_badminton_admin_app/widgets/checkbox_group/cubit/checkbox_group_cubit.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -19,33 +20,34 @@ class CheckboxGroup<T extends Object> extends StatelessWidget {
     required this.elements,
     required this.title,
     required this.groupBuilder,
-    this.initialEnabledElements = const [],
-    this.onChange,
+    this.enabledElements,
+    required this.onToggle,
   });
 
   final List<T> elements;
   final Widget title;
   final CheckboxGroupBuilder<T> groupBuilder;
 
-  final List<T> initialEnabledElements;
+  final List<T>? enabledElements;
 
-  final void Function(List<T> enabledElements)? onChange;
+  final void Function(T toggledElement) onToggle;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => CheckboxGroupCubit(
         elements: elements,
-        intialEnabledElements: initialEnabledElements,
+        intialEnabledElements: enabledElements ?? <T>[],
+        onToggle: onToggle,
       ),
       child: Builder(
         builder: (context) {
-          return BlocConsumer<CheckboxGroupCubit<T>, CheckboxGroupState<T>>(
-            listener: (context, state) {
-              if (onChange != null) {
-                onChange!(state.enabledElements);
-              }
-            },
+          var cubit = context.read<CheckboxGroupCubit<T>>();
+          if (enabledElements != null &&
+              !listEquals(cubit.state.enabledElements, enabledElements)) {
+            cubit.enabledElementsChanged(enabledElements!);
+          }
+          return BlocBuilder<CheckboxGroupCubit<T>, CheckboxGroupState<T>>(
             buildWhen: (previous, current) =>
                 previous.allElements != current.allElements,
             builder: (context, state) {
@@ -54,7 +56,7 @@ class CheckboxGroup<T extends Object> extends StatelessWidget {
                 elements: state.allElements,
                 title: title,
                 groupBuilder: groupBuilder,
-                onToggle: cubit.elementToggled,
+                onToggle: onToggle,
                 valueGetter: cubit.isElementEnabled,
                 onGroupToggle: cubit.groupToggled,
                 groupValueGetter: cubit.isGroupEnabled,

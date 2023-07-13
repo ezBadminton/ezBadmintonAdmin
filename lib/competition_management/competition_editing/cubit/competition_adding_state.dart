@@ -8,9 +8,9 @@ class CompetitionAddingState
     this.ageGroups = const [],
     this.playingLevels = const [],
     this.competitionCategories = CompetitionCategory.defaultCompetitions,
-    this.disabledAgeGroups = const [],
-    this.disabledPlayingLevels = const [],
-    this.disabledCompetitionCategories = const [],
+    this.disabledAgeGroups = const {},
+    this.disabledPlayingLevels = const {},
+    this.disabledCompetitionCategories = const {},
     super.collections = const {},
   });
 
@@ -21,9 +21,9 @@ class CompetitionAddingState
   final List<PlayingLevel> playingLevels;
   final List<CompetitionCategory> competitionCategories;
 
-  final List<AgeGroup> disabledAgeGroups;
-  final List<PlayingLevel> disabledPlayingLevels;
-  final List<CompetitionCategory> disabledCompetitionCategories;
+  final Set<AgeGroup> disabledAgeGroups;
+  final Set<PlayingLevel> disabledPlayingLevels;
+  final Set<CompetitionCategory> disabledCompetitionCategories;
 
   CompetitionAddingState copyWith({
     LoadingStatus? loadingStatus,
@@ -31,9 +31,9 @@ class CompetitionAddingState
     List<AgeGroup>? ageGroups,
     List<PlayingLevel>? playingLevels,
     List<CompetitionCategory>? competitionCategories,
-    List<AgeGroup>? disabledAgeGroups,
-    List<PlayingLevel>? disabledPlayingLevels,
-    List<CompetitionCategory>? disabledCompetitionCategories,
+    Set<AgeGroup>? disabledAgeGroups,
+    Set<PlayingLevel>? disabledPlayingLevels,
+    Set<CompetitionCategory>? disabledCompetitionCategories,
     Map<Type, List<Model>>? collections,
   }) {
     return CompetitionAddingState(

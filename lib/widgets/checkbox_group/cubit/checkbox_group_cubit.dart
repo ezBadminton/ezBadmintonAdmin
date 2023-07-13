@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:collection/collection.dart';
 
 part 'checkbox_group_state.dart';
 
@@ -7,6 +8,7 @@ class CheckboxGroupCubit<T extends Object>
   CheckboxGroupCubit({
     required List<T> elements,
     List<T> intialEnabledElements = const [],
+    required this.onToggle,
   }) : super(
           CheckboxGroupState(
             allElements: elements,
@@ -14,17 +16,10 @@ class CheckboxGroupCubit<T extends Object>
           ),
         );
 
-  void elementToggled(T element) {
-    assert(state.allElements.contains(element));
+  final void Function(T toggledElement) onToggle;
 
-    List<T> newEnabledElements = List.of(state.enabledElements);
-    if (state.enabledElements.contains(element)) {
-      newEnabledElements.remove(element);
-    } else {
-      newEnabledElements.add(element);
-    }
-
-    emit(state.copyWith(enabledElements: newEnabledElements));
+  void enabledElementsChanged(List<T> enabledElements) {
+    emit(state.copyWith(enabledElements: enabledElements));
   }
 
   bool isElementEnabled(T element) {
@@ -35,9 +30,15 @@ class CheckboxGroupCubit<T extends Object>
 
   void groupToggled() {
     if (isGroupEnabled() == true) {
-      emit(state.copyWith(enabledElements: <T>[]));
+      for (T element in state.enabledElements) {
+        onToggle(element);
+      }
     } else {
-      emit(state.copyWith(enabledElements: List.of(state.allElements)));
+      Iterable<T> disabledElements =
+          state.allElements.whereNot((e) => state.enabledElements.contains(e));
+      for (T element in disabledElements) {
+        onToggle(element);
+      }
     }
   }
 

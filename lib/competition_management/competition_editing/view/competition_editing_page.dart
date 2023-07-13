@@ -142,7 +142,8 @@ class _AgeGroupSelectionForm extends StatelessWidget {
             ),
           ),
           elements: state.getCollection<AgeGroup>(),
-          onChange: cubit.ageGroupsChanged,
+          enabledElements: state.ageGroups,
+          onToggle: cubit.ageGroupToggled,
           groupBuilder: (context, ageGroups, onToggle, isEnabled) {
             return CheckboxColumn(
               children: ageGroups,
@@ -178,7 +179,8 @@ class _PlayingLevelSelectionForm extends StatelessWidget {
             ),
           ),
           elements: state.getCollection<PlayingLevel>(),
-          onChange: cubit.playingLevelsChanged,
+          enabledElements: state.playingLevels,
+          onToggle: cubit.playingLevelToggled,
           groupBuilder: (context, playingLevels, onToggle, isEnabled) {
             return CheckboxColumn(
               children: playingLevels,
@@ -213,9 +215,14 @@ class _CompetitionCategorySelectionForm extends StatelessWidget {
             ),
           ),
           elements: CompetitionCategory.defaultCompetitions,
-          initialEnabledElements: state.competitionCategories,
-          onChange: cubit.competitionCategoriesChanged,
-          groupBuilder: (context, competitionCategories, onToggle, isEnabled) {
+          enabledElements: state.competitionCategories,
+          onToggle: cubit.competitionCategoryToggled,
+          groupBuilder: (
+            context,
+            competitionCategories,
+            onToggle,
+            valueGetter,
+          ) {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
               child: Wrap(
@@ -233,7 +240,7 @@ class _CompetitionCategorySelectionForm extends StatelessWidget {
                         ),
                         controlAffinity: ListTileControlAffinity.leading,
                         visualDensity: const VisualDensity(vertical: -4),
-                        value: isEnabled(competitionCategory),
+                        value: valueGetter(competitionCategory),
                         onChanged: (_) => onToggle(competitionCategory),
                         enabled: !state.disabledCompetitionCategories
                             .contains(competitionCategory),
