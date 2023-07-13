@@ -229,7 +229,7 @@ class _PreviewListHeader extends StatelessWidget {
               ],
               SizedBox(
                 width: 200,
-                child: Text(l10n.basicCompetition(2)),
+                child: Text(l10n.baseCompetition(2)),
               ),
               Flexible(
                 flex: 10,

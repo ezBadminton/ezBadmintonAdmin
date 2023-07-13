@@ -20,7 +20,7 @@
   "gender": "Geschlecht",
   "playingLevel": "{count, plural, =1{Spielklasse} other{Spielklassen}}",
   "competition": "{count, plural, =1{Disziplin} other{Disziplinen}}",
-  "basicCompetition": "{count, plural, =1{Basisdisziplin} other{Basisdisziplinen}}",
+  "baseCompetition": "{count, plural, =1{Basisdisziplin} other{Basisdisziplinen}}",
   "courts": "Felder",
   "matches": "Spiele",
   "women": "Damen",
@@ -91,11 +91,13 @@
   "nameSubject": "{subject} benennen",
   "reorder": "Umordnen",
   "rename": "Umbenennen",
-  "chooseDisciplines": "Basisdisziplinen wählen",
-  "chooseCategoriesAndDisciplines": "Kategorien und Basisdisziplinen wählen",
+  "chooseCompetitions": "Basisdisziplinen wählen",
+  "chooseCategoriesAndCompetitions": "Kategorien und Basisdisziplinen wählen",
   "newCategories": "{count, plural, =0{Keine neuen Kategorien} =1{1 neue Kategorie} other{{count} neue Kategorien}}",
   "newCompetitions": "{count, plural, =0{Keine neuen Disziplinen} =1{1 neue Disziplin} other{{count} neue Disziplinen}}",
   "totalNewCompetitions": "{count, plural, =0{Keine neuen Disziplinen} =1{Insgesamt 1 neue Disziplin} other{Insgesamt {count} neue Disziplinen}}",
-  "competitionAddingTooltip": "Du hast {categoryCount} {categories} gewählt in denen jeweils für {baseDisciplineCount} der Basisdisziplinen gemeldet werden kann.",
-  "combinationsOf": "Kombinationen aus {firstSubject} und {secondSubject}"
+  "competitionAddingTooltip": "Du hast {categoryCount} {categories} gewählt in denen jeweils für {baseCompetitionCount} der Basisdisziplinen gemeldet werden kann.",
+  "combinationsOf": "Kombinationen aus {firstSubject} und {secondSubject}",
+  "categoryAlreadyExists": "Für diese Kategorie wurden bereits alle Basisdisziplinen erstellt",
+  "competitionAlreadyExists": "Diese Disziplin wurde bereits in einer der gewählten Kategorien erstellt"
 }

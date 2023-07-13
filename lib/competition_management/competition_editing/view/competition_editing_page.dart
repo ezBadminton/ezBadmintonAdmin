@@ -74,8 +74,8 @@ class _CompetitionEditingPageScaffold extends StatelessWidget {
                             children: [
                               Text(
                                 noCategories
-                                    ? l10n.chooseDisciplines
-                                    : l10n.chooseCategoriesAndDisciplines,
+                                    ? l10n.chooseCompeititions
+                                    : l10n.chooseCategoriesAndCompetitions,
                                 style: const TextStyle(fontSize: 22),
                               ),
                             ],
@@ -154,6 +154,10 @@ class _AgeGroupSelectionForm extends StatelessWidget {
                   display_strings.ageGroup(l10n, ageGroup),
               isEnabled: (ageGroup) =>
                   !state.disabledAgeGroups.contains(ageGroup),
+              tooltipFunction: (ageGroup) =>
+                  state.disabledAgeGroups.contains(ageGroup)
+                      ? l10n.categoryAlreadyExists
+                      : '',
             );
           },
         );
@@ -191,6 +195,10 @@ class _PlayingLevelSelectionForm extends StatelessWidget {
               displayStringFunction: (playingLevel) => playingLevel.name,
               isEnabled: (playingLevel) =>
                   !state.disabledPlayingLevels.contains(playingLevel),
+              tooltipFunction: (playingLevel) =>
+                  state.disabledPlayingLevels.contains(playingLevel)
+                      ? l10n.categoryAlreadyExists
+                      : '',
             );
           },
         );
@@ -210,7 +218,7 @@ class _CompetitionCategorySelectionForm extends StatelessWidget {
       builder: (context, state) {
         return CheckboxGroup<CompetitionCategory>(
           title: Text(
-            l10n.basicCompetition(2),
+            l10n.baseCompetition(2),
             style: const TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w600,
@@ -226,31 +234,24 @@ class _CompetitionCategorySelectionForm extends StatelessWidget {
             onToggle,
             valueGetter,
           ) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: Wrap(
-                children: [
-                  for (CompetitionCategory competitionCategory
-                      in competitionCategories)
-                    FractionallySizedBox(
-                      widthFactor: .5,
-                      child: CheckboxListTile(
-                        title: Text(
-                          display_strings.competitionCategory(
-                            l10n,
-                            competitionCategory,
-                          ),
-                        ),
-                        controlAffinity: ListTileControlAffinity.leading,
-                        visualDensity: const VisualDensity(vertical: -4),
-                        value: valueGetter(competitionCategory),
-                        onChanged: (_) => onToggle(competitionCategory),
-                        enabled: !state.disabledCompetitionCategories
-                            .contains(competitionCategory),
-                      ),
-                    ),
-                ],
+            return CheckboxWrap(
+              children: competitionCategories,
+              onToggle: onToggle,
+              valueGetter: valueGetter,
+              displayStringFunction: (competitionCategory) =>
+                  display_strings.competitionCategory(
+                l10n,
+                competitionCategory,
               ),
+              isEnabled: (competitionCategory) => !state
+                  .disabledCompetitionCategories
+                  .contains(competitionCategory),
+              tooltipFunction: (competitionCategory) => state
+                      .disabledCompetitionCategories
+                      .contains(competitionCategory)
+                  ? l10n.competitionAlreadyExists
+                  : '',
+              columns: 2,
             );
           },
         );
