@@ -99,5 +99,6 @@
   "competitionAddingTooltip": "You chose {categoryCount} {categories} each of which have {baseCompetitionCount} of the base competitions to register players in.",
   "combinationsOf": "combinations of {firstSubject} and {secondSubject}",
   "categoryAlreadyExists": "All base competitions already exist for this category",
-  "competitionAlreadyExists": "This competition already exists in one of the selected categories"
+  "competitionAlreadyExists": "This competition already exists in one of the selected categories",
+  "chooseAtLeastN": "{count, plural, =1{Select at least one {subject}} other{Select at least {count} {subject}}}"
 }

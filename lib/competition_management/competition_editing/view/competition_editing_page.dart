@@ -134,12 +134,10 @@ class _AgeGroupSelectionForm extends StatelessWidget {
     return BlocBuilder<CompetitionAddingCubit, CompetitionAddingState>(
       builder: (context, state) {
         return CheckboxGroup<AgeGroup>(
-          title: Text(
-            l10n.ageGroup(2),
-            style: const TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w600,
-            ),
+          title: _OptionGroupTitle(
+            title: l10n.ageGroup(2),
+            selectionHint: l10n.chooseAtLeastN(1, l10n.ageGroup(1)),
+            showSelectionHint: state.ageGroups.isEmpty,
           ),
           elements: state.getCollection<AgeGroup>(),
           enabledElements: state.ageGroups,
@@ -176,12 +174,10 @@ class _PlayingLevelSelectionForm extends StatelessWidget {
     return BlocBuilder<CompetitionAddingCubit, CompetitionAddingState>(
       builder: (context, state) {
         return CheckboxGroup<PlayingLevel>(
-          title: Text(
-            l10n.playingLevel(2),
-            style: const TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w600,
-            ),
+          title: _OptionGroupTitle(
+            title: l10n.playingLevel(2),
+            selectionHint: l10n.chooseAtLeastN(1, l10n.playingLevel(1)),
+            showSelectionHint: state.playingLevels.isEmpty,
           ),
           elements: state.getCollection<PlayingLevel>(),
           enabledElements: state.playingLevels,
@@ -217,12 +213,10 @@ class _CompetitionCategorySelectionForm extends StatelessWidget {
     return BlocBuilder<CompetitionAddingCubit, CompetitionAddingState>(
       builder: (context, state) {
         return CheckboxGroup<CompetitionCategory>(
-          title: Text(
-            l10n.baseCompetition(2),
-            style: const TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w600,
-            ),
+          title: _OptionGroupTitle(
+            title: l10n.baseCompetition(2),
+            selectionHint: l10n.chooseAtLeastN(1, l10n.baseCompetition(1)),
+            showSelectionHint: state.competitionCategories.isEmpty,
           ),
           elements: CompetitionCategory.defaultCompetitions,
           enabledElements: state.competitionCategories,
@@ -256,6 +250,54 @@ class _CompetitionCategorySelectionForm extends StatelessWidget {
           },
         );
       },
+    );
+  }
+}
+
+class _OptionGroupTitle extends StatelessWidget {
+  const _OptionGroupTitle({
+    required this.title,
+    required this.selectionHint,
+    required this.showSelectionHint,
+  });
+
+  final String title;
+  final String selectionHint;
+
+  final bool showSelectionHint;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 40,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          AnimatedSize(
+            duration: const Duration(milliseconds: 80),
+            child: Column(
+              children: [
+                if (showSelectionHint)
+                  Text(
+                    selectionHint,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
