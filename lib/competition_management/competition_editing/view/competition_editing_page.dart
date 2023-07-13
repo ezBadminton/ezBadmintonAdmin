@@ -144,6 +144,7 @@ class _AgeGroupSelectionForm extends StatelessWidget {
           elements: state.getCollection<AgeGroup>(),
           enabledElements: state.ageGroups,
           onToggle: cubit.ageGroupToggled,
+          invertSuperCheckbox: state.disabledAgeGroups.isNotEmpty,
           groupBuilder: (context, ageGroups, onToggle, isEnabled) {
             return CheckboxColumn(
               children: ageGroups,
@@ -181,6 +182,7 @@ class _PlayingLevelSelectionForm extends StatelessWidget {
           elements: state.getCollection<PlayingLevel>(),
           enabledElements: state.playingLevels,
           onToggle: cubit.playingLevelToggled,
+          invertSuperCheckbox: state.disabledPlayingLevels.isNotEmpty,
           groupBuilder: (context, playingLevels, onToggle, isEnabled) {
             return CheckboxColumn(
               children: playingLevels,
@@ -217,6 +219,7 @@ class _CompetitionCategorySelectionForm extends StatelessWidget {
           elements: CompetitionCategory.defaultCompetitions,
           enabledElements: state.competitionCategories,
           onToggle: cubit.competitionCategoryToggled,
+          invertSuperCheckbox: state.disabledCompetitionCategories.isNotEmpty,
           groupBuilder: (
             context,
             competitionCategories,

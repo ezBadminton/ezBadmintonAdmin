@@ -1,5 +1,4 @@
 import 'package:ez_badminton_admin_app/widgets/checkbox_group/cubit/checkbox_group_cubit.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -22,6 +21,7 @@ class CheckboxGroup<T extends Object> extends StatelessWidget {
     required this.groupBuilder,
     this.enabledElements,
     required this.onToggle,
+    this.invertSuperCheckbox = false,
   });
 
   final List<T> elements;
@@ -31,6 +31,10 @@ class CheckboxGroup<T extends Object> extends StatelessWidget {
   final List<T>? enabledElements;
 
   final void Function(T toggledElement) onToggle;
+
+  /// When the super checkbox is inverted it disables all checkboxes
+  /// when clicked while the group was partially enabled.
+  final bool invertSuperCheckbox;
 
   @override
   Widget build(BuildContext context) {
@@ -43,10 +47,10 @@ class CheckboxGroup<T extends Object> extends StatelessWidget {
       child: Builder(
         builder: (context) {
           var cubit = context.read<CheckboxGroupCubit<T>>();
-          if (enabledElements != null &&
-              !listEquals(cubit.state.enabledElements, enabledElements)) {
+          if (enabledElements != null) {
             cubit.enabledElementsChanged(enabledElements!);
           }
+          cubit.invertSuperCheckboxChanged(invertSuperCheckbox);
           return BlocBuilder<CheckboxGroupCubit<T>, CheckboxGroupState<T>>(
             buildWhen: (previous, current) =>
                 previous.allElements != current.allElements,

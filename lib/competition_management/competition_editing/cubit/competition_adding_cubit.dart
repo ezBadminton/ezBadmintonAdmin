@@ -111,16 +111,11 @@ class CompetitionAddingCubit
     List<PlayingLevel?> playingLevels =
         usePlayingLevels ? state.getCollection<PlayingLevel>() : [null];
 
-    List<_PlayingCategory> possibleCategories = _getPossiblePlayingCategories(
-      ageGroups,
-      playingLevels,
-    );
+    List<_PlayingCategory> possibleCategories =
+        _getPossiblePlayingCategories(ageGroups, playingLevels);
 
     Map<_PlayingCategory, List<CompetitionCategory>> existingCategories =
-        _mapPlayingCategories(
-      possibleCategories,
-      existingCompetitions,
-    );
+        _mapPlayingCategories(possibleCategories, existingCompetitions);
 
     Map<CompetitionCategory, List<_PlayingCategory>> existingBaseCompetitions =
         _mapBaseCompetitions(existingCompetitions);
