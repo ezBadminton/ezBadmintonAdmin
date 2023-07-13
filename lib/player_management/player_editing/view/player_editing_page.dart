@@ -60,7 +60,7 @@ class PlayerEditingPage extends StatelessWidget {
               ),
             ),
             floatingActionButton: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 80, 40),
+              padding: const EdgeInsets.only(right: 80, bottom: 40),
               child: FloatingActionButton.extended(
                 onPressed: context.read<PlayerEditingCubit>().formSubmitted,
                 label: Text(l10n.save),
