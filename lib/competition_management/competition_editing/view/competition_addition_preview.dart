@@ -37,8 +37,10 @@ class CompetitionAdditionPreview extends StatelessWidget {
           state.competitionCategories,
         );
 
-        int numNewCategories =
-            state.ageGroups.length * state.playingLevels.length;
+        int numAgeGroups = useAgeGroups ? state.ageGroups.length : 1;
+        int numPlayingLevels =
+            usePlayingLevels ? state.playingLevels.length : 1;
+        int numNewCategories = numAgeGroups * numPlayingLevels;
         int numBaseDisciplines = state.competitionCategories.length;
         int numNewCompetitions = numNewCategories * numBaseDisciplines;
 
