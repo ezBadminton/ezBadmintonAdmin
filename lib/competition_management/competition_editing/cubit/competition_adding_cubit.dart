@@ -111,85 +111,24 @@ class CompetitionAddingCubit
     List<PlayingLevel?> playingLevels =
         usePlayingLevels ? state.getCollection<PlayingLevel>() : [null];
 
-    List<_PlayingCategory> possibleCategories = [
-      for (AgeGroup? ageGroup in ageGroups)
-        for (PlayingLevel? playingLevel in playingLevels)
-          _PlayingCategory(ageGroup: ageGroup, playingLevel: playingLevel),
-    ];
+    List<_PlayingCategory> possibleCategories = _getPossiblePlayingCategories(
+      ageGroups,
+      playingLevels,
+    );
 
-    Map<_PlayingCategory, List<CompetitionCategory>>
-        existingCategorizedBaseCompetitions = {
-      for (_PlayingCategory category in possibleCategories) category: [],
-    };
-    for (Competition competition in existingCompetitions) {
-      List<AgeGroup?> competitionAgeGroups =
-          competition.ageGroups.isEmpty ? [null] : competition.ageGroups;
-      List<PlayingLevel?> competitionPlayingLevels =
-          competition.playingLevels.isEmpty
-              ? [null]
-              : competition.playingLevels;
-      var competitionCategory =
-          CompetitionCategory.fromCompetition(competition);
-      for (AgeGroup? ageGroup in competitionAgeGroups) {
-        for (PlayingLevel? playingLevel in competitionPlayingLevels) {
-          var playingCategory = _PlayingCategory(
-            ageGroup: ageGroup,
-            playingLevel: playingLevel,
-          );
+    Map<_PlayingCategory, List<CompetitionCategory>> existingCategories =
+        _mapPlayingCategories(
+      possibleCategories,
+      existingCompetitions,
+    );
 
-          assert(
-            !existingCategorizedBaseCompetitions[playingCategory]!
-                .contains(competitionCategory),
-          );
-
-          existingCategorizedBaseCompetitions[playingCategory]!
-              .add(competitionCategory);
-        }
-      }
-    }
-
-    Map<CompetitionCategory, List<_PlayingCategory>>
-        existingPlayingCategoriesInBaseCompetitions = {
-      for (CompetitionCategory baseCompetition
-          in CompetitionCategory.defaultCompetitions)
-        baseCompetition: [],
-    };
-    for (Competition competition in existingCompetitions) {
-      List<AgeGroup?> competitionAgeGroups =
-          competition.ageGroups.isEmpty ? [null] : competition.ageGroups;
-      List<PlayingLevel?> competitionPlayingLevels =
-          competition.playingLevels.isEmpty
-              ? [null]
-              : competition.playingLevels;
-      var competitionCategory =
-          CompetitionCategory.fromCompetition(competition);
-      List<_PlayingCategory> playingCategories = [
-        for (AgeGroup? ageGroup in competitionAgeGroups)
-          for (PlayingLevel? playingLevel in competitionPlayingLevels)
-            _PlayingCategory(
-              ageGroup: ageGroup,
-              playingLevel: playingLevel,
-            ),
-      ];
-
-      assert(
-        !playingCategories
-            .map(
-              (c) => existingPlayingCategoriesInBaseCompetitions[
-                      competitionCategory]!
-                  .contains(c),
-            )
-            .contains(true),
-      );
-
-      existingPlayingCategoriesInBaseCompetitions[competitionCategory]!
-          .addAll(playingCategories);
-    }
+    Map<CompetitionCategory, List<_PlayingCategory>> existingBaseCompetitions =
+        _mapBaseCompetitions(existingCompetitions);
 
     List<_PlayingCategory> creatableCategories = possibleCategories
         .where(
           (category) =>
-              existingCategorizedBaseCompetitions[category]!.length <
+              existingCategories[category]!.length <
               CompetitionCategory.defaultCompetitions.length,
         )
         .toList();
@@ -208,86 +147,48 @@ class CompetitionAddingCubit
         CompetitionCategory.defaultCompetitions
             .where(
               (baseCompetition) =>
-                  existingPlayingCategoriesInBaseCompetitions[baseCompetition]!
-                      .length <
+                  existingBaseCompetitions[baseCompetition]!.length <
                   possibleCategories.length,
             )
             .toSet();
 
-    for (AgeGroup selectedAgeGroup in state.ageGroups) {
-      Iterable<MapEntry<_PlayingCategory, List<CompetitionCategory>>>
-          categoriesOfSelection = existingCategorizedBaseCompetitions.entries
-              .where((entry) => entry.key.ageGroup == selectedAgeGroup);
-      for (MapEntry<_PlayingCategory,
-              List<CompetitionCategory>> categorizedBaseCompetitions
-          in categoriesOfSelection) {
-        if (categorizedBaseCompetitions.value.length ==
-            CompetitionCategory.defaultCompetitions.length) {
-          creatablePlayingLevels.remove(
-            categorizedBaseCompetitions.key.playingLevel,
-          );
-        }
-      }
-    }
+    _disableIncompatiblePlayingLevels(
+      state.ageGroups,
+      existingCategories,
+      creatablePlayingLevels,
+    );
 
-    for (PlayingLevel selectedPlayingLevel in state.playingLevels) {
-      Iterable<MapEntry<_PlayingCategory, List<CompetitionCategory>>>
-          categoriesOfSelection = existingCategorizedBaseCompetitions.entries
-              .where((entry) => entry.key.playingLevel == selectedPlayingLevel);
-      for (MapEntry<_PlayingCategory,
-              List<CompetitionCategory>> categorizedBaseCompetitions
-          in categoriesOfSelection) {
-        if (categorizedBaseCompetitions.value.length ==
-            CompetitionCategory.defaultCompetitions.length) {
-          creatableAgeGroups.remove(
-            categorizedBaseCompetitions.key.ageGroup,
-          );
-        }
-      }
-    }
+    _disableIncompatibleAgeGroups(
+      state.playingLevels,
+      existingCategories,
+      creatableAgeGroups,
+    );
 
-    if ((useAgeGroups || usePlayingLevels) &&
-        useAgeGroups == state.ageGroups.isNotEmpty &&
-        usePlayingLevels == state.playingLevels.isNotEmpty) {
-      List<AgeGroup?> selectedAgeGroups =
-          state.ageGroups.isEmpty ? [null] : state.ageGroups;
-      List<PlayingLevel?> selectedPlayingLevels =
-          state.playingLevels.isEmpty ? [null] : state.playingLevels;
+    List<_PlayingCategory> selectedPlayingCategories =
+        _getSelectedPlayingCategories(
+      useAgeGroups,
+      usePlayingLevels,
+      state.ageGroups,
+      state.playingLevels,
+    );
+    _disableIncompatibleBaseCompetitions(
+      selectedPlayingCategories,
+      existingCategories,
+      creatableBaseCompetitions,
+    );
 
-      for (AgeGroup? ageGroup in selectedAgeGroups) {
-        for (PlayingLevel? playingLevel in selectedPlayingLevels) {
-          var playingCategory = _PlayingCategory(
-            ageGroup: ageGroup,
-            playingLevel: playingLevel,
-          );
-          creatableBaseCompetitions.removeAll(
-            existingCategorizedBaseCompetitions[playingCategory]!,
-          );
-        }
-      }
-    }
+    Set<CompetitionCategory> disabledBaseCompetitions = CompetitionCategory
+        .defaultCompetitions
+        .toSet()
+        .difference(creatableBaseCompetitions);
 
-    Set<CompetitionCategory> disabledBaseCompetitions =
-        CompetitionCategory.defaultCompetitions
-            .whereNot(
-              (baseCompetition) =>
-                  creatableBaseCompetitions.contains(baseCompetition),
-            )
-            .toSet();
-
-    Set<AgeGroup> disabledAgeGroups = ageGroups
-        .whereNot(
-          (ageGroup) => creatableAgeGroups.contains(ageGroup),
-        )
-        .whereType<AgeGroup>()
-        .toSet();
+    Set<AgeGroup> disabledAgeGroups =
+        ageGroups.whereType<AgeGroup>().toSet().difference(creatableAgeGroups);
 
     Set<PlayingLevel> disabledPlayingLevels = playingLevels
-        .whereNot(
-          (playingLevel) => creatablePlayingLevels.contains(playingLevel),
-        )
         .whereType<PlayingLevel>()
-        .toSet();
+        .toSet()
+        .difference(creatablePlayingLevels);
 
     var newState = state.copyWith(
       disabledCompetitionCategories: disabledBaseCompetitions,
@@ -299,6 +200,8 @@ class CompetitionAddingCubit
     return newState;
   }
 
+  /// Unselects any options that are selected and on the list of
+  /// disabled options.
   static CompetitionAddingState _unselectDisabledOptions(
     CompetitionAddingState state,
   ) {
@@ -326,13 +229,237 @@ class CompetitionAddingCubit
       competitionCategories: competitionCategories,
     );
   }
+
+  /// Creates a list of all possible [_PlayingCategory]s.
+  ///
+  /// The list contains a [_PlayingCategory] for each combination
+  /// of [AgeGroup] and [PlayingLevel] that comes
+  /// from the [ageGroups] and [playingLevels] lists.
+  ///
+  /// Example:
+  ///
+  /// With `ageGroups = [O19, U19]` and `playingLevels = [beginner, pro]`
+  /// the possible playing categories would be
+  /// * `O19 beginner`
+  /// * `O19 pro`
+  /// * `U19 beginner`
+  /// * `U19 pro`
+  static List<_PlayingCategory> _getPossiblePlayingCategories(
+    List<AgeGroup?> ageGroups,
+    List<PlayingLevel?> playingLevels,
+  ) {
+    return [
+      for (AgeGroup? ageGroup in ageGroups)
+        for (PlayingLevel? playingLevel in playingLevels)
+          _PlayingCategory(ageGroup: ageGroup, playingLevel: playingLevel),
+    ];
+  }
+
+  /// Returns the list of [_PlayingCategory]s that is created from the current
+  /// selection of [selectedAgeGroups] and [selectedPlayingLevels].
+  ///
+  /// It is a subset of [_getPossiblePlayingCategories]. If the current
+  /// [Tournament] does not [useAgeGroups] or [usePlayingLevels] the list is
+  /// always empty. Otherwise it's empty when no selection has been made.
+  static List<_PlayingCategory> _getSelectedPlayingCategories(
+    bool useAgeGroups,
+    bool usePlayingLevels,
+    List<AgeGroup> selectedAgeGroups,
+    List<PlayingLevel> selectedPlayingLevels,
+  ) {
+    List<_PlayingCategory> selectedPlayingCategories = [];
+
+    if ((useAgeGroups || usePlayingLevels) &&
+        useAgeGroups == selectedAgeGroups.isNotEmpty &&
+        usePlayingLevels == selectedPlayingLevels.isNotEmpty) {
+      List<AgeGroup?> ageGroups =
+          selectedAgeGroups.isEmpty ? [null] : selectedAgeGroups;
+      List<PlayingLevel?> playingLevels =
+          selectedPlayingLevels.isEmpty ? [null] : selectedPlayingLevels;
+
+      selectedPlayingCategories = [
+        for (AgeGroup? ageGroup in ageGroups)
+          for (PlayingLevel? playingLevel in playingLevels)
+            _PlayingCategory(
+              ageGroup: ageGroup,
+              playingLevel: playingLevel,
+            ),
+      ];
+    }
+
+    return selectedPlayingCategories;
+  }
+
+  /// Maps which base competitions exist in each [_PlayingCategory].
+  ///
+  /// Example: The O19 age group category
+  /// maps to [men's singles, women's singles].
+  ///
+  /// It is the reverse mapping of [_mapBaseCompetitions].
+  static Map<_PlayingCategory, List<CompetitionCategory>> _mapPlayingCategories(
+    List<_PlayingCategory> possibleCategories,
+    List<Competition> existingCompetitions,
+  ) {
+    Map<_PlayingCategory, List<CompetitionCategory>> existingCategories = {
+      for (_PlayingCategory category in possibleCategories) category: [],
+    };
+
+    for (Competition competition in existingCompetitions) {
+      List<AgeGroup?> competitionAgeGroups =
+          competition.ageGroups.isEmpty ? [null] : competition.ageGroups;
+      List<PlayingLevel?> competitionPlayingLevels =
+          competition.playingLevels.isEmpty
+              ? [null]
+              : competition.playingLevels;
+      var competitionCategory =
+          CompetitionCategory.fromCompetition(competition);
+      for (AgeGroup? ageGroup in competitionAgeGroups) {
+        for (PlayingLevel? playingLevel in competitionPlayingLevels) {
+          var playingCategory = _PlayingCategory(
+            ageGroup: ageGroup,
+            playingLevel: playingLevel,
+          );
+
+          assert(
+            !existingCategories[playingCategory]!.contains(competitionCategory),
+          );
+
+          existingCategories[playingCategory]!.add(competitionCategory);
+        }
+      }
+    }
+
+    return existingCategories;
+  }
+
+  /// Maps which [_PlayingCategory]s exist in each base competition
+  ///
+  /// Example: men's doubles maps to [O19, U19, U17].
+  ///
+  /// It is the reverse mapping of [_mapPlayingCategories].
+  static Map<CompetitionCategory, List<_PlayingCategory>> _mapBaseCompetitions(
+    List<Competition> existingCompetitions,
+  ) {
+    Map<CompetitionCategory, List<_PlayingCategory>> existingBaseCompetitions =
+        {
+      for (CompetitionCategory baseCompetition
+          in CompetitionCategory.defaultCompetitions)
+        baseCompetition: [],
+    };
+    for (Competition competition in existingCompetitions) {
+      List<AgeGroup?> competitionAgeGroups =
+          competition.ageGroups.isEmpty ? [null] : competition.ageGroups;
+      List<PlayingLevel?> competitionPlayingLevels =
+          competition.playingLevels.isEmpty
+              ? [null]
+              : competition.playingLevels;
+      var competitionCategory =
+          CompetitionCategory.fromCompetition(competition);
+      List<_PlayingCategory> playingCategories = [
+        for (AgeGroup? ageGroup in competitionAgeGroups)
+          for (PlayingLevel? playingLevel in competitionPlayingLevels)
+            _PlayingCategory(
+              ageGroup: ageGroup,
+              playingLevel: playingLevel,
+            ),
+      ];
+
+      assert(
+        !playingCategories
+            .map(
+              (c) => existingBaseCompetitions[competitionCategory]!.contains(c),
+            )
+            .contains(true),
+      );
+
+      existingBaseCompetitions[competitionCategory]!.addAll(playingCategories);
+    }
+
+    return existingBaseCompetitions;
+  }
+
+  /// Updates the [creatablePlayingLevels] to be compatible with the currently
+  /// [selectedAgeGroups].
+  ///
+  /// When an [AgeGroup] is selected and all base competitions in the
+  /// combined category with a [PlayingLevel] already exist, then the
+  /// [PlayingLevel] is disabled to prevent duplicate creation.
+  static void _disableIncompatiblePlayingLevels(
+    List<AgeGroup> selectedAgeGroups,
+    Map<_PlayingCategory, List<CompetitionCategory>> existingCategories,
+    Set<PlayingLevel> creatablePlayingLevels,
+  ) {
+    for (AgeGroup selectedAgeGroup in selectedAgeGroups) {
+      Iterable<MapEntry<_PlayingCategory, List<CompetitionCategory>>>
+          categoriesOfSelection = existingCategories.entries
+              .where((entry) => entry.key.ageGroup == selectedAgeGroup);
+      for (MapEntry<_PlayingCategory,
+              List<CompetitionCategory>> categorizedBaseCompetitions
+          in categoriesOfSelection) {
+        // Check if all base competitions already exist
+        if (categorizedBaseCompetitions.value.length ==
+            CompetitionCategory.defaultCompetitions.length) {
+          creatablePlayingLevels.remove(
+            categorizedBaseCompetitions.key.playingLevel,
+          );
+        }
+      }
+    }
+  }
+
+  /// Updates the [creatableAgeGroups] to be compatible with the currently
+  /// [selectedPlayingLevels].
+  ///
+  /// When a [PlayingLevel] is selected and all base competitions in the
+  /// combined category with an [AgeGroup] already exist, then the
+  /// [AgeGroup] is disabled to prevent duplicate creation.
+  static void _disableIncompatibleAgeGroups(
+    List<PlayingLevel> selectedPlayingLevels,
+    Map<_PlayingCategory, List<CompetitionCategory>> existingCategories,
+    Set<AgeGroup> creatableAgeGroups,
+  ) {
+    for (PlayingLevel selectedPlayingLevel in selectedPlayingLevels) {
+      Iterable<MapEntry<_PlayingCategory, List<CompetitionCategory>>>
+          categoriesOfSelection = existingCategories.entries
+              .where((entry) => entry.key.playingLevel == selectedPlayingLevel);
+      for (MapEntry<_PlayingCategory,
+              List<CompetitionCategory>> categorizedBaseCompetitions
+          in categoriesOfSelection) {
+        // Check if all base competitions already exist
+        if (categorizedBaseCompetitions.value.length ==
+            CompetitionCategory.defaultCompetitions.length) {
+          creatableAgeGroups.remove(
+            categorizedBaseCompetitions.key.ageGroup,
+          );
+        }
+      }
+    }
+  }
+
+  /// Updates the [creatableBaseCompetitions] to be compatible with the
+  /// currently selected playing categories.
+  ///
+  /// When one of the selected playing categories already has some competitions
+  /// created in it, then these base competitions are disabled to prevent
+  /// duplicate creation.
+  static void _disableIncompatibleBaseCompetitions(
+    List<_PlayingCategory> selectedPlayingCategories,
+    Map<_PlayingCategory, List<CompetitionCategory>> existingCategories,
+    Set<CompetitionCategory> creatableBaseCompetitions,
+  ) {
+    for (_PlayingCategory playingCategory in selectedPlayingCategories) {
+      creatableBaseCompetitions.removeAll(
+        existingCategories[playingCategory]!,
+      );
+    }
+  }
 }
 
+/// A tuple of [ageGroup] and [playingLevel] forming a playing category.
+///
+/// [ageGroup] and [playingLevel] can be null when the current [Tournament]
+/// does not use these categorizations.
 class _PlayingCategory extends Equatable {
-  /// A tuple of [ageGroup] and [playingLevel] forming a playing category.
-  ///
-  /// [ageGroup] and [playingLevel] can be null when the current [Tournament]
-  /// does not use these categorizations.
   const _PlayingCategory({
     required this.ageGroup,
     required this.playingLevel,
