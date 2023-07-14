@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_status_state.dart';
@@ -13,11 +11,8 @@ class PlayerStatusCubit extends CollectionQuerierCubit<PlayerStatusState> {
           PlayerStatusState(player: player),
           collectionRepositories: [playerRepository],
         ) {
-    _playerUpdateSubscription =
-        playerRepository.updateStream.listen(_onPlayerUpdated);
+    subscribeToCollectionUpdates(playerRepository, _onPlayerUpdated);
   }
-
-  late final StreamSubscription _playerUpdateSubscription;
 
   void statusChanged(PlayerStatus status) async {
     emit(state.copyWith(loadingStatus: LoadingStatus.loading));
@@ -36,11 +31,5 @@ class PlayerStatusCubit extends CollectionQuerierCubit<PlayerStatusState> {
     if (event.model == state.player) {
       emit(state.copyWith(player: event.model as Player));
     }
-  }
-
-  @override
-  Future<void> close() async {
-    await _playerUpdateSubscription.cancel();
-    return super.close();
   }
 }

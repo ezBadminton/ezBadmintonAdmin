@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
@@ -32,14 +30,9 @@ class PlayerListCubit extends CollectionFetcherCubit<PlayerListState> {
           const PlayerListState(),
         ) {
     loadPlayerData();
-    _playerUpdateSubscription =
-        playerRepository.updateStream.listen(_playerCollectionUpdated);
-    _competitionUpdateSubscription =
-        competitionRepository.updateStream.listen(_playerCollectionUpdated);
+    subscribeToCollectionUpdates(playerRepository, _collectionUpdated);
+    subscribeToCollectionUpdates(competitionRepository, _collectionUpdated);
   }
-
-  late final StreamSubscription _playerUpdateSubscription;
-  late final StreamSubscription _competitionUpdateSubscription;
 
   void loadPlayerData() {
     if (state.loadingStatus != LoadingStatus.loading) {
@@ -117,14 +110,7 @@ class PlayerListCubit extends CollectionFetcherCubit<PlayerListState> {
     return players.sorted(comparator);
   }
 
-  void _playerCollectionUpdated(CollectionUpdateEvent event) {
+  void _collectionUpdated(CollectionUpdateEvent event) {
     loadPlayerData();
-  }
-
-  @override
-  Future<void> close() async {
-    await _playerUpdateSubscription.cancel();
-    await _competitionUpdateSubscription.cancel();
-    super.close();
   }
 }

@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
@@ -29,15 +28,11 @@ class PartnerRegistrationCubit
       'There is no space for registering a partner Player on this team',
     );
     loadPlayerData();
-    _teamUpdateSubscription =
-        teamRepository.updateStream.listen(_onTeamCollectionUpdate);
-    _playerUpdateSubscription =
-        playerRepository.updateStream.listen(_onPlayerCollectionUpdate);
+    subscribeToCollectionUpdates(teamRepository, _onTeamCollectionUpdate);
+    subscribeToCollectionUpdates(playerRepository, _onPlayerCollectionUpdate);
   }
 
   final CompetitionRegistration registration;
-  late final StreamSubscription _teamUpdateSubscription;
-  late final StreamSubscription _playerUpdateSubscription;
 
   void loadPlayerData() {
     if (state.loadingStatus != LoadingStatus.loading) {
@@ -150,12 +145,5 @@ class PartnerRegistrationCubit
       default:
         break;
     }
-  }
-
-  @override
-  Future<void> close() async {
-    _teamUpdateSubscription.cancel();
-    _playerUpdateSubscription.cancel();
-    return super.close();
   }
 }

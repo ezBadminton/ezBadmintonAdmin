@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collection_repository/collection_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -187,6 +189,32 @@ class CollectionQuerierCubit<State> extends Cubit<State> {
   }) : querier = CollectionQuerier(collectionRepositories);
 
   final CollectionQuerier querier;
+
+  final List<StreamSubscription> collectionUpdateSubscriptions = [];
+
+  /// Listens to updates in the collection of [M] via the [repository].
+  ///
+  /// The [listener] is called with a [CollectionUpdateEvent] whenever another
+  /// part of the app does an operation in the collection.
+  ///
+  /// The resulting [StreamSubscription] is automatically closed when the
+  /// cubit closes. This happens automatically when the cubit was created by a
+  /// [BlocProvider].
+  void subscribeToCollectionUpdates<M extends Model>(
+    CollectionRepository<M> repository,
+    void Function(CollectionUpdateEvent<M> updateEvent)? listener,
+  ) {
+    StreamSubscription subscription = repository.updateStream.listen(listener);
+    collectionUpdateSubscriptions.add(subscription);
+  }
+
+  @override
+  Future<void> close() async {
+    for (StreamSubscription subscription in collectionUpdateSubscriptions) {
+      subscription.cancel();
+    }
+    return super.close();
+  }
 }
 
 class CollectionFetcherCubit<State extends CollectionFetcherState<State>>

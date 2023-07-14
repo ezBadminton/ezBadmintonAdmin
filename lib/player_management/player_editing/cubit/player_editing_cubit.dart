@@ -34,12 +34,10 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
           ],
         ) {
     loadPlayerData();
-    _teamUpdateSubscription =
-        teamRepository.updateStream.listen(_onTeamCollectionUpdate);
+    subscribeToCollectionUpdates(teamRepository, _onTeamCollectionUpdate);
   }
 
   final BuildContext _context;
-  late final StreamSubscription _teamUpdateSubscription;
 
   void loadPlayerData() {
     if (state.loadingStatus != LoadingStatus.loading) {
@@ -354,12 +352,6 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
         return;
       }
     }
-  }
-
-  @override
-  Future<void> close() async {
-    _teamUpdateSubscription.cancel();
-    return super.close();
   }
 
   String Function(DateTime) get dateFormatter =>
