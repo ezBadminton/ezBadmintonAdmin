@@ -2,7 +2,7 @@ part of 'competition_adding_cubit.dart';
 
 class CompetitionAddingState
     extends CollectionFetcherState<CompetitionAddingState> {
-  const CompetitionAddingState({
+  CompetitionAddingState({
     this.loadingStatus = LoadingStatus.loading,
     this.formStatus = FormzSubmissionStatus.initial,
     this.ageGroups = const [],
@@ -12,7 +12,12 @@ class CompetitionAddingState
     this.disabledPlayingLevels = const {},
     this.disabledCompetitionCategories = const {},
     super.collections = const {},
-  });
+  }) : submittable = _isSubmittable(
+          collections[Tournament]?.first as Tournament?,
+          ageGroups,
+          playingLevels,
+          competitionCategories,
+        );
 
   final LoadingStatus loadingStatus;
   final FormzSubmissionStatus formStatus;
@@ -24,6 +29,8 @@ class CompetitionAddingState
   final Set<AgeGroup> disabledAgeGroups;
   final Set<PlayingLevel> disabledPlayingLevels;
   final Set<CompetitionCategory> disabledCompetitionCategories;
+
+  final bool submittable;
 
   CompetitionAddingState copyWith({
     LoadingStatus? loadingStatus,
@@ -50,5 +57,22 @@ class CompetitionAddingState
           disabledCompetitionCategories ?? this.disabledCompetitionCategories,
       collections: collections ?? this.collections,
     );
+  }
+
+  static bool _isSubmittable(
+    Tournament? tournament,
+    List<AgeGroup> ageGroups,
+    List<PlayingLevel> playingLevels,
+    List<CompetitionCategory> competitionCategories,
+  ) {
+    if (tournament == null) {
+      return false;
+    }
+    bool useAgeGroups = tournament.useAgeGroups;
+    bool usePlayingLevels = tournament.usePlayingLevels;
+
+    return useAgeGroups == ageGroups.isNotEmpty &&
+        usePlayingLevels == playingLevels.isNotEmpty &&
+        competitionCategories.isNotEmpty;
   }
 }

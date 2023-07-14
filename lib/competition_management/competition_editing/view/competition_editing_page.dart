@@ -2,14 +2,17 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_editing/cubit/competition_adding_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_editing/view/competition_addition_preview.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
+import 'package:ez_badminton_admin_app/layout/fab_location.dart';
 import 'package:ez_badminton_admin_app/widgets/checkbox_group/checkbox_column.dart';
 import 'package:ez_badminton_admin_app/widgets/checkbox_group/checkbox_group.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
+import 'package:ez_badminton_admin_app/widgets/progress_indicator_icon/progress_indicator_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
     as display_strings;
+import 'package:formz/formz.dart';
 
 class CompetitionEditingPage extends StatelessWidget {
   const CompetitionEditingPage({super.key});
@@ -42,17 +45,37 @@ class _CompetitionEditingPageScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.addSubject(l10n.competition(2))),
-      ),
-      body: Align(
-        alignment: Alignment.topCenter,
-        child: SizedBox(
-          width: 870,
-          child: BlocBuilder<CompetitionAddingCubit, CompetitionAddingState>(
-            builder: (context, state) {
-              return LoadingScreen(
+    return BlocConsumer<CompetitionAddingCubit, CompetitionAddingState>(
+      listenWhen: (previous, current) =>
+          current.formStatus == FormzSubmissionStatus.success,
+      listener: (context, state) {
+        Navigator.of(context).pop();
+      },
+      builder: (context, state) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(l10n.addSubject(l10n.competition(2))),
+          ),
+          floatingActionButton: Padding(
+            padding: const EdgeInsets.only(right: 80, bottom: 40),
+            child: FloatingActionButton.extended(
+              onPressed: context.read<CompetitionAddingCubit>().formSubmitted,
+              label: Text(l10n.save),
+              icon: state.formStatus == FormzSubmissionStatus.inProgress
+                  ? const ProgressIndicatorIcon()
+                  : const Icon(Icons.save),
+            ),
+          ),
+          floatingActionButtonAnimator:
+              FabTranslationAnimator(speedFactor: 2.5),
+          floatingActionButtonLocation: state.submittable
+              ? FloatingActionButtonLocation.endFloat
+              : const EndOffscreenFabLocation(),
+          body: Align(
+            alignment: Alignment.topCenter,
+            child: SizedBox(
+              width: 870,
+              child: LoadingScreen(
                 loadingStatus: _getLoadingScreenStatus(state),
                 builder: (_) {
                   bool useAgeGroups =
@@ -107,11 +130,11 @@ class _CompetitionEditingPageScaffold extends StatelessWidget {
                     ),
                   );
                 },
-              );
-            },
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -288,10 +311,7 @@ class _OptionGroupTitle extends StatelessWidget {
                 if (showSelectionHint)
                   Text(
                     selectionHint,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
+                    style: const TextStyle(fontSize: 13),
                   ),
               ],
             ),

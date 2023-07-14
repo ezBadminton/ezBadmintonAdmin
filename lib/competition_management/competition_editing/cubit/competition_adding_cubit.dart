@@ -23,7 +23,7 @@ class CompetitionAddingCubit
             playingLevelRepository,
             tournamentRepository
           ],
-          const CompetitionAddingState(),
+          CompetitionAddingState(),
         ) {
     loadCompetitionData();
   }
@@ -85,6 +85,42 @@ class CompetitionAddingCubit
     );
     newState = _unselectDisabledOptions(newState);
     emit(newState);
+  }
+
+  void formSubmitted() async {
+    if (!state.submittable ||
+        state.formStatus == FormzSubmissionStatus.inProgress) {
+      return;
+    }
+
+    List<_PlayingCategory> selectedCategories =
+        _getSelectedPlayingCategories(state);
+
+    List<Competition> newCompetitions = [
+      for (_PlayingCategory category in selectedCategories)
+        for (CompetitionCategory baseCompetition in state.competitionCategories)
+          Competition.newCompetition(
+            teamSize: baseCompetition.competitionType == CompetitionType.singles
+                ? 1
+                : 2,
+            genderCategory: baseCompetition.genderCategory,
+            ageGroups: category.ageGroup == null ? [] : [category.ageGroup!],
+            playingLevels:
+                category.playingLevel == null ? [] : [category.playingLevel!],
+          ),
+    ];
+
+    emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
+
+    for (Competition competition in newCompetitions) {
+      Competition? createdCompetition = await querier.createModel(competition);
+      if (createdCompetition == null) {
+        emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+        return;
+      }
+    }
+
+    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
   }
 
   static void _optionToggle(List optionList, Object option) {
@@ -160,12 +196,7 @@ class CompetitionAddingCubit
     );
 
     List<_PlayingCategory> selectedPlayingCategories =
-        _getSelectedPlayingCategories(
-      useAgeGroups,
-      usePlayingLevels,
-      state.ageGroups,
-      state.playingLevels,
-    );
+        _getSelectedPlayingCategories(state);
     _disableIncompatibleBaseCompetitions(
       selectedPlayingCategories,
       existingCategories,
@@ -253,24 +284,23 @@ class CompetitionAddingCubit
   /// Returns the list of [_PlayingCategory]s that is created from the current
   /// selection of [selectedAgeGroups] and [selectedPlayingLevels].
   ///
-  /// It is a subset of [_getPossiblePlayingCategories]. If the current
-  /// [Tournament] does not [useAgeGroups] or [usePlayingLevels] the list is
-  /// always empty. Otherwise it's empty when no selection has been made.
+  /// It is a subset of [_getPossiblePlayingCategories].
+  /// It's empty when no category selection has been made.
   static List<_PlayingCategory> _getSelectedPlayingCategories(
-    bool useAgeGroups,
-    bool usePlayingLevels,
-    List<AgeGroup> selectedAgeGroups,
-    List<PlayingLevel> selectedPlayingLevels,
+    CompetitionAddingState state,
   ) {
     List<_PlayingCategory> selectedPlayingCategories = [];
 
-    if ((useAgeGroups || usePlayingLevels) &&
-        useAgeGroups == selectedAgeGroups.isNotEmpty &&
-        usePlayingLevels == selectedPlayingLevels.isNotEmpty) {
+    bool useAgeGroups = state.getCollection<Tournament>().first.useAgeGroups;
+    bool usePlayingLevels =
+        state.getCollection<Tournament>().first.usePlayingLevels;
+
+    if (useAgeGroups == state.ageGroups.isNotEmpty &&
+        usePlayingLevels == state.playingLevels.isNotEmpty) {
       List<AgeGroup?> ageGroups =
-          selectedAgeGroups.isEmpty ? [null] : selectedAgeGroups;
+          state.ageGroups.isEmpty ? [null] : state.ageGroups;
       List<PlayingLevel?> playingLevels =
-          selectedPlayingLevels.isEmpty ? [null] : selectedPlayingLevels;
+          state.playingLevels.isEmpty ? [null] : state.playingLevels;
 
       selectedPlayingCategories = [
         for (AgeGroup? ageGroup in ageGroups)
