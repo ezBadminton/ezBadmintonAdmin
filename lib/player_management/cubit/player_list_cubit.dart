@@ -104,9 +104,7 @@ class PlayerListCubit extends CollectionFetcherCubit<PlayerListState> {
   }
 
   List<Player> _sortPlayers(List<Player> players) {
-    // Default sorting by creation date descending
-    Comparator<Player> comparator = state.sortingComparator.comparator ??
-        (Player a, Player b) => b.created.compareTo(a.created);
+    Comparator<Player> comparator = state.sortingComparator.comparator;
     return players.sorted(comparator);
   }
 

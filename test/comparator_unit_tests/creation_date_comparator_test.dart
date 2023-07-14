@@ -18,7 +18,7 @@ void main() {
     test('comparisons', () {
       CreationDateComparator sut = const CreationDateComparator();
       expect(
-        [firstCreatedPlayer, secondCreatedPlayer].sorted(sut.comparator!),
+        [firstCreatedPlayer, secondCreatedPlayer].sorted(sut.comparator),
         [secondCreatedPlayer, firstCreatedPlayer],
       );
     });

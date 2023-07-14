@@ -26,12 +26,12 @@ void main() {
       NameComparator sut = NameComparator();
       expect(
         [bPlayer, bcPlayer, aPlayer]
-            .sorted(sut.copyWith(ComparatorMode.ascending).comparator!),
+            .sorted(sut.copyWith(ComparatorMode.ascending).comparator),
         [aPlayer, bPlayer, bcPlayer],
       );
       expect(
         [bcPlayer, aPlayer, bPlayer]
-            .sorted(sut.copyWith(ComparatorMode.descending).comparator!),
+            .sorted(sut.copyWith(ComparatorMode.descending).comparator),
         [bcPlayer, bPlayer, aPlayer],
       );
     });

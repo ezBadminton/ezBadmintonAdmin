@@ -5,11 +5,11 @@ class CreationDateComparator extends ListSortingComparator<Player> {
   const CreationDateComparator();
 
   @override
-  Comparator<Player>? get comparator =>
+  Comparator<Player> get comparator =>
       (Player a, Player b) => b.created.compareTo(a.created);
 
   @override
-  ComparatorMode? get mode => throw UnimplementedError();
+  ComparatorMode get mode => throw UnimplementedError();
 
   @override
   CreationDateComparator copyWith(ComparatorMode mode) => this;

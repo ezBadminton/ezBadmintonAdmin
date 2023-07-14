@@ -7,6 +7,7 @@ class ListSortingCubit<T> extends Cubit<ListSortingComparator<T>> {
     required this.comparators,
   }) : super(defaultComparator);
 
+  /// This comparator will be emitted when a comparator is toggled off
   final ListSortingComparator<T> defaultComparator;
   final List<ListSortingComparator<T>> comparators;
 

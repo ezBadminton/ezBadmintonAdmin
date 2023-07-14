@@ -30,16 +30,16 @@ void main() {
   group('ClubComparator', () {
     test('comparisons', () {
       ClubComparator sut = ClubComparator(
-        secondaryComparator: const CreationDateComparator().comparator!,
+        secondaryComparator: const CreationDateComparator().comparator,
       );
       expect(
         [secondAClubPlayer, noClubPlayer, bClubPlayer, firstAClubPlayer]
-            .sorted(sut.copyWith(ComparatorMode.ascending).comparator!),
+            .sorted(sut.copyWith(ComparatorMode.ascending).comparator),
         [secondAClubPlayer, firstAClubPlayer, bClubPlayer, noClubPlayer],
       );
       expect(
         [secondAClubPlayer, noClubPlayer, bClubPlayer, firstAClubPlayer]
-            .sorted(sut.copyWith(ComparatorMode.descending).comparator!),
+            .sorted(sut.copyWith(ComparatorMode.descending).comparator),
         [noClubPlayer, bClubPlayer, secondAClubPlayer, firstAClubPlayer],
       );
     });

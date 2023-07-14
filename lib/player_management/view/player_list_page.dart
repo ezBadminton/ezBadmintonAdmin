@@ -55,7 +55,7 @@ class PlayerListPage extends StatelessWidget {
             clubComparator: ClubComparator(
               secondaryComparator: NameComparator()
                   .copyWith(ComparatorMode.ascending)
-                  .comparator!,
+                  .comparator,
             ),
           ),
         ),
@@ -319,7 +319,7 @@ class _SortableColumnHeader<
               children: [
                 Text(title),
                 if (state.sortingComparator is ComparatorType)
-                  _sortIcon(state.sortingComparator.mode!),
+                  _sortIcon(state.sortingComparator.mode),
               ],
             ),
           ),

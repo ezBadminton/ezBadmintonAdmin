@@ -8,7 +8,7 @@ void main() {
   const CreationDateComparator defaultComparator = CreationDateComparator();
   final NameComparator nameComparator = NameComparator();
   final ClubComparator clubComparator = ClubComparator(
-    secondaryComparator: defaultComparator.comparator!,
+    secondaryComparator: defaultComparator.comparator,
   );
 
   PlayerSortingCubit createSut() {
