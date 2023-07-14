@@ -100,5 +100,6 @@
   "combinationsOf": "Kombinationen aus {firstSubject} und {secondSubject}",
   "categoryAlreadyExists": "Für diese Kategorie wurden bereits alle Basisdisziplinen erstellt",
   "competitionAlreadyExists": "Diese Disziplin wurde bereits in einer der gewählten Kategorien erstellt",
-  "chooseAtLeastN": "{count, plural, =1{Wähle min. eine {subject}} other{Wähle min. {count} {subject}}}"
+  "chooseAtLeastN": "{count, plural, =1{Wähle min. eine {subject}} other{Wähle min. {count} {subject}}}",
+  "createCategories": "Erstelle {category}, um Disziplinen hinzufügen zu können!"
 }
