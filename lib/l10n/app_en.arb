@@ -91,7 +91,7 @@
   "nameSubject": "name {subject}",
   "reorder": "Reorder",
   "rename": "Rename",
-  "chooseCompeititions": "Choose base competitions",
+  "chooseCompetitions": "Choose base competitions",
   "chooseCategoriesAndCompetitions": "Choose categories and base competitions",
   "newCategories": "{count, plural, =0{No new categories} =1{1 new category} other{{count} new categories}}",
   "newCompetitions": "{count, plural, =0{No new competitions} =1{1 new competition} other{{count} new competitions}}",

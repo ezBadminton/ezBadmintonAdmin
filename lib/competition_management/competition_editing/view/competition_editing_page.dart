@@ -97,7 +97,7 @@ class _CompetitionEditingPageScaffold extends StatelessWidget {
                             children: [
                               Text(
                                 noCategories
-                                    ? l10n.chooseCompeititions
+                                    ? l10n.chooseCompetitions
                                     : l10n.chooseCategoriesAndCompetitions,
                                 style: const TextStyle(fontSize: 22),
                               ),
