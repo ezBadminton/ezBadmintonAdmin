@@ -139,14 +139,6 @@ class _CompetitionListHeader extends StatelessWidget {
           child: Row(
             children: [
               const SizedBox(width: 20),
-              _SortableColumnHeader<CompetitionComparator<CompetitionCategory>>(
-                width: 150,
-                title: l10n.competition(1),
-              ),
-              Flexible(
-                flex: 1,
-                child: Container(),
-              ),
               AnimatedContainer(
                 duration: const Duration(milliseconds: 150),
                 width: useAgeGroups ? 200 : 0,
@@ -164,7 +156,11 @@ class _CompetitionListHeader extends StatelessWidget {
                   title: l10n.playingLevel(1),
                 ),
               ),
-              Expanded(
+              _SortableColumnHeader<CompetitionComparator<CompetitionCategory>>(
+                width: 150,
+                title: l10n.competition(1),
+              ),
+              Flexible(
                 flex: 1,
                 child: Container(),
               ),
@@ -256,19 +252,6 @@ class _CompetitionExpansionPanel extends ExpansionPanelRadio {
       child: Row(
         children: [
           const SizedBox(width: 20),
-          SizedBox(
-            width: 150,
-            child: Text(
-              display_strings.competitionCategory(
-                l10n,
-                CompetitionCategory.fromCompetition(competition),
-              ),
-            ),
-          ),
-          Flexible(
-            flex: 1,
-            child: Container(),
-          ),
           AnimatedContainer(
             duration: const Duration(milliseconds: 150),
             width: useAgeGroups ? 200 : 0,
@@ -287,7 +270,16 @@ class _CompetitionExpansionPanel extends ExpansionPanelRadio {
               softWrap: false,
             ),
           ),
-          Expanded(
+          SizedBox(
+            width: 150,
+            child: Text(
+              display_strings.competitionCategory(
+                l10n,
+                CompetitionCategory.fromCompetition(competition),
+              ),
+            ),
+          ),
+          Flexible(
             flex: 1,
             child: Container(),
           ),
