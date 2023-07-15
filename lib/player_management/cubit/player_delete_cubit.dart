@@ -3,9 +3,11 @@ import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dar
 import 'package:ez_badminton_admin_app/player_management/cubit/player_delete_state.dart';
 import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/utils/competition_registration.dart';
+import 'package:ez_badminton_admin_app/widgets/confirm_dialog/cubit_mixin/dialog_cubit.dart';
 import 'package:formz/formz.dart';
 
-class PlayerDeleteCubit extends CollectionQuerierCubit<PlayerDeleteState> {
+class PlayerDeleteCubit extends CollectionQuerierCubit<PlayerDeleteState>
+    with DialogCubit<PlayerDeleteState> {
   PlayerDeleteCubit({
     required Player player,
     required CollectionRepository<Player> playerRepository,
@@ -20,21 +22,18 @@ class PlayerDeleteCubit extends CollectionQuerierCubit<PlayerDeleteState> {
           PlayerDeleteState(player: player),
         );
 
-  void confirmDialogOpened() {
-    emit(state.copyWith(showConfirmDialog: true));
-  }
-
-  void confirmChoiceMade(bool confirmed) {
-    emit(state.copyWith(showConfirmDialog: false));
-    if (confirmed) {
-      _deletePlayer();
+  void playerDeleted() async {
+    if (state.formStatus == FormzSubmissionStatus.inProgress) {
+      return;
     }
-  }
+    emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
-  void _deletePlayer() async {
-    if (state.formStatus != FormzSubmissionStatus.inProgress) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
+    bool deletionConfirmed = (await requestDialogConfirmation())!;
+    if (!deletionConfirmed) {
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.canceled));
+      return;
     }
+
     List<Competition>? competitions =
         await querier.fetchCollection<Competition>();
 

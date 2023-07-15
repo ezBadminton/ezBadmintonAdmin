@@ -2,6 +2,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_delete_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_delete_state.dart';
+import 'package:ez_badminton_admin_app/widgets/confirm_dialog/cubit_mixin/dialog_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:formz/formz.dart';
 import 'package:mocktail/mocktail.dart';
@@ -21,7 +22,9 @@ class IsConfirmDialogShown extends CustomMatcher {
         );
 
   @override
-  featureValueOf(actual) => (actual as PlayerDeleteState).showConfirmDialog;
+  featureValueOf(actual) =>
+      (actual as DialogState).dialog.decisionCompleter != null &&
+      !actual.dialog.decisionCompleter!.isCompleted;
 }
 
 void main() {
@@ -154,22 +157,22 @@ void main() {
       PlayerDeleteCubit sut = createSut();
       expect(sut.state.formStatus, FormzSubmissionStatus.initial);
       expect(sut.state.player, player);
-      expect(sut.state.showConfirmDialog, isFalse);
+      expect(sut.state.dialog.decisionCompleter, isNull);
     });
 
     blocTest<PlayerDeleteCubit, PlayerDeleteState>(
       'confirm dialog',
       build: createSut,
       act: (cubit) {
-        cubit.confirmDialogOpened();
-        cubit.confirmChoiceMade(false);
+        cubit.playerDeleted();
+        expect(cubit.state, IsConfirmDialogShown(isTrue));
+        cubit.state.dialog.decisionCompleter!.complete(false);
+        expect(cubit.state, IsConfirmDialogShown(isFalse));
       },
       expect: () => [
-        IsConfirmDialogShown(isTrue),
-        allOf(
-          IsConfirmDialogShown(isFalse),
-          HasFormStatus(FormzSubmissionStatus.initial),
-        ),
+        HasFormStatus(FormzSubmissionStatus.inProgress),
+        HasFormStatus(FormzSubmissionStatus.inProgress),
+        HasFormStatus(FormzSubmissionStatus.canceled),
       ],
     );
 
@@ -178,10 +181,11 @@ void main() {
       setUp: arrangePlayerHas2Registrations,
       build: createSut,
       act: (cubit) {
-        cubit.confirmChoiceMade(true);
+        cubit.playerDeleted();
+        cubit.state.dialog.decisionCompleter!.complete(true);
       },
       expect: () => [
-        IsConfirmDialogShown(isFalse),
+        HasFormStatus(FormzSubmissionStatus.inProgress),
         HasFormStatus(FormzSubmissionStatus.inProgress),
         HasFormStatus(FormzSubmissionStatus.success),
       ],
@@ -216,19 +220,22 @@ void main() {
       build: createSut,
       act: (cubit) async {
         arrangeCompetitionRepositoryGetThrows();
-        cubit.confirmChoiceMade(true);
+        cubit.playerDeleted();
+        cubit.state.dialog.decisionCompleter!.complete(true);
         await Future.delayed(Duration.zero);
         expect(cubit.state.formStatus, FormzSubmissionStatus.failure);
 
         arrangeCompetitionRepositoryReturns();
         arrangeCompetitionRepositoryUpdateThrows();
-        cubit.confirmChoiceMade(true);
+        cubit.playerDeleted();
+        cubit.state.dialog.decisionCompleter!.complete(true);
         await Future.delayed(Duration.zero);
         expect(cubit.state.formStatus, FormzSubmissionStatus.failure);
 
         arrangeRepositoriesUpdate();
         arrangePlayerRepositoryDeleteThrows();
-        cubit.confirmChoiceMade(true);
+        cubit.playerDeleted();
+        cubit.state.dialog.decisionCompleter!.complete(true);
         await Future.delayed(Duration.zero);
         expect(cubit.state.formStatus, FormzSubmissionStatus.failure);
       },

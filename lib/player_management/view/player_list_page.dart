@@ -15,6 +15,8 @@ import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_c
 import 'package:ez_badminton_admin_app/player_management/cubit/player_list_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/player_editing_page.dart';
 import 'package:ez_badminton_admin_app/player_management/player_filter/view/player_filter.dart';
+import 'package:ez_badminton_admin_app/widgets/confirm_dialog/confirm_dialog.dart';
+import 'package:ez_badminton_admin_app/widgets/confirm_dialog/dialog_listener.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/registration_display_card.dart';
 import 'package:ez_badminton_admin_app/widgets/sortable_column_header/sortable_column_header.dart';
@@ -25,7 +27,6 @@ import 'package:ez_badminton_admin_app/widgets/custom_expansion_panel_list/expan
     as custom_expansion_panel;
 import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
     as display_strings;
-import 'package:formz/formz.dart';
 
 class PlayerListPage extends StatelessWidget {
   const PlayerListPage({super.key});
@@ -549,61 +550,36 @@ class _PlayerDeleteButton extends StatelessWidget {
   Widget build(BuildContext context) {
     AppLocalizations l10n = AppLocalizations.of(context)!;
     PlayerDeleteCubit cubit = context.read<PlayerDeleteCubit>();
-    return BlocConsumer<PlayerDeleteCubit, PlayerDeleteState>(
-      listenWhen: (previous, current) =>
-          !previous.showConfirmDialog && current.showConfirmDialog,
-      listener: (context, state) async {
-        bool confirmed = await _showConfirmDeletionDialog(context);
-        cubit.confirmChoiceMade(confirmed);
-      },
-      buildWhen: (previous, current) =>
-          previous.formStatus != current.formStatus,
-      builder: (context, state) {
-        return PopupMenuButton<VoidCallback>(
-          onSelected: (callback) => callback(),
-          tooltip: '',
-          itemBuilder: (context) => [
-            PopupMenuItem(
-              value: () {
-                if (state.formStatus != FormzSubmissionStatus.inProgress) {
-                  cubit.confirmDialogOpened();
-                }
-              },
-              child: Text(
-                l10n.deletePlayer,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
+    return DialogListener<PlayerDeleteCubit, PlayerDeleteState>(
+      builder: (context, state, reason) => ConfirmDialog(
+        title: Text(l10n.reallyDeletePlayer),
+        confirmButtonLabel: l10n.confirm,
+        cancelButtonLabel: l10n.cancel,
+      ),
+      child: BlocBuilder<PlayerDeleteCubit, PlayerDeleteState>(
+        buildWhen: (previous, current) =>
+            previous.formStatus != current.formStatus,
+        builder: (context, state) {
+          return PopupMenuButton<VoidCallback>(
+            onSelected: (callback) => callback(),
+            tooltip: '',
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: () {
+                  cubit.playerDeleted();
+                },
+                child: Text(
+                  l10n.deletePlayer,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                  ),
                 ),
               ),
-            ),
-          ],
-        );
-      },
+            ],
+          );
+        },
+      ),
     );
-  }
-
-  Future<bool> _showConfirmDeletionDialog(BuildContext context) async {
-    var l10n = AppLocalizations.of(context)!;
-    var confirmDelete = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(l10n.reallyDeletePlayer),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: Text(l10n.confirm),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: Text(l10n.cancel),
-            ),
-          ],
-        );
-      },
-    );
-    return confirmDelete!;
   }
 }
 
