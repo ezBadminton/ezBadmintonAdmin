@@ -59,9 +59,9 @@ class CompetitionList extends StatelessWidget {
             registrationComparator: const CompetitionComparator<Team>(
               criteria: [
                 Team,
-                CompetitionCategory,
                 AgeGroup,
                 PlayingLevel,
+                CompetitionCategory,
               ],
             ),
           ),
