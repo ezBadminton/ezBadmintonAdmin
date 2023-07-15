@@ -17,6 +17,7 @@ import 'package:ez_badminton_admin_app/player_management/player_editing/view/pla
 import 'package:ez_badminton_admin_app/player_management/player_filter/view/player_filter.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/registration_display_card.dart';
+import 'package:ez_badminton_admin_app/widgets/sortable_column_header/sortable_column_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -116,19 +117,10 @@ class _PlayerListWithFilter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations l10n = AppLocalizations.of(context)!;
-    return MultiBlocListener(
-      listeners: [
-        BlocListener<PredicateFilterCubit, PredicateFilterState>(
-          listener: (context, state) {
-            context.read<PlayerListCubit>().filterChanged(state.filters);
-          },
-        ),
-        BlocListener<PlayerSortingCubit, ListSortingComparator<Player>>(
-          listener: (context, comparator) {
-            context.read<PlayerListCubit>().comparatorChanged(comparator);
-          },
-        ),
-      ],
+    return BlocListener<PredicateFilterCubit, PredicateFilterState>(
+      listener: (context, state) {
+        context.read<PlayerListCubit>().filterChanged(state.filters);
+      },
       child: BlocBuilder<PlayerListCubit, PlayerListState>(
         buildWhen: (previous, current) =>
             previous.loadingStatus != current.loadingStatus,
@@ -295,61 +287,12 @@ class _PlayerList extends StatelessWidget {
 
 class _SortableColumnHeader<
         ComparatorType extends ListSortingComparator<Player>>
-    extends StatelessWidget {
+    extends SortableColumnHeader<Player, ComparatorType, PlayerSortingCubit,
+        PlayerListCubit, PlayerListState> {
   const _SortableColumnHeader({
-    required this.width,
-    required this.title,
+    required super.width,
+    required super.title,
   });
-
-  final double width;
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    var cubit = context.read<PlayerSortingCubit>();
-    return BlocBuilder<PlayerListCubit, PlayerListState>(
-      buildWhen: (previous, current) =>
-          previous.sortingComparator != current.sortingComparator,
-      builder: (context, state) {
-        return InkWell(
-          onTap: () => cubit.comparatorToggled<ComparatorType>(),
-          child: SizedBox(
-            width: width,
-            child: Row(
-              children: [
-                Text(title),
-                if (state.sortingComparator is ComparatorType)
-                  _sortIcon(state.sortingComparator.mode),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  static Widget _sortIcon(ComparatorMode mode) {
-    Icon icon;
-    switch (mode) {
-      case ComparatorMode.ascending:
-        icon = const Icon(
-          Icons.arrow_upward,
-          size: 19,
-        );
-        break;
-      case ComparatorMode.descending:
-        icon = const Icon(
-          Icons.arrow_downward,
-          size: 19,
-        );
-        break;
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(left: 5.0),
-      child: icon,
-    );
-  }
 }
 
 class PlayerExpansionPanel extends ExpansionPanelRadio {

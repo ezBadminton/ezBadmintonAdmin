@@ -28,17 +28,10 @@ class ClubComparator extends ListSortingComparator<Player> {
       comparator = reverseComparator(comparator);
     }
 
-    comparatorWithSecondary(a, b) {
-      int result = comparator(a, b);
-      if (result == 0) {
-        return secondaryComparator(a, b);
-      } else {
-        return result;
-      }
-    }
+    comparator = nestComparators(comparator, secondaryComparator);
 
     return ClubComparator(
-      comparator: comparatorWithSecondary,
+      comparator: comparator,
       mode: mode,
       secondaryComparator: secondaryComparator,
     );

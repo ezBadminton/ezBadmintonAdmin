@@ -9,11 +9,29 @@ abstract class ListSortingComparator<T> {
 
   ListSortingComparator<T> copyWith(ComparatorMode mode);
 
-  Comparator<T> reverseComparator(Comparator<T> comparator) {
-    return (a, b) => comparator(b, a);
-  }
-
   static int _noOpComparator(dynamic a, dynamic b) => 0;
+}
+
+Comparator<T> reverseComparator<T>(Comparator<T> comparator) {
+  return (a, b) => comparator(b, a);
+}
+
+/// Add a [secondary] comparator to a [primary] comparator.
+///
+/// The resulting nested comparator behaves as the [primary]
+/// comparator except when that would return equality (`0`). In that case
+/// the result of the [secondary] is returned.
+Comparator<T> nestComparators<T>(
+  Comparator<T> primary,
+  Comparator<T> secondary,
+) {
+  return (a, b) {
+    int result = primary(a, b);
+    if (result == 0) {
+      result = secondary(a, b);
+    }
+    return result;
+  };
 }
 
 enum ComparatorMode { ascending, descending }

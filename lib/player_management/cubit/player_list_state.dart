@@ -1,7 +1,8 @@
 part of 'player_list_cubit.dart';
 
 @immutable
-class PlayerListState extends CollectionFetcherState<PlayerListState> {
+class PlayerListState extends CollectionFetcherState<PlayerListState>
+    implements SortedListState<Player> {
   const PlayerListState({
     this.loadingStatus = LoadingStatus.loading,
     this.filteredPlayers = const [],
@@ -16,6 +17,7 @@ class PlayerListState extends CollectionFetcherState<PlayerListState> {
   final Map<Player, List<CompetitionRegistration>> competitionRegistrations;
 
   final Map<Type, Predicate> filters;
+  @override
   final ListSortingComparator<Player> sortingComparator;
 
   PlayerListState copyWith({

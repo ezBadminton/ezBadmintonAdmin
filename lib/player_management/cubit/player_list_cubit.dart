@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/list_sorting/comparator/list_sorting_comparator.dart';
+import 'package:ez_badminton_admin_app/list_sorting/cubit/sorted_list_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/player_sorter/comparators/creation_date_comparator.dart';
 import 'package:ez_badminton_admin_app/player_management/utils/competition_registration.dart';
@@ -12,7 +13,8 @@ import 'package:meta/meta.dart';
 
 part 'player_list_state.dart';
 
-class PlayerListCubit extends CollectionFetcherCubit<PlayerListState> {
+class PlayerListCubit extends CollectionFetcherCubit<PlayerListState>
+    implements SortedListCubit<Player, PlayerListState> {
   PlayerListCubit({
     required CollectionRepository<Player> playerRepository,
     required CollectionRepository<Competition> competitionRepository,
@@ -97,6 +99,7 @@ class PlayerListCubit extends CollectionFetcherCubit<PlayerListState> {
     emit(newState);
   }
 
+  @override
   void comparatorChanged(ListSortingComparator<Player> comparator) {
     emit(state.copyWith(sortingComparator: comparator));
     List<Player> sorted = _sortPlayers(state.filteredPlayers);

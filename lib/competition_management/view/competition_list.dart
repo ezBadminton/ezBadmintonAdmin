@@ -1,7 +1,11 @@
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/competition_management/competition_sorter/comparators/competition_comparator.dart';
+import 'package:ez_badminton_admin_app/competition_management/competition_sorter/cubit/competition_sorting_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_list_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
+import 'package:ez_badminton_admin_app/list_sorting/comparator/list_sorting_comparator.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
+import 'package:ez_badminton_admin_app/widgets/sortable_column_header/sortable_column_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -15,15 +19,54 @@ class CompetitionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => CompetitionListCubit(
-        competitionRepository:
-            context.read<CollectionRepository<Competition>>(),
-        tournamentRepository: context.read<CollectionRepository<Tournament>>(),
-        ageGroupRepository: context.read<CollectionRepository<AgeGroup>>(),
-        playingLevelRepository:
-            context.read<CollectionRepository<PlayingLevel>>(),
-      ),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => CompetitionListCubit(
+            competitionRepository:
+                context.read<CollectionRepository<Competition>>(),
+            tournamentRepository:
+                context.read<CollectionRepository<Tournament>>(),
+            ageGroupRepository: context.read<CollectionRepository<AgeGroup>>(),
+            playingLevelRepository:
+                context.read<CollectionRepository<PlayingLevel>>(),
+          ),
+        ),
+        BlocProvider(
+          create: (context) => CompetitionSortingCubit(
+            ageGroupComparator: const CompetitionComparator<AgeGroup>(
+              criteria: [
+                AgeGroup,
+                PlayingLevel,
+                CompetitionCategory,
+              ],
+            ),
+            playingLevelComparator: const CompetitionComparator<PlayingLevel>(
+              criteria: [
+                PlayingLevel,
+                AgeGroup,
+                CompetitionCategory,
+              ],
+            ),
+            categoryComparator:
+                const CompetitionComparator<CompetitionCategory>(
+              criteria: [
+                CompetitionCategory,
+                AgeGroup,
+                PlayingLevel,
+              ],
+            ),
+            registrationComparator: const CompetitionComparator<Team>(
+              criteria: [
+                Team,
+                CompetitionCategory,
+                AgeGroup,
+                PlayingLevel,
+              ],
+            ),
+          ),
+        ),
+      ],
       child: const _CompetitionList(),
     );
   }
@@ -96,9 +139,9 @@ class _CompetitionListHeader extends StatelessWidget {
           child: Row(
             children: [
               const SizedBox(width: 20),
-              SizedBox(
+              _SortableColumnHeader<CompetitionComparator<CompetitionCategory>>(
                 width: 150,
-                child: Text(l10n.competition(1)),
+                title: l10n.competition(1),
               ),
               Flexible(
                 flex: 1,
@@ -107,28 +150,27 @@ class _CompetitionListHeader extends StatelessWidget {
               AnimatedContainer(
                 duration: const Duration(milliseconds: 150),
                 width: useAgeGroups ? 200 : 0,
-                child: Text(
-                  l10n.ageGroup(1),
-                  overflow: TextOverflow.clip,
-                  softWrap: false,
+                child: _SortableColumnHeader<CompetitionComparator<AgeGroup>>(
+                  width: 0,
+                  title: l10n.ageGroup(1),
                 ),
               ),
               AnimatedContainer(
                 duration: const Duration(milliseconds: 150),
                 width: usePlayingLevels ? 300 : 0,
-                child: Text(
-                  l10n.playingLevel(1),
-                  overflow: TextOverflow.clip,
-                  softWrap: false,
+                child:
+                    _SortableColumnHeader<CompetitionComparator<PlayingLevel>>(
+                  width: 0,
+                  title: l10n.playingLevel(1),
                 ),
               ),
               Expanded(
                 flex: 1,
                 child: Container(),
               ),
-              SizedBox(
+              _SortableColumnHeader<CompetitionComparator<Team>>(
                 width: 150,
-                child: Text(l10n.registrations),
+                title: l10n.registrations,
               ),
               Expanded(
                 flex: 7,
@@ -320,4 +362,14 @@ class _MissingCategoriesHint extends StatelessWidget {
     List<PlayingLevel> playingLevels = state.getCollection<PlayingLevel>();
     return usePlayingLevels && playingLevels.isEmpty;
   }
+}
+
+class _SortableColumnHeader<
+        ComparatorType extends ListSortingComparator<Competition>>
+    extends SortableColumnHeader<Competition, ComparatorType,
+        CompetitionSortingCubit, CompetitionListCubit, CompetitionListState> {
+  const _SortableColumnHeader({
+    required super.width,
+    required super.title,
+  });
 }
