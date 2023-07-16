@@ -1,5 +1,5 @@
-import 'package:ez_badminton_admin_app/widgets/confirm_dialog/confirm_dialog.dart';
-import 'package:ez_badminton_admin_app/widgets/confirm_dialog/cubit_mixin/dialog_cubit.dart';
+import 'package:ez_badminton_admin_app/widgets/dialog_listener/confirm_dialog.dart';
+import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

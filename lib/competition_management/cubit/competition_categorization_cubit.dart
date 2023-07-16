@@ -5,7 +5,7 @@ import 'package:ez_badminton_admin_app/competition_management/cubit/competition_
 import 'package:ez_badminton_admin_app/competition_management/models/competition_merge.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/playing_category.dart';
 import 'package:ez_badminton_admin_app/competition_management/utils/competition_categorization.dart';
-import 'package:ez_badminton_admin_app/widgets/confirm_dialog/cubit_mixin/dialog_cubit.dart';
+import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:formz/formz.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';

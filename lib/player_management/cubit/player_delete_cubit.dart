@@ -3,7 +3,7 @@ import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dar
 import 'package:ez_badminton_admin_app/player_management/cubit/player_delete_state.dart';
 import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/utils/competition_registration.dart';
-import 'package:ez_badminton_admin_app/widgets/confirm_dialog/cubit_mixin/dialog_cubit.dart';
+import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
 import 'package:formz/formz.dart';
 
 class PlayerDeleteCubit extends CollectionQuerierCubit<PlayerDeleteState>
