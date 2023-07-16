@@ -35,12 +35,14 @@ class PlayingLevelEditingCubit
       onSuccess: (updatedState) {
         updatedState = updatedState.copyWithPlayingLevelSorting();
 
-        emit(updatedState.copyWith(
+        updatedState = updatedState.copyWith(
           loadingStatus: LoadingStatus.done,
           displayPlayingLevels: updatedState.getCollection<PlayingLevel>(),
           renamingPlayingLevel: const SelectionInput.pure(),
           playingLevelRename: const NonEmptyInput.pure(),
-        ));
+        );
+
+        emit(updatedState);
       },
       onFailure: () {
         emit(state.copyWith(loadingStatus: LoadingStatus.failed));
@@ -95,8 +97,13 @@ class PlayingLevelEditingCubit
       return;
     }
 
-    bool indicesUpdated = await _updatePlayingLevelIndices(
+    List<PlayingLevel> reorderedPlayingLevels = _syncPlayingLevelIndices(
+      state.displayPlayingLevels,
       removedPlayingLevel: removedPlayingLevel,
+    );
+
+    bool indicesUpdated = await _updateReorderedPlayingLevels(
+      reorderedPlayingLevels,
     );
     if (isClosed) {
       return;
@@ -136,8 +143,7 @@ class PlayingLevelEditingCubit
       return;
     }
     // Update order of display PlayingLevels
-    List<PlayingLevel> currentPlayingLevels =
-        state.getCollection<PlayingLevel>();
+    List<PlayingLevel> currentPlayingLevels = state.displayPlayingLevels;
     PlayingLevel reordered = currentPlayingLevels[from];
     if (to > from) {
       to += 1;
@@ -149,12 +155,16 @@ class PlayingLevelEditingCubit
     }
     reorderedPlayingLevels.removeAt(from);
 
+    reorderedPlayingLevels = _syncPlayingLevelIndices(reorderedPlayingLevels);
+
     emit(state.copyWith(
       formStatus: FormzSubmissionStatus.inProgress,
       displayPlayingLevels: reorderedPlayingLevels,
     ));
 
-    bool indicesUpdated = await _updatePlayingLevelIndices();
+    bool indicesUpdated = await _updateReorderedPlayingLevels(
+      reorderedPlayingLevels,
+    );
     if (isClosed) {
       return;
     }
@@ -167,30 +177,52 @@ class PlayingLevelEditingCubit
     loadPlayingLevels();
   }
 
-  /// Apply the order of the displayPlayingLevels to the `index` member of each
-  /// PlayingLevel and update it on DB.
+  /// Returns a copy of [reorderedPlayingLevels] with the [PlayingLevel]s
+  /// inside having their `index` members synced to their index in the list.
   ///
   /// If the indices have to shift because a PlayingLevel was removed, pass the
-  /// [removedPlayingLevel].
-  Future<bool> _updatePlayingLevelIndices({
+  /// [removedPlayingLevel]. It will also be removed from the copy.
+  List<PlayingLevel> _syncPlayingLevelIndices(
+    List<PlayingLevel> reorderedPlayingLevels, {
     PlayingLevel? removedPlayingLevel,
-  }) async {
-    int index = 0;
-    for (PlayingLevel playingLevel in state.displayPlayingLevels) {
-      if (playingLevel.index != index && playingLevel != removedPlayingLevel) {
+  }) {
+    List<PlayingLevel> updatedPlayingLevels = List.of(reorderedPlayingLevels);
+
+    if (removedPlayingLevel != null) {
+      updatedPlayingLevels.remove(removedPlayingLevel);
+    }
+
+    for (int i = 0; i < updatedPlayingLevels.length; i += 1) {
+      if (updatedPlayingLevels[i].index != i) {
         PlayingLevel reorderedPlayingLevel =
-            playingLevel.copyWith(index: index);
-        PlayingLevel? updatedPlayingLevel =
-            await querier.updateModel(reorderedPlayingLevel);
-        if (updatedPlayingLevel == null) {
-          return false;
-        }
-      }
-      if (playingLevel != removedPlayingLevel) {
-        index += 1;
+            updatedPlayingLevels[i].copyWith(index: i);
+        updatedPlayingLevels[i] = reorderedPlayingLevel;
       }
     }
-    return true;
+
+    return updatedPlayingLevels;
+  }
+
+  /// Finds [PlayingLevels] where the `index` was changed in
+  /// [reorderedPlayingLevels] and updates those on the DB.
+  Future<bool> _updateReorderedPlayingLevels(
+    List<PlayingLevel> reorderedPlayingLevels,
+  ) async {
+    List<PlayingLevel> changedPlayingLevels = reorderedPlayingLevels
+        .where((playingLevel) =>
+            state
+                .getCollection<PlayingLevel>()
+                .firstWhere((lvl) => lvl.id == playingLevel.id)
+                .index !=
+            playingLevel.index)
+        .toList();
+
+    Iterable<Future<PlayingLevel?>> playingLevelUpdates =
+        changedPlayingLevels.map((lvl) => querier.updateModel(lvl));
+    List<PlayingLevel?> updatedPlayingLevels =
+        await Future.wait(playingLevelUpdates);
+
+    return !updatedPlayingLevels.contains(null);
   }
 
   void playingLevelRenameFormOpened(PlayingLevel playingLevel) {
