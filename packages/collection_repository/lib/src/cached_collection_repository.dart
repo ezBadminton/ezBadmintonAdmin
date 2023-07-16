@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:collection_repository/src/collection_repository_decorator.dart';
@@ -12,6 +14,10 @@ class CachedCollectionRepository<M extends Model>
   @override
   Stream<CollectionUpdateEvent<M>> get updateStream =>
       targetCollectionRepository.updateStream;
+
+  @override
+  StreamController<CollectionUpdateEvent<M>> get updateStreamController =>
+      targetCollectionRepository.updateStreamController;
 
   @override
   Future<M> getModel(String id, {ExpansionTree? expand}) async {
@@ -71,5 +77,13 @@ class CachedCollectionRepository<M extends Model>
   @override
   Future<void> dispose() {
     return targetCollectionRepository.dispose();
+  }
+
+  void updateCache(M updatedModel) {
+    _cachedCollection
+      ..removeWhere((m) => m.id == updatedModel.id)
+      ..add(updatedModel);
+
+    updateStreamController.add(CollectionUpdateEvent.update(updatedModel));
   }
 }

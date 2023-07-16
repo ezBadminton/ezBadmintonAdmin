@@ -1,10 +1,16 @@
+import 'dart:async';
+
 import 'package:collection_repository/collection_repository.dart';
+import 'package:flutter/foundation.dart';
 
 abstract class CollectionRepository<M extends Model> {
   /// Streams a [M] object whenever it is updated
   ///
   /// This happens when the [M] object was created, updated or deleted.
   Stream<CollectionUpdateEvent<M>> get updateStream;
+
+  @protected
+  StreamController<CollectionUpdateEvent<M>> get updateStreamController;
 
   /// Fetches a single collection member by [id]
   ///

@@ -33,12 +33,13 @@ class PocketbaseCollectionRepository<M extends Model>
   final String _collectionName;
   final M Function(Map<String, dynamic> recordModelMap) _modelConstructor;
 
-  final StreamController<CollectionUpdateEvent<M>> _updateStreamController =
+  @override
+  final StreamController<CollectionUpdateEvent<M>> updateStreamController =
       StreamController.broadcast();
 
   @override
   Stream<CollectionUpdateEvent<M>> get updateStream async* {
-    yield* _updateStreamController.stream;
+    yield* updateStreamController.stream;
   }
 
   static final Map<Type, ExpansionTree> _defaultExpansions = {
@@ -140,7 +141,7 @@ class PocketbaseCollectionRepository<M extends Model>
   }
 
   void emitUpdateEvent(CollectionUpdateEvent<M> event) {
-    _updateStreamController.add(event);
+    updateStreamController.add(event);
   }
 
   String expandStringFromExpansionTree(ExpansionTree? expand) {
@@ -150,6 +151,6 @@ class PocketbaseCollectionRepository<M extends Model>
 
   @override
   Future<void> dispose() {
-    return _updateStreamController.close();
+    return updateStreamController.close();
   }
 }

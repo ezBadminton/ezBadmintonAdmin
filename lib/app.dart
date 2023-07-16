@@ -29,6 +29,8 @@ class _AppState extends State<App> {
   late final CollectionRepository<Team> _teamRepository;
   late final CollectionRepository<Club> _clubRepository;
 
+  late final CachedRelationUpdater<Competition> _competitionRelationUpdater;
+
   @override
   void initState() {
     super.initState();
@@ -81,6 +83,13 @@ class _AppState extends State<App> {
         pocketBaseProvider: _pocketBaseProvider,
       ),
     );
+
+    _competitionRelationUpdater = CachedRelationUpdater(
+      targetCachedCollectionRepository:
+          _competitionRepository as CachedCollectionRepository<Competition>,
+      relationRepositories: [_playingLevelRepository],
+      updateHandler: onCompetitionRelationUpdate,
+    );
   }
 
   @override
@@ -93,6 +102,7 @@ class _AppState extends State<App> {
     _ageGroupRepository.dispose();
     _teamRepository.dispose();
     _clubRepository.dispose();
+    _competitionRelationUpdater.dispose();
     super.dispose();
   }
 
