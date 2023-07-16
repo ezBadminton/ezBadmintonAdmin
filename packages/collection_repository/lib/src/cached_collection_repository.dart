@@ -6,7 +6,42 @@ import 'package:collection_repository/src/collection_repository_decorator.dart';
 
 class CachedCollectionRepository<M extends Model>
     extends CollectionRepositoryDecorator<M> {
-  CachedCollectionRepository(super.targetCollectionRepository);
+  /// A CollectionRepository decorator that caches fetched models and
+  /// returns them instead of querying the database.
+  ///
+  /// The [targetCollectionRepository] handles the queries in
+  /// case of a cache miss.
+  ///
+  /// Optionally a list of [relationRepositories] together with a
+  /// [relationUpdateHandler] function can be passed in. This is useful for
+  /// updating the cached models or clearing the cache when other collections
+  /// update.
+  CachedCollectionRepository(
+    super.targetCollectionRepository, {
+    List<CollectionRepository>? relationRepositories,
+    this.relationUpdateHandler,
+  }) : assert(
+          (relationRepositories == null) == (relationUpdateHandler == null),
+        ) {
+    if (relationRepositories != null) {
+      _relationUpdateStreamSubscriptions = relationRepositories
+          .map((s) => s.updateStream.listen(_onRelationUpdate))
+          .toList();
+    } else {
+      _relationUpdateStreamSubscriptions = [];
+    }
+  }
+
+  /// The optional relation update handler receives all update events from the
+  /// [relationRepositories] and the current cached collection.
+  ///
+  /// It returns a list of all updated models in the collection that had one
+  /// of their related models updated.
+  /// The updated models are then adopted into the cache.
+  final List<M> Function(List<M> collection, CollectionUpdateEvent updateEvent)?
+      relationUpdateHandler;
+
+  late final List<StreamSubscription> _relationUpdateStreamSubscriptions;
 
   List<M> _cachedCollection = [];
   bool _entireCollectionCached = false;
@@ -74,16 +109,30 @@ class CachedCollectionRepository<M extends Model>
     _cachedCollection.removeWhere((m) => m.id == deletedModel.id);
   }
 
-  @override
-  Future<void> dispose() {
-    return targetCollectionRepository.dispose();
-  }
-
-  void updateCache(M updatedModel) {
+  void _updateCache(M updatedModel) {
     _cachedCollection
       ..removeWhere((m) => m.id == updatedModel.id)
       ..add(updatedModel);
 
     updateStreamController.add(CollectionUpdateEvent.update(updatedModel));
+  }
+
+  void _onRelationUpdate(CollectionUpdateEvent updateEvent) async {
+    List<M> updatedModels = relationUpdateHandler!(
+      await getList(),
+      updateEvent,
+    );
+    for (M model in updatedModels) {
+      _updateCache(model);
+    }
+  }
+
+  @override
+  Future<void> dispose() {
+    for (StreamSubscription subscription
+        in _relationUpdateStreamSubscriptions) {
+      subscription.cancel();
+    }
+    return targetCollectionRepository.dispose();
   }
 }

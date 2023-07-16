@@ -22,14 +22,12 @@ class _AppState extends State<App> {
   late final AuthenticationRepository _authenticationRepository;
   late final UserRepository _userRepository;
   late final CollectionRepository<Tournament> _tournamentRepository;
-  late final CollectionRepository<Player> _playerRepository;
-  late final CollectionRepository<Competition> _competitionRepository;
   late final CollectionRepository<PlayingLevel> _playingLevelRepository;
   late final CollectionRepository<AgeGroup> _ageGroupRepository;
+  late final CollectionRepository<Player> _playerRepository;
+  late final CollectionRepository<Competition> _competitionRepository;
   late final CollectionRepository<Team> _teamRepository;
   late final CollectionRepository<Club> _clubRepository;
-
-  late final CachedRelationUpdater<Competition> _competitionRelationUpdater;
 
   @override
   void initState() {
@@ -47,18 +45,6 @@ class _AppState extends State<App> {
         pocketBaseProvider: _pocketBaseProvider,
       ),
     );
-    _playerRepository = CachedCollectionRepository(
-      PocketbaseCollectionRepository(
-        modelConstructor: Player.fromJson,
-        pocketBaseProvider: _pocketBaseProvider,
-      ),
-    );
-    _competitionRepository = CachedCollectionRepository(
-      PocketbaseCollectionRepository(
-        modelConstructor: Competition.fromJson,
-        pocketBaseProvider: _pocketBaseProvider,
-      ),
-    );
     _playingLevelRepository = CachedCollectionRepository(
       PocketbaseCollectionRepository(
         modelConstructor: PlayingLevel.fromJson,
@@ -68,6 +54,20 @@ class _AppState extends State<App> {
     _ageGroupRepository = CachedCollectionRepository(
       PocketbaseCollectionRepository(
         modelConstructor: AgeGroup.fromJson,
+        pocketBaseProvider: _pocketBaseProvider,
+      ),
+    );
+    _playerRepository = CachedCollectionRepository(
+      PocketbaseCollectionRepository(
+        modelConstructor: Player.fromJson,
+        pocketBaseProvider: _pocketBaseProvider,
+      ),
+    );
+    _competitionRepository = CachedCollectionRepository(
+      relationRepositories: [_playingLevelRepository],
+      relationUpdateHandler: onCompetitionRelationUpdate,
+      PocketbaseCollectionRepository(
+        modelConstructor: Competition.fromJson,
         pocketBaseProvider: _pocketBaseProvider,
       ),
     );
@@ -83,26 +83,18 @@ class _AppState extends State<App> {
         pocketBaseProvider: _pocketBaseProvider,
       ),
     );
-
-    _competitionRelationUpdater = CachedRelationUpdater(
-      targetCachedCollectionRepository:
-          _competitionRepository as CachedCollectionRepository<Competition>,
-      relationRepositories: [_playingLevelRepository],
-      updateHandler: onCompetitionRelationUpdate,
-    );
   }
 
   @override
   void dispose() {
     _authenticationRepository.dispose();
     _tournamentRepository.dispose();
-    _playerRepository.dispose();
-    _competitionRepository.dispose();
     _playingLevelRepository.dispose();
     _ageGroupRepository.dispose();
+    _playerRepository.dispose();
+    _competitionRepository.dispose();
     _teamRepository.dispose();
     _clubRepository.dispose();
-    _competitionRelationUpdater.dispose();
     super.dispose();
   }
 
@@ -112,10 +104,10 @@ class _AppState extends State<App> {
       providers: [
         RepositoryProvider.value(value: _authenticationRepository),
         RepositoryProvider.value(value: _tournamentRepository),
-        RepositoryProvider.value(value: _playerRepository),
-        RepositoryProvider.value(value: _competitionRepository),
         RepositoryProvider.value(value: _playingLevelRepository),
         RepositoryProvider.value(value: _ageGroupRepository),
+        RepositoryProvider.value(value: _playerRepository),
+        RepositoryProvider.value(value: _competitionRepository),
         RepositoryProvider.value(value: _teamRepository),
         RepositoryProvider.value(value: _clubRepository),
       ],
