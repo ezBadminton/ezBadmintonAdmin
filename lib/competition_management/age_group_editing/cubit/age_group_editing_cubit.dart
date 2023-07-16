@@ -101,7 +101,7 @@ class AgeGroupEditingCubit
 
     Iterable<Competition> competitionsUsingAgeGroup = state
         .getCollection<Competition>()
-        .where((c) => c.ageGroups.contains(removedAgeGroup));
+        .where((c) => c.ageGroup == removedAgeGroup);
     if (competitionsUsingAgeGroup.isNotEmpty) {
       // Don't delete age groups that are used
       emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));

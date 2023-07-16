@@ -79,7 +79,7 @@ class PlayingLevelEditingCubit
 
     Iterable<Competition> competitionsUsingPlayingLevel = state
         .getCollection<Competition>()
-        .where((c) => c.playingLevels.contains(removedPlayingLevel));
+        .where((c) => c.playingLevel == removedPlayingLevel);
     if (competitionsUsingPlayingLevel.isNotEmpty) {
       // Don't delete playing levels that are used
       emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));

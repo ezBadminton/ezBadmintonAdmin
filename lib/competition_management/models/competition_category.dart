@@ -2,11 +2,11 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:equatable/equatable.dart';
 
 /// A tuple of [GenderCategory] and [CompetitionType] forming a competition
-/// category like ([GenderCategory.female], [CompetitionType.singles])
-class CompetitionCategory extends Equatable {
-  const CompetitionCategory(this.genderCategory, this.competitionType);
+/// discipline like ([GenderCategory.female], [CompetitionType.singles])
+class CompetitionDiscipline extends Equatable {
+  const CompetitionDiscipline(this.genderCategory, this.competitionType);
 
-  CompetitionCategory.fromCompetition(Competition competition)
+  CompetitionDiscipline.fromCompetition(Competition competition)
       : this(competition.genderCategory, competition.type);
 
   final GenderCategory genderCategory;
@@ -15,12 +15,12 @@ class CompetitionCategory extends Equatable {
   @override
   List<Object?> get props => [genderCategory, competitionType];
 
-  /// The 5 default competitions of every badminton tournament
-  static const List<CompetitionCategory> defaultCompetitions = [
-    CompetitionCategory(GenderCategory.female, CompetitionType.doubles),
-    CompetitionCategory(GenderCategory.male, CompetitionType.doubles),
-    CompetitionCategory(GenderCategory.female, CompetitionType.singles),
-    CompetitionCategory(GenderCategory.male, CompetitionType.singles),
-    CompetitionCategory(GenderCategory.mixed, CompetitionType.mixed),
+  /// The 5 base competitions of every badminton tournament
+  static const List<CompetitionDiscipline> baseCompetitions = [
+    CompetitionDiscipline(GenderCategory.female, CompetitionType.doubles),
+    CompetitionDiscipline(GenderCategory.male, CompetitionType.doubles),
+    CompetitionDiscipline(GenderCategory.female, CompetitionType.singles),
+    CompetitionDiscipline(GenderCategory.male, CompetitionType.singles),
+    CompetitionDiscipline(GenderCategory.mixed, CompetitionType.mixed),
   ];
 }

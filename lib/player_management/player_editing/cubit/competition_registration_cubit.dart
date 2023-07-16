@@ -106,13 +106,13 @@ class CompetitionRegistrationCubit
     var warnings = List.of(state.warnings);
     if (!_verifyAgeGroup(selected)) {
       warnings.add(
-        AgeGroupWarning(unfitAgeGroups: selected.ageGroups, player: player),
+        AgeGroupWarning(unfitAgeGroups: [selected.ageGroup!], player: player),
       );
     }
     if (!_verifyPlayingLevel(selected)) {
       warnings.add(
         PlayingLevelWarning(
-          unfitPlayingLevels: selected.playingLevels,
+          unfitPlayingLevels: [selected.playingLevel!],
           player: player,
         ),
       );
@@ -126,24 +126,21 @@ class CompetitionRegistrationCubit
   }
 
   bool _verifyAgeGroup(Competition competition) {
-    if (player.dateOfBirth == null || competition.ageGroups.isEmpty) {
+    if (player.dateOfBirth == null || competition.ageGroup == null) {
       return true;
     }
     var playerAgeGroups = ageToAgeGroups(
       player.calculateAge(),
       state.getCollection<AgeGroup>(),
     );
-    return playerAgeGroups
-        .where((group) => competition.ageGroups.contains(group))
-        .isNotEmpty;
+    return playerAgeGroups.contains(competition.ageGroup);
   }
 
   bool _verifyPlayingLevel(Competition competition) {
-    if (player.playingLevel == null || competition.playingLevels.isEmpty) {
+    if (player.playingLevel == null || competition.playingLevel == null) {
       return true;
     }
-    var comparison =
-        player.playingLevel!.compareToList(competition.playingLevels);
+    var comparison = player.playingLevel!.compareTo(competition.playingLevel!);
     return comparison == 0;
   }
 
@@ -187,12 +184,14 @@ class CompetitionRegistrationCubit
     switch (P) {
       case PlayingLevel:
         return selectedCompetitions
-            .expand((competition) => competition.playingLevels)
+            .map((competition) => competition.playingLevel)
+            .whereType<PlayingLevel>()
             .toSet()
             .sorted((a, b) => a.index > b.index ? 1 : -1) as List<P>;
       case AgeGroup:
         return selectedCompetitions
-            .expand((competition) => competition.ageGroups)
+            .map((competition) => competition.ageGroup)
+            .whereType<AgeGroup>()
             .toSet()
             .sorted((a, b) => a.age > b.age ? 1 : -1) as List<P>;
       case GenderCategory:
@@ -228,12 +227,12 @@ class CompetitionRegistrationCubit
           competition.genderCategory == state.genderCategory.value;
       var ageGroupMatch = ignore.contains(AgeGroup) ||
           state.ageGroup.value == null ||
-          competition.ageGroups.isEmpty ||
-          competition.ageGroups.contains(state.ageGroup.value);
+          competition.ageGroup == null ||
+          competition.ageGroup == state.ageGroup.value;
       var playingLevelMatch = ignore.contains(PlayingLevel) ||
           state.playingLevel.value == null ||
-          competition.playingLevels.isEmpty ||
-          competition.playingLevels.contains(state.playingLevel.value);
+          competition.playingLevel == null ||
+          competition.playingLevel == state.playingLevel.value;
       return typeMatch &&
           genderCategoryMatch &&
           ageGroupMatch &&

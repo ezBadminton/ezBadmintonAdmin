@@ -101,5 +101,9 @@
   "categoryAlreadyExists": "All base competitions already exist for this category",
   "competitionAlreadyExists": "This competition already exists in one of the selected categories",
   "chooseAtLeastN": "{count, plural, =1{Select at least one {subject}} other{Select at least {count} {subject}}}",
-  "createCategories": "Create {category}, to be able to add competitions!"
+  "createCategories": "Create {category}, to be able to add competitions!",
+  "defaultPlayingLevel": "Placeholder playing level",
+  "disableCategorization": "Stop using {categorization}?",
+  "mergeRegistrationsWarning": "There are registrations in multiple {categorization}. By deactivating {categorization} the competitions and their registration lists are merged.\n\nThis can't be undone. Continue?"
+
 }

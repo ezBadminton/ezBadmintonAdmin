@@ -55,7 +55,7 @@ String competitionGenderAndTypeAbbreviation(
 
 String competitionCategory(
   AppLocalizations l10n,
-  CompetitionCategory competitionCategory,
+  CompetitionDiscipline competitionCategory,
 ) {
   return competitionGenderAndType(
     l10n,
@@ -66,7 +66,7 @@ String competitionCategory(
 
 String competitionCategoryAbbreviation(
   AppLocalizations l10n,
-  CompetitionCategory competitionCategory,
+  CompetitionDiscipline competitionCategory,
 ) {
   return competitionGenderAndTypeAbbreviation(
     l10n,

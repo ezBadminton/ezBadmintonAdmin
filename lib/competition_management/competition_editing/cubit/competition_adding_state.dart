@@ -7,7 +7,7 @@ class CompetitionAddingState
     this.formStatus = FormzSubmissionStatus.initial,
     this.ageGroups = const [],
     this.playingLevels = const [],
-    this.competitionCategories = CompetitionCategory.defaultCompetitions,
+    this.competitionCategories = CompetitionDiscipline.baseCompetitions,
     this.disabledAgeGroups = const {},
     this.disabledPlayingLevels = const {},
     this.disabledCompetitionCategories = const {},
@@ -24,11 +24,11 @@ class CompetitionAddingState
 
   final List<AgeGroup> ageGroups;
   final List<PlayingLevel> playingLevels;
-  final List<CompetitionCategory> competitionCategories;
+  final List<CompetitionDiscipline> competitionCategories;
 
   final Set<AgeGroup> disabledAgeGroups;
   final Set<PlayingLevel> disabledPlayingLevels;
-  final Set<CompetitionCategory> disabledCompetitionCategories;
+  final Set<CompetitionDiscipline> disabledCompetitionCategories;
 
   final bool submittable;
 
@@ -37,10 +37,10 @@ class CompetitionAddingState
     FormzSubmissionStatus? formStatus,
     List<AgeGroup>? ageGroups,
     List<PlayingLevel>? playingLevels,
-    List<CompetitionCategory>? competitionCategories,
+    List<CompetitionDiscipline>? competitionCategories,
     Set<AgeGroup>? disabledAgeGroups,
     Set<PlayingLevel>? disabledPlayingLevels,
-    Set<CompetitionCategory>? disabledCompetitionCategories,
+    Set<CompetitionDiscipline>? disabledCompetitionCategories,
     Map<Type, List<Model>>? collections,
   }) {
     return CompetitionAddingState(
@@ -63,7 +63,7 @@ class CompetitionAddingState
     Tournament? tournament,
     List<AgeGroup> ageGroups,
     List<PlayingLevel> playingLevels,
-    List<CompetitionCategory> competitionCategories,
+    List<CompetitionDiscipline> competitionCategories,
   ) {
     if (tournament == null) {
       return false;

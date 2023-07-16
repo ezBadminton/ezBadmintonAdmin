@@ -11,7 +11,7 @@ class CompetitionComparator<C extends Object>
     this.criteria = const [
       AgeGroup,
       PlayingLevel,
-      CompetitionCategory,
+      CompetitionDiscipline,
     ],
   });
 
@@ -20,7 +20,7 @@ class CompetitionComparator<C extends Object>
   static const Map<Type, Comparator<Competition>> comparators = {
     AgeGroup: _compareAgeGroups,
     PlayingLevel: _comparePlayingLevels,
-    CompetitionCategory: _compareCategories,
+    CompetitionDiscipline: _compareCategories,
     Team: _compareRegistrationCounts,
   };
 
@@ -49,7 +49,7 @@ class CompetitionComparator<C extends Object>
     List<Type> criteria = const [
       AgeGroup,
       PlayingLevel,
-      CompetitionCategory,
+      CompetitionDiscipline,
     ],
   }) {
     Comparator<Competition> comparator = criteria.fold(
@@ -61,26 +61,26 @@ class CompetitionComparator<C extends Object>
   }
 
   static int _compareAgeGroups(Competition a, Competition b) {
-    if (a.ageGroups.isEmpty || b.ageGroups.isEmpty) {
+    if (a.ageGroup == null || b.ageGroup == null) {
       return 0;
     }
 
-    return compareAgeGroups(a.ageGroups.first, b.ageGroups.first);
+    return compareAgeGroups(a.ageGroup!, b.ageGroup!);
   }
 
   static int _comparePlayingLevels(Competition a, Competition b) {
-    if (a.playingLevels.isEmpty || b.playingLevels.isEmpty) {
+    if (a.playingLevel == null || b.playingLevel == null) {
       return 0;
     }
 
-    return a.playingLevels.first.index.compareTo(b.playingLevels.first.index);
+    return a.playingLevel!.index.compareTo(b.playingLevel!.index);
   }
 
   static int _compareCategories(Competition a, Competition b) {
-    int indexA = CompetitionCategory.defaultCompetitions
-        .indexOf(CompetitionCategory.fromCompetition(a));
-    int indexB = CompetitionCategory.defaultCompetitions
-        .indexOf(CompetitionCategory.fromCompetition(b));
+    int indexA = CompetitionDiscipline.baseCompetitions
+        .indexOf(CompetitionDiscipline.fromCompetition(a));
+    int indexB = CompetitionDiscipline.baseCompetitions
+        .indexOf(CompetitionDiscipline.fromCompetition(b));
 
     return indexA.compareTo(indexB);
   }

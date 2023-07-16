@@ -124,7 +124,7 @@ class CompetitionAdditionPreview extends StatelessWidget {
     bool usePlayingLevels,
     List<AgeGroup> selectedAgeGroups,
     List<PlayingLevel> selectedPlayingLevels,
-    List<CompetitionCategory> selectedCompetitionCategories,
+    List<CompetitionDiscipline> selectedCompetitionCategories,
   ) {
     if (selectedCompetitionCategories.isEmpty) {
       return [];
@@ -314,7 +314,7 @@ class _PreviewListItem extends StatelessWidget {
 class _CategoryTuple extends Equatable {
   /// A tuple of [ageGroup] and [playingLevel] forming a playing category.
   ///
-  /// The [baseCategories] list contains the [CompetitionCategory]s that are
+  /// The [baseCategories] list contains the [CompetitionDiscipline]s that are
   /// available in this category.
   const _CategoryTuple({
     required this.ageGroup,
@@ -324,7 +324,7 @@ class _CategoryTuple extends Equatable {
 
   final AgeGroup? ageGroup;
   final PlayingLevel? playingLevel;
-  final List<CompetitionCategory> baseCategories;
+  final List<CompetitionDiscipline> baseCategories;
 
   @override
   List<Object?> get props => [ageGroup, playingLevel];

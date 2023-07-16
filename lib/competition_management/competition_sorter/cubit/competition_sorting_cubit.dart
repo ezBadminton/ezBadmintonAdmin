@@ -7,7 +7,7 @@ class CompetitionSortingCubit extends ListSortingCubit<Competition> {
   CompetitionSortingCubit({
     required CompetitionComparator<AgeGroup> ageGroupComparator,
     required CompetitionComparator<PlayingLevel> playingLevelComparator,
-    required CompetitionComparator<CompetitionCategory> categoryComparator,
+    required CompetitionComparator<CompetitionDiscipline> categoryComparator,
     required CompetitionComparator<Team> registrationComparator,
   }) : super(
           comparators: [

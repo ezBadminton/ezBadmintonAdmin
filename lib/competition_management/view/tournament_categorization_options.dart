@@ -1,7 +1,9 @@
 import 'package:ez_badminton_admin_app/competition_management/age_group_editing/view/age_group_editing_popup.dart';
-import 'package:ez_badminton_admin_app/competition_management/cubit/tournament_editing_cubit.dart';
-import 'package:ez_badminton_admin_app/competition_management/cubit/tournament_editing_state.dart';
+import 'package:ez_badminton_admin_app/competition_management/cubit/competition_categorization_cubit.dart';
+import 'package:ez_badminton_admin_app/competition_management/cubit/competition_categorization_state.dart';
 import 'package:ez_badminton_admin_app/competition_management/playing_level_editing/view/playing_level_editing_popup.dart';
+import 'package:ez_badminton_admin_app/widgets/confirm_dialog/confirm_dialog.dart';
+import 'package:ez_badminton_admin_app/widgets/confirm_dialog/dialog_listener.dart';
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/bloc_switch.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:ez_badminton_admin_app/widgets/long_tooltip/long_tooltip.dart';
@@ -17,14 +19,35 @@ class TournamentCategorizationOptions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TournamentEditingCubit, TournamentEditingState>(
+    var l10n = AppLocalizations.of(context)!;
+    return BlocBuilder<CompetitionCategorizationCubit,
+        CompetitionCategorizationState>(
       buildWhen: (previous, current) =>
           previous.loadingStatus != current.loadingStatus,
       builder: (context, state) {
         return LoadingScreen(
           loadingStatus: state.loadingStatus,
           builder: (context) {
-            return const _CategorizationSwitches();
+            return DialogListener<CompetitionCategorizationCubit,
+                CompetitionCategorizationState>(
+              builder: (context, _, mergeType) {
+                String categorization =
+                    switch (mergeType as CategoryMergeType) {
+                  CategoryMergeType.ageGroupMerge => l10n.ageGroup(2),
+                  CategoryMergeType.playingLevelMerge => l10n.playingLevel(2),
+                };
+                return ConfirmDialog(
+                  title: Text(l10n.disableCategorization(categorization)),
+                  content: SizedBox(
+                    width: 500,
+                    child: Text(l10n.mergeRegistrationsWarning(categorization)),
+                  ),
+                  confirmButtonLabel: l10n.confirm,
+                  cancelButtonLabel: l10n.cancel,
+                );
+              },
+              child: const _CategorizationSwitches(),
+            );
           },
         );
       },
@@ -37,9 +60,10 @@ class _CategorizationSwitches extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var cubit = context.read<TournamentEditingCubit>();
+    var cubit = context.read<CompetitionCategorizationCubit>();
     var l10n = AppLocalizations.of(context)!;
-    return BlocBuilder<TournamentEditingCubit, TournamentEditingState>(
+    return BlocBuilder<CompetitionCategorizationCubit,
+        CompetitionCategorizationState>(
       buildWhen: (previous, current) =>
           previous.formStatus != current.formStatus,
       builder: (context, state) {
@@ -51,7 +75,7 @@ class _CategorizationSwitches extends StatelessWidget {
             children: [
               Expanded(
                 child: _CategoryPanel(
-                  valueGetter: (state) => state.tournament!.useAgeGroups,
+                  valueGetter: (state) => state.tournament.useAgeGroups,
                   onChanged: cubit.useAgeGroupsChanged,
                   label: l10n.activateAgeGroups,
                   helpMessage: l10n.categorizationHint(l10n.ageGroup(2)),
@@ -63,7 +87,7 @@ class _CategorizationSwitches extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: _CategoryPanel(
-                  valueGetter: (state) => state.tournament!.usePlayingLevels,
+                  valueGetter: (state) => state.tournament.usePlayingLevels,
                   onChanged: cubit.usePlayingLevelsChanged,
                   label: l10n.activatePlayingLevels,
                   helpMessage: l10n.categorizationHint(l10n.playingLevel(2)),
@@ -96,7 +120,7 @@ class _CategoryPanel extends StatelessWidget {
   });
 
   final bool enabled;
-  final bool Function(TournamentEditingState) valueGetter;
+  final bool Function(CompetitionCategorizationState) valueGetter;
   final void Function(bool) onChanged;
   // Label next to the switch wigdet
   final String label;
@@ -107,7 +131,8 @@ class _CategoryPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TournamentEditingCubit, TournamentEditingState>(
+    return BlocBuilder<CompetitionCategorizationCubit,
+        CompetitionCategorizationState>(
       buildWhen: (previous, current) =>
           valueGetter(previous) != valueGetter(current),
       builder: (context, state) {
@@ -173,7 +198,7 @@ class _CategorySwitchWithHelpIcon extends StatelessWidget {
   });
 
   final String label;
-  final bool Function(TournamentEditingState p1) valueGetter;
+  final bool Function(CompetitionCategorizationState p1) valueGetter;
   final bool enabled;
   final void Function(bool p1) onChanged;
   final String helpMessage;
@@ -202,8 +227,8 @@ class _CategorySwitchWithHelpIcon extends StatelessWidget {
   }
 }
 
-class _CategorySwitch
-    extends BlocSwitch<TournamentEditingCubit, TournamentEditingState> {
+class _CategorySwitch extends BlocSwitch<CompetitionCategorizationCubit,
+    CompetitionCategorizationState> {
   const _CategorySwitch({
     required super.label,
     required super.valueGetter,

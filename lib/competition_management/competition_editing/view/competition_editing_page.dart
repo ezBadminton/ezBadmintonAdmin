@@ -235,13 +235,13 @@ class _CompetitionCategorySelectionForm extends StatelessWidget {
     var cubit = context.read<CompetitionAddingCubit>();
     return BlocBuilder<CompetitionAddingCubit, CompetitionAddingState>(
       builder: (context, state) {
-        return CheckboxGroup<CompetitionCategory>(
+        return CheckboxGroup<CompetitionDiscipline>(
           title: _OptionGroupTitle(
             title: l10n.baseCompetition(2),
             selectionHint: l10n.chooseAtLeastN(1, l10n.baseCompetition(1)),
             showSelectionHint: state.competitionCategories.isEmpty,
           ),
-          elements: CompetitionCategory.defaultCompetitions,
+          elements: CompetitionDiscipline.baseCompetitions,
           enabledElements: state.competitionCategories,
           onToggle: cubit.competitionCategoryToggled,
           invertSuperCheckbox: state.disabledCompetitionCategories.isNotEmpty,

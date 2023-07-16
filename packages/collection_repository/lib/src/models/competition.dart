@@ -13,7 +13,7 @@ class Competition extends Model with _$Competition {
   /// A competition within a badminton tournament.
   ///
   /// Competitions are categorized by [teamSize] (singles, or doubles),
-  /// [genderCategory], [ageGroups] and [playingLevels].
+  /// [genderCategory], [ageGroup] and [playingLevel].
   /// The competiton also holds all partipating Teams as [registrations].
   const factory Competition({
     required String id,
@@ -21,8 +21,8 @@ class Competition extends Model with _$Competition {
     required DateTime updated,
     required int teamSize,
     required GenderCategory genderCategory,
-    required List<AgeGroup> ageGroups,
-    required List<PlayingLevel> playingLevels,
+    AgeGroup? ageGroup,
+    PlayingLevel? playingLevel,
     required List<Team> registrations,
   }) = _Competition;
 
@@ -32,8 +32,8 @@ class Competition extends Model with _$Competition {
   factory Competition.newCompetition({
     required int teamSize,
     required GenderCategory genderCategory,
-    List<AgeGroup> ageGroups = const [],
-    List<PlayingLevel> playingLevels = const [],
+    AgeGroup? ageGroup,
+    PlayingLevel? playingLevel,
     List<Team> registrations = const [],
   }) {
     return Competition(
@@ -42,8 +42,8 @@ class Competition extends Model with _$Competition {
       updated: DateTime.now(),
       teamSize: teamSize,
       genderCategory: genderCategory,
-      ageGroups: ageGroups,
-      playingLevels: playingLevels,
+      ageGroup: ageGroup,
+      playingLevel: playingLevel,
       registrations: registrations,
     );
   }
@@ -66,15 +66,15 @@ class Competition extends Model with _$Competition {
   static const List<ExpandedField> expandedFields = [
     ExpandedField(
       model: AgeGroup,
-      key: 'ageGroups',
-      isRequired: true,
-      isSingle: false,
+      key: 'ageGroup',
+      isRequired: false,
+      isSingle: true,
     ),
     ExpandedField(
       model: PlayingLevel,
-      key: 'playingLevels',
-      isRequired: true,
-      isSingle: false,
+      key: 'playingLevel',
+      isRequired: false,
+      isSingle: true,
     ),
     ExpandedField(
       model: Team,

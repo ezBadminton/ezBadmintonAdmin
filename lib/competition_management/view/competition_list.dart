@@ -38,20 +38,20 @@ class CompetitionList extends StatelessWidget {
               criteria: [
                 AgeGroup,
                 PlayingLevel,
-                CompetitionCategory,
+                CompetitionDiscipline,
               ],
             ),
             playingLevelComparator: const CompetitionComparator<PlayingLevel>(
               criteria: [
                 PlayingLevel,
                 AgeGroup,
-                CompetitionCategory,
+                CompetitionDiscipline,
               ],
             ),
             categoryComparator:
-                const CompetitionComparator<CompetitionCategory>(
+                const CompetitionComparator<CompetitionDiscipline>(
               criteria: [
-                CompetitionCategory,
+                CompetitionDiscipline,
                 AgeGroup,
                 PlayingLevel,
               ],
@@ -61,7 +61,7 @@ class CompetitionList extends StatelessWidget {
                 Team,
                 AgeGroup,
                 PlayingLevel,
-                CompetitionCategory,
+                CompetitionDiscipline,
               ],
             ),
           ),
@@ -156,7 +156,8 @@ class _CompetitionListHeader extends StatelessWidget {
                   title: l10n.playingLevel(1),
                 ),
               ),
-              _SortableColumnHeader<CompetitionComparator<CompetitionCategory>>(
+              _SortableColumnHeader<
+                  CompetitionComparator<CompetitionDiscipline>>(
                 width: 150,
                 title: l10n.competition(1),
               ),
@@ -256,7 +257,9 @@ class _CompetitionExpansionPanel extends ExpansionPanelRadio {
             duration: const Duration(milliseconds: 150),
             width: useAgeGroups ? 200 : 0,
             child: Text(
-              display_strings.ageGroupList(l10n, competition.ageGroups),
+              competition.ageGroup != null
+                  ? display_strings.ageGroup(l10n, competition.ageGroup!)
+                  : '',
               overflow: TextOverflow.clip,
               softWrap: false,
             ),
@@ -265,7 +268,7 @@ class _CompetitionExpansionPanel extends ExpansionPanelRadio {
             duration: const Duration(milliseconds: 150),
             width: usePlayingLevels ? 300 : 0,
             child: Text(
-              display_strings.playingLevelList(competition.playingLevels),
+              competition.playingLevel?.name ?? '',
               overflow: TextOverflow.clip,
               softWrap: false,
             ),
@@ -275,7 +278,7 @@ class _CompetitionExpansionPanel extends ExpansionPanelRadio {
             child: Text(
               display_strings.competitionCategory(
                 l10n,
-                CompetitionCategory.fromCompetition(competition),
+                CompetitionDiscipline.fromCompetition(competition),
               ),
             ),
           ),

@@ -92,31 +92,31 @@ var competitionWithPlayingLevel = Competition.newCompetition(
   genderCategory: GenderCategory.mixed,
 ).copyWith(
   id: 'comp0',
-  playingLevels: [playingLevel],
+  playingLevel: playingLevel,
 );
 var competitionWithPlayingLevelAndAgeGroup = Competition.newCompetition(
   teamSize: 2,
   genderCategory: GenderCategory.mixed,
 ).copyWith(
   id: 'comp1',
-  ageGroups: [ageGroup],
-  playingLevels: [playingLevel],
+  ageGroup: ageGroup,
+  playingLevel: playingLevel,
 );
 var competitionWithPlayingLevelAndAgeGroup2 = Competition.newCompetition(
   teamSize: 1,
   genderCategory: GenderCategory.female,
 ).copyWith(
   id: 'comp2',
-  ageGroups: [ageGroup2],
-  playingLevels: [playingLevel2],
+  ageGroup: ageGroup2,
+  playingLevel: playingLevel2,
 );
 var competitionWithPlayingLevelAndAgeGroup3 = Competition.newCompetition(
   teamSize: 1,
   genderCategory: GenderCategory.male,
 ).copyWith(
   id: 'comp3',
-  ageGroups: [ageGroup],
-  playingLevels: [playingLevel2],
+  ageGroup: ageGroup,
+  playingLevel: playingLevel2,
 );
 
 void main() {

@@ -101,5 +101,8 @@
   "categoryAlreadyExists": "Für diese Kategorie wurden bereits alle Basisdisziplinen erstellt",
   "competitionAlreadyExists": "Diese Disziplin wurde bereits in einer der gewählten Kategorien erstellt",
   "chooseAtLeastN": "{count, plural, =1{Wähle min. eine {subject}} other{Wähle min. {count} {subject}}}",
-  "createCategories": "Erstelle {category}, um Disziplinen hinzufügen zu können!"
+  "createCategories": "Erstelle {category}, um Disziplinen hinzufügen zu können!",
+  "defaultPlayingLevel": "Platzhalter-Spielklasse",
+  "disableCategorization": "{categorization} nicht mehr verwenden?",
+  "mergeRegistrationsWarning": "Es existieren Meldungen in mehreren {categorization}. Durch das Entfernen der {categorization} werden die Disziplinen und ihre Meldelisten zusammengelegt.\n\nDies kann nicht rückgängig gemacht werden. Forfahren?"
 }

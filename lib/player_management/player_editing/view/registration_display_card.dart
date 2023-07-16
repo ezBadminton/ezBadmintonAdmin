@@ -75,25 +75,23 @@ class RegistrationDisplayCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    if (competition.playingLevels.isNotEmpty) ...[
+                    if (competition.playingLevel != null) ...[
                       ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 240),
                         child: Text(
-                          display_strings.playingLevelList(
-                            competition.playingLevels,
-                          ),
+                          competition.playingLevel!.name,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       divider,
                     ],
-                    if (competition.ageGroups.isNotEmpty) ...[
+                    if (competition.ageGroup != null) ...[
                       ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 140),
                         child: Text(
-                          display_strings.ageGroupList(
+                          display_strings.ageGroup(
                             l10n,
-                            competition.ageGroups,
+                            competition.ageGroup!,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
