@@ -33,7 +33,20 @@ mixin DialogCubit<S extends DialogState> on Cubit<S> {
   ///         BuildContext context,
   ///         ExampleDialogState state,
   ///         ExampleDialogReason? reason,
-  ///       ) => AlertDialog(/*build dialog with decision buttons that return bool*/),
+  ///       ) => AlertDialog(
+  ///         actions: [
+  ///           TextButton(
+  ///             // Return the choice to the Navigator.pop
+  ///             onPressed: () => Navigator.pop(context, true),
+  ///             child: Text('Confirm'),
+  ///           ),
+  ///           TextButton(
+  ///             // Return the choice to the Navigator.pop
+  ///             onPressed: () => Navigator.pop(context, false),
+  ///             child: Text('Cancel'),
+  ///           ),
+  ///         ],
+  ///       ),
   ///     ),
   ///   ),
   /// }
