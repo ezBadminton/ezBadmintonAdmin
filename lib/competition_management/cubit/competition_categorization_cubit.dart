@@ -154,7 +154,7 @@ class CompetitionCategorizationCubit
         1;
 
     if (doRegistrationsMerge) {
-      bool mergingConfirmed = (await requestDialogConfirmation(
+      bool mergingConfirmed = (await requestDialogChoice<bool>(
         reason: CategoryMergeType.ageGroupMerge,
       ))!;
       if (!mergingConfirmed) {
@@ -193,7 +193,7 @@ class CompetitionCategorizationCubit
         1;
 
     if (doRegistrationsMerge) {
-      bool mergingConfirmed = (await requestDialogConfirmation(
+      bool mergingConfirmed = (await requestDialogChoice<bool>(
         reason: CategoryMergeType.playingLevelMerge,
       ))!;
       if (!mergingConfirmed) {

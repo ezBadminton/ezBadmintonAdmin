@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// A widget listening to state emissions from the [C] cubit and opening a
-/// dialog when the `dialog` member of the state [S] changes.
+/// dialog when the `dialog` member of the state [S] changes. The dialog has
+/// to produce an object of [T] or null (see [builder]).
 ///
 /// See also:
 ///  * [DialogCubit]. The cubit that the dialog listener can listen to.
 ///  * [ConfirmDialog]. A simple widget fit for use in the [builder].
-class DialogListener<C extends DialogCubit<S>, S extends DialogState>
+class DialogListener<C extends DialogCubit<S>, S extends DialogState, T>
     extends StatelessWidget {
   const DialogListener({
     super.key,
@@ -24,9 +25,10 @@ class DialogListener<C extends DialogCubit<S>, S extends DialogState>
   /// about why the dialog was opened.
   ///
   /// After the dialog widget received a user input it has to
-  /// pop off the navigator with a bool representing the input decision
-  /// (e.g. `Navigator.pop(context, true);`).
-  /// The bool is automatically passed to the cubit that requested the dialog.
+  /// pop off the navigator with an object of type [T] representing
+  /// the input decision or null
+  /// (e.g. `Navigator.pop(context, true);` for [T] being `bool`).
+  /// The object is automatically passed to the cubit that requested the dialog.
   final Widget Function(BuildContext context, S state, Object reason) builder;
 
   final Widget? child;
@@ -36,9 +38,10 @@ class DialogListener<C extends DialogCubit<S>, S extends DialogState>
     return BlocListener<C, S>(
       listenWhen: (previous, current) =>
           previous.dialog != current.dialog &&
-          current.dialog.decisionCompleter != null,
+          current.dialog.decisionCompleter != null &&
+          current.dialog is CubitDialog<T>,
       listener: (context, state) async {
-        bool? decision = await showDialog<bool>(
+        T? decision = await showDialog<T>(
           context: context,
           barrierDismissible: false,
           useRootNavigator: false,

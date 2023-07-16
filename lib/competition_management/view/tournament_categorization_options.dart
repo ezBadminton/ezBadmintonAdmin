@@ -29,7 +29,7 @@ class TournamentCategorizationOptions extends StatelessWidget {
           loadingStatus: state.loadingStatus,
           builder: (context) {
             return DialogListener<CompetitionCategorizationCubit,
-                CompetitionCategorizationState>(
+                CompetitionCategorizationState, bool>(
               builder: (context, _, mergeType) {
                 String categorization =
                     switch (mergeType as CategoryMergeType) {

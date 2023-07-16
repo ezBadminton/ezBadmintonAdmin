@@ -1,15 +1,14 @@
 import 'dart:async';
 
-import 'package:ez_badminton_admin_app/widgets/confirm_dialog/dialog_listener.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class CubitDialog {
+class CubitDialog<T> {
   const CubitDialog({
     this.decisionCompleter,
     Object? reason,
   }) : reason = reason ?? const Object();
 
-  final Completer<bool?>? decisionCompleter;
+  final Completer<T?>? decisionCompleter;
   final Object reason;
 }
 
@@ -18,10 +17,10 @@ abstract class DialogState {
 }
 
 mixin DialogCubit<S extends DialogState> on Cubit<S> {
-  /// Wait for a boolean dialog decision.
+  /// Wait for a dialog decision yielding a [T] object or null.
   ///
-  /// This requires there to be a [DialogListener] that opens a dialog
-  /// for resolving the `Future<bool?>`.
+  /// This requires there to be a `DialogListener<DialogCubit, DialogState, T>`
+  /// that opens a dialog for resolving the `Future<T?>`.
   ///
   /// Example:
   ///
@@ -29,28 +28,28 @@ mixin DialogCubit<S extends DialogState> on Cubit<S> {
   /// BlocProvider<ExampleDialogCubit, ExampleDialogState> {
   ///   create: (_) => ExampleDialogCubit(),
   ///   child: Builder(
-  ///     builder: (context) => DialogListener<ExampleDialogCubit, ExampleDialogState, ExampleDialogReason>(
+  ///     builder: (context) => DialogListener<ExampleDialogCubit, ExampleDialogState, bool>(
   ///       builder: (
   ///         BuildContext context,
   ///         ExampleDialogState state,
   ///         ExampleDialogReason? reason,
-  ///       ) => AlertDialog(/*build dialog with decision buttons*/),
+  ///       ) => AlertDialog(/*build dialog with decision buttons that return bool*/),
   ///     ),
   ///   ),
   /// }
   /// ```
   ///
   /// With this widget tree you could have a method in the `ExampleDialogCubit`
-  /// that can await user input by calling [requestDialogConfirmation].
+  /// that can await user input by calling [requestDialogChoice].
   ///
   /// The [reason] parameter can be used to pass an object holding information
   /// about why the dialog popped up to the dialog builder. When omitted a
   /// plain [Object] is passed.
-  Future<bool?> requestDialogConfirmation({
+  Future<T?> requestDialogChoice<T>({
     Object reason = const Object(),
   }) async {
-    CubitDialog dialog = CubitDialog(
-      decisionCompleter: Completer<bool>(),
+    CubitDialog dialog = CubitDialog<T>(
+      decisionCompleter: Completer<T?>(),
       reason: reason,
     );
     // Have to assume copyWith exists and has dialog parameter

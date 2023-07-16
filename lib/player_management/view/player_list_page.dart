@@ -550,7 +550,7 @@ class _PlayerDeleteButton extends StatelessWidget {
   Widget build(BuildContext context) {
     AppLocalizations l10n = AppLocalizations.of(context)!;
     PlayerDeleteCubit cubit = context.read<PlayerDeleteCubit>();
-    return DialogListener<PlayerDeleteCubit, PlayerDeleteState>(
+    return DialogListener<PlayerDeleteCubit, PlayerDeleteState, bool>(
       builder: (context, state, reason) => ConfirmDialog(
         title: Text(l10n.reallyDeletePlayer),
         confirmButtonLabel: l10n.confirm,

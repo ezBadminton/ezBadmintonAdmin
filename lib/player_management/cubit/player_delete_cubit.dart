@@ -28,7 +28,7 @@ class PlayerDeleteCubit extends CollectionQuerierCubit<PlayerDeleteState>
     }
     emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
-    bool deletionConfirmed = (await requestDialogConfirmation())!;
+    bool deletionConfirmed = (await requestDialogChoice<bool>())!;
     if (!deletionConfirmed) {
       emit(state.copyWith(formStatus: FormzSubmissionStatus.canceled));
       return;
