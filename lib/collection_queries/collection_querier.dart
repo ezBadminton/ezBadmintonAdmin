@@ -122,6 +122,20 @@ class CollectionQuerier {
     }
   }
 
+  /// Creates a list of models
+  ///
+  /// Resolves to a list of the created models
+  Future<List<M?>> createModels<M extends Model>(
+    List<M> models, {
+    ExpansionTree? expand,
+  }) async {
+    Iterable<Future<M?>> modelCreations =
+        models.map((model) => createModel(model));
+    List<M?> createdModels = await Future.wait(modelCreations);
+
+    return createdModels;
+  }
+
   /// Updates a model in its collection on the DB.
   ///
   /// On success the Future resolves to the [Model] of type [M] with its
@@ -158,6 +172,24 @@ class CollectionQuerier {
     }
   }
 
+  /// Updates a list of models
+  ///
+  /// Resolves to a list of the updated models
+  Future<List<M?>> updateModels<M extends Model>(
+    List<M> models, {
+    ExpansionTree? expand,
+  }) async {
+    // This just calls [updateModel] for each list item. Sadly pocketbase
+    // doesn't support transactional bulk operations yet. Keep an eye on
+    // https://github.com/pocketbase/pocketbase/issues/48 where this will be
+    // added.
+    Iterable<Future<M?>> modelUpdates =
+        models.map((model) => updateModel(model, expand: expand));
+    List<M?> updatedModels = await Future.wait(modelUpdates);
+
+    return updatedModels;
+  }
+
   /// Deletes a model from its collection on the DB.
   ///
   /// On success the future resolves to `true` otherwise `false`.
@@ -175,6 +207,17 @@ class CollectionQuerier {
     } on CollectionQueryException {
       return false;
     }
+  }
+
+  /// Deletes a list of models
+  ///
+  /// Resolves to `true` when all models have successfully been deleted
+  Future<bool> deleteModels<M extends Model>(List<M> deletedModels) async {
+    Iterable<Future<bool>> modelDeletions =
+        deletedModels.map((model) => deleteModel(model));
+    List<bool> modelsDeleted = await Future.wait(modelDeletions);
+
+    return !modelsDeleted.contains(false);
   }
 }
 
