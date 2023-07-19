@@ -1,6 +1,10 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/playing_level_editing/cubit/playing_level_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/constants.dart';
+import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
+import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
+import 'package:ez_badminton_admin_app/widgets/dialogs/dropdown_selection_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/mouse_hover_builder/mouse_hover_builder.dart';
 import 'package:ez_badminton_admin_app/widgets/implicit_animated_list/reorderable_implicit_animated_list.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
@@ -21,6 +25,7 @@ class PlayingLevelEditingPopup extends StatelessWidget {
             context.read<CollectionRepository<PlayingLevel>>(),
         competitionRepository:
             context.read<CollectionRepository<Competition>>(),
+        teamRepository: context.read<CollectionRepository<Team>>(),
       ),
       child: Dialog(
         child: ConstrainedBox(
@@ -106,31 +111,76 @@ class _PlayingLevelList extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
     var cubit = context.read<PlayingLevelEditingCubit>();
-    return BlocBuilder<PlayingLevelEditingCubit, PlayingLevelEditingState>(
-      buildWhen: (previous, current) =>
-          previous.loadingStatus != current.loadingStatus ||
-          previous.displayPlayingLevels != current.displayPlayingLevels ||
-          previous.formInteractable != current.formInteractable,
-      builder: (context, state) {
-        return LoadingScreen(
-          loadingStatus: _getLoadingStatus(state),
-          builder: (context) => SizedBox(
-            height: 300,
-            child: ReorderableImplicitAnimatedList<PlayingLevel>(
-              elements: state.displayPlayingLevels,
-              onReorder: cubit.playingLevelsReordered,
-              draggingEnabled: state.formInteractable,
-              duration: const Duration(milliseconds: 120),
-              itemBuilder: _itemBuilder,
-              itemReorderBuilder: _itemReorderBuilder,
-              itemDragBuilder: _itemDragBuilder,
-              itemPlaceholderBuilder: _itemPlaceholderBuilder,
-              elementsEqual: _playingLevelsEqual,
-              reorderTooltip: l10n.reorder,
+    return DialogListener<PlayingLevelEditingCubit, PlayingLevelEditingState,
+        bool>(
+      builder: (context, state, playingLevel) => ConfirmDialog(
+        title: Text(l10n.deleteSubjectQuestion(l10n.playingLevel(1))),
+        content: SizedBox(
+          width: 500,
+          child: Text(l10n.deleteCategoryWarning(
+            l10n.playingLevel(1),
+            (playingLevel as PlayingLevel).name,
+          )),
+        ),
+        confirmButtonLabel: l10n.confirm,
+        cancelButtonLabel: l10n.cancel,
+      ),
+      child: DialogListener<PlayingLevelEditingCubit, PlayingLevelEditingState,
+          PlayingLevel>(
+        builder: (context, state, removedPlayingLevel) {
+          PlayingLevel noSelectionPlayingLevel =
+              PlayingLevel.newPlayingLevel('', -1);
+          List<PlayingLevel> replacementOptions = state
+              .getCollection<PlayingLevel>()
+              .whereNot((playingLevel) => playingLevel == removedPlayingLevel)
+              .toList()
+            ..insert(0, noSelectionPlayingLevel);
+          return DropdownSelectionDialog<PlayingLevel>(
+            title: Text(l10n.deleteSubjectQuestion(l10n.playingLevel(1))),
+            content: SizedBox(
+              width: 500,
+              child: Text(l10n.deleteAndMergeCategoryWarning(
+                l10n.playingLevel(1),
+                (removedPlayingLevel as PlayingLevel).name,
+              )),
             ),
-          ),
-        );
-      },
+            options: replacementOptions,
+            displayStringFunction: (playingLevel) =>
+                playingLevel.id.isEmpty ? l10n.noSelection : playingLevel.name,
+            confirmButtonLabelFunction: (selectedPlayingLevel) =>
+                selectedPlayingLevel.id.isEmpty
+                    ? l10n.continueWithoutSelection
+                    : l10n.confirm,
+            cancelButtonLabel: l10n.cancel,
+          );
+        },
+        child: BlocBuilder<PlayingLevelEditingCubit, PlayingLevelEditingState>(
+          buildWhen: (previous, current) =>
+              previous.loadingStatus != current.loadingStatus ||
+              previous.displayPlayingLevels != current.displayPlayingLevels ||
+              previous.formInteractable != current.formInteractable,
+          builder: (context, state) {
+            return LoadingScreen(
+              loadingStatus: _getLoadingStatus(state),
+              builder: (context) => SizedBox(
+                height: 300,
+                child: ReorderableImplicitAnimatedList<PlayingLevel>(
+                  elements: state.displayPlayingLevels,
+                  onReorder: cubit.playingLevelsReordered,
+                  draggingEnabled: state.formInteractable,
+                  duration: const Duration(milliseconds: 120),
+                  itemBuilder: _itemBuilder,
+                  itemReorderBuilder: _itemReorderBuilder,
+                  itemDragBuilder: _itemDragBuilder,
+                  itemPlaceholderBuilder: _itemPlaceholderBuilder,
+                  elementsEqual: _playingLevelsEqual,
+                  reorderTooltip: l10n.reorder,
+                ),
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 

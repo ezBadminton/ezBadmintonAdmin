@@ -88,6 +88,7 @@
   "editSubject": "{subject} bearbeiten",
   "addSubject": "{subject} hinzufügen",
   "deleteSubject": "{subject} löschen",
+  "deleteSubjectQuestion": "{subject} löschen?",
   "nameSubject": "{subject} benennen",
   "reorder": "Umordnen",
   "rename": "Umbenennen",
@@ -104,5 +105,10 @@
   "createCategories": "Erstelle {category}, um Disziplinen hinzufügen zu können!",
   "defaultPlayingLevel": "Platzhalter-Spielklasse",
   "disableCategorization": "{categorization} nicht mehr verwenden?",
-  "mergeRegistrationsWarning": "Es existieren Meldungen in mehreren {categorization}. Durch das Entfernen der {categorization} werden die Disziplinen und ihre Meldelisten zusammengelegt.\n\nDies kann nicht rückgängig gemacht werden. Forfahren?"
+  "mergeRegistrationsWarning": "Es existieren Meldungen in mehreren {categorization}. Durch das Entfernen der {categorization} werden die Disziplinen und ihre Meldelisten zusammengelegt.\n\nDies kann nicht rückgängig gemacht werden. Forfahren?",
+  "deleteCategoryWarning": "Durch das Löschen der {category} {categoryName} werden auch die entsprechenden Disziplinen gelöscht.\n\nFortfahren?",
+  "selection": "Auswahl",
+  "noSelection": "Keine Auswahl",
+  "continueWithoutSelection": "Ohne Auswahl fortfahren",
+  "deleteAndMergeCategoryWarning": "Durch das Löschen der {category} {categoryName} werden auch die entsprechenden Disziplinen inkl. Meldelisten gelöscht.\nEs kann eine andere {category} ausgewählt werden, in die die Meldelisten übernommen werden:"
 }

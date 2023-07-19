@@ -1,4 +1,8 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
+import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
+import 'package:ez_badminton_admin_app/widgets/dialogs/dropdown_selection_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/implicit_animated_list/implicit_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,6 +23,7 @@ class AgeGroupEditingPopup extends StatelessWidget {
         ageGroupRepository: context.read<CollectionRepository<AgeGroup>>(),
         competitionRepository:
             context.read<CollectionRepository<Competition>>(),
+        teamRepository: context.read<CollectionRepository<Team>>(),
       ),
       child: Dialog(
         child: ConstrainedBox(
@@ -50,32 +55,80 @@ class _AgeGroupList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AgeGroupEditingCubit, AgeGroupEditingState>(
-      buildWhen: (previous, current) =>
-          previous.isDeletable != current.isDeletable ||
-          previous.getCollection<AgeGroup>() !=
-              current.getCollection<AgeGroup>(),
-      builder: (context, state) {
-        List<AgeGroup> ageGroups =
-            state.collections[AgeGroup] as List<AgeGroup>? ?? [];
-        return SizedBox(
-          height: 300,
-          child: ImplicitAnimatedList<AgeGroup>(
-            elements: ageGroups,
-            duration: const Duration(milliseconds: 120),
-            itemBuilder: (context, ageGroup, animation) {
-              return SizeTransition(
-                sizeFactor: animation,
-                child: _AgeGroupListItem(
-                  ageGroup: ageGroup,
-                  index: ageGroups.indexOf(ageGroup),
-                  deletable: state.isDeletable,
-                ),
-              );
-            },
-          ),
-        );
-      },
+    var l10n = AppLocalizations.of(context)!;
+    return DialogListener<AgeGroupEditingCubit, AgeGroupEditingState, bool>(
+      builder: (context, state, ageGroup) => ConfirmDialog(
+        title: Text(l10n.deleteSubjectQuestion(l10n.ageGroup(1))),
+        content: SizedBox(
+          width: 500,
+          child: Text(l10n.deleteCategoryWarning(
+            l10n.ageGroup(1),
+            display_strings.ageGroup(l10n, ageGroup as AgeGroup),
+          )),
+        ),
+        confirmButtonLabel: l10n.confirm,
+        cancelButtonLabel: l10n.cancel,
+      ),
+      child:
+          DialogListener<AgeGroupEditingCubit, AgeGroupEditingState, AgeGroup>(
+        builder: (context, state, removedAgeGroup) {
+          AgeGroup noSelectionAgeGroup = AgeGroup.newAgeGroup(
+            type: AgeGroupType.under,
+            age: 0,
+          );
+          List<AgeGroup> replacementOptions = state
+              .getCollection<AgeGroup>()
+              .whereNot((ageGroup) => ageGroup == removedAgeGroup)
+              .toList()
+            ..insert(0, noSelectionAgeGroup);
+          return DropdownSelectionDialog<AgeGroup>(
+            title: Text(l10n.deleteSubjectQuestion(l10n.ageGroup(1))),
+            content: SizedBox(
+              width: 500,
+              child: Text(l10n.deleteAndMergeCategoryWarning(
+                l10n.ageGroup(1),
+                display_strings.ageGroup(l10n, removedAgeGroup as AgeGroup),
+              )),
+            ),
+            options: replacementOptions,
+            displayStringFunction: (ageGroup) => ageGroup.id.isEmpty
+                ? l10n.noSelection
+                : display_strings.ageGroup(l10n, ageGroup),
+            confirmButtonLabelFunction: (selectedAgeGroup) =>
+                selectedAgeGroup.id.isEmpty
+                    ? l10n.continueWithoutSelection
+                    : l10n.confirm,
+            cancelButtonLabel: l10n.cancel,
+          );
+        },
+        child: BlocBuilder<AgeGroupEditingCubit, AgeGroupEditingState>(
+          buildWhen: (previous, current) =>
+              previous.isDeletable != current.isDeletable ||
+              previous.getCollection<AgeGroup>() !=
+                  current.getCollection<AgeGroup>(),
+          builder: (context, state) {
+            List<AgeGroup> ageGroups =
+                state.collections[AgeGroup] as List<AgeGroup>? ?? [];
+            return SizedBox(
+              height: 300,
+              child: ImplicitAnimatedList<AgeGroup>(
+                elements: ageGroups,
+                duration: const Duration(milliseconds: 120),
+                itemBuilder: (context, ageGroup, animation) {
+                  return SizeTransition(
+                    sizeFactor: animation,
+                    child: _AgeGroupListItem(
+                      ageGroup: ageGroup,
+                      index: ageGroups.indexOf(ageGroup),
+                      deletable: state.isDeletable,
+                    ),
+                  );
+                },
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }

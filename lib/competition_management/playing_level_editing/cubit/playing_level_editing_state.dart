@@ -1,7 +1,8 @@
 part of 'playing_level_editing_cubit.dart';
 
 class PlayingLevelEditingState
-    extends CollectionFetcherState<PlayingLevelEditingState> {
+    extends CollectionFetcherState<PlayingLevelEditingState>
+    implements DialogState {
   PlayingLevelEditingState({
     this.playingLevelName = const NonEmptyInput.pure(),
     this.displayPlayingLevels = const [],
@@ -9,6 +10,7 @@ class PlayingLevelEditingState
     this.formStatus = FormzSubmissionStatus.initial,
     this.renamingPlayingLevel = const SelectionInput.dirty(),
     this.playingLevelRename = const NonEmptyInput.pure(),
+    this.dialog = const CubitDialog(),
     super.collections = const {},
   })  : formInteractable = _isFormInteractable(
           loadingStatus,
@@ -38,6 +40,9 @@ class PlayingLevelEditingState
   final SelectionInput<PlayingLevel> renamingPlayingLevel;
   final NonEmptyInput playingLevelRename;
 
+  @override
+  final CubitDialog dialog;
+
   PlayingLevelEditingState copyWith({
     NonEmptyInput? playingLevelName,
     List<PlayingLevel>? displayPlayingLevels,
@@ -45,6 +50,7 @@ class PlayingLevelEditingState
     FormzSubmissionStatus? formStatus,
     SelectionInput<PlayingLevel>? renamingPlayingLevel,
     NonEmptyInput? playingLevelRename,
+    CubitDialog? dialog,
     Map<Type, List<Model>>? collections,
   }) =>
       PlayingLevelEditingState(
@@ -54,6 +60,7 @@ class PlayingLevelEditingState
         formStatus: formStatus ?? this.formStatus,
         renamingPlayingLevel: renamingPlayingLevel ?? this.renamingPlayingLevel,
         playingLevelRename: playingLevelRename ?? this.playingLevelRename,
+        dialog: dialog ?? this.dialog,
         collections: collections ?? this.collections,
       );
 

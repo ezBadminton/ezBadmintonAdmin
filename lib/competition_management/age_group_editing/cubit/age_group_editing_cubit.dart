@@ -1,28 +1,43 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
+import 'package:ez_badminton_admin_app/competition_management/utils/competition_queries.dart';
 import 'package:ez_badminton_admin_app/competition_management/utils/sorting.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
+import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:formz/formz.dart';
 
 part 'age_group_editing_state.dart';
 
-class AgeGroupEditingCubit
-    extends CollectionFetcherCubit<AgeGroupEditingState> {
+class AgeGroupEditingCubit extends CollectionFetcherCubit<AgeGroupEditingState>
+    with
+        DialogCubit<AgeGroupEditingState>,
+        CompetitionQueries<AgeGroupEditingState> {
   AgeGroupEditingCubit({
     required CollectionRepository<AgeGroup> ageGroupRepository,
     required CollectionRepository<Competition> competitionRepository,
+    required CollectionRepository<Team> teamRepository,
   }) : super(
           collectionRepositories: [
             ageGroupRepository,
             competitionRepository,
+            teamRepository,
           ],
           AgeGroupEditingState(),
         ) {
-    loadAgeGroups();
+    loadCollections();
+    subscribeToCollectionUpdates(
+      competitionRepository,
+      (_) => loadCollections(),
+    );
+    subscribeToCollectionUpdates(
+      teamRepository,
+      (_) => loadCollections(),
+    );
   }
 
-  void loadAgeGroups() {
+  void loadCollections() {
     if (state.loadingStatus != LoadingStatus.loading) {
       emit(state.copyWith(loadingStatus: LoadingStatus.loading));
     }
@@ -30,6 +45,7 @@ class AgeGroupEditingCubit
       [
         collectionFetcher<AgeGroup>(),
         collectionFetcher<Competition>(),
+        collectionFetcher<Team>(),
       ],
       onSuccess: (updatedState) {
         updatedState = updatedState.copyWithAgeGroupSorting();
@@ -86,7 +102,7 @@ class AgeGroupEditingCubit
       return;
     }
     emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
-    loadAgeGroups();
+    loadCollections();
   }
 
   void ageGroupRemoved(AgeGroup removedAgeGroup) async {
@@ -99,12 +115,10 @@ class AgeGroupEditingCubit
     }
     emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
-    Iterable<Competition> competitionsUsingAgeGroup = state
-        .getCollection<Competition>()
-        .where((c) => c.ageGroup == removedAgeGroup);
-    if (competitionsUsingAgeGroup.isNotEmpty) {
-      // Don't delete age groups that are used
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+    FormzSubmissionStatus competitionsManaged =
+        await manageCompetitionsOfRemovedCategory(removedAgeGroup);
+    if (competitionsManaged != FormzSubmissionStatus.success) {
+      emit(state.copyWith(formStatus: competitionsManaged));
       return;
     }
 
@@ -117,6 +131,6 @@ class AgeGroupEditingCubit
       return;
     }
     emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
-    loadAgeGroups();
+    loadCollections();
   }
 }

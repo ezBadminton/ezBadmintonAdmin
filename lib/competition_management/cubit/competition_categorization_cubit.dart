@@ -5,6 +5,7 @@ import 'package:ez_badminton_admin_app/competition_management/cubit/competition_
 import 'package:ez_badminton_admin_app/competition_management/models/competition_merge.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/playing_category.dart';
 import 'package:ez_badminton_admin_app/competition_management/utils/competition_categorization.dart';
+import 'package:ez_badminton_admin_app/competition_management/utils/competition_queries.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:formz/formz.dart';
@@ -12,7 +13,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CompetitionCategorizationCubit
     extends CollectionFetcherCubit<CompetitionCategorizationState>
-    with DialogCubit<CompetitionCategorizationState> {
+    with DialogCubit, CompetitionQueries<CompetitionCategorizationState> {
   CompetitionCategorizationCubit({
     required this.l10n,
     required CollectionRepository<Tournament> tournamentRepository,
@@ -35,6 +36,14 @@ class CompetitionCategorizationCubit
       competitionRepository,
       (_) => loadCollections(),
     );
+    subscribeToCollectionUpdates(
+      ageGroupRepository,
+      (_) => loadCollections(),
+    );
+    subscribeToCollectionUpdates(
+      playingLevelRepository,
+      (_) => loadCollections(),
+    );
   }
 
   final AppLocalizations l10n;
@@ -52,6 +61,15 @@ class CompetitionCategorizationCubit
       ],
       onSuccess: (updatedState) {
         emit(updatedState.copyWith(loadingStatus: LoadingStatus.done));
+
+        if (state.tournament.useAgeGroups &&
+            updatedState.getCollection<AgeGroup>().isEmpty) {
+          useAgeGroupsChanged(false);
+        }
+        if (state.tournament.usePlayingLevels &&
+            updatedState.getCollection<PlayingLevel>().isEmpty) {
+          usePlayingLevelsChanged(false);
+        }
       },
       onFailure: () {
         emit(state.copyWith(loadingStatus: LoadingStatus.failed));
@@ -120,13 +138,14 @@ class CompetitionCategorizationCubit
       }
     }
 
-    Iterable<Future<Competition?>> competitionUpdates = state
+    List<Competition> defaultAgeGroupCompetitions = state
         .getCollection<Competition>()
         .map((c) => c.copyWith(ageGroup: defaultAgeGroup))
-        .map((c) => querier.updateModel(c));
+        .toList();
 
-    List<Competition?> updatedCompetitions =
-        await Future.wait(competitionUpdates);
+    List<Competition?> updatedCompetitions = await querier.updateModels(
+      defaultAgeGroupCompetitions,
+    );
 
     return !updatedCompetitions.contains(null);
   }
@@ -233,47 +252,8 @@ class CompetitionCategorizationCubit
         )
         .toList();
 
-    Iterable<Future<bool>> mergeSubmissions =
-        merges.map((merge) => _submitMerge(merge));
-    List<bool> mergesSubmitted = await Future.wait(mergeSubmissions);
-    if (mergesSubmitted.contains(false)) {
-      return false;
-    }
-
-    return true;
-  }
-
-  Future<bool> _submitMerge(CompetitionMerge merge) async {
-    List<Team> mergedRegistrations = merge.adoptedTeams;
-
-    Iterable<Future<Team?>> teamCreations =
-        merge.newTeams.map((team) => querier.createModel(team));
-    List<Team?> createdTeams = await Future.wait(teamCreations);
-    if (createdTeams.contains(null)) {
-      return false;
-    }
-    mergedRegistrations.addAll(createdTeams.whereType<Team>());
-
-    Iterable<Future<bool>> teamDeletions =
-        merge.deletedTeams.map((team) => querier.deleteModel(team));
-    List<bool> teamsDeleted = await Future.wait(teamDeletions);
-    if (teamsDeleted.contains(false)) {
-      return false;
-    }
-
-    Competition mergedCompetition = merge.mergedCompetition.copyWith(
-      registrations: mergedRegistrations,
-    );
-    Competition? createdCompetition =
-        await querier.createModel(mergedCompetition);
-    if (createdCompetition == null) {
-      return false;
-    }
-
-    Iterable<Future<bool>> competitionDeletions = merge.competitions
-        .map((competition) => querier.deleteModel(competition));
-    List<bool> competitionsDeleted = await Future.wait(competitionDeletions);
-    if (competitionsDeleted.contains(false)) {
+    bool mergesSubmitted = await submitMerges(merges);
+    if (!mergesSubmitted) {
       return false;
     }
 
@@ -293,13 +273,13 @@ class CompetitionCategorizationCubit
       }
     }
 
-    Iterable<Future<Competition?>> competitionUpdates = state
+    List<Competition> defaultPlayingLevelCompetitions = state
         .getCollection<Competition>()
         .map((c) => c.copyWith(playingLevel: defaultPlayingLevel))
-        .map((c) => querier.updateModel(c));
+        .toList();
 
     List<Competition?> updatedCompetitions =
-        await Future.wait(competitionUpdates);
+        await querier.updateModels(defaultPlayingLevelCompetitions);
 
     return !updatedCompetitions.contains(null);
   }

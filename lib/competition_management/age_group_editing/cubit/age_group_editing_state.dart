@@ -1,12 +1,13 @@
 part of 'age_group_editing_cubit.dart';
 
-class AgeGroupEditingState
-    extends CollectionFetcherState<AgeGroupEditingState> {
+class AgeGroupEditingState extends CollectionFetcherState<AgeGroupEditingState>
+    implements DialogState {
   AgeGroupEditingState({
     this.ageGroupType = const SelectionInput.pure(emptyAllowed: true),
     this.age = const NoValidationInput.pure(),
     this.loadingStatus = LoadingStatus.loading,
     this.formStatus = FormzSubmissionStatus.initial,
+    this.dialog = const CubitDialog(),
     super.collections = const {},
   })  : isSubmittable = _isSubmittable(
           loadingStatus,
@@ -29,11 +30,15 @@ class AgeGroupEditingState
   final bool isSubmittable;
   final bool isDeletable;
 
+  @override
+  final CubitDialog dialog;
+
   AgeGroupEditingState copyWith({
     SelectionInput<AgeGroupType>? ageGroupType,
     NoValidationInput? age,
     LoadingStatus? loadingStatus,
     FormzSubmissionStatus? formStatus,
+    CubitDialog? dialog,
     Map<Type, List<Model>>? collections,
   }) {
     return AgeGroupEditingState(
@@ -41,6 +46,7 @@ class AgeGroupEditingState
       age: age ?? this.age,
       loadingStatus: loadingStatus ?? this.loadingStatus,
       formStatus: formStatus ?? this.formStatus,
+      dialog: dialog ?? this.dialog,
       collections: collections ?? this.collections,
     );
   }

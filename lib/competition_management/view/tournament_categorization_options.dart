@@ -2,7 +2,7 @@ import 'package:ez_badminton_admin_app/competition_management/age_group_editing/
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_categorization_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_categorization_state.dart';
 import 'package:ez_badminton_admin_app/competition_management/playing_level_editing/view/playing_level_editing_popup.dart';
-import 'package:ez_badminton_admin_app/widgets/dialog_listener/confirm_dialog.dart';
+import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/bloc_switch.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';

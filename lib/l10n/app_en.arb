@@ -88,6 +88,7 @@
   "editSubject": "Edit {subject}",
   "addSubject": "Add {subject}",
   "deleteSubject": "Delete {subject}",
+  "deleteSubjectQuestion": "Delete {subject}?",
   "nameSubject": "name {subject}",
   "reorder": "Reorder",
   "rename": "Rename",
@@ -104,6 +105,10 @@
   "createCategories": "Create {category}, to be able to add competitions!",
   "defaultPlayingLevel": "Placeholder playing level",
   "disableCategorization": "Stop using {categorization}?",
-  "mergeRegistrationsWarning": "There are registrations in multiple {categorization}. By deactivating {categorization} the competitions and their registration lists are merged.\n\nThis can't be undone. Continue?"
-
+  "mergeRegistrationsWarning": "There are registrations in multiple {categorization}. By deactivating {categorization} the competitions and their registration lists are merged.\n\nThis can't be undone. Continue?",
+  "deleteCategoryWarning": "By deleting the {category} {categoryName} the corresponding competitions are also deleted.\n\nContinue?",
+  "selection": "Selection",
+  "noSelection": "No selection",
+  "continueWithoutSelection": "Continue without selection",
+  "deleteAndMergeCategoryWarning": "By deleting the {category} {categoryName} the corresponding competitions including registrations are also deleted.\nA replacement {category} can be selected where the registrations will be transferred to:"
 }

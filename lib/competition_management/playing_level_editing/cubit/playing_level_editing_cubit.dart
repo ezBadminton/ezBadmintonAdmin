@@ -1,22 +1,29 @@
 import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
+import 'package:ez_badminton_admin_app/competition_management/utils/competition_queries.dart';
 import 'package:ez_badminton_admin_app/competition_management/utils/sorting.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
+import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:formz/formz.dart';
 
 part 'playing_level_editing_state.dart';
 
 class PlayingLevelEditingCubit
-    extends CollectionFetcherCubit<PlayingLevelEditingState> {
+    extends CollectionFetcherCubit<PlayingLevelEditingState>
+    with
+        DialogCubit<PlayingLevelEditingState>,
+        CompetitionQueries<PlayingLevelEditingState> {
   PlayingLevelEditingCubit({
     required CollectionRepository<PlayingLevel> playingLevelRepository,
     required CollectionRepository<Competition> competitionRepository,
+    required CollectionRepository<Team> teamRepository,
   }) : super(
           collectionRepositories: [
             playingLevelRepository,
             competitionRepository,
+            teamRepository,
           ],
           PlayingLevelEditingState(),
         ) {
@@ -31,6 +38,7 @@ class PlayingLevelEditingCubit
       [
         collectionFetcher<PlayingLevel>(),
         collectionFetcher<Competition>(),
+        collectionFetcher<Team>(),
       ],
       onSuccess: (updatedState) {
         updatedState = updatedState.copyWithPlayingLevelSorting();
@@ -79,12 +87,10 @@ class PlayingLevelEditingCubit
     }
     emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
-    Iterable<Competition> competitionsUsingPlayingLevel = state
-        .getCollection<Competition>()
-        .where((c) => c.playingLevel == removedPlayingLevel);
-    if (competitionsUsingPlayingLevel.isNotEmpty) {
-      // Don't delete playing levels that are used
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+    FormzSubmissionStatus competitionsManaged =
+        await manageCompetitionsOfRemovedCategory(removedPlayingLevel);
+    if (competitionsManaged != FormzSubmissionStatus.success) {
+      emit(state.copyWith(formStatus: competitionsManaged));
       return;
     }
 
@@ -217,10 +223,8 @@ class PlayingLevelEditingCubit
             playingLevel.index)
         .toList();
 
-    Iterable<Future<PlayingLevel?>> playingLevelUpdates =
-        changedPlayingLevels.map((lvl) => querier.updateModel(lvl));
     List<PlayingLevel?> updatedPlayingLevels =
-        await Future.wait(playingLevelUpdates);
+        await querier.updateModels(changedPlayingLevels);
 
     return !updatedPlayingLevels.contains(null);
   }
