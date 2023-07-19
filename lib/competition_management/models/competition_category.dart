@@ -23,4 +23,10 @@ class CompetitionDiscipline extends Equatable {
     CompetitionDiscipline(GenderCategory.male, CompetitionType.singles),
     CompetitionDiscipline(GenderCategory.mixed, CompetitionType.mixed),
   ];
+
+  static CompetitionDiscipline womensDoubles = baseCompetitions[0];
+  static CompetitionDiscipline mensDoubles = baseCompetitions[1];
+  static CompetitionDiscipline womensSingles = baseCompetitions[2];
+  static CompetitionDiscipline mensSingles = baseCompetitions[3];
+  static CompetitionDiscipline mixed = baseCompetitions[4];
 }

@@ -1,3 +1,4 @@
+import 'package:collection_repository/collection_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class HasLoadingStatus extends CustomMatcher {
@@ -141,4 +142,15 @@ class HasCompetitionTypeInput extends CustomMatcher {
         );
   @override
   featureValueOf(actual) => actual.competitionType.value;
+}
+
+class HasCollection<M extends Model> extends CustomMatcher {
+  HasCollection(matcher)
+      : super(
+          'State with collection',
+          'collection of models',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.getCollection<M>();
 }

@@ -88,6 +88,17 @@ class HasPlayingLevel extends CustomMatcher {
   featureValueOf(actual) => actual.playingLevel;
 }
 
+class HasAgeGroup extends CustomMatcher {
+  HasAgeGroup(matcher)
+      : super(
+          'Model with age group of',
+          'AgeGroup',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.ageGroup;
+}
+
 class HasName extends CustomMatcher {
   HasName(matcher)
       : super(
@@ -119,4 +130,26 @@ class HasRegistrations extends CustomMatcher {
         );
   @override
   featureValueOf(actual) => actual.registrations;
+}
+
+class HasAgeGroupCategorization extends CustomMatcher {
+  HasAgeGroupCategorization(matcher)
+      : super(
+          'Tournament using age groups',
+          'bool',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.useAgeGroups;
+}
+
+class HasPlayingLevelCategorization extends CustomMatcher {
+  HasPlayingLevelCategorization(matcher)
+      : super(
+          'Tournament using playing levels',
+          'bool',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.usePlayingLevels;
 }
