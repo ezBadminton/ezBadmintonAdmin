@@ -103,7 +103,7 @@ class CompetitionCategorizationCubit
 
     bool ageGroupsUpdated = true;
     if (!state.tournament.useAgeGroups && updatedTournament.useAgeGroups) {
-      ageGroupsUpdated = await _enableCompetitionAgeGroups();
+      ageGroupsUpdated = await _setDefaultAgeGroup();
     } else if (state.tournament.useAgeGroups &&
         !updatedTournament.useAgeGroups) {
       ageGroupsUpdated = await _disableCompetitionAgeGroups();
@@ -115,7 +115,7 @@ class CompetitionCategorizationCubit
     bool playingLevelsUpdated = true;
     if (!state.tournament.usePlayingLevels &&
         updatedTournament.usePlayingLevels) {
-      playingLevelsUpdated = await _enableCompetitionPlayingLevels();
+      playingLevelsUpdated = await _setDefaultPlayingLevel();
     } else if (state.tournament.usePlayingLevels &&
         !updatedTournament.usePlayingLevels) {
       playingLevelsUpdated = await _disableCompetitionPlayingLevels();
@@ -127,7 +127,7 @@ class CompetitionCategorizationCubit
     return true;
   }
 
-  Future<bool> _enableCompetitionAgeGroups() async {
+  Future<bool> _setDefaultAgeGroup() async {
     List<AgeGroup> ageGroupCollection = state.getCollection<AgeGroup>();
 
     AgeGroup? defaultAgeGroup = ageGroupCollection.firstOrNull;
@@ -187,6 +187,30 @@ class CompetitionCategorizationCubit
     }
 
     return true;
+  }
+
+  Future<bool> _setDefaultPlayingLevel() async {
+    List<PlayingLevel> playingLevelCollection =
+        state.getCollection<PlayingLevel>();
+
+    PlayingLevel? defaultPlayingLevel = playingLevelCollection
+        .firstWhereOrNull((lvl) => lvl.name == l10n.defaultPlayingLevel);
+    if (defaultPlayingLevel == null) {
+      defaultPlayingLevel = await _createDefaultPlayingLevel();
+      if (defaultPlayingLevel == null) {
+        return false;
+      }
+    }
+
+    List<Competition> defaultPlayingLevelCompetitions = state
+        .getCollection<Competition>()
+        .map((c) => c.copyWith(playingLevel: defaultPlayingLevel))
+        .toList();
+
+    List<Competition?> updatedCompetitions =
+        await querier.updateModels(defaultPlayingLevelCompetitions);
+
+    return !updatedCompetitions.contains(null);
   }
 
   Future<bool> _disableCompetitionPlayingLevels() async {
@@ -258,30 +282,6 @@ class CompetitionCategorizationCubit
     }
 
     return true;
-  }
-
-  Future<bool> _enableCompetitionPlayingLevels() async {
-    List<PlayingLevel> playingLevelCollection =
-        state.getCollection<PlayingLevel>();
-
-    PlayingLevel? defaultPlayingLevel = playingLevelCollection
-        .firstWhereOrNull((lvl) => lvl.name == l10n.defaultPlayingLevel);
-    if (defaultPlayingLevel == null) {
-      defaultPlayingLevel = await _createDefaultPlayingLevel();
-      if (defaultPlayingLevel == null) {
-        return false;
-      }
-    }
-
-    List<Competition> defaultPlayingLevelCompetitions = state
-        .getCollection<Competition>()
-        .map((c) => c.copyWith(playingLevel: defaultPlayingLevel))
-        .toList();
-
-    List<Competition?> updatedCompetitions =
-        await querier.updateModels(defaultPlayingLevelCompetitions);
-
-    return !updatedCompetitions.contains(null);
   }
 
   Future<AgeGroup?> _createDefaultAgeGroup() async {
