@@ -67,7 +67,7 @@ void main() {
     );
 
     blocTest<AuthenticationBloc, AuthenticationState>(
-      """emits [AuthenticationState.authenticated(User('userid'))] when 
+      """emits [AuthenticationState.authenticated(User('userid'))] when
       AuthenticationRepository streams AuthenticationStatus.authenticated""",
       setUp: () => arrangeAuthenticationRepositoryStreams(
           [AuthenticationStatus.authenticated]),
@@ -81,7 +81,7 @@ void main() {
     );
 
     blocTest<AuthenticationBloc, AuthenticationState>(
-      """calls AuthenticationRepository.logOut when 
+      """calls AuthenticationRepository.logOut when
       [AuthenticationLogoutRequested] is added""",
       setUp: () => arrangeAuthenticationRepositoryStreams(
           [AuthenticationStatus.authenticated]),

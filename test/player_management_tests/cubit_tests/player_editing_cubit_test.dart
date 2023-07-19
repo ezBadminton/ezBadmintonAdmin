@@ -12,8 +12,8 @@ import 'package:formz/formz.dart';
 import 'package:intl/intl.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../common_matchers/model_matchers.dart';
-import '../common_matchers/state_matchers.dart';
+import '../../common_matchers/model_matchers.dart';
+import '../../common_matchers/state_matchers.dart';
 
 class MockCollectionRepository<M extends Model> extends Mock
     implements PocketbaseCollectionRepository<M> {}

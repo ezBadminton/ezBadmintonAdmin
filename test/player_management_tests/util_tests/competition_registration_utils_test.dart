@@ -6,7 +6,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:ez_badminton_admin_app/player_management/utils/competition_registration.dart'
     as sut;
 
-import '../common_matchers/model_matchers.dart';
+import '../../common_matchers/model_matchers.dart';
 
 class MockCollectionQuerier extends Mock implements CollectionQuerier {}
 
