@@ -110,6 +110,17 @@ class HasName extends CustomMatcher {
   featureValueOf(actual) => actual.name;
 }
 
+class HasIndex extends CustomMatcher {
+  HasIndex(matcher)
+      : super(
+          'Model with index of',
+          'int',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.index;
+}
+
 class HasPlayers extends CustomMatcher {
   HasPlayers(matcher)
       : super(

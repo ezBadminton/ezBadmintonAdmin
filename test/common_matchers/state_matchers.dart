@@ -165,3 +165,25 @@ class HasComparator extends CustomMatcher {
   @override
   featureValueOf(actual) => actual.sortingComparator;
 }
+
+class HasDialog extends CustomMatcher {
+  HasDialog(matcher)
+      : super(
+          'DialogState with dialog',
+          'CubitDialog',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.dialog;
+}
+
+class HasDialogCompleter extends CustomMatcher {
+  HasDialogCompleter(matcher)
+      : super(
+          'CubitDialog with decisionCompleter',
+          'Completer',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.decisionCompleter;
+}
