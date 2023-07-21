@@ -154,3 +154,14 @@ class HasCollection<M extends Model> extends CustomMatcher {
   @override
   featureValueOf(actual) => actual.getCollection<M>();
 }
+
+class HasComparator extends CustomMatcher {
+  HasComparator(matcher)
+      : super(
+          'State with sorting comparator',
+          'ListSortingComparator',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.sortingComparator;
+}

@@ -209,7 +209,7 @@ class PlayingLevelEditingCubit
     return updatedPlayingLevels;
   }
 
-  /// Finds [PlayingLevels] where the `index` was changed in
+  /// Finds [PlayingLevel]s where the `index` was changed in
   /// [reorderedPlayingLevels] and updates those on the DB.
   Future<bool> _updateReorderedPlayingLevels(
     List<PlayingLevel> reorderedPlayingLevels,
