@@ -34,14 +34,14 @@ class CompetitionAdditionPreview extends StatelessWidget {
           usePlayingLevels,
           state.ageGroups,
           state.playingLevels,
-          state.competitionCategories,
+          state.competitionDisciplines,
         );
 
         int numAgeGroups = useAgeGroups ? state.ageGroups.length : 1;
         int numPlayingLevels =
             usePlayingLevels ? state.playingLevels.length : 1;
         int numNewCategories = numAgeGroups * numPlayingLevels;
-        int numBaseDisciplines = state.competitionCategories.length;
+        int numBaseDisciplines = state.competitionDisciplines.length;
         int numNewCompetitions = numNewCategories * numBaseDisciplines;
 
         return Column(

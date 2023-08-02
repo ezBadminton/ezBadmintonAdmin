@@ -239,12 +239,12 @@ class _CompetitionCategorySelectionForm extends StatelessWidget {
           title: _OptionGroupTitle(
             title: l10n.baseCompetition(2),
             selectionHint: l10n.chooseAtLeastN(1, l10n.baseCompetition(1)),
-            showSelectionHint: state.competitionCategories.isEmpty,
+            showSelectionHint: state.competitionDisciplines.isEmpty,
           ),
           elements: CompetitionDiscipline.baseCompetitions,
-          enabledElements: state.competitionCategories,
-          onToggle: cubit.competitionCategoryToggled,
-          invertSuperCheckbox: state.disabledCompetitionCategories.isNotEmpty,
+          enabledElements: state.competitionDisciplines,
+          onToggle: cubit.competitionDisciplineToggled,
+          invertSuperCheckbox: state.disabledCompetitionDisciplines.isNotEmpty,
           groupBuilder: (
             context,
             competitionCategories,
@@ -261,10 +261,10 @@ class _CompetitionCategorySelectionForm extends StatelessWidget {
                 competitionCategory,
               ),
               isEnabled: (competitionCategory) => !state
-                  .disabledCompetitionCategories
+                  .disabledCompetitionDisciplines
                   .contains(competitionCategory),
               tooltipFunction: (competitionCategory) => state
-                      .disabledCompetitionCategories
+                      .disabledCompetitionDisciplines
                       .contains(competitionCategory)
                   ? l10n.competitionAlreadyExists
                   : '',

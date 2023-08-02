@@ -7,16 +7,16 @@ class CompetitionAddingState
     this.formStatus = FormzSubmissionStatus.initial,
     this.ageGroups = const [],
     this.playingLevels = const [],
-    this.competitionCategories = CompetitionDiscipline.baseCompetitions,
+    this.competitionDisciplines = CompetitionDiscipline.baseCompetitions,
     this.disabledAgeGroups = const {},
     this.disabledPlayingLevels = const {},
-    this.disabledCompetitionCategories = const {},
+    this.disabledCompetitionDisciplines = const {},
     super.collections = const {},
   }) : submittable = _isSubmittable(
           collections[Tournament]?.first as Tournament?,
           ageGroups,
           playingLevels,
-          competitionCategories,
+          competitionDisciplines,
         );
 
   final LoadingStatus loadingStatus;
@@ -24,11 +24,11 @@ class CompetitionAddingState
 
   final List<AgeGroup> ageGroups;
   final List<PlayingLevel> playingLevels;
-  final List<CompetitionDiscipline> competitionCategories;
+  final List<CompetitionDiscipline> competitionDisciplines;
 
   final Set<AgeGroup> disabledAgeGroups;
   final Set<PlayingLevel> disabledPlayingLevels;
-  final Set<CompetitionDiscipline> disabledCompetitionCategories;
+  final Set<CompetitionDiscipline> disabledCompetitionDisciplines;
 
   final bool submittable;
 
@@ -37,10 +37,10 @@ class CompetitionAddingState
     FormzSubmissionStatus? formStatus,
     List<AgeGroup>? ageGroups,
     List<PlayingLevel>? playingLevels,
-    List<CompetitionDiscipline>? competitionCategories,
+    List<CompetitionDiscipline>? competitionDisciplines,
     Set<AgeGroup>? disabledAgeGroups,
     Set<PlayingLevel>? disabledPlayingLevels,
-    Set<CompetitionDiscipline>? disabledCompetitionCategories,
+    Set<CompetitionDiscipline>? disabledCompetitionDisciplines,
     Map<Type, List<Model>>? collections,
   }) {
     return CompetitionAddingState(
@@ -48,13 +48,13 @@ class CompetitionAddingState
       formStatus: formStatus ?? this.formStatus,
       ageGroups: ageGroups ?? this.ageGroups,
       playingLevels: playingLevels ?? this.playingLevels,
-      competitionCategories:
-          competitionCategories ?? this.competitionCategories,
+      competitionDisciplines:
+          competitionDisciplines ?? this.competitionDisciplines,
       disabledAgeGroups: disabledAgeGroups ?? this.disabledAgeGroups,
       disabledPlayingLevels:
           disabledPlayingLevels ?? this.disabledPlayingLevels,
-      disabledCompetitionCategories:
-          disabledCompetitionCategories ?? this.disabledCompetitionCategories,
+      disabledCompetitionDisciplines:
+          disabledCompetitionDisciplines ?? this.disabledCompetitionDisciplines,
       collections: collections ?? this.collections,
     );
   }
@@ -63,7 +63,7 @@ class CompetitionAddingState
     Tournament? tournament,
     List<AgeGroup> ageGroups,
     List<PlayingLevel> playingLevels,
-    List<CompetitionDiscipline> competitionCategories,
+    List<CompetitionDiscipline> competitionDisciplines,
   ) {
     if (tournament == null) {
       return false;
@@ -73,6 +73,6 @@ class CompetitionAddingState
 
     return useAgeGroups == ageGroups.isNotEmpty &&
         usePlayingLevels == playingLevels.isNotEmpty &&
-        competitionCategories.isNotEmpty;
+        competitionDisciplines.isNotEmpty;
   }
 }

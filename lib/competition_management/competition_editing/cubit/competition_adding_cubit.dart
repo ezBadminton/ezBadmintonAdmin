@@ -74,15 +74,15 @@ class CompetitionAddingCubit
     emit(newState);
   }
 
-  void competitionCategoryToggled(CompetitionDiscipline competitionCategory) {
-    if (state.disabledCompetitionCategories.contains(competitionCategory)) {
+  void competitionDisciplineToggled(CompetitionDiscipline competitionCategory) {
+    if (state.disabledCompetitionDisciplines.contains(competitionCategory)) {
       return;
     }
     List<CompetitionDiscipline> newCompetitionCategories =
-        List.of(state.competitionCategories);
+        List.of(state.competitionDisciplines);
     _optionToggle(newCompetitionCategories, competitionCategory);
     var newState = state.copyWith(
-      competitionCategories: newCompetitionCategories,
+      competitionDisciplines: newCompetitionCategories,
     );
     newState = _unselectDisabledOptions(newState);
     emit(newState);
@@ -100,7 +100,7 @@ class CompetitionAddingCubit
     List<Competition> newCompetitions = [
       for (PlayingCategory category in selectedCategories)
         for (CompetitionDiscipline baseCompetition
-            in state.competitionCategories)
+            in state.competitionDisciplines)
           Competition.newCompetition(
             teamSize: baseCompetition.competitionType == CompetitionType.singles
                 ? 1
@@ -217,7 +217,7 @@ class CompetitionAddingCubit
         : {};
 
     var newState = state.copyWith(
-      disabledCompetitionCategories: disabledBaseCompetitions,
+      disabledCompetitionDisciplines: disabledBaseCompetitions,
       disabledAgeGroups: disabledAgeGroups,
       disabledPlayingLevels: disabledPlayingLevels,
     );
@@ -241,18 +241,18 @@ class CompetitionAddingCubit
           (playingLevel) => state.disabledPlayingLevels.contains(playingLevel),
         )
         .toList();
-    List<CompetitionDiscipline> competitionCategories = state
-        .competitionCategories
-        .whereNot(
-          (competitionCategory) =>
-              state.disabledCompetitionCategories.contains(competitionCategory),
-        )
-        .toList();
+    List<CompetitionDiscipline> competitionCategories =
+        state.competitionDisciplines
+            .whereNot(
+              (competitionCategory) => state.disabledCompetitionDisciplines
+                  .contains(competitionCategory),
+            )
+            .toList();
 
     return state.copyWith(
       ageGroups: ageGroups,
       playingLevels: playingLevel,
-      competitionCategories: competitionCategories,
+      competitionDisciplines: competitionCategories,
     );
   }
 
