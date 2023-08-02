@@ -324,6 +324,7 @@ void main() {
           HasDisabledAgeGroups(isEmpty),
           HasDisabledPlayingLevels(isEmpty),
           HasDisabledCompetitionDisciplines([CompetitionDiscipline.mixed]),
+          HasSelectedAgeGroups(isNot(contains([CompetitionDiscipline.mixed]))),
         ),
       ],
     );
