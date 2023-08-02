@@ -9,7 +9,7 @@ class AgeGroupEditingState extends CollectionFetcherState<AgeGroupEditingState>
     this.formStatus = FormzSubmissionStatus.initial,
     this.dialog = const CubitDialog(),
     super.collections = const {},
-  })  : isSubmittable = _isSubmittable(
+  })  : formSubmittable = _isSubmittable(
           loadingStatus,
           formStatus,
           ageGroupType.value,
@@ -27,7 +27,7 @@ class AgeGroupEditingState extends CollectionFetcherState<AgeGroupEditingState>
   final LoadingStatus loadingStatus;
   final FormzSubmissionStatus formStatus;
 
-  final bool isSubmittable;
+  final bool formSubmittable;
   final bool isDeletable;
 
   @override

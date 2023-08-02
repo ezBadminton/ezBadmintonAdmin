@@ -164,3 +164,25 @@ class HasPlayingLevelCategorization extends CustomMatcher {
   @override
   featureValueOf(actual) => actual.usePlayingLevels;
 }
+
+class HasAgeGroupType extends CustomMatcher {
+  HasAgeGroupType(matcher)
+      : super(
+          'AgeGroup with',
+          'AgeGroupType',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.type;
+}
+
+class HasAge extends CustomMatcher {
+  HasAge(matcher)
+      : super(
+          'Model with age of',
+          'int',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.age;
+}

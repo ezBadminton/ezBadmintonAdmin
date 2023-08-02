@@ -54,17 +54,6 @@ class HasPlayingLevelRename extends CustomMatcher {
   featureValueOf(actual) => actual.playingLevelRename.value;
 }
 
-class IsFormSubmittable extends CustomMatcher {
-  IsFormSubmittable(matcher)
-      : super(
-          'State that is submittable',
-          'bool',
-          matcher,
-        );
-  @override
-  featureValueOf(actual) => actual.formSubmittable;
-}
-
 List<PlayingLevel> playingLevels = List.generate(
   3,
   (index) => PlayingLevel.newPlayingLevel(

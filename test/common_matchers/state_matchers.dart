@@ -187,3 +187,14 @@ class HasDialogCompleter extends CustomMatcher {
   @override
   featureValueOf(actual) => actual.decisionCompleter;
 }
+
+class IsFormSubmittable extends CustomMatcher {
+  IsFormSubmittable(matcher)
+      : super(
+          'State that is submittable',
+          'bool',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.formSubmittable;
+}

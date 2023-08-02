@@ -75,7 +75,7 @@ class AgeGroupEditingCubit extends CollectionFetcherCubit<AgeGroupEditingState>
   }
 
   void ageGroupSubmitted() {
-    if (!state.isSubmittable) {
+    if (!state.formSubmittable) {
       return;
     }
 

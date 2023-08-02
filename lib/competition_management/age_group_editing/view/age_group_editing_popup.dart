@@ -247,7 +247,7 @@ class _AgeGroupForm extends StatelessWidget {
                 controller: _controller,
                 focusNode: _focus,
                 onSubmitted: (_) {
-                  if (state.isSubmittable) {
+                  if (state.formSubmittable) {
                     cubit.ageGroupSubmitted();
                   }
                 },
@@ -268,7 +268,7 @@ class _AgeGroupForm extends StatelessWidget {
             ),
             const SizedBox(width: 20),
             ElevatedButton(
-              onPressed: state.isSubmittable ? cubit.ageGroupSubmitted : null,
+              onPressed: state.formSubmittable ? cubit.ageGroupSubmitted : null,
               child: Text(l10n.add),
             ),
           ],
