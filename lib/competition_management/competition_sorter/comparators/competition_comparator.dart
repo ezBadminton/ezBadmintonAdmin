@@ -2,7 +2,12 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
 import 'package:ez_badminton_admin_app/competition_management/utils/sorting.dart';
 import 'package:ez_badminton_admin_app/list_sorting/comparator/list_sorting_comparator.dart';
+import 'package:ez_badminton_admin_app/list_sorting/cubit/list_sorting_cubit.dart';
 
+/// A [ListSortingComparator] for [Competition]s. The type parameter [C]
+/// serves no purpose other than creating discernable types of
+/// comparators using different [criteria]. The discernable type is important
+/// for the [ListSortingCubit] which toggles comparators by type.
 class CompetitionComparator<C extends Object>
     extends ListSortingComparator<Competition> {
   const CompetitionComparator({
@@ -15,9 +20,15 @@ class CompetitionComparator<C extends Object>
     ],
   });
 
+  /// What this comparator should compare [Competition]s by.
+  /// The possible types are [AgeGroup], [PlayingLevel], [CompetitionDiscipline]
+  /// and [Team] (registration counts).
+  /// The sorting is done by the first criterion but it falls back on the
+  /// following ones when the comparison comes out equal.
   final List<Type> criteria;
 
-  static const Map<Type, Comparator<Competition>> comparators = {
+  /// Maps the criterion types to actual comparator functions
+  static const Map<Type, Comparator<Competition>> _comparatorFunctions = {
     AgeGroup: _compareAgeGroups,
     PlayingLevel: _comparePlayingLevels,
     CompetitionDiscipline: _compareCategories,
@@ -54,8 +65,8 @@ class CompetitionComparator<C extends Object>
   }) {
     Comparator<Competition> comparator = criteria.fold(
       (a, b) => 0,
-      (previousValue, element) =>
-          nestComparators(previousValue, comparators[element]!),
+      (previousComparator, criterion) =>
+          nestComparators(previousComparator, _comparatorFunctions[criterion]!),
     );
     return comparator(a, b);
   }
