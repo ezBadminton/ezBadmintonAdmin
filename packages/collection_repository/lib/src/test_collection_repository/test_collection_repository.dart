@@ -4,14 +4,22 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 
+/// A [CollectionRepository] holding the collection in memory for testing
+/// purposes.
 class TestCollectionRepository<M extends Model>
     implements CollectionRepository<M> {
   TestCollectionRepository({
     List<M> initialCollection = const [],
     this.throwing = false,
+    this.responseDelay,
   }) : collection = List.of(initialCollection);
 
+  /// If any calls to the repository should throw
   final bool throwing;
+
+  /// When not null, all calls are answered with this delay
+  /// (to simulate network delay for example)
+  final Duration? responseDelay;
 
   List<M> collection;
 
@@ -27,12 +35,14 @@ class TestCollectionRepository<M extends Model>
   @override
   Future<List<M>> getList({ExpansionTree? expand}) async {
     _testThrow();
+    await _delayResponse();
     return List.of(collection);
   }
 
   @override
   Future<M> getModel(String id, {ExpansionTree? expand}) async {
     _testThrow();
+    await _delayResponse();
     M? model = collection.firstWhereOrNull((m) => m.id == id);
     if (model == null) {
       throw Exception("Tried to get non-existent model by id");
@@ -43,6 +53,7 @@ class TestCollectionRepository<M extends Model>
   @override
   Future<M> create(M newModel, {ExpansionTree? expand}) async {
     _testThrow();
+    await _delayResponse();
     if (collection.contains(newModel)) {
       throw Exception("Tried to re-add existing model");
     }
@@ -55,6 +66,7 @@ class TestCollectionRepository<M extends Model>
   @override
   Future<M> update(M updatedModel, {ExpansionTree? expand}) async {
     _testThrow();
+    await _delayResponse();
     if (collection.firstWhereOrNull((m) => m.id == updatedModel.id) == null) {
       throw Exception("Tried to update non-existent model");
     }
@@ -67,6 +79,7 @@ class TestCollectionRepository<M extends Model>
   @override
   Future<void> delete(M deletedModel) async {
     _testThrow();
+    await _delayResponse();
     if (!collection.contains(deletedModel)) {
       throw Exception("Tried to delete non-existent model");
     }
@@ -98,6 +111,12 @@ class TestCollectionRepository<M extends Model>
   void _testThrow() {
     if (throwing) {
       throw CollectionQueryException('errorMessage');
+    }
+  }
+
+  Future<void> _delayResponse() async {
+    if (responseDelay != null) {
+      return Future.delayed(responseDelay!);
     }
   }
 }

@@ -2,6 +2,7 @@
 
 import 'package:bloc_test/bloc_test.dart';
 import 'package:collection_repository/collection_repository.dart';
+import 'package:collection_repository/src/test_collection_repository/test_collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_sorter/comparators/competition_comparator.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_list_cubit.dart';
 import 'package:ez_badminton_admin_app/list_sorting/comparator/list_sorting_comparator.dart';
@@ -9,7 +10,6 @@ import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dar
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../common_matchers/state_matchers.dart';
-import '../../test_collection_repository/test_collection_repository.dart';
 
 class HasDisplayList extends CustomMatcher {
   HasDisplayList(matcher)

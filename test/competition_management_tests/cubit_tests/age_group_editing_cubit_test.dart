@@ -1,5 +1,6 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:collection_repository/collection_repository.dart';
+import 'package:collection_repository/src/test_collection_repository/test_collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/age_group_editing/cubit/age_group_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,7 +8,6 @@ import 'package:formz/formz.dart';
 
 import '../../common_matchers/model_matchers.dart';
 import '../../common_matchers/state_matchers.dart';
-import '../../test_collection_repository/test_collection_repository.dart';
 
 class HasSelectedAgeGroupType extends CustomMatcher {
   HasSelectedAgeGroupType(matcher)

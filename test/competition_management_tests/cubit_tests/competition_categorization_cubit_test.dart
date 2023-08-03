@@ -2,6 +2,7 @@
 
 import 'package:bloc_test/bloc_test.dart';
 import 'package:collection_repository/collection_repository.dart';
+import 'package:collection_repository/src/test_collection_repository/test_collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_categorization_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_categorization_state.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
@@ -12,7 +13,6 @@ import 'package:mocktail/mocktail.dart';
 
 import '../../common_matchers/model_matchers.dart';
 import '../../common_matchers/state_matchers.dart';
-import '../../test_collection_repository/test_collection_repository.dart';
 
 class MockAppLocalizations extends Mock implements AppLocalizations {}
 

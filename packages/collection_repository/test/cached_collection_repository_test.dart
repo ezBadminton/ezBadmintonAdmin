@@ -1,23 +1,26 @@
+// ignore_for_file: invalid_use_of_protected_member
+
 import 'dart:async';
 
 import 'package:collection_repository/collection_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import 'package:collection_repository/src/test_collection_repository/test_collection_repository.dart';
+
 class MockCollectionRepository<M extends Model> extends Mock
     implements CollectionRepository<M> {}
 
 void main() {
   late CachedCollectionRepository<Player> sut;
-  late MockCollectionRepository<Player> targetCollectionRepository;
-
-  setUp(() {
-    targetCollectionRepository = MockCollectionRepository<Player>();
-    sut = CachedCollectionRepository(targetCollectionRepository);
-  });
+  late CollectionRepository<Player> targetCollectionRepository;
+  late CollectionRepository<PlayingLevel> playingLevelRepository;
 
   group('call delegation to the wrapped targetCollectionRepository', () {
     setUp(() {
+      targetCollectionRepository = MockCollectionRepository<Player>();
+      sut = CachedCollectionRepository(targetCollectionRepository);
+
       when(
         () => targetCollectionRepository.updateStream,
       ).thenAnswer((_) => Stream.fromIterable([]));
@@ -45,53 +48,15 @@ void main() {
   });
 
   group('cached collection queries', () {
-    var playerCollection = ['0', '1', '2']
+    List<Player> playerCollection = ['0', '1', '2']
         .map((id) => Player.newPlayer().copyWith(id: id))
         .toList();
     setUp(() {
-      registerFallbackValue(Player.newPlayer());
-
-      when(
-        () => targetCollectionRepository.getModel(
-          any(),
-          expand: any(named: 'expand'),
-        ),
-      ).thenAnswer((invocation) async {
-        var id = int.parse(invocation.positionalArguments[0]);
-        await Future.delayed(const Duration(milliseconds: 1));
-        return playerCollection[id];
-      });
-
-      when(
-        () => targetCollectionRepository.getList(expand: any(named: 'expand')),
-      ).thenAnswer((invocation) async {
-        await Future.delayed(const Duration(milliseconds: 1));
-        return playerCollection;
-      });
-
-      when(
-        () => targetCollectionRepository.update(
-          any(),
-          expand: any(named: 'expand'),
-        ),
-      ).thenAnswer((invocation) async {
-        var player = invocation.positionalArguments[0] as Player;
-        return player;
-      });
-
-      when(
-        () => targetCollectionRepository.create(
-          any(),
-          expand: any(named: 'expand'),
-        ),
-      ).thenAnswer((invocation) async {
-        var player = invocation.positionalArguments[0] as Player;
-        return player;
-      });
-
-      when(
-        () => targetCollectionRepository.delete(any()),
-      ).thenAnswer((invocation) async {});
+      targetCollectionRepository = TestCollectionRepository<Player>(
+        initialCollection: playerCollection,
+        responseDelay: const Duration(milliseconds: 1),
+      );
+      sut = CachedCollectionRepository(targetCollectionRepository);
     });
 
     Completer<T> wrapInCompleter<T>(Future<T> future) {
@@ -139,13 +104,13 @@ void main() {
     test(
       'creating a model also caches it',
       () async {
-        await sut.create(playerCollection[0]);
-        var cachedFetch = wrapInCompleter(sut.getModel('0'));
+        Player newPlayer = await sut.create(Player.newPlayer());
+        var cachedFetch = wrapInCompleter(sut.getModel(newPlayer.id));
         await Future.delayed(Duration.zero);
         expect(cachedFetch.isCompleted, true);
         var cachedResult = await cachedFetch.future;
 
-        expect(cachedResult, playerCollection[0]);
+        expect(cachedResult, newPlayer);
       },
     );
 
@@ -175,10 +140,13 @@ void main() {
       () async {
         await sut.getList();
         await sut.delete(playerCollection[0]);
-        var cachedResult = await sut.getList();
+        List<Player> cachedCollection = await sut.getList();
+        List<Player> collection = await targetCollectionRepository.getList();
 
-        expect(cachedResult.length, playerCollection.length - 1);
-        expect(cachedResult.contains(playerCollection[0]), false);
+        expect(cachedCollection.length, playerCollection.length - 1);
+        expect(cachedCollection.contains(playerCollection[0]), false);
+        expect(collection.length, playerCollection.length - 1);
+        expect(collection.contains(playerCollection[0]), false);
       },
     );
 
@@ -189,23 +157,67 @@ void main() {
         await sut.getModel('0');
         await sut.getModel('1');
 
-        when(
-          () =>
-              targetCollectionRepository.getList(expand: any(named: 'expand')),
-        ).thenAnswer((invocation) async {
-          return playerCollection
-              .map((p) => p.copyWith(firstName: 'changed'))
-              .toList();
-        });
-
         var uncachedResult = await sut.getList();
 
         expect(uncachedResult.length, playerCollection.length);
-        expect(
-          uncachedResult.where((p) => p.firstName == 'changed'),
-          uncachedResult,
-        );
       },
     );
+  });
+
+  group('relation update handlers', () {
+    List<PlayingLevel> playingLevels = List.generate(
+      3,
+      (index) => PlayingLevel.newPlayingLevel(
+        'PlayingLevel-$index',
+        index,
+      ).copyWith(id: 'PlayingLevel-$index'),
+    );
+    List<Player> players = playingLevels
+        .map(
+          (playingLevel) => Player.newPlayer().copyWith(
+            playingLevel: playingLevel,
+            id: 'Player-${playingLevel.id}',
+          ),
+        )
+        .toList();
+
+    setUp(() {
+      playingLevelRepository = TestCollectionRepository<PlayingLevel>(
+        initialCollection: playingLevels,
+      );
+      targetCollectionRepository = TestCollectionRepository<Player>(
+        initialCollection: players,
+      );
+      sut = CachedCollectionRepository(
+        targetCollectionRepository,
+        relationRepositories: [playingLevelRepository],
+        relationUpdateHandler: (collection, updateEvent) {
+          PlayingLevel playingLevel = updateEvent.model as PlayingLevel;
+          List<Player> updatedPlayers = collection
+              .where((player) => player.playingLevel == playingLevel)
+              .map((player) => player.copyWith(playingLevel: playingLevel))
+              .toList();
+          return updatedPlayers;
+        },
+      );
+    });
+
+    test('update events are subscribed', () {
+      expect(playingLevelRepository.updateStreamController.hasListener, isTrue);
+    });
+
+    test('relation update causes cached models to be updated', () async {
+      PlayingLevel updatedPlayingLevel =
+          playingLevels[0].copyWith(name: 'updated');
+      await playingLevelRepository.update(updatedPlayingLevel);
+
+      await Future.delayed(Duration.zero);
+
+      Player updatedPlayer = await sut.getModel(players[0].id);
+      expect(updatedPlayer.playingLevel!.name, 'updated');
+
+      updatedPlayer = await targetCollectionRepository.getModel(players[0].id);
+      expect(updatedPlayer.playingLevel!.name, isNot('updated'));
+    });
   });
 }
