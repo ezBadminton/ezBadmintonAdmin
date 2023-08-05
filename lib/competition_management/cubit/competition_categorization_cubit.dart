@@ -106,7 +106,7 @@ class CompetitionCategorizationCubit
       ageGroupsUpdated = await _setDefaultAgeGroup();
     } else if (state.tournament.useAgeGroups &&
         !updatedTournament.useAgeGroups) {
-      ageGroupsUpdated = await _disableCompetitionAgeGroups();
+      ageGroupsUpdated = await _removeCategorization<AgeGroup>();
     }
     if (!ageGroupsUpdated) {
       return false;
@@ -118,7 +118,7 @@ class CompetitionCategorizationCubit
       playingLevelsUpdated = await _setDefaultPlayingLevel();
     } else if (state.tournament.usePlayingLevels &&
         !updatedTournament.usePlayingLevels) {
-      playingLevelsUpdated = await _disableCompetitionPlayingLevels();
+      playingLevelsUpdated = await _removeCategorization<PlayingLevel>();
     }
     if (!playingLevelsUpdated) {
       return false;
@@ -150,45 +150,6 @@ class CompetitionCategorizationCubit
     return !updatedCompetitions.contains(null);
   }
 
-  Future<bool> _disableCompetitionAgeGroups() async {
-    Map<AgeGroup, List<Competition>> ageGroupedCompetitions =
-        state.getCollection<Competition>().groupListsBy((c) => c.ageGroup!);
-
-    Map<AgeGroup, int> registrationCounts = ageGroupedCompetitions.map(
-      (ageGroups, competitions) => MapEntry<AgeGroup, int>(
-        ageGroups,
-        competitions.fold(
-          0,
-          (previousValue, element) =>
-              previousValue + element.registrations.length,
-        ),
-      ),
-    );
-
-    // If more than one AgeGroup contains registrations, the user is warned
-    // of the subsequent merging of registrations by merging of the AgeGroups.
-    bool doRegistrationsMerge = registrationCounts.values
-            .where((registrationCount) => registrationCount > 0)
-            .length >
-        1;
-
-    if (doRegistrationsMerge) {
-      bool mergingConfirmed = (await requestDialogChoice<bool>(
-        reason: CategoryMergeType.ageGroupMerge,
-      ))!;
-      if (!mergingConfirmed) {
-        return false;
-      }
-    }
-
-    bool competitionsMerged = await _mergeCompetitions(mergeAgeGroups: true);
-    if (!competitionsMerged) {
-      return false;
-    }
-
-    return true;
-  }
-
   Future<bool> _setDefaultPlayingLevel() async {
     List<PlayingLevel> playingLevelCollection =
         state.getCollection<PlayingLevel>();
@@ -213,39 +174,47 @@ class CompetitionCategorizationCubit
     return !updatedCompetitions.contains(null);
   }
 
-  Future<bool> _disableCompetitionPlayingLevels() async {
-    Map<PlayingLevel, List<Competition>> playingLevelCompetitions =
-        state.getCollection<Competition>().groupListsBy((c) => c.playingLevel!);
+  /// Removes the categorization by [C] from the competition collection.
+  ///
+  /// [C] is [AgeGroup] or [PlayingLevel] categorization.
+  /// When multiple categories exist, the competitions are merged.
+  ///
+  /// See also:
+  /// * [_mergeCompetitions] where the merging takes place.
+  Future<bool> _removeCategorization<C extends Model>() async {
+    assert(C == AgeGroup || C == PlayingLevel);
+    List<List<Competition>> categorizedCompetitions =
+        mapByCategory<C>(state.getCollection<Competition>()).values.toList();
 
-    Map<PlayingLevel, int> registrationCounts = playingLevelCompetitions.map(
-      (playingLevels, competitions) => MapEntry<PlayingLevel, int>(
-        playingLevels,
-        competitions.fold(
-          0,
-          (previousValue, element) =>
-              previousValue + element.registrations.length,
-        ),
-      ),
-    );
+    List<int> registrationCounts = categorizedCompetitions
+        .map((competitions) => competitions.fold(
+              0,
+              (previousValue, element) =>
+                  previousValue + element.registrations.length,
+            ))
+        .toList();
 
-    // If more than one AgeGroup contains registrations, the user is warned
-    // of the subsequent merging of registrations by merging of the AgeGroups.
-    bool doRegistrationsMerge = registrationCounts.values
+    // If more than one category contains registrations, the user is warned
+    // of the subsequent merging of registrations by merging of the category.
+    bool doRegistrationsMerge = registrationCounts
             .where((registrationCount) => registrationCount > 0)
             .length >
         1;
 
     if (doRegistrationsMerge) {
+      CategoryMergeType mergeType = switch (C) {
+        AgeGroup => CategoryMergeType.ageGroupMerge,
+        _ => CategoryMergeType.playingLevelMerge,
+      };
       bool mergingConfirmed = (await requestDialogChoice<bool>(
-        reason: CategoryMergeType.playingLevelMerge,
+        reason: mergeType,
       ))!;
       if (!mergingConfirmed) {
         return false;
       }
     }
 
-    bool competitionsMerged =
-        await _mergeCompetitions(mergePlayingLevels: true);
+    bool competitionsMerged = await _mergeCompetitions<C>();
     if (!competitionsMerged) {
       return false;
     }
@@ -253,10 +222,19 @@ class CompetitionCategorizationCubit
     return true;
   }
 
-  Future<bool> _mergeCompetitions({
-    bool mergeAgeGroups = false,
-    bool mergePlayingLevels = false,
-  }) async {
+  /// Merges competitions that are categorized by [C].
+  ///
+  /// [C] is [AgeGroup] or [PlayingLevel] categorization.
+  ///
+  /// See also:
+  /// * [groupCompetitions] creates the competition merge lists
+  /// * [CompetitionMerge] computes the merged [Competition]
+  Future<bool> _mergeCompetitions<C extends Model>() async {
+    assert(C == AgeGroup || C == PlayingLevel);
+
+    bool mergeAgeGroups = C == AgeGroup;
+    bool mergePlayingLevels = C == PlayingLevel;
+
     List<List<Competition>> competitionsToMerge = groupCompetitions(
       state.getCollection<Competition>(),
       ignoreAgeGroups: mergeAgeGroups,

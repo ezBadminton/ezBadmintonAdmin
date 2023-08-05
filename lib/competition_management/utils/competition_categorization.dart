@@ -37,7 +37,7 @@ List<PlayingCategory> getPossiblePlayingCategories(
 /// Groups the [competitions] into lists containing only competitions of the
 /// same [CompetitionDiscipline].
 ///
-/// Futhermore the lists are split into those of equal [PlayingCategory] but
+/// Futhermore they are grouped into those of equal [PlayingCategory] but
 /// with [ignoreAgeGroups] and [ignorePlayingLevels] applied.
 List<List<Competition>> groupCompetitions(
   List<Competition> competitions, {
@@ -71,7 +71,7 @@ List<List<Competition>> groupCompetitions(
   return competitionGroups;
 }
 
-/// Maps which disciplines exist in each [PlayingCategory].
+/// Maps which [CompetitionDiscipline]s exist in each [PlayingCategory].
 ///
 /// Example: The O19 age group category
 /// maps to [men's singles, women's singles].
@@ -96,7 +96,7 @@ Map<PlayingCategory, List<CompetitionDiscipline>> mapPlayingCategories(
   return existingCategories;
 }
 
-/// Maps which [PlayingCategory]s exist in each discipline
+/// Maps which [PlayingCategory]s exist in each [CompetitionDiscipline]
 ///
 /// Example: men's doubles maps to [O19, U19, U17].
 ///
@@ -118,4 +118,35 @@ Map<CompetitionDiscipline, List<PlayingCategory>> mapDisciplines(
   }
 
   return disciplineMap;
+}
+
+/// Maps [Competition]s by one of their isolated categories [C].
+///
+/// [C] is either [AgeGroup] or [PlayingLevel] categorization.
+///
+/// Since competitions can be uncategorized by one of the categorizations, the
+/// map key can be null.
+Map<C?, List<Competition>> mapByCategory<C extends Model>(
+  List<Competition> competitions,
+) {
+  assert(C == AgeGroup || C == PlayingLevel);
+  Map<C?, List<Competition>> mappedCompetitions =
+      competitions.groupListsBy((c) => getCompetitionCategory<C>(c));
+  return mappedCompetitions;
+}
+
+/// Returns the specific category that the [competition] is under in the
+/// categorization [C].
+///
+/// [C] is either [AgeGroup] or [PlayingLevel] categorization.
+C? getCompetitionCategory<C extends Model>(Competition competition) {
+  assert(C == AgeGroup || C == PlayingLevel);
+  switch (C) {
+    case AgeGroup:
+      return competition.ageGroup as C?;
+    case PlayingLevel:
+      return competition.playingLevel as C?;
+    default:
+      return null;
+  }
 }
