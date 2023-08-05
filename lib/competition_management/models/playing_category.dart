@@ -23,6 +23,28 @@ class PlayingCategory extends Equatable {
   final AgeGroup? ageGroup;
   final PlayingLevel? playingLevel;
 
+  bool isInCategory(Model category) {
+    switch (category) {
+      case AgeGroup _:
+        return category == ageGroup;
+      case PlayingLevel _:
+        return category == playingLevel;
+      default:
+        return false;
+    }
+  }
+
+  C? getCategory<C extends Model>() {
+    switch (C) {
+      case AgeGroup:
+        return ageGroup as C?;
+      case PlayingLevel:
+        return playingLevel as C?;
+      default:
+        return null;
+    }
+  }
+
   @override
   List<Object?> get props => [ageGroup, playingLevel];
 }

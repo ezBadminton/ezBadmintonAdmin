@@ -180,16 +180,18 @@ class CompetitionAddingCubit
             )
             .toSet();
 
-    _disableIncompatiblePlayingLevels(
-      state.ageGroups,
-      existingCategories,
-      creatablePlayingLevels,
+    creatablePlayingLevels.removeAll(
+      _getIncompatibleSelection<PlayingLevel>(
+        state.ageGroups,
+        existingCategories,
+      ),
     );
 
-    _disableIncompatibleAgeGroups(
-      state.playingLevels,
-      existingCategories,
-      creatableAgeGroups,
+    creatableAgeGroups.removeAll(
+      _getIncompatibleSelection<AgeGroup>(
+        state.playingLevels,
+        existingCategories,
+      ),
     );
 
     List<PlayingCategory> selectedPlayingCategories =
@@ -236,7 +238,7 @@ class CompetitionAddingCubit
           (ageGroup) => state.disabledAgeGroups.contains(ageGroup),
         )
         .toList();
-    List<PlayingLevel> playingLevel = state.playingLevels
+    List<PlayingLevel> playingLevels = state.playingLevels
         .whereNot(
           (playingLevel) => state.disabledPlayingLevels.contains(playingLevel),
         )
@@ -251,7 +253,7 @@ class CompetitionAddingCubit
 
     return state.copyWith(
       ageGroups: ageGroups,
-      playingLevels: playingLevel,
+      playingLevels: playingLevels,
       competitionDisciplines: competitionCategories,
     );
   }
@@ -290,62 +292,55 @@ class CompetitionAddingCubit
     return selectedPlayingCategories;
   }
 
-  /// Updates the [creatablePlayingLevels] to be compatible with the currently
-  /// [selectedAgeGroups].
+  /// Returns the set of [C] categories that cannot be selected due to
+  /// incompatibility with [selectedCategories].
   ///
-  /// When an [AgeGroup] is selected and all base competitions in the
-  /// combined category with a [PlayingLevel] already exist, then the
-  /// [PlayingLevel] is disabled to prevent duplicate creation.
-  static void _disableIncompatiblePlayingLevels(
-    List<AgeGroup> selectedAgeGroups,
+  /// See also:
+  /// * [_getIncompatibleCategories] finds the incompatible categories of each
+  /// selected category.
+  static Set<C> _getIncompatibleSelection<C extends Model>(
+    List<Model> selectedCategories,
     Map<PlayingCategory, List<CompetitionDiscipline>> existingCategories,
-    Set<PlayingLevel> creatablePlayingLevels,
   ) {
-    for (AgeGroup selectedAgeGroup in selectedAgeGroups) {
-      Iterable<MapEntry<PlayingCategory, List<CompetitionDiscipline>>>
-          categoriesOfSelection = existingCategories.entries
-              .where((entry) => entry.key.ageGroup == selectedAgeGroup);
-      for (MapEntry<PlayingCategory,
-              List<CompetitionDiscipline>> categorizedBaseCompetitions
-          in categoriesOfSelection) {
-        // Check if all base competitions already exist
-        if (categorizedBaseCompetitions.value.length ==
-            CompetitionDiscipline.baseCompetitions.length) {
-          creatablePlayingLevels.remove(
-            categorizedBaseCompetitions.key.playingLevel,
-          );
-        }
-      }
-    }
+    Set<C> incompatibleCategories = {
+      for (Model category in selectedCategories)
+        ..._getIncompatibleCategories(
+          category,
+          existingCategories,
+        ),
+    };
+
+    return incompatibleCategories;
   }
 
-  /// Updates the [creatableAgeGroups] to be compatible with the currently
-  /// [selectedPlayingLevels].
+  /// Returns the set of [C] categories that are incompatible with [category]
+  /// due to their combined [PlayingCategory] already having all
+  /// base disciplines.
   ///
-  /// When a [PlayingLevel] is selected and all base competitions in the
-  /// combined category with an [AgeGroup] already exist, then the
-  /// [AgeGroup] is disabled to prevent duplicate creation.
-  static void _disableIncompatibleAgeGroups(
-    List<PlayingLevel> selectedPlayingLevels,
+  /// [C] is either [AgeGroup] or [PlayingLevel]. [category] has to be of
+  /// the opposite type.
+  static Set<C> _getIncompatibleCategories<C extends Model>(
+    Model category,
     Map<PlayingCategory, List<CompetitionDiscipline>> existingCategories,
-    Set<AgeGroup> creatableAgeGroups,
   ) {
-    for (PlayingLevel selectedPlayingLevel in selectedPlayingLevels) {
-      Iterable<MapEntry<PlayingCategory, List<CompetitionDiscipline>>>
-          categoriesOfSelection = existingCategories.entries
-              .where((entry) => entry.key.playingLevel == selectedPlayingLevel);
-      for (MapEntry<PlayingCategory,
-              List<CompetitionDiscipline>> categorizedBaseCompetitions
-          in categoriesOfSelection) {
-        // Check if all base competitions already exist
-        if (categorizedBaseCompetitions.value.length ==
-            CompetitionDiscipline.baseCompetitions.length) {
-          creatableAgeGroups.remove(
-            categorizedBaseCompetitions.key.ageGroup,
+    assert(C == AgeGroup || C == PlayingLevel);
+    assert(category is AgeGroup || category is PlayingLevel);
+    assert(category is! C);
+
+    Map<PlayingCategory, List<CompetitionDiscipline>> fullPlayingCategories =
+        Map.of(existingCategories)
+          ..removeWhere(
+            (playingCategory, disciplines) =>
+                !playingCategory.isInCategory(category) ||
+                disciplines.length <
+                    CompetitionDiscipline.baseCompetitions.length,
           );
-        }
-      }
-    }
+
+    Set<C> incompatibleCategories = fullPlayingCategories.keys
+        .map((playingCategory) => playingCategory.getCategory<C>()!)
+        .toSet();
+
+    return incompatibleCategories;
   }
 
   /// Updates the [creatableBaseCompetitions] to be compatible with the
