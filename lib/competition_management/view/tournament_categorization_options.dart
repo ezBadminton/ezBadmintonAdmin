@@ -67,37 +67,34 @@ class _CategorizationSwitches extends StatelessWidget {
       buildWhen: (previous, current) =>
           previous.formStatus != current.formStatus,
       builder: (context, state) {
-        return SizedBox(
-          height: 120,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: _CategoryPanel(
-                  valueGetter: (state) => state.tournament.useAgeGroups,
-                  onChanged: cubit.useAgeGroupsChanged,
-                  label: l10n.activateAgeGroups,
-                  helpMessage: l10n.categorizationHint(l10n.ageGroup(2)),
-                  editButtonLabel: l10n.editSubject(l10n.ageGroup(2)),
-                  editWidget: const AgeGroupEditingPopup(),
-                  enabled: state.formStatus != FormzSubmissionStatus.inProgress,
-                ),
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: _CategoryPanel(
+                valueGetter: (state) => state.tournament.useAgeGroups,
+                onChanged: cubit.useAgeGroupsChanged,
+                label: l10n.activateAgeGroups,
+                helpMessage: l10n.categorizationHint(l10n.ageGroup(2)),
+                editButtonLabel: l10n.editSubject(l10n.ageGroup(2)),
+                editWidget: const AgeGroupEditingPopup(),
+                enabled: state.formStatus != FormzSubmissionStatus.inProgress,
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _CategoryPanel(
-                  valueGetter: (state) => state.tournament.usePlayingLevels,
-                  onChanged: cubit.usePlayingLevelsChanged,
-                  label: l10n.activatePlayingLevels,
-                  helpMessage: l10n.categorizationHint(l10n.playingLevel(2)),
-                  editButtonLabel: l10n.editSubject(l10n.playingLevel(2)),
-                  editWidget: const PlayingLevelEditingPopup(),
-                  enabled: state.formStatus != FormzSubmissionStatus.inProgress,
-                ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _CategoryPanel(
+                valueGetter: (state) => state.tournament.usePlayingLevels,
+                onChanged: cubit.usePlayingLevelsChanged,
+                label: l10n.activatePlayingLevels,
+                helpMessage: l10n.categorizationHint(l10n.playingLevel(2)),
+                editButtonLabel: l10n.editSubject(l10n.playingLevel(2)),
+                editWidget: const PlayingLevelEditingPopup(),
+                enabled: state.formStatus != FormzSubmissionStatus.inProgress,
               ),
-            ],
-          ),
+            ),
+          ],
         );
       },
     );
@@ -138,49 +135,36 @@ class _CategoryPanel extends StatelessWidget {
       builder: (context, state) {
         return AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          height: valueGetter(state) ? 120 : 80,
+          height: 50,
           decoration: BoxDecoration(
             color: Theme.of(context)
                 .colorScheme
                 .background
                 .withOpacity(valueGetter(state) ? .5 : .25),
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.zero,
+              bottom: Radius.circular(15),
+            ),
           ),
-          child: ScrollConfiguration(
-            behavior: ScrollConfiguration.of(context).copyWith(
-              scrollbars: false,
-            ),
-            child: SingleChildScrollView(
-              clipBehavior: Clip.hardEdge,
-              physics: const NeverScrollableScrollPhysics(),
-              child: Column(
-                children: [
-                  const SizedBox(height: 18),
-                  _CategorySwitchWithHelpIcon(
-                    label: label,
-                    valueGetter: valueGetter,
-                    enabled: enabled,
-                    onChanged: onChanged,
-                    helpMessage: helpMessage,
-                  ),
-                  const SizedBox(height: 15),
-                  AnimatedOpacity(
-                    opacity: valueGetter(state) ? 1 : 0,
-                    duration: const Duration(milliseconds: 100),
-                    child: TextButton(
-                      onPressed: valueGetter(state)
-                          ? () => showDialog(
-                                context: context,
-                                useRootNavigator: false,
-                                builder: (context) => editWidget,
-                              )
-                          : null,
-                      child: Text(editButtonLabel),
-                    ),
-                  ),
-                ],
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _CategorySwitchWithHelpIcon(
+                label: label,
+                valueGetter: valueGetter,
+                enabled: enabled,
+                onChanged: onChanged,
+                helpMessage: helpMessage,
               ),
-            ),
+              TextButton(
+                onPressed: () => showDialog(
+                  context: context,
+                  useRootNavigator: false,
+                  builder: (context) => editWidget,
+                ),
+                child: Text(editButtonLabel),
+              ),
+            ],
           ),
         );
       },

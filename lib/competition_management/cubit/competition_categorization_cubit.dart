@@ -61,15 +61,6 @@ class CompetitionCategorizationCubit
       ],
       onSuccess: (updatedState) {
         emit(updatedState.copyWith(loadingStatus: LoadingStatus.done));
-
-        if (state.tournament.useAgeGroups &&
-            updatedState.getCollection<AgeGroup>().isEmpty) {
-          useAgeGroupsChanged(false);
-        }
-        if (state.tournament.usePlayingLevels &&
-            updatedState.getCollection<PlayingLevel>().isEmpty) {
-          usePlayingLevelsChanged(false);
-        }
       },
       onFailure: () {
         emit(state.copyWith(loadingStatus: LoadingStatus.failed));
