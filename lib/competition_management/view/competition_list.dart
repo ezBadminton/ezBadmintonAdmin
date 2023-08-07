@@ -2,6 +2,7 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_sorter/comparators/competition_comparator.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_sorter/cubit/competition_sorting_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_list_cubit.dart';
+import 'package:ez_badminton_admin_app/competition_management/cubit/competition_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
 import 'package:ez_badminton_admin_app/list_sorting/comparator/list_sorting_comparator.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
@@ -66,6 +67,12 @@ class CompetitionList extends StatelessWidget {
             ),
           ),
         ),
+        BlocProvider(
+          create: (context) => CompetitionSelectionCubit(
+            competitionRepository:
+                context.read<CollectionRepository<Competition>>(),
+          ),
+        ),
       ],
       child: const _CompetitionList(),
     );
@@ -77,7 +84,13 @@ class _CompetitionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CompetitionListCubit, CompetitionListState>(
+    return BlocConsumer<CompetitionListCubit, CompetitionListState>(
+      listenWhen: (previous, current) =>
+          previous.displayCompetitionList != current.displayCompetitionList,
+      listener: (context, state) {
+        var selectionCubit = context.read<CompetitionSelectionCubit>();
+        selectionCubit.displayCompetitionsChanged(state.displayCompetitionList);
+      },
       builder: (context, state) {
         return LoadingScreen(
           loadingStatus: state.loadingStatus,
@@ -120,63 +133,80 @@ class _CompetitionListHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    return DefaultTextStyle(
-      style: Theme.of(context)
-          .textTheme
-          .bodyMedium!
-          .copyWith(fontWeight: FontWeight.bold),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          border: const Border(
-            bottom: BorderSide(
-              color: Colors.black26,
+    return BlocBuilder<CompetitionSelectionCubit, CompetitionSelectionState>(
+      buildWhen: (previous, current) =>
+          previous.selectionTristate != current.selectionTristate,
+      builder: (context, state) {
+        var selectionCubit = context.read<CompetitionSelectionCubit>();
+        return DefaultTextStyle(
+          style: Theme.of(context)
+              .textTheme
+              .bodyMedium!
+              .copyWith(fontWeight: FontWeight.bold),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              border: const Border(
+                bottom: BorderSide(
+                  color: Colors.black26,
+                ),
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Row(
+                children: [
+                  const SizedBox(width: 20),
+                  Transform.scale(
+                    scale: 1.2,
+                    child: Checkbox(
+                      value: state.selectionTristate,
+                      onChanged: (_) => selectionCubit.allCompetitionsToggled(),
+                      tristate: true,
+                    ),
+                  ),
+                  const SizedBox(width: 30),
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    width: useAgeGroups ? 200 : 0,
+                    child:
+                        _SortableColumnHeader<CompetitionComparator<AgeGroup>>(
+                      width: 0,
+                      title: l10n.ageGroup(1),
+                    ),
+                  ),
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    width: usePlayingLevels ? 300 : 0,
+                    child: _SortableColumnHeader<
+                        CompetitionComparator<PlayingLevel>>(
+                      width: 0,
+                      title: l10n.playingLevel(1),
+                    ),
+                  ),
+                  _SortableColumnHeader<
+                      CompetitionComparator<CompetitionDiscipline>>(
+                    width: 150,
+                    title: l10n.competition(1),
+                  ),
+                  Flexible(
+                    flex: 1,
+                    child: Container(),
+                  ),
+                  _SortableColumnHeader<CompetitionComparator<Team>>(
+                    width: 150,
+                    title: l10n.registrations,
+                  ),
+                  Expanded(
+                    flex: 7,
+                    child: Container(),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 15),
-          child: Row(
-            children: [
-              const SizedBox(width: 20),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 150),
-                width: useAgeGroups ? 200 : 0,
-                child: _SortableColumnHeader<CompetitionComparator<AgeGroup>>(
-                  width: 0,
-                  title: l10n.ageGroup(1),
-                ),
-              ),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 150),
-                width: usePlayingLevels ? 300 : 0,
-                child:
-                    _SortableColumnHeader<CompetitionComparator<PlayingLevel>>(
-                  width: 0,
-                  title: l10n.playingLevel(1),
-                ),
-              ),
-              _SortableColumnHeader<
-                  CompetitionComparator<CompetitionDiscipline>>(
-                width: 150,
-                title: l10n.competition(1),
-              ),
-              Flexible(
-                flex: 1,
-                child: Container(),
-              ),
-              _SortableColumnHeader<CompetitionComparator<Team>>(
-                width: 150,
-                title: l10n.registrations,
-              ),
-              Expanded(
-                flex: 7,
-                child: Container(),
-              ),
-            ],
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -248,54 +278,67 @@ class _CompetitionExpansionPanel extends ExpansionPanelRadio {
     bool usePlayingLevels,
   ) {
     var l10n = AppLocalizations.of(context)!;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Row(
-        children: [
-          const SizedBox(width: 20),
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            width: useAgeGroups ? 200 : 0,
-            child: Text(
-              competition.ageGroup != null
-                  ? display_strings.ageGroup(l10n, competition.ageGroup!)
-                  : '',
-              overflow: TextOverflow.clip,
-              softWrap: false,
-            ),
-          ),
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            width: usePlayingLevels ? 300 : 0,
-            child: Text(
-              competition.playingLevel?.name ?? '',
-              overflow: TextOverflow.clip,
-              softWrap: false,
-            ),
-          ),
-          SizedBox(
-            width: 150,
-            child: Text(
-              display_strings.competitionCategory(
-                l10n,
-                CompetitionDiscipline.fromCompetition(competition),
+    var selectionCubit = context.read<CompetitionSelectionCubit>();
+    return BlocBuilder<CompetitionSelectionCubit, CompetitionSelectionState>(
+      buildWhen: (previous, current) =>
+          previous.selectedCompetitions != current.selectedCompetitions,
+      builder: (context, state) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 3),
+          child: Row(
+            children: [
+              const SizedBox(width: 20),
+              Checkbox(
+                value: state.selectedCompetitions.contains(competition),
+                onChanged: (_) =>
+                    selectionCubit.competitionToggled(competition),
               ),
-            ),
+              const SizedBox(width: 30),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                width: useAgeGroups ? 200 : 0,
+                child: Text(
+                  competition.ageGroup != null
+                      ? display_strings.ageGroup(l10n, competition.ageGroup!)
+                      : '',
+                  overflow: TextOverflow.clip,
+                  softWrap: false,
+                ),
+              ),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                width: usePlayingLevels ? 300 : 0,
+                child: Text(
+                  competition.playingLevel?.name ?? '',
+                  overflow: TextOverflow.clip,
+                  softWrap: false,
+                ),
+              ),
+              SizedBox(
+                width: 150,
+                child: Text(
+                  display_strings.competitionCategory(
+                    l10n,
+                    CompetitionDiscipline.fromCompetition(competition),
+                  ),
+                ),
+              ),
+              Flexible(
+                flex: 1,
+                child: Container(),
+              ),
+              SizedBox(
+                width: 150,
+                child: Text('${competition.registrations.length}'),
+              ),
+              Expanded(
+                flex: 7,
+                child: Container(),
+              ),
+            ],
           ),
-          Flexible(
-            flex: 1,
-            child: Container(),
-          ),
-          SizedBox(
-            width: 150,
-            child: Text('${competition.registrations.length}'),
-          ),
-          Expanded(
-            flex: 7,
-            child: Container(),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
