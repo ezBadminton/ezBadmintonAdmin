@@ -82,6 +82,7 @@
   "confirm": "Bestätigen",
   "nPlayersShown": "{count, plural, other{{count} Spieler angezeigt}}",
   "ofN": "von {number}",
+  "nSubjectsSelected": "{count, plural, =0{Keine {subject} ausgewählt} other{{count} {subject} ausgewählt}}",
   "categorizationHint": "Kategorisierung der Disziplinen in {category}. Die selbe Disziplin (z.B. Mixed) kann so mehrfach für verschiedene Spielergruppen ausgetragen werden.",
   "activatePlayingLevels": "Spielklassen verwenden",
   "activateAgeGroups": "Altersklassen verwenden",
@@ -110,5 +111,8 @@
   "selection": "Auswahl",
   "noSelection": "Keine Auswahl",
   "continueWithoutSelection": "Ohne Auswahl fortfahren",
-  "deleteAndMergeCategoryWarning": "Durch das Löschen der {category} {categoryName} werden auch die entsprechenden Disziplinen inkl. Meldelisten gelöscht.\nEs kann eine andere {category} ausgewählt werden, in die die Meldelisten übernommen werden:"
+  "deleteAndMergeCategoryWarning": "Durch das Löschen der {category} {categoryName} werden auch die entsprechenden Disziplinen inkl. Meldelisten gelöscht.\nEs kann eine andere {category} ausgewählt werden, in die die Meldelisten übernommen werden:",
+  "deleteCompetitions": "Disziplinen löschen?",
+  "deleteCompetitionsWarning": "{count, plural, =1{Die ausgewählte Disziplin wirklich löschen?} other{Die ausgewählten Disziplinen wirklich löschen?}}",
+  "deleteCompetitionsWithTeamsWarning": "Für die Disziplinen wurden bereits Spieler gemeldet."
 }

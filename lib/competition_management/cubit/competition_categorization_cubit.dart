@@ -13,7 +13,10 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CompetitionCategorizationCubit
     extends CollectionFetcherCubit<CompetitionCategorizationState>
-    with DialogCubit, CompetitionQueries<CompetitionCategorizationState> {
+    with
+        DialogCubit,
+        CompetitionDeletionQueries,
+        RemovedCategoryCompetitionManagement<CompetitionCategorizationState> {
   CompetitionCategorizationCubit({
     required this.l10n,
     required CollectionRepository<Tournament> tournamentRepository,

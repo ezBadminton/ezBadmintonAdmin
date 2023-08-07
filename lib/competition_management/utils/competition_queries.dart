@@ -5,7 +5,8 @@ import 'package:ez_badminton_admin_app/competition_management/models/playing_cat
 import 'package:ez_badminton_admin_app/competition_management/utils/competition_categorization.dart';
 import 'package:formz/formz.dart';
 
-abstract mixin class CompetitionQueries<S extends CollectionFetcherState<S>> {
+abstract mixin class RemovedCategoryCompetitionManagement<
+    S extends CollectionFetcherState<S>> {
   S get state;
 
   CollectionQuerier get querier;
@@ -13,6 +14,8 @@ abstract mixin class CompetitionQueries<S extends CollectionFetcherState<S>> {
   Future<T?> requestDialogChoice<T>({
     Object reason = const Object(),
   });
+
+  Future<bool> deleteCompetitions(List<Competition> competitions);
 
   /// Handles the deletion/merging of competitions that are under a category
   /// that is about the be removed.
@@ -169,36 +172,6 @@ abstract mixin class CompetitionQueries<S extends CollectionFetcherState<S>> {
         competition.playingLevel == category;
   }
 
-  /// Deletes a [competition] from DB.
-  ///
-  /// Also deletes all [Team]s that were registered on that competition.
-  ///
-  /// Resolves to `true` when all deletions were successful.
-  Future<bool> deleteCompetition(Competition competition) async {
-    bool teamsDeleted = await querier.deleteModels(competition.registrations);
-    if (!teamsDeleted) {
-      return false;
-    }
-
-    bool competitionDeleted = await querier.deleteModel(competition);
-
-    return competitionDeleted;
-  }
-
-  /// Deletes multiple [competitions] from DB.
-  ///
-  /// Also deletes all [Team]s that were registered on those competitions.
-  ///
-  /// Resolves to `true` when all deletions were successful.
-  Future<bool> deleteCompetitions(List<Competition> competitions) async {
-    Iterable<Future<bool>> competitionDeletions =
-        competitions.map((competition) => deleteCompetition(competition));
-
-    List<bool> competitionsDeleted = await Future.wait(competitionDeletions);
-
-    return !competitionsDeleted.contains(false);
-  }
-
   Future<bool> submitMerge(
     CompetitionMerge merge,
   ) async {
@@ -241,5 +214,37 @@ abstract mixin class CompetitionQueries<S extends CollectionFetcherState<S>> {
     List<bool> mergesSubmitted = await Future.wait(mergeSubmissions);
 
     return !mergesSubmitted.contains(false);
+  }
+}
+
+mixin CompetitionDeletionQueries<S> on CollectionQuerierCubit<S> {
+  /// Deletes a [competition] from DB.
+  ///
+  /// Also deletes all [Team]s that were registered on that competition.
+  ///
+  /// Resolves to `true` when all deletions were successful.
+  Future<bool> deleteCompetition(Competition competition) async {
+    bool teamsDeleted = await querier.deleteModels(competition.registrations);
+    if (!teamsDeleted) {
+      return false;
+    }
+
+    bool competitionDeleted = await querier.deleteModel(competition);
+
+    return competitionDeleted;
+  }
+
+  /// Deletes multiple [competitions] from DB.
+  ///
+  /// Also deletes all [Team]s that were registered on those competitions.
+  ///
+  /// Resolves to `true` when all deletions were successful.
+  Future<bool> deleteCompetitions(List<Competition> competitions) async {
+    Iterable<Future<bool>> competitionDeletions =
+        competitions.map((competition) => deleteCompetition(competition));
+
+    List<bool> competitionsDeleted = await Future.wait(competitionDeletions);
+
+    return !competitionsDeleted.contains(false);
   }
 }

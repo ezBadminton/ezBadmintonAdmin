@@ -14,7 +14,8 @@ class PlayingLevelEditingCubit
     extends CollectionFetcherCubit<PlayingLevelEditingState>
     with
         DialogCubit<PlayingLevelEditingState>,
-        CompetitionQueries<PlayingLevelEditingState> {
+        CompetitionDeletionQueries,
+        RemovedCategoryCompetitionManagement<PlayingLevelEditingState> {
   PlayingLevelEditingCubit({
     required CollectionRepository<PlayingLevel> playingLevelRepository,
     required CollectionRepository<Competition> competitionRepository,

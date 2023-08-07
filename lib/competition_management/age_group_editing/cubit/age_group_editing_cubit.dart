@@ -13,7 +13,8 @@ part 'age_group_editing_state.dart';
 class AgeGroupEditingCubit extends CollectionFetcherCubit<AgeGroupEditingState>
     with
         DialogCubit<AgeGroupEditingState>,
-        CompetitionQueries<AgeGroupEditingState> {
+        CompetitionDeletionQueries,
+        RemovedCategoryCompetitionManagement<AgeGroupEditingState> {
   AgeGroupEditingCubit({
     required CollectionRepository<AgeGroup> ageGroupRepository,
     required CollectionRepository<Competition> competitionRepository,

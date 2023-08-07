@@ -67,12 +67,6 @@ class CompetitionList extends StatelessWidget {
             ),
           ),
         ),
-        BlocProvider(
-          create: (context) => CompetitionSelectionCubit(
-            competitionRepository:
-                context.read<CollectionRepository<Competition>>(),
-          ),
-        ),
       ],
       child: const _CompetitionList(),
     );

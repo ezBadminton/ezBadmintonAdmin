@@ -82,6 +82,7 @@
   "confirm": "Confirm",
   "nPlayersShown": "{count, plural, =1{1 player listed} other{{count} players listed}}",
   "ofN": "of {number}",
+  "nSubjectsSelected": "{count, plural, =0{No {subject} selected} other{{count} {subject} selected}}",
   "categorizationHint": "Enable categorization of the competitions into {category}. This way the same competition (e.g. mixed) can be held more than once for different groups of players.",
   "activatePlayingLevels": "Use playing levels",
   "activateAgeGroups": "Use age groups",
@@ -110,5 +111,8 @@
   "selection": "Selection",
   "noSelection": "No selection",
   "continueWithoutSelection": "Continue without selection",
-  "deleteAndMergeCategoryWarning": "By deleting the {category} {categoryName} the corresponding competitions including registrations are also deleted.\nA replacement {category} can be selected where the registrations will be transferred to:"
+  "deleteAndMergeCategoryWarning": "By deleting the {category} {categoryName} the corresponding competitions including registrations are also deleted.\nA replacement {category} can be selected where the registrations will be transferred to:",
+  "deleteCompetitions": "Delete competitions?",
+  "deleteCompetitionsWarning": "{count, plural, =1{Really delete the selected competition?} other{Really delete the selected competitions?}}",
+  "deleteCompetitionsWithTeamsWarning": "The competitions already have registered players."
 }

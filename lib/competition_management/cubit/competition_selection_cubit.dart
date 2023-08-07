@@ -4,9 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'competition_selection_state.dart';
 
 class CompetitionSelectionCubit extends Cubit<CompetitionSelectionState> {
-  CompetitionSelectionCubit({
-    required CollectionRepository<Competition> competitionRepository,
-  }) : super(CompetitionSelectionState());
+  CompetitionSelectionCubit() : super(CompetitionSelectionState());
 
   void displayCompetitionsChanged(List<Competition> displayCompeitions) {
     CompetitionSelectionState updatedState =

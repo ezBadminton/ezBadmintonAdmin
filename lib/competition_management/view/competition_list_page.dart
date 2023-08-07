@@ -1,6 +1,8 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_editing/view/competition_editing_page.dart';
+import 'package:ez_badminton_admin_app/competition_management/cubit/competition_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/view/competition_list.dart';
+import 'package:ez_badminton_admin_app/competition_management/view/competition_selection_options.dart';
 import 'package:ez_badminton_admin_app/competition_management/view/tournament_categorization_options.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,17 +16,25 @@ class CompetitionListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    return BlocProvider(
-      create: (context) => CompetitionCategorizationCubit(
-        l10n: l10n,
-        tournamentRepository: context.read<CollectionRepository<Tournament>>(),
-        competitionRepository:
-            context.read<CollectionRepository<Competition>>(),
-        ageGroupRepository: context.read<CollectionRepository<AgeGroup>>(),
-        playingLevelRepository:
-            context.read<CollectionRepository<PlayingLevel>>(),
-        teamRepository: context.read<CollectionRepository<Team>>(),
-      ),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => CompetitionCategorizationCubit(
+            l10n: l10n,
+            tournamentRepository:
+                context.read<CollectionRepository<Tournament>>(),
+            competitionRepository:
+                context.read<CollectionRepository<Competition>>(),
+            ageGroupRepository: context.read<CollectionRepository<AgeGroup>>(),
+            playingLevelRepository:
+                context.read<CollectionRepository<PlayingLevel>>(),
+            teamRepository: context.read<CollectionRepository<Team>>(),
+          ),
+        ),
+        BlocProvider(
+          create: (context) => CompetitionSelectionCubit(),
+        ),
+      ],
       child: const _CompetitionListPageScaffold(),
     );
   }
@@ -56,7 +66,9 @@ class _CompetitionListPageScaffold extends StatelessWidget {
           child: Column(
             children: [
               TournamentCategorizationOptions(),
-              SizedBox(height: 30),
+              SizedBox(height: 12),
+              CompetitionSelectionOptions(),
+              SizedBox(height: 25),
               Expanded(
                 child: CompetitionList(),
               ),
