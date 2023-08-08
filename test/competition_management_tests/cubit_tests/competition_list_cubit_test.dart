@@ -123,5 +123,26 @@ void main() {
         HasDisplayList(containsAllInOrder([competitions[0], competitions[1]])),
       ],
     );
+
+    blocTest<CompetitionListCubit, CompetitionListState>(
+      'filter',
+      setUp: () => arrangeRepositories(competitions: competitions),
+      build: createSut,
+      act: (cubit) async {
+        await Future.delayed(Duration.zero);
+        cubit.filterChanged({
+          Competition: (Object c) {
+            return c == competitions[0];
+          }
+        });
+      },
+      skip: 2,
+      expect: () => [
+        allOf(
+          HasFilter(isNotEmpty),
+          HasDisplayList([competitions[0]]),
+        ),
+      ],
+    );
   });
 }
