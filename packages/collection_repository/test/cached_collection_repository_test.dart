@@ -6,8 +6,6 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import 'package:collection_repository/src/test_collection_repository/test_collection_repository.dart';
-
 class MockCollectionRepository<M extends Model> extends Mock
     implements CollectionRepository<M> {}
 

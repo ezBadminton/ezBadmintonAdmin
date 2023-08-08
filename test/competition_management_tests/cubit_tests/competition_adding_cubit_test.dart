@@ -1,6 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:collection_repository/collection_repository.dart';
-import 'package:collection_repository/src/test_collection_repository/test_collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_editing/cubit/competition_adding_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';

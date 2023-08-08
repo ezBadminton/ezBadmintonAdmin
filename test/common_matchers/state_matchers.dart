@@ -188,6 +188,17 @@ class HasDialogCompleter extends CustomMatcher {
   featureValueOf(actual) => actual.decisionCompleter;
 }
 
+class HasDialogReason extends CustomMatcher {
+  HasDialogReason(matcher)
+      : super(
+          'CubitDialog with reason',
+          'Object',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.reason;
+}
+
 class IsFormSubmittable extends CustomMatcher {
   IsFormSubmittable(matcher)
       : super(
@@ -197,4 +208,15 @@ class IsFormSubmittable extends CustomMatcher {
         );
   @override
   featureValueOf(actual) => actual.formSubmittable;
+}
+
+class HasSelectedCompetitions extends CustomMatcher {
+  HasSelectedCompetitions(matcher)
+      : super(
+          'State with selected competitions',
+          'List of Competitions',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.selectedCompetitions;
 }

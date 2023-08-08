@@ -4,6 +4,8 @@ import 'package:ez_badminton_admin_app/competition_management/cubit/competition_
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../common_matchers/state_matchers.dart';
+
 class HasDisplayCompetitions extends CustomMatcher {
   HasDisplayCompetitions(matcher)
       : super(
@@ -13,17 +15,6 @@ class HasDisplayCompetitions extends CustomMatcher {
         );
   @override
   featureValueOf(actual) => actual.displayCompetitions;
-}
-
-class HasSelectedCompetitions extends CustomMatcher {
-  HasSelectedCompetitions(matcher)
-      : super(
-          'State with selected competitions',
-          'List of Competitions',
-          matcher,
-        );
-  @override
-  featureValueOf(actual) => actual.selectedCompetitions;
 }
 
 class HasSelectionTristate extends CustomMatcher {
