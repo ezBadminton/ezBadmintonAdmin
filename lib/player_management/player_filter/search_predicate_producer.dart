@@ -1,11 +1,11 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/models/search_term.dart';
-import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/predicate_producer.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/predicate_producers.dart';
 
 class SearchPredicateProducer extends PredicateProducer {
-  static const FilterGroup searchDomain = FilterGroup.search;
+  static const FilterGroup searchDomain = FilterGroup.playerSearch;
   SearchTerm _searchTerm = const SearchTerm.dirty('');
   String get searchTerm => _searchTerm.value;
 

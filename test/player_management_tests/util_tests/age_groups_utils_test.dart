@@ -1,5 +1,5 @@
 import 'package:collection_repository/collection_repository.dart';
-import 'package:ez_badminton_admin_app/player_management/utils/age_groups.dart';
+import 'package:ez_badminton_admin_app/utils/age_groups.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 var overAgeGroups = [10, 20, 30].map(

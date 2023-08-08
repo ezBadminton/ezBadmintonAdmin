@@ -1,9 +1,12 @@
 enum FilterGroup {
   overAge,
   underAge,
+  ageGroup,
   playingLevel,
   playerStatus,
   genderCategory,
   competitionType,
-  search
+  playerSearch,
+  moreRegistrations,
+  lessRegistrations,
 }

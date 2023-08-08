@@ -5,7 +5,6 @@ import 'package:ez_badminton_admin_app/competition_management/cubit/competition_
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
 import 'package:ez_badminton_admin_app/list_sorting/comparator/list_sorting_comparator.dart';
-import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:ez_badminton_admin_app/widgets/sortable_column_header/sortable_column_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,17 +21,6 @@ class CompetitionList extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (context) => CompetitionListCubit(
-            competitionRepository:
-                context.read<CollectionRepository<Competition>>(),
-            tournamentRepository:
-                context.read<CollectionRepository<Tournament>>(),
-            ageGroupRepository: context.read<CollectionRepository<AgeGroup>>(),
-            playingLevelRepository:
-                context.read<CollectionRepository<PlayingLevel>>(),
-          ),
-        ),
         BlocProvider(
           create: (context) => CompetitionSortingCubit(
             ageGroupComparator: const CompetitionComparator<AgeGroup>(
@@ -86,29 +74,24 @@ class _CompetitionList extends StatelessWidget {
         selectionCubit.displayCompetitionsChanged(state.displayCompetitionList);
       },
       builder: (context, state) {
-        return LoadingScreen(
-          loadingStatus: state.loadingStatus,
-          builder: (context) {
-            bool useAgeGroups =
-                state.getCollection<Tournament>().first.useAgeGroups;
-            bool usePlayingLevels =
-                state.getCollection<Tournament>().first.usePlayingLevels;
+        bool useAgeGroups =
+            state.getCollection<Tournament>().first.useAgeGroups;
+        bool usePlayingLevels =
+            state.getCollection<Tournament>().first.usePlayingLevels;
 
-            return Column(
-              children: [
-                _CompetitionListHeader(
-                  useAgeGroups: useAgeGroups,
-                  usePlayingLevels: usePlayingLevels,
-                ),
-                Expanded(
-                  child: _CompetitionListBody(
-                    useAgeGroups: useAgeGroups,
-                    usePlayingLevels: usePlayingLevels,
-                  ),
-                ),
-              ],
-            );
-          },
+        return Column(
+          children: [
+            _CompetitionListHeader(
+              useAgeGroups: useAgeGroups,
+              usePlayingLevels: usePlayingLevels,
+            ),
+            Expanded(
+              child: _CompetitionListBody(
+                useAgeGroups: useAgeGroups,
+                usePlayingLevels: usePlayingLevels,
+              ),
+            ),
+          ],
         );
       },
     );

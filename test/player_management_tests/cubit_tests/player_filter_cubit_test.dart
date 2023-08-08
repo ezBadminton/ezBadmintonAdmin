@@ -3,6 +3,7 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/predicate_producer.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/predicate_producers.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -17,8 +18,8 @@ class MockAgePredicateProducer extends Mock implements AgePredicateProducer {}
 class MockGenderPredicateProducer extends Mock
     implements GenderCategoryPredicateProducer {}
 
-class MockPlayingLevelPredicateProducer extends Mock
-    implements PlayingLevelPredicateProducer {}
+class MockPlayingLevelPredicateProducer<M extends Model> extends Mock
+    implements PlayingLevelPredicateProducer<M> {}
 
 class MockCompetitionTypePredicateProducer extends Mock
     implements CompetitionTypePredicateProducer {}
@@ -69,7 +70,7 @@ void main() {
   late List<PredicateProducer> producers;
   late AgePredicateProducer agePredicateProducer;
   late GenderCategoryPredicateProducer genderPredicateProducer;
-  late PlayingLevelPredicateProducer playingLevelPredicateProducer;
+  late PlayingLevelPredicateProducer<Player> playingLevelPredicateProducer;
   late CompetitionTypePredicateProducer competitionTypePredicateProducer;
   late StatusPredicateProducer statusPredicateProducer;
   late SearchPredicateProducer searchPredicateProducer;

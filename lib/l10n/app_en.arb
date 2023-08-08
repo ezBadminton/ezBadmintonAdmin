@@ -46,6 +46,7 @@
   "formatError": "Format error",
   "playerListLoadingError": "Couldn't load the list of players",
   "playerEditorLoadingError": "Couldn't load the player editor",
+  "competitionListLoadingError": "Couldn't load the competition list",
   "retry": "Retry",
   "save": "Save",
   "saveError": "Saving failed",
@@ -114,5 +115,7 @@
   "deleteAndMergeCategoryWarning": "By deleting the {category} {categoryName} the corresponding competitions including registrations are also deleted.\nA replacement {category} can be selected where the registrations will be transferred to:",
   "deleteCompetitions": "Delete competitions?",
   "deleteCompetitionsWarning": "{count, plural, =1{Really delete the selected competition?} other{Really delete the selected competitions?}}",
-  "deleteCompetitionsWithTeamsWarning": "The competitions already have registered players."
+  "deleteCompetitionsWithTeamsWarning": "The competitions already have registered players.",
+  "orMore": "or more",
+  "orLess": "or less"
 }

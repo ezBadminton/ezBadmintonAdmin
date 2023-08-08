@@ -5,7 +5,7 @@ import 'package:ez_badminton_admin_app/input_models/models.dart';
 import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_state.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/models/registration_warning.dart';
-import 'package:ez_badminton_admin_app/player_management/utils/age_groups.dart';
+import 'package:ez_badminton_admin_app/utils/age_groups.dart';
 import 'package:ez_badminton_admin_app/player_management/utils/gender_categories.dart';
 import 'package:ez_badminton_admin_app/player_management/utils/playing_levels.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';

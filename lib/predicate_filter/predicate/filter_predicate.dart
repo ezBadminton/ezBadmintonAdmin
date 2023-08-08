@@ -1,4 +1,4 @@
-import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/predicate_producers.dart';
 
 typedef Predicate = bool Function(Object o);
 

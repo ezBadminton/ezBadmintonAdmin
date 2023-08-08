@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/predicate_producers.dart';
 import 'package:flutter/foundation.dart';
 import "package:collection/collection.dart";
 

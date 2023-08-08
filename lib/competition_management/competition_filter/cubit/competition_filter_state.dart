@@ -1,33 +1,34 @@
-part of 'player_filter_cubit.dart';
+part of 'competition_filter_cubit.dart';
 
-@immutable
-class PlayerFilterState extends CollectionFetcherState<PlayerFilterState>
+class CompetitionFilterState
+    extends CollectionFetcherState<CompetitionFilterState>
     implements PredicateConsumerState {
-  const PlayerFilterState({
+  CompetitionFilterState({
     this.loadingStatus = LoadingStatus.loading,
     this.filterPredicate,
     super.collections = const {},
   });
 
   final LoadingStatus loadingStatus;
+
   @override
   final FilterPredicate? filterPredicate;
 
-  PlayerFilterState copyWith({
+  CompetitionFilterState copyWith({
     LoadingStatus? loadingStatus,
-    List<PlayingLevel>? allPlayingLevels,
     Map<Type, List<Model>>? collections,
-  }) =>
-      PlayerFilterState(
-        loadingStatus: loadingStatus ?? this.loadingStatus,
-        collections: collections ?? this.collections,
-        filterPredicate: null,
-      );
+  }) {
+    return CompetitionFilterState(
+      loadingStatus: loadingStatus ?? this.loadingStatus,
+      collections: collections ?? this.collections,
+      filterPredicate: null,
+    );
+  }
 
-  PlayerFilterState copyWithPredicate({
+  CompetitionFilterState copyWithPredicate({
     required FilterPredicate filterPredicate,
   }) =>
-      PlayerFilterState(
+      CompetitionFilterState(
         loadingStatus: loadingStatus,
         collections: collections,
         filterPredicate: filterPredicate,

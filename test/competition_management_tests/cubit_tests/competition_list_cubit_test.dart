@@ -9,6 +9,7 @@ import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dar
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../common_matchers/state_matchers.dart';
+import '../../predicate_filter_tests/predicate_filter_cubit_test.dart';
 
 class HasDisplayList extends CustomMatcher {
   HasDisplayList(matcher)
@@ -76,6 +77,7 @@ void main() {
       CompetitionListCubit sut = createSut();
       expect(sut.state, HasLoadingStatus(LoadingStatus.loading));
       expect(sut.state.displayCompetitionList, isEmpty);
+      expect(sut.state, HasFilter(isEmpty));
       await Future.delayed(Duration.zero);
       expect(competitionRepository.updateStreamController.hasListener, isTrue);
       expect(tournamentRepository.updateStreamController.hasListener, isTrue);
@@ -94,8 +96,9 @@ void main() {
       expect: () => [
         allOf(
           HasLoadingStatus(LoadingStatus.done),
-          HasDisplayList(containsAll(competitions)),
+          HasCollection<Competition>(containsAll(competitions)),
         ),
+        HasDisplayList(containsAll(competitions)),
       ],
     );
 
@@ -112,7 +115,7 @@ void main() {
         await Future.delayed(Duration.zero);
         cubit.comparatorChanged(reverseComparator);
       },
-      skip: 1,
+      skip: 2,
       expect: () => [
         HasComparator(comparator),
         HasDisplayList(containsAllInOrder([competitions[1], competitions[0]])),

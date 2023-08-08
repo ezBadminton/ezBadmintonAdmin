@@ -1,10 +1,41 @@
 import 'package:collection_repository/collection_repository.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
+import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 
 part 'competition_selection_state.dart';
 
-class CompetitionSelectionCubit extends Cubit<CompetitionSelectionState> {
-  CompetitionSelectionCubit() : super(CompetitionSelectionState());
+class CompetitionSelectionCubit
+    extends CollectionFetcherCubit<CompetitionSelectionState> {
+  CompetitionSelectionCubit({
+    required CollectionRepository<Competition> competitionRepository,
+  }) : super(
+          collectionRepositories: [
+            competitionRepository,
+          ],
+          CompetitionSelectionState(),
+        ) {
+    loadCollections();
+  }
+
+  void loadCollections() {
+    if (state.loadingStatus != LoadingStatus.loading) {
+      emit(state.copyWith(loadingStatus: LoadingStatus.loading));
+    }
+    fetchCollectionsAndUpdateState(
+      [
+        collectionFetcher<Competition>(),
+      ],
+      onSuccess: (updatedState) {
+        emit(updatedState.copyWith(
+          loadingStatus: LoadingStatus.done,
+          displayCompetitions: updatedState.getCollection<Competition>(),
+        ));
+      },
+      onFailure: () {
+        emit(state.copyWith(loadingStatus: LoadingStatus.failed));
+      },
+    );
+  }
 
   void displayCompetitionsChanged(List<Competition> displayCompeitions) {
     CompetitionSelectionState updatedState =

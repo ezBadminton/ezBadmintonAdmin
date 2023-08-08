@@ -31,7 +31,10 @@ class PopoverMenuButton extends StatelessWidget {
                 state.menu.isNotEmpty
                     ? _closeMenu(context)
                     : _openMenu(
-                        context, context.read<PopoverMenuCubit>(), _layerLink);
+                        context,
+                        context.read<PopoverMenuCubit>(),
+                        _layerLink,
+                      );
               },
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -54,8 +57,11 @@ class PopoverMenuButton extends StatelessWidget {
     );
   }
 
-  void _openMenu(BuildContext context, PopoverMenuCubit cubit,
-      LayerLink transformFollowerLink) {
+  void _openMenu(
+    BuildContext context,
+    PopoverMenuCubit cubit,
+    LayerLink transformFollowerLink,
+  ) {
     var menuOverlay = OverlayEntry(builder: (_) {
       return BlocBuilder<PopoverMenuCubit, PopoverMenuState>(
         bloc: cubit,
@@ -78,7 +84,9 @@ class PopoverMenuButton extends StatelessWidget {
                   duration: const Duration(milliseconds: 50),
                   scale: state.scale,
                   child: PopoverMenu(
-                      close: () => _closeMenu(context), child: menu),
+                    close: () => _closeMenu(context),
+                    child: menu,
+                  ),
                 ),
               ),
             ),

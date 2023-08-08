@@ -15,6 +15,7 @@ import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_c
 import 'package:ez_badminton_admin_app/player_management/cubit/player_list_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/player_editing_page.dart';
 import 'package:ez_badminton_admin_app/player_management/player_filter/view/player_filter.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/predicate_producers.dart';
 import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
@@ -40,7 +41,8 @@ class PlayerListPage extends StatelessWidget {
           create: (_) => PlayerFilterCubit(
             agePredicateProducer: AgePredicateProducer(),
             genderPredicateProducer: GenderCategoryPredicateProducer(),
-            playingLevelPredicateProducer: PlayingLevelPredicateProducer(),
+            playingLevelPredicateProducer:
+                PlayingLevelPredicateProducer<Player>(),
             competitionTypePredicateProducer:
                 CompetitionTypePredicateProducer(),
             statusPredicateProducer: StatusPredicateProducer(),

@@ -1,6 +1,6 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:expect_stream/expect_stream.dart';
-import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/common_predicate_producers/playinglevel_predicate_producer.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../common_matchers/predicate_matchers.dart';
@@ -19,7 +19,7 @@ class HasPlayingLevels extends CustomMatcher {
 }
 
 void main() {
-  late PlayingLevelPredicateProducer sut;
+  late PlayingLevelPredicateProducer<Player> sut;
 
   var playingLevels = List<PlayingLevel>.generate(
     3,
@@ -32,7 +32,7 @@ void main() {
     ),
   );
 
-  setUp(() => sut = PlayingLevelPredicateProducer());
+  setUp(() => sut = PlayingLevelPredicateProducer<Player>());
 
   group('PlayingLevelPredicateProducer input values', () {
     test(

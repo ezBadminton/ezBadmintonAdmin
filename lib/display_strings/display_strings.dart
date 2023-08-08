@@ -1,6 +1,6 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
-import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/predicate_producers.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 String ageGroup(AppLocalizations l10n, AgeGroup ageGroup) {
@@ -80,6 +80,8 @@ String filterChipGroup(AppLocalizations l10n, FilterGroup filterGroup) {
     case FilterGroup.overAge:
     case FilterGroup.underAge:
       return l10n.age;
+    case FilterGroup.ageGroup:
+      return l10n.ageGroup(1);
     case FilterGroup.playingLevel:
       return l10n.playingLevel(1);
     case FilterGroup.competitionType:
@@ -88,8 +90,11 @@ String filterChipGroup(AppLocalizations l10n, FilterGroup filterGroup) {
       return l10n.category;
     case FilterGroup.playerStatus:
       return l10n.status;
-    case FilterGroup.search:
+    case FilterGroup.playerSearch:
       return '';
+    case FilterGroup.moreRegistrations:
+    case FilterGroup.lessRegistrations:
+      return l10n.registrations;
   }
 }
 
@@ -105,6 +110,10 @@ String filterChip(
     case FilterGroup.underAge:
       String age = filterName.split(':').last;
       return l10n.underAgeAbbreviated + age;
+    case FilterGroup.ageGroup:
+      String groupType = filterName.split(':').first;
+      String age = filterName.split(':').last;
+      return l10n.ageGroupAbbreviated(groupType) + age;
     case FilterGroup.playingLevel:
       return filterName;
     case FilterGroup.competitionType:
@@ -113,7 +122,13 @@ String filterChip(
       return l10n.genderCategory(filterName);
     case FilterGroup.playerStatus:
       return l10n.playerStatus(filterName);
-    case FilterGroup.search:
+    case FilterGroup.playerSearch:
       return '';
+    case FilterGroup.moreRegistrations:
+      String count = filterName.split(':').last;
+      return '$count ${l10n.orMore}';
+    case FilterGroup.lessRegistrations:
+      String count = filterName.split(':').last;
+      return '$count ${l10n.orLess}';
   }
 }

@@ -4,6 +4,7 @@ import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dar
 import 'package:ez_badminton_admin_app/competition_management/competition_sorter/comparators/competition_comparator.dart';
 import 'package:ez_badminton_admin_app/list_sorting/comparator/list_sorting_comparator.dart';
 import 'package:ez_badminton_admin_app/list_sorting/cubit/sorted_list_cubit.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 
 part 'competition_list_state.dart';
@@ -55,18 +56,27 @@ class CompetitionListCubit extends CollectionFetcherCubit<CompetitionListState>
         collectionFetcher<PlayingLevel>(),
       ],
       onSuccess: (updatedState) {
-        List<Competition> competitions =
-            updatedState.getCollection<Competition>();
-        updatedState = updatedState.copyWith(
-          displayCompetitionList: _sortCompetitions(competitions),
-          loadingStatus: LoadingStatus.done,
-        );
-        emit(updatedState);
+        emit(updatedState.copyWith(loadingStatus: LoadingStatus.done));
+        filterChanged(null);
       },
       onFailure: () {
         emit(state.copyWith(loadingStatus: LoadingStatus.failed));
       },
     );
+  }
+
+  void filterChanged(Map<Type, Predicate>? filters) {
+    filters = filters ?? state.filters;
+    List<Competition> filtered = state.getCollection<Competition>();
+    if (filters.containsKey(Competition)) {
+      filtered = filtered.where(filters[Competition]!).toList();
+    }
+
+    CompetitionListState newState = state.copyWith(
+      displayCompetitionList: _sortCompetitions(filtered),
+      filters: filters,
+    );
+    emit(newState);
   }
 
   @override

@@ -1,8 +1,8 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/models/age.dart';
-import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/predicate_producer.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/predicate_producers.dart';
 
 class AgePredicateProducer extends PredicateProducer {
   static const FilterGroup overAgeDomain = FilterGroup.overAge;

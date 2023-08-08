@@ -40,7 +40,17 @@ List<Competition> competitions = CompetitionDiscipline.baseCompetitions
     .toList();
 
 void main() {
-  CompetitionSelectionCubit createSut() => CompetitionSelectionCubit();
+  late CollectionRepository<Competition> competitionRepository;
+
+  setUp(() {
+    competitionRepository = TestCollectionRepository<Competition>();
+  });
+
+  CompetitionSelectionCubit createSut() {
+    return CompetitionSelectionCubit(
+      competitionRepository: competitionRepository,
+    );
+  }
 
   group('CompetitionSelectionCubit', () {
     test('initial state', () {
@@ -52,9 +62,11 @@ void main() {
     blocTest<CompetitionSelectionCubit, CompetitionSelectionState>(
       'set display competitions',
       build: createSut,
-      act: (cubit) {
+      act: (cubit) async {
+        await Future.delayed(Duration.zero);
         cubit.displayCompetitionsChanged(competitions);
       },
+      skip: 1,
       expect: () => [
         HasDisplayCompetitions(competitions),
       ],
@@ -63,14 +75,15 @@ void main() {
     blocTest<CompetitionSelectionCubit, CompetitionSelectionState>(
       'selection toggle',
       build: createSut,
-      act: (cubit) {
+      act: (cubit) async {
+        await Future.delayed(Duration.zero);
         cubit.displayCompetitionsChanged(competitions);
         cubit.competitionToggled(competitions[0]);
         cubit.competitionToggled(competitions[0]);
         cubit.competitionToggled(competitions[1]);
         cubit.competitionToggled(competitions[2]);
       },
-      skip: 1,
+      skip: 2,
       expect: () => [
         HasSelectedCompetitions([competitions[0]]),
         HasSelectedCompetitions(isEmpty),
@@ -82,14 +95,15 @@ void main() {
     blocTest<CompetitionSelectionCubit, CompetitionSelectionState>(
       'entire selection toggle',
       build: createSut,
-      act: (cubit) {
+      act: (cubit) async {
+        await Future.delayed(Duration.zero);
         cubit.displayCompetitionsChanged(competitions);
         cubit.allCompetitionsToggled();
         cubit.allCompetitionsToggled();
         cubit.competitionToggled(competitions[0]);
         cubit.allCompetitionsToggled();
       },
-      skip: 1,
+      skip: 2,
       expect: () => [
         allOf(
           HasSelectedCompetitions(containsAll(competitions)),
@@ -113,12 +127,13 @@ void main() {
     blocTest<CompetitionSelectionCubit, CompetitionSelectionState>(
       'selection removed from display list',
       build: createSut,
-      act: (cubit) {
+      act: (cubit) async {
+        await Future.delayed(Duration.zero);
         cubit.displayCompetitionsChanged(competitions);
         cubit.competitionToggled(competitions[0]);
         cubit.displayCompetitionsChanged(competitions.sublist(1));
       },
-      skip: 1,
+      skip: 2,
       expect: () => [
         HasSelectedCompetitions([competitions[0]]),
         HasSelectedCompetitions(isEmpty),

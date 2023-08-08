@@ -46,6 +46,7 @@
   "formatError": "Ungültiges Format",
   "playerListLoadingError": "Konnte die Spielerliste nicht laden",
   "playerEditorLoadingError": "Konnte den Spielereditor nicht laden",
+  "competitionListLoadingError": "Konnte die Liste der Disziplinen nicht laden",
   "retry": "Erneut versuchen",
   "save": "Speichern",
   "saveError": "Speichern fehlgeschlagen",
@@ -114,5 +115,7 @@
   "deleteAndMergeCategoryWarning": "Durch das Löschen der {category} {categoryName} werden auch die entsprechenden Disziplinen inkl. Meldelisten gelöscht.\nEs kann eine andere {category} ausgewählt werden, in die die Meldelisten übernommen werden:",
   "deleteCompetitions": "Disziplinen löschen?",
   "deleteCompetitionsWarning": "{count, plural, =1{Die ausgewählte Disziplin wirklich löschen?} other{Die ausgewählten Disziplinen wirklich löschen?}}",
-  "deleteCompetitionsWithTeamsWarning": "Für die Disziplinen wurden bereits Spieler gemeldet."
+  "deleteCompetitionsWithTeamsWarning": "Für die Disziplinen wurden bereits Spieler gemeldet.",
+  "orMore": "oder mehr",
+  "orLess": "oder weniger"
 }

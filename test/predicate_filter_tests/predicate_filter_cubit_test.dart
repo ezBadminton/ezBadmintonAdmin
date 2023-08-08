@@ -1,7 +1,7 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/predicate_producers.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class HasPredicates extends CustomMatcher {
@@ -12,7 +12,7 @@ class HasPredicates extends CustomMatcher {
           matcher,
         );
   @override
-  featureValueOf(actual) => (actual as PredicateFilterState).filterPredicates;
+  featureValueOf(actual) => actual.filterPredicates;
 }
 
 class HasFilter extends CustomMatcher {
@@ -23,7 +23,7 @@ class HasFilter extends CustomMatcher {
           matcher,
         );
   @override
-  featureValueOf(actual) => (actual as PredicateFilterState).filters;
+  featureValueOf(actual) => actual.filters;
 }
 
 class OfType<T> extends CustomMatcher {
@@ -99,7 +99,7 @@ void main() {
     int,
     'is 6',
     'is 6',
-    FilterGroup.search,
+    FilterGroup.playerSearch,
   );
 
   var disjoinedIs9Predicate = FilterPredicate(
@@ -107,7 +107,7 @@ void main() {
     int,
     'is 9',
     'is 9',
-    FilterGroup.search,
+    FilterGroup.playerSearch,
   );
 
   var isEvenPredicate = FilterPredicate(

@@ -3,10 +3,7 @@ import 'package:collection_repository/collection_repository.dart';
 
 /// Returns all the age groups that the given [age] fits in
 List<AgeGroup> ageToAgeGroups(int age, List<AgeGroup> allGroups) {
-  return allGroups.where((group) {
-    var ageRange = group.getAgeRange(allGroups);
-    return age >= ageRange[0] && age <= ageRange[1];
-  }).toList();
+  return allGroups.where((group) => group.containsAge(age, allGroups)).toList();
 }
 
 extension AgeGroupAgeRange on AgeGroup {
@@ -34,5 +31,14 @@ extension AgeGroupAgeRange on AgeGroup {
     }
 
     return type == AgeGroupType.over ? [limit1, limit2] : [limit2, limit1];
+  }
+
+  /// Returns whether the given [age] belongs to this [AgeGroup]
+  bool containsAge(
+    int age,
+    List<AgeGroup> allGroups,
+  ) {
+    List<int> groupAgeRange = getAgeRange(allGroups);
+    return age >= groupAgeRange[0] && age <= groupAgeRange[1];
   }
 }
