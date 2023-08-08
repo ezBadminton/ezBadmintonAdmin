@@ -426,5 +426,36 @@ void main() {
         );
       },
     );
+
+    blocTest<CompetitionCategorizationCubit, CompetitionCategorizationState>(
+      'deleting last age group disables age group categorization',
+      setUp: () {
+        arrangeRepositories(
+          ageGroups: [ageGroups[0]],
+          playingLevels: playingLevels,
+        );
+      },
+      build: createSut,
+      act: (cubit) async {
+        await Future.delayed(Duration.zero);
+        ageGroupRepository.delete(ageGroups[0]);
+      },
+      skip: 1,
+      expect: () => [
+        HasLoadingStatus(LoadingStatus.loading),
+        allOf(
+          HasLoadingStatus(LoadingStatus.done),
+          HasCollection<AgeGroup>(isEmpty),
+        ),
+        allOf(
+          HasFormStatus(FormzSubmissionStatus.inProgress),
+          HasCollection<Tournament>([HasAgeGroupCategorization(isTrue)]),
+        ),
+        allOf(
+          HasFormStatus(FormzSubmissionStatus.success),
+          HasCollection<Tournament>([HasAgeGroupCategorization(isFalse)]),
+        ),
+      ],
+    );
   });
 }
