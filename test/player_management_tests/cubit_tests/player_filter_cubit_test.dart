@@ -30,28 +30,6 @@ class MockStatusPredicateProducer extends Mock
 class MockSearchPredicateProducer extends Mock
     implements SearchPredicateProducer {}
 
-class HasFilterPredicate extends CustomMatcher {
-  HasFilterPredicate(matcher)
-      : super(
-          'State with a FilterPredicate that is',
-          'FilterPredicate',
-          matcher,
-        );
-  @override
-  featureValueOf(actual) => (actual as PlayerFilterState).filterPredicate;
-}
-
-class WithPredicateDomain extends CustomMatcher {
-  WithPredicateDomain(matcher)
-      : super(
-          'FilterPredicate with a domain of',
-          'Predicate domain',
-          matcher,
-        );
-  @override
-  featureValueOf(actual) => (actual as FilterPredicate).domain;
-}
-
 var playingLevels = List<PlayingLevel>.generate(
   3,
   (index) => PlayingLevel(

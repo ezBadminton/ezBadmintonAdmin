@@ -220,3 +220,25 @@ class HasSelectedCompetitions extends CustomMatcher {
   @override
   featureValueOf(actual) => actual.selectedCompetitions;
 }
+
+class HasFilterPredicate extends CustomMatcher {
+  HasFilterPredicate(matcher)
+      : super(
+          'State with a FilterPredicate that is',
+          'FilterPredicate',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.filterPredicate;
+}
+
+class WithPredicateDomain extends CustomMatcher {
+  WithPredicateDomain(matcher)
+      : super(
+          'FilterPredicate with a domain of',
+          'Predicate domain',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.domain;
+}
