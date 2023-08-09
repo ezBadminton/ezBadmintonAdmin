@@ -11,9 +11,6 @@ import 'package:mocktail/mocktail.dart';
 import '../../common_matchers/predicate_matchers.dart';
 import '../../common_matchers/state_matchers.dart';
 
-class MockCollectionRepository<M extends Model> extends Mock
-    implements CollectionRepository<M> {}
-
 class MockAgePredicateProducer extends Mock implements AgePredicateProducer {}
 
 class MockGenderPredicateProducer extends Mock
@@ -45,7 +42,6 @@ var playingLevels = List<PlayingLevel>.generate(
 void main() {
   late CollectionRepository<PlayingLevel> playingLevelRepository;
   late CollectionRepository<AgeGroup> ageGroupRepository;
-  late PlayerFilterCubit sut;
   late List<PredicateProducer> producers;
   late AgePredicateProducer agePredicateProducer;
   late GenderCategoryPredicateProducer genderPredicateProducer;
@@ -54,19 +50,8 @@ void main() {
   late StatusPredicateProducer statusPredicateProducer;
   late SearchPredicateProducer searchPredicateProducer;
 
-  void arrangeRepositoriesReturn() {
-    when(
-      () => playingLevelRepository.getList(expand: any(named: 'expand')),
-    ).thenAnswer((_) async => playingLevels);
-    when(
-      () => ageGroupRepository.getList(expand: any(named: 'expand')),
-    ).thenAnswer((_) async => []);
-  }
-
   void arrangePlayingLevelRepositoryThrows() {
-    when(
-      () => playingLevelRepository.getList(expand: any(named: 'expand')),
-    ).thenAnswer((_) async => throw CollectionQueryException('errorCode'));
+    playingLevelRepository = TestCollectionRepository(throwing: true);
   }
 
   void arrageProducersHaveStream() {
@@ -96,8 +81,10 @@ void main() {
   }
 
   setUp(() {
-    playingLevelRepository = MockCollectionRepository();
-    ageGroupRepository = MockCollectionRepository();
+    playingLevelRepository = TestCollectionRepository(
+      initialCollection: playingLevels,
+    );
+    ageGroupRepository = TestCollectionRepository();
     agePredicateProducer = MockAgePredicateProducer();
     genderPredicateProducer = MockGenderPredicateProducer();
     playingLevelPredicateProducer = MockPlayingLevelPredicateProducer();
@@ -116,14 +103,12 @@ void main() {
 
     arrageProducersHaveStream();
     arrageProducersCloseStream();
-    arrangeRepositoriesReturn();
   });
 
   group(
     'PlayerFilterCubit initial state and loading',
     () {
       test('initial LoadingStatus is loading', () {
-        arrangeRepositoriesReturn();
         expect(
           createSut().state,
           HasLoadingStatus(LoadingStatus.loading),
@@ -140,7 +125,6 @@ void main() {
       blocTest<PlayerFilterCubit, PlayerFilterState>(
         """emits playing levels from PlayingLevelRepository
         and LoadingStatus.done when PlayingLevelRepository returns""",
-        setUp: () => arrangeRepositoriesReturn(),
         build: () => createSut(),
         expect: () => [HasLoadingStatus(LoadingStatus.done)],
         verify: (cubit) => expect(
@@ -151,12 +135,12 @@ void main() {
 
       blocTest<PlayerFilterCubit, PlayerFilterState>(
         'goes back to LoadingStatus.loading when collections are reloaded',
-        setUp: () {
-          arrangeRepositoriesReturn();
-          sut = createSut();
+        build: createSut,
+        act: (cubit) async {
+          await Future.delayed(Duration.zero);
+          cubit.loadCollections();
         },
-        build: () => sut,
-        act: (cubit) => cubit.loadCollections(),
+        skip: 1,
         expect: () => [
           HasLoadingStatus(LoadingStatus.loading),
           HasLoadingStatus(LoadingStatus.done),
@@ -182,8 +166,6 @@ void main() {
       when(() => agePredicateProducer.predicateStream).thenAnswer(
         (_) => Stream<FilterPredicate>.fromFuture(futurePredicate()),
       );
-
-      arrangeRepositoriesReturn();
     });
 
     blocTest<PlayerFilterCubit, PlayerFilterState>(

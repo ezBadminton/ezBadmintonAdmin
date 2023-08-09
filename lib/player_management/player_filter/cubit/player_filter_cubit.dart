@@ -40,6 +40,14 @@ class PlayerFilterCubit extends CollectionFetcherCubit<PlayerFilterState>
       searchPredicateProducer,
     ]);
     loadCollections();
+    subscribeToCollectionUpdates(
+      ageGroupRepository,
+      (_) => loadCollections(),
+    );
+    subscribeToCollectionUpdates(
+      playingLevelRepository,
+      (_) => loadCollections(),
+    );
   }
 
   @override

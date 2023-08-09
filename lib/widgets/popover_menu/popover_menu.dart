@@ -1,12 +1,14 @@
+import 'package:ez_badminton_admin_app/widgets/popover_menu/controller/popover_menu_controller.dart';
 import 'package:ez_badminton_admin_app/widgets/popover_menu/cubit/popover_menu_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PopoverMenuButton extends StatelessWidget {
-  PopoverMenuButton({
+  const PopoverMenuButton({
     super.key,
     required this.menu,
     required this.label,
+    this.controller,
 
     // Distance of the popover menu from the menu button
     this.anchorOffset = 2.0,
@@ -14,34 +16,48 @@ class PopoverMenuButton extends StatelessWidget {
 
   final Widget menu;
   final Widget label;
+
+  final PopoverMenuController? controller;
+
   final double anchorOffset;
-  final _layerLink = LayerLink();
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => PopoverMenuCubit(),
-      child: BlocBuilder<PopoverMenuCubit, PopoverMenuState>(
-        buildWhen: (previous, current) => previous.menu != current.menu,
+      create: (_) => PopoverMenuCubit(
+        menuContent: menu,
+        menuBuilder: _createMenu,
+        layerLink: LayerLink(),
+        controller: controller,
+      ),
+      child: BlocConsumer<PopoverMenuCubit, PopoverMenuState>(
+        listenWhen: (previous, current) {
+          if (previous.menu.isEmpty && current.menu.isNotEmpty) {
+            Overlay.of(context).insertAll(current.menu);
+          }
+          if (previous.menu.isNotEmpty && current.menu.isEmpty) {
+            for (OverlayEntry entry in previous.menu) {
+              entry.remove();
+            }
+          }
+          return false;
+        },
+        listener: (context, state) {},
         builder: (context, state) {
+          var cubit = context.read<PopoverMenuCubit>();
+          cubit.menuContentChanged(menu);
           return CompositedTransformTarget(
-            link: _layerLink,
+            link: cubit.layerLink,
             child: FilledButton(
               onPressed: () {
-                state.menu.isNotEmpty
-                    ? _closeMenu(context)
-                    : _openMenu(
-                        context,
-                        context.read<PopoverMenuCubit>(),
-                        _layerLink,
-                      );
+                state.isMenuOpen ? cubit.closeMenu() : cubit.openMenu();
               },
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   label,
                   AnimatedRotation(
-                    turns: state.menu.isNotEmpty ? -0.5 : 0.0,
+                    turns: state.isMenuOpen ? -0.5 : 0.0,
                     duration: const Duration(milliseconds: 100),
                     child: Icon(
                       Icons.keyboard_arrow_down_sharp,
@@ -57,66 +73,54 @@ class PopoverMenuButton extends StatelessWidget {
     );
   }
 
-  void _openMenu(
-    BuildContext context,
-    PopoverMenuCubit cubit,
-    LayerLink transformFollowerLink,
-  ) {
+  List<OverlayEntry> _createMenu(Widget menuContent, PopoverMenuCubit cubit) {
     var menuOverlay = OverlayEntry(builder: (_) {
-      return BlocBuilder<PopoverMenuCubit, PopoverMenuState>(
-        bloc: cubit,
-        buildWhen: (previous, current) =>
-            previous.opacity != current.opacity ||
-            previous.scale != current.scale,
-        builder: (_, state) {
-          return Positioned(
-            left: 0,
-            top: 0,
-            child: CompositedTransformFollower(
-              link: transformFollowerLink,
-              targetAnchor: Alignment.bottomLeft,
-              followerAnchor: Alignment.topLeft,
-              offset: Offset(0, anchorOffset),
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 100),
-                opacity: state.opacity,
-                child: AnimatedScale(
-                  duration: const Duration(milliseconds: 50),
-                  scale: state.scale,
-                  child: PopoverMenu(
-                    close: () => _closeMenu(context),
-                    child: menu,
-                  ),
-                ),
+      return Positioned(
+        left: 0,
+        top: 0,
+        child: CompositedTransformFollower(
+          link: cubit.layerLink,
+          targetAnchor: Alignment.bottomLeft,
+          followerAnchor: Alignment.topLeft,
+          offset: Offset(0, anchorOffset),
+          child: AnimatedOpacity(
+            duration: const Duration(milliseconds: 100),
+            opacity: 1.0,
+            child: AnimatedScale(
+              duration: const Duration(milliseconds: 50),
+              scale: 1.0,
+              child: PopoverMenu(
+                close: cubit.closeMenu,
+                child: menuContent,
               ),
             ),
-          );
-        },
+          ),
+        ),
       );
     });
     // Cover all quadrants around the menu button with modal barriers
     var modalBarriers = [
       FollowingModalBarrier(
-        cubit: cubit,
-        transformFollowerLink: transformFollowerLink,
+        onClose: cubit.closeMenu,
+        transformFollowerLink: cubit.layerLink,
         followerAnchor: Alignment.topRight,
         targetAnchor: Alignment.topLeft,
       ),
       FollowingModalBarrier(
-        cubit: cubit,
-        transformFollowerLink: transformFollowerLink,
+        onClose: cubit.closeMenu,
+        transformFollowerLink: cubit.layerLink,
         followerAnchor: Alignment.topLeft,
         targetAnchor: Alignment.bottomLeft,
       ),
       FollowingModalBarrier(
-        cubit: cubit,
-        transformFollowerLink: transformFollowerLink,
+        onClose: cubit.closeMenu,
+        transformFollowerLink: cubit.layerLink,
         followerAnchor: Alignment.bottomLeft,
         targetAnchor: Alignment.bottomRight,
       ),
       FollowingModalBarrier(
-        cubit: cubit,
-        transformFollowerLink: transformFollowerLink,
+        onClose: cubit.closeMenu,
+        transformFollowerLink: cubit.layerLink,
         followerAnchor: Alignment.bottomRight,
         targetAnchor: Alignment.topRight,
       ),
@@ -129,18 +133,7 @@ class PopoverMenuButton extends StatelessWidget {
         .toList();
     overlays.add(menuOverlay);
 
-    for (var overlay in overlays) {
-      Overlay.of(context).insert(overlay);
-    }
-    context.read<PopoverMenuCubit>().setMenu(overlays);
-    Future.delayed(const Duration(milliseconds: 10), () {
-      context.read<PopoverMenuCubit>().setOpacity(1.0);
-      context.read<PopoverMenuCubit>().setScale(1.0);
-    });
-  }
-
-  void _closeMenu(BuildContext context) {
-    context.read<PopoverMenuCubit>().setMenu([]);
+    return overlays;
   }
 }
 
@@ -170,13 +163,13 @@ class PopoverMenu extends InheritedWidget {
 class FollowingModalBarrier extends StatelessWidget {
   const FollowingModalBarrier({
     super.key,
-    required this.cubit,
+    required this.onClose,
     required this.transformFollowerLink,
     required this.targetAnchor,
     required this.followerAnchor,
   });
 
-  final PopoverMenuCubit cubit;
+  final void Function() onClose;
   final LayerLink transformFollowerLink;
   final Alignment targetAnchor;
   final Alignment followerAnchor;
@@ -193,7 +186,7 @@ class FollowingModalBarrier extends StatelessWidget {
         child: ConstrainedBox(
           constraints: BoxConstraints.loose(const Size(9999, 9999)),
           child: ModalBarrier(
-            onDismiss: () => cubit.setMenu([]),
+            onDismiss: onClose,
           ),
         ),
       ),

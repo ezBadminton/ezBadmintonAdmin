@@ -40,7 +40,9 @@ class _FilterMenus extends StatelessWidget {
   Widget build(BuildContext context) {
     AppLocalizations l10n = AppLocalizations.of(context)!;
     return BlocConsumer<PlayerFilterCubit, PlayerFilterState>(
-      listenWhen: (_, current) => current.filterPredicate != null,
+      listenWhen: (previous, current) {
+        return current.filterPredicate != null;
+      },
       listener: (context, state) {
         var listFilter = context.read<PredicateFilterCubit>();
         listFilter.consumePredicate(state.filterPredicate!);

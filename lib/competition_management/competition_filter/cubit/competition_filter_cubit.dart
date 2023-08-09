@@ -45,6 +45,14 @@ class CompetitionFilterCubit
       tournamentRepository,
       (_) => loadCollections(),
     );
+    subscribeToCollectionUpdates(
+      ageGroupRepository,
+      (_) => loadCollections(),
+    );
+    subscribeToCollectionUpdates(
+      playingLevelRepository,
+      (_) => loadCollections(),
+    );
   }
 
   @override

@@ -1,6 +1,7 @@
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_consumer_cubit.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_consumer_state.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/predicate_producer.dart';
+import 'package:ez_badminton_admin_app/widgets/popover_menu/controller/popover_menu_controller.dart';
 import 'package:ez_badminton_admin_app/widgets/popover_menu/popover_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,10 +11,13 @@ class FilterPopoverMenu extends StatelessWidget {
     super.key,
     required this.filterMenu,
     required this.buttonText,
+    this.controller,
   });
 
   final String buttonText;
   final Widget filterMenu;
+
+  final PopoverMenuController? controller;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +39,7 @@ class FilterPopoverMenu extends StatelessWidget {
         ),
       ),
       label: Text(buttonText),
+      controller: controller,
     );
   }
 }
