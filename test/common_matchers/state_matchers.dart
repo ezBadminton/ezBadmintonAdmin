@@ -231,14 +231,3 @@ class HasFilterPredicate extends CustomMatcher {
   @override
   featureValueOf(actual) => actual.filterPredicate;
 }
-
-class WithPredicateDomain extends CustomMatcher {
-  WithPredicateDomain(matcher)
-      : super(
-          'FilterPredicate with a domain of',
-          'Predicate domain',
-          matcher,
-        );
-  @override
-  featureValueOf(actual) => actual.domain;
-}

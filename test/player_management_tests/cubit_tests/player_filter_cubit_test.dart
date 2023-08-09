@@ -8,6 +8,7 @@ import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dar
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../common_matchers/predicate_matchers.dart';
 import '../../common_matchers/state_matchers.dart';
 
 class MockCollectionRepository<M extends Model> extends Mock
@@ -191,7 +192,7 @@ void main() {
       skip: 1, // Skip LoadingStatus.done state
       wait: const Duration(milliseconds: 3),
       expect: () => [
-        HasFilterPredicate(WithPredicateDomain('testdomain')),
+        HasFilterPredicate(HasDomain('testdomain')),
       ],
     );
   });
