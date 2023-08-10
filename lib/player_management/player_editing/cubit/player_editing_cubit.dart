@@ -33,13 +33,17 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
             teamRepository,
           ],
         ) {
-    loadPlayerData();
+    loadCollections();
     subscribeToCollectionUpdates(teamRepository, _onTeamCollectionUpdate);
+    subscribeToCollectionUpdates(
+      competitionRepository,
+      _onCompetitionCollectionUpdate,
+    );
   }
 
   final BuildContext _context;
 
-  void loadPlayerData() {
+  void loadCollections() {
     if (state.loadingStatus != LoadingStatus.loading) {
       emit(state.copyWith(loadingStatus: LoadingStatus.loading));
     }
@@ -58,25 +62,32 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
           );
         }
 
-        var playerCompetitions = mapCompetitionRegistrations(
-          updatedState.getCollection<Player>(),
+        List<CompetitionRegistration> playerRegistrations =
+            registrationsOfPlayer(
+          updatedState.player,
           updatedState.getCollection<Competition>(),
         );
         updatedState = updatedState.copyWith(
-          registrations:
-              ListInput.pure(playerCompetitions[updatedState.player] ?? []),
+          registrations: ListInput.pure(playerRegistrations),
           loadingStatus: LoadingStatus.done,
         );
+
         if (state.player.dateOfBirth != null) {
-          var dobString = dateFormatter(state.player.dateOfBirth!);
+          String dob = dateFormatter(state.player.dateOfBirth!);
           updatedState = updatedState.copyWith(
             dateOfBirth: DateInput.pure(
               dateParser: dateParser,
               emptyAllowed: true,
-              value: dobString,
+              value: dob,
             ),
           );
         }
+
+        if (updatedState.getCollection<Competition>().isEmpty &&
+            state.registrationFormShown) {
+          updatedState = updatedState.copyWith(registrationFormShown: false);
+        }
+
         emit(updatedState);
       },
       onFailure: () =>
@@ -351,6 +362,14 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
         emit(state.copyWith(registrations: updatedRegistrations));
         return;
       }
+    }
+  }
+
+  /// Reset the registration list by reloading when the competition collection
+  /// changes while this form is open
+  void _onCompetitionCollectionUpdate(CollectionUpdateEvent _) {
+    if (state.formStatus != FormzSubmissionStatus.success) {
+      loadCollections();
     }
   }
 

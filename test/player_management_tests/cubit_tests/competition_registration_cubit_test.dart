@@ -6,12 +6,8 @@ import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/co
 import 'package:ez_badminton_admin_app/player_management/player_editing/models/registration_warning.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 
 import '../../common_matchers/state_matchers.dart';
-
-class MockCollectionRepository<M extends Model> extends Mock
-    implements PocketbaseCollectionRepository<M> {}
 
 class IsInFormStep extends CustomMatcher {
   IsInFormStep(matcher)
@@ -126,10 +122,6 @@ void main() {
   late Player player;
   late List<CompetitionRegistration> registrations;
 
-  late List<Player> playerList;
-  late List<Competition> competitionList;
-  late List<AgeGroup> ageGroupList;
-
   CompetitionRegistrationCubit createSut() {
     return CompetitionRegistrationCubit(
       player: player,
@@ -140,34 +132,32 @@ void main() {
     );
   }
 
-  void arrangeRepositoriesReturn() {
-    when(() => playerRepository.getList(expand: any(named: 'expand')))
-        .thenAnswer((invocation) async => playerList);
-    when(() => competitionRepository.getList(expand: any(named: 'expand')))
-        .thenAnswer((invocation) async => competitionList);
-    when(() => ageGroupRepository.getList(expand: any(named: 'expand')))
-        .thenAnswer((invocation) async => ageGroupList);
-  }
-
-  void arrangeRepositoryThrows() {
-    when(() => playerRepository.getList(expand: any(named: 'expand')))
-        .thenAnswer(
-      (invocation) async => throw CollectionQueryException('errorCode'),
+  void arrangeRepositories({
+    List<Player> players = const [],
+    List<Competition> competitions = const [],
+    List<AgeGroup> ageGroups = const [],
+  }) {
+    playerRepository = TestCollectionRepository(
+      initialCollection: players,
+    );
+    competitionRepository = TestCollectionRepository(
+      initialCollection: competitions,
+    );
+    ageGroupRepository = TestCollectionRepository(
+      initialCollection: ageGroups,
     );
   }
 
+  void arrangeRepositoryThrows() {
+    playerRepository = TestCollectionRepository(throwing: true);
+  }
+
   setUp(() {
-    playerRepository = MockCollectionRepository();
-    competitionRepository = MockCollectionRepository();
-    ageGroupRepository = MockCollectionRepository();
-
     player = Player.newPlayer();
-    registrations = [];
-    playerList = [];
-    competitionList = [];
-    ageGroupList = [];
 
-    arrangeRepositoriesReturn();
+    registrations = [];
+
+    arrangeRepositories();
   });
 
   group('CompetitionRegistrationCubit', () {
@@ -190,7 +180,7 @@ void main() {
       build: createSut,
       act: (cubit) async {
         await Future.delayed(Duration.zero);
-        cubit.loadPlayerData();
+        cubit.loadCollections();
       },
       expect: () => [
         HasLoadingStatus(LoadingStatus.done),
@@ -215,7 +205,9 @@ void main() {
       """the form steps include a PlayingLevel step when a Competition
       with PlayingLevel parameter is available""",
       setUp: () {
-        competitionList = [competitionWithPlayingLevel];
+        arrangeRepositories(
+          competitions: [competitionWithPlayingLevel],
+        );
       },
       build: createSut,
       verify: (cubit) {
@@ -232,7 +224,9 @@ void main() {
       """the form steps include a PlayingLevel and AgeGroup step when a
       Competition with PlayingLevel/AgeGroup parameter is available""",
       setUp: () {
-        competitionList = [competitionWithPlayingLevelAndAgeGroup];
+        arrangeRepositories(
+          competitions: [competitionWithPlayingLevelAndAgeGroup],
+        );
       },
       build: createSut,
       verify: (cubit) {
@@ -249,10 +243,12 @@ void main() {
       """getParameterOptions() returns the available options from the present
       Competitions""",
       setUp: () {
-        competitionList = [
-          competitionWithPlayingLevelAndAgeGroup,
-          competitionWithPlayingLevelAndAgeGroup2,
-        ];
+        arrangeRepositories(
+          competitions: [
+            competitionWithPlayingLevelAndAgeGroup,
+            competitionWithPlayingLevelAndAgeGroup2,
+          ],
+        );
       },
       build: createSut,
       verify: (cubit) {
@@ -285,11 +281,13 @@ void main() {
       """getParameterOptions(inSelection: true) returns the available options
       from the selected Competitions""",
       setUp: () {
-        competitionList = [
-          competitionWithPlayingLevelAndAgeGroup,
-          competitionWithPlayingLevelAndAgeGroup2,
-          competitionWithPlayingLevelAndAgeGroup3,
-        ];
+        arrangeRepositories(
+          competitions: [
+            competitionWithPlayingLevelAndAgeGroup,
+            competitionWithPlayingLevelAndAgeGroup2,
+            competitionWithPlayingLevelAndAgeGroup3,
+          ],
+        );
       },
       build: createSut,
       act: (cubit) async {
@@ -337,11 +335,13 @@ void main() {
       setting CompetitionType.mixed also sets GenderCategory.mixed,
       setting GenderCategory.mixed also sets CompetitionType.mixed""",
       setUp: () {
-        competitionList = [
-          competitionWithPlayingLevelAndAgeGroup,
-          competitionWithPlayingLevelAndAgeGroup2,
-          competitionWithPlayingLevelAndAgeGroup3,
-        ];
+        arrangeRepositories(
+          competitions: [
+            competitionWithPlayingLevelAndAgeGroup,
+            competitionWithPlayingLevelAndAgeGroup2,
+            competitionWithPlayingLevelAndAgeGroup3,
+          ],
+        );
       },
       build: createSut,
       skip: 1,
@@ -431,11 +431,13 @@ void main() {
       Competition by setting Competition parameters throws assertion error,
       submitting successfully emits a state with the selected Competition""",
       setUp: () {
-        competitionList = [
-          competitionWithPlayingLevelAndAgeGroup,
-          competitionWithPlayingLevelAndAgeGroup2,
-          competitionWithPlayingLevelAndAgeGroup3,
-        ];
+        arrangeRepositories(
+          competitions: [
+            competitionWithPlayingLevelAndAgeGroup,
+            competitionWithPlayingLevelAndAgeGroup2,
+            competitionWithPlayingLevelAndAgeGroup3,
+          ],
+        );
       },
       build: createSut,
       skip: 4,
@@ -474,12 +476,14 @@ void main() {
             Team.newTeam(players: [player]),
           ],
         );
-        competitionList = [
-          competitionWithPlayingLevelAndAgeGroup,
-          competitionWithPlayingLevelAndAgeGroup2,
-          alreadyRegisteredCompetition,
-        ];
-        ageGroupList = [ageGroup, ageGroup2];
+        arrangeRepositories(
+          competitions: [
+            competitionWithPlayingLevelAndAgeGroup,
+            competitionWithPlayingLevelAndAgeGroup2,
+            alreadyRegisteredCompetition,
+          ],
+          ageGroups: [ageGroup, ageGroup2],
+        );
         registrations = [
           CompetitionRegistration.fromCompetition(
               competition: alreadyRegisteredCompetition, player: player),
@@ -525,11 +529,13 @@ void main() {
       """resetFormStep() emits a state with the step's parameter inputs
       set to null""",
       setUp: () {
-        competitionList = [
-          competitionWithPlayingLevelAndAgeGroup,
-          competitionWithPlayingLevelAndAgeGroup2,
-          competitionWithPlayingLevelAndAgeGroup3,
-        ];
+        arrangeRepositories(
+          competitions: [
+            competitionWithPlayingLevelAndAgeGroup,
+            competitionWithPlayingLevelAndAgeGroup2,
+            competitionWithPlayingLevelAndAgeGroup3,
+          ],
+        );
       },
       build: createSut,
       skip: 5,
@@ -561,11 +567,13 @@ void main() {
       """formStepBack() and formStepBackTo() reset the form steps
       and decrements the form step""",
       setUp: () {
-        competitionList = [
-          competitionWithPlayingLevelAndAgeGroup,
-          competitionWithPlayingLevelAndAgeGroup2,
-          competitionWithPlayingLevelAndAgeGroup3,
-        ];
+        arrangeRepositories(
+          competitions: [
+            competitionWithPlayingLevelAndAgeGroup,
+            competitionWithPlayingLevelAndAgeGroup2,
+            competitionWithPlayingLevelAndAgeGroup3,
+          ],
+        );
       },
       build: createSut,
       skip: 3,

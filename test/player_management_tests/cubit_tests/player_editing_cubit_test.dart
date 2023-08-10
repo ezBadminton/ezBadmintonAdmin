@@ -1,7 +1,6 @@
-import 'dart:async';
+// ignore_for_file: invalid_use_of_protected_member
 
 import 'package:bloc_test/bloc_test.dart';
-import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/player_editing_cubit.dart';
@@ -14,9 +13,6 @@ import 'package:mocktail/mocktail.dart';
 
 import '../../common_matchers/model_matchers.dart';
 import '../../common_matchers/state_matchers.dart';
-
-class MockCollectionRepository<M extends Model> extends Mock
-    implements PocketbaseCollectionRepository<M> {}
 
 class MockBuildContext extends Mock implements BuildContext {}
 
@@ -83,14 +79,22 @@ class WithPartner extends CustomMatcher {
 
 class TestPlayerEditingCubit extends PlayerEditingCubit {
   TestPlayerEditingCubit({
-    super.player,
-    required super.context,
-    required super.playerRepository,
-    required super.competitionRepository,
-    required super.clubRepository,
-    required super.playingLevelRepository,
-    required super.teamRepository,
-  });
+    required BuildContext context,
+    Player? player,
+    required CollectionRepository<Player> playerRepository,
+    required CollectionRepository<Competition> competitionRepository,
+    required CollectionRepository<Club> clubRepository,
+    required CollectionRepository<PlayingLevel> playingLevelRepository,
+    required CollectionRepository<Team> teamRepository,
+  }) : super(
+          context: context,
+          player: player,
+          playerRepository: playerRepository,
+          competitionRepository: competitionRepository,
+          clubRepository: clubRepository,
+          playingLevelRepository: playingLevelRepository,
+          teamRepository: teamRepository,
+        );
 
   @override
   String Function(DateTime) get dateFormatter => DateFormat.yMd().format;
@@ -106,13 +110,6 @@ void main() {
   late CollectionRepository<Club> clubRepository;
   late CollectionRepository<PlayingLevel> playingLevelRepository;
   late CollectionRepository<Team> teamRepository;
-
-  late List<Player> playerList;
-  late List<Competition> competitionList;
-  late List<Team> teamList;
-  late List<Club> clubList;
-
-  late StreamController<CollectionUpdateEvent<Team>> teamUpdateController;
 
   var playingLevel = PlayingLevel(
     id: 'playinglevelid',
@@ -162,55 +159,53 @@ void main() {
     registerFallbackValue(Team.newTeam());
   });
 
-  void arrangeRepositoriesReturn() {
-    when(() => playerRepository.getList(expand: any(named: 'expand')))
-        .thenAnswer((_) async => playerList);
-    when(() => competitionRepository.getList(expand: any(named: 'expand')))
-        .thenAnswer((_) async => competitionList);
-    when(() =>
-            competitionRepository.getModel(any(), expand: any(named: 'expand')))
-        .thenAnswer((_) async => competitionList[0]);
-    when(() => clubRepository.getList(expand: any(named: 'expand')))
-        .thenAnswer((_) async => clubList);
-    when(() => playingLevelRepository.getList(expand: any(named: 'expand')))
-        .thenAnswer((_) async => <PlayingLevel>[]);
-    when(() => teamRepository.getList(expand: any(named: 'expand')))
-        .thenAnswer((_) async => teamList);
-    when(() => teamRepository.updateStream)
-        .thenAnswer((_) => teamUpdateController.stream);
+  void arrangeRepositories({
+    List<Player> players = const [],
+    List<Competition> competitions = const [],
+    List<Club> clubs = const [],
+    List<PlayingLevel> playingLevels = const [],
+    List<Team> teams = const [],
+  }) {
+    playerRepository = TestCollectionRepository(
+      initialCollection: players,
+    );
+    competitionRepository = TestCollectionRepository(
+      initialCollection: competitions,
+    );
+    clubRepository = TestCollectionRepository(
+      initialCollection: clubs,
+    );
+    playingLevelRepository = TestCollectionRepository(
+      initialCollection: playingLevels,
+    );
+    teamRepository = TestCollectionRepository(
+      initialCollection: teams,
+    );
   }
 
   void arrangeOneRepositoryThrows() {
-    when(() => playerRepository.getList(expand: any(named: 'expand')))
-        .thenAnswer((_) async => throw CollectionQueryException('420'));
+    playerRepository = TestCollectionRepository(throwing: true);
+  }
+
+  void arrangeOneRepositoryFixed() {
+    (playerRepository as TestCollectionRepository).throwing = false;
   }
 
   setUp(() {
     context = MockBuildContext();
-    playerRepository = MockCollectionRepository<Player>();
-    competitionRepository = MockCollectionRepository<Competition>();
-    clubRepository = MockCollectionRepository<Club>();
-    playingLevelRepository = MockCollectionRepository<PlayingLevel>();
-    teamRepository = MockCollectionRepository<Team>();
 
-    teamUpdateController = StreamController.broadcast();
-
-    playerList = [];
-    competitionList = [];
-    teamList = [];
-    clubList = [];
-
-    arrangeRepositoriesReturn();
+    arrangeRepositories();
   });
 
   group('PlayerEditingCubit editing form', () {
-    test("""initial state has LoadingStatus.loading,
-    has FormzSubmissionStatus.initial,
-    contains a blank new player""", () {
+    test('initial state', () async {
       var sut = createSut(null);
       expect(sut.state, HasLoadingStatus(LoadingStatus.loading));
       expect(sut.state, HasFormStatus(FormzSubmissionStatus.initial));
       expect(sut.state.player.id, isEmpty);
+      await Future.delayed(Duration.zero);
+      expect(teamRepository.updateStreamController.hasListener, isTrue);
+      expect(competitionRepository.updateStreamController.hasListener, isTrue);
     });
 
     blocTest<PlayerEditingCubit, PlayerEditingState>(
@@ -221,8 +216,8 @@ void main() {
       build: () => createSut(player),
       act: (cubit) async {
         await Future.delayed(Duration.zero);
-        arrangeRepositoriesReturn();
-        cubit.loadPlayerData();
+        arrangeOneRepositoryFixed();
+        cubit.loadCollections();
       },
       expect: () => [
         HasLoadingStatus(LoadingStatus.failed),
@@ -250,6 +245,9 @@ void main() {
 
     blocTest<PlayerEditingCubit, PlayerEditingState>(
       """value inputs are emitted as new states""",
+      setUp: () {
+        arrangeRepositories(competitions: [competition]);
+      },
       build: () => createSut(null),
       skip: 1, // skip loading done state
       act: (cubit) async {
@@ -316,124 +314,22 @@ void main() {
   });
 
   group('PlayerEditingCubit form submit', () {
-    void arrangeRepositoriesCreateAndUpdate() {
-      when(
-        () => playerRepository.create(any(), expand: any(named: 'expand')),
-      ).thenAnswer(
-        (invocation) async {
-          var player = invocation.positionalArguments[0].copyWith(
-            id: 'newPlayerID-aaa',
-          );
-          playerList.add(player);
-          return player;
-        },
-      );
-      when(
-        () => playerRepository.update(any(), expand: any(named: 'expand')),
-      ).thenAnswer(
-        (invocation) async {
-          var player = invocation.positionalArguments[0];
-          playerList
-            ..removeWhere((p) => p.id == player.id)
-            ..add(player);
-          return player;
-        },
-      );
-
-      when(
-        () => competitionRepository.update(any(), expand: any(named: 'expand')),
-      ).thenAnswer(
-        (invocation) async {
-          var competition = invocation.positionalArguments[0];
-          competitionList
-            ..removeWhere((c) => c.id == competition.id)
-            ..add(competition);
-          return competition;
-        },
-      );
-
-      when(
-        () => clubRepository.create(any(), expand: any(named: 'expand')),
-      ).thenAnswer(
-        (invocation) async {
-          var club = invocation.positionalArguments[0].copyWith(
-            id: 'newClubID-aaaaaa',
-          );
-          clubList.add(club);
-          return club;
-        },
-      );
-
-      when(
-        () => teamRepository.create(any(), expand: any(named: 'expand')),
-      ).thenAnswer(
-        (invocation) async {
-          var team = invocation.positionalArguments[0].copyWith(
-            id: 'newTeamID-aaaaa',
-          );
-          teamList.add(team);
-          return team;
-        },
-      );
-      when(
-        () => teamRepository.update(any(), expand: any(named: 'expand')),
-      ).thenAnswer(
-        (invocation) async {
-          var team = invocation.positionalArguments[0];
-          teamList
-            ..removeWhere((t) => t.id == team.id)
-            ..add(team);
-          return team;
-        },
-      );
-      when(
-        () => teamRepository.delete(any()),
-      ).thenAnswer(
-        (invocation) async {
-          var team = invocation.positionalArguments[0];
-          teamList.removeWhere((t) => t.id == team.id);
-          var registeredCompetition = competitionList
-              .where((c) => c.registrations.contains(team))
-              .singleOrNull;
-          if (registeredCompetition != null) {
-            competitionList
-              ..remove(registeredCompetition)
-              ..add(registeredCompetition.copyWith(
-                registrations:
-                    List.of(registeredCompetition.registrations).toList()
-                      ..remove(team),
-              ));
-          }
-        },
-      );
-    }
-
     void arrangePlayerRepositoryThrows() {
-      when(() => playerRepository.create(any(), expand: any(named: 'expand')))
-          .thenAnswer((invocation) async =>
-              throw CollectionQueryException('errorCode'));
-    }
-
-    void arrangeClubRepositoryThrows() {
-      when(() => clubRepository.create(any(), expand: any(named: 'expand')))
-          .thenAnswer((invocation) async =>
-              throw CollectionQueryException('errorCode'));
+      playerRepository = TestCollectionRepository(throwing: true);
     }
 
     void arrangeCompetitionRepositoryThrows() {
-      when(() =>
-              competitionRepository.update(any(), expand: any(named: 'expand')))
-          .thenAnswer((invocation) async =>
-              throw CollectionQueryException('errorCode'));
+      competitionRepository = TestCollectionRepository(throwing: true);
     }
-
-    setUp(arrangeRepositoriesCreateAndUpdate);
 
     blocTest<PlayerEditingCubit, PlayerEditingState>(
       """submission of invalid form inputs creates
       FormzSubmissionStatus.failure,
       valid form inputs lead to FormzSubmissionStatus.inProgress,
       then FormzSubmissionStatus.success""",
+      setUp: () {
+        arrangeRepositories(players: [player]);
+      },
       build: () => createSut(player),
       skip: 1, // skip loading done state
       act: (cubit) {
@@ -467,28 +363,6 @@ void main() {
       expect: () => [
         HasFirstNameInput(isNotEmpty),
         HasLastNameInput(isNotEmpty),
-        HasFormStatus(FormzSubmissionStatus.inProgress),
-        HasFormStatus(FormzSubmissionStatus.failure),
-      ],
-    );
-
-    blocTest<PlayerEditingCubit, PlayerEditingState>(
-      """FormzSubmissionStatus.inProgress then FormzSubmissionStatus.failure is
-      emitted when Club repository throws during create""",
-      setUp: arrangeClubRepositoryThrows,
-      build: () => createSut(null),
-      skip: 1, // skip loading done state
-      act: (cubit) async {
-        await Future.delayed(Duration.zero);
-        cubit.firstNameChanged('Alice');
-        cubit.lastNameChanged('Smith');
-        cubit.clubNameChanged('Alice-Club');
-        cubit.formSubmitted();
-      },
-      expect: () => [
-        HasFirstNameInput(isNotEmpty),
-        HasLastNameInput(isNotEmpty),
-        HasClubNameInput(isNotEmpty),
         HasFormStatus(FormzSubmissionStatus.inProgress),
         HasFormStatus(FormzSubmissionStatus.failure),
       ],
@@ -544,14 +418,17 @@ void main() {
           HasPlayingLevel(playingLevel),
         )),
       ],
-      verify: (_) {
-        expect(clubList, [HasName('changedClubName')]);
+      verify: (_) async {
+        List<Club> collection = await clubRepository.getList();
+        expect(collection, [HasName('changedClubName')]);
       },
     );
 
     blocTest<PlayerEditingCubit, PlayerEditingState>(
       """an existing Club is selected by name""",
-      setUp: () => clubList = [Club.newClub(name: 'existing club')],
+      setUp: () {
+        arrangeRepositories(clubs: [Club.newClub(name: 'existing club')]);
+      },
       build: () => createSut(null),
       skip: 4, // skip form input state changes
       act: (cubit) async {
@@ -572,17 +449,23 @@ void main() {
           HasPlayingLevel(isNull),
         )),
       ],
-      verify: (bloc) {
-        expect(clubList, [HasName('existing club')]);
+      verify: (bloc) async {
+        List<Club> collection = await clubRepository.getList();
+        expect(collection, [HasName('existing club')]);
       },
     );
 
     blocTest<PlayerEditingCubit, PlayerEditingState>(
-      """registering for a Competition correctly updates the Comptetition's
+      """registering for a Competition correctly updates the Competition's
       registrations List,
       the Team that is used for the registration contains the edited player
       and the given team partner""",
-      setUp: () => competitionList = [competition.copyWith()],
+      setUp: () {
+        arrangeRepositories(
+          competitions: [competition],
+          players: [player, player2],
+        );
+      },
       build: () => createSut(player),
       act: (cubit) async {
         await Future.delayed(Duration.zero);
@@ -590,19 +473,14 @@ void main() {
         cubit.registrationAdded(competition, player2);
         cubit.formSubmitted();
       },
-      verify: (bloc) {
-        expect(competitionList, hasLength(1));
-        expect(competitionList.first.registrations, hasLength(1));
+      verify: (bloc) async {
+        List<Competition> collection = await competitionRepository.getList();
+        expect(collection, hasLength(1));
+        expect(collection.first.registrations, hasLength(1));
         expect(
-          competitionList.first.registrations.first.players,
+          collection.first.registrations.first.players,
           allOf(contains(player), contains(player2)),
         );
-        verify(
-          () => competitionRepository.update(
-            any(),
-            expand: any(named: 'expand'),
-          ),
-        ).called(1);
       },
     );
 
@@ -613,11 +491,13 @@ void main() {
       registrations List,
       the Team the edited Player was part of has the Player removed""",
       setUp: () {
-        teamList = [teamWithPartner];
-        competitionList = [
-          competition.copyWith(registrations: List.of(teamList)),
-        ];
-        playerList = List.of(teamWithPartner.players);
+        arrangeRepositories(
+          teams: [teamWithPartner],
+          competitions: [
+            competition.copyWith(registrations: [teamWithPartner]),
+          ],
+          players: List.of(teamWithPartner.players),
+        );
       },
       build: () => createSut(player),
       act: (cubit) async {
@@ -625,20 +505,17 @@ void main() {
         cubit.registrationRemoved(cubit.state.registrations.value.first);
         cubit.formSubmitted();
       },
-      verify: (bloc) {
-        expect(competitionList, hasLength(1));
-        expect(competitionList.first.registrations, hasLength(1));
-        expect(teamList, hasLength(1));
+      verify: (bloc) async {
+        List<Competition> competitionCollection =
+            await competitionRepository.getList();
+        List<Team> teamCollection = await teamRepository.getList();
+        expect(competitionCollection, hasLength(1));
+        expect(competitionCollection.first.registrations, hasLength(1));
+        expect(teamCollection, hasLength(1));
         expect(
-          teamList.first.players,
+          teamCollection.first.players,
           allOf(contains(player2), isNot(contains(player))),
         );
-        verify(
-          () => competitionRepository.update(
-            any(),
-            expand: any(named: 'expand'),
-          ),
-        ).called(1);
       },
     );
 
@@ -649,34 +526,40 @@ void main() {
       registering with a partner that is already solo in a Team makes the
       partner join the new Team and deletes theirs""",
       setUp: () {
-        teamList = [soloTeam, soloTeam2];
-        competitionList = [
-          competition.copyWith(registrations: [soloTeam, soloTeam2]),
-        ];
-        playerList = [player, player2];
+        arrangeRepositories(
+          teams: [soloTeam, soloTeam2],
+          competitions: [
+            competition.copyWith(registrations: [soloTeam, soloTeam2]),
+          ],
+          players: [player, player2],
+        );
       },
       build: () => createSut(player),
       act: (cubit) async {
         await Future.delayed(Duration.zero);
         cubit.registrationRemoved(cubit.state.registrations.value.first);
         cubit.registrationFormOpened();
-        cubit.registrationAdded(competitionList.first, player2);
+        List<Competition> competitionCollection =
+            await competitionRepository.getList();
+        cubit.registrationAdded(competitionCollection.first, player2);
         cubit.formSubmitted();
       },
-      verify: (bloc) {
-        expect(competitionList, hasLength(1));
-        expect(competitionList.first.registrations, hasLength(1));
-        expect(teamList, [HasId('newTeamID-aaaaa')]);
+      verify: (bloc) async {
+        List<Competition> competitionCollection =
+            await competitionRepository.getList();
+        List<Team> teamCollection = await teamRepository.getList();
+        expect(competitionCollection, hasLength(1));
+        expect(competitionCollection.first.registrations, hasLength(1));
+        expect(teamCollection, [
+          allOf(
+            isNot(soloTeam),
+            isNot(soloTeam2),
+          )
+        ]);
         expect(
-          teamList.first.players,
+          teamCollection.first.players,
           allOf(contains(player), contains(player2)),
         );
-        verify(
-          () => competitionRepository.update(
-            any(),
-            expand: any(named: 'expand'),
-          ),
-        ).called(2);
       },
     );
 
@@ -686,26 +569,31 @@ void main() {
       """trying to register twice for a Competition
       emits FormzSubmissionStatus.failure""",
       setUp: () {
-        teamList = [alreadyRegisteredTeam];
-        competitionList = [
-          competition.copyWith(registrations: [alreadyRegisteredTeam]),
-        ];
-        playerList = List.of(alreadyRegisteredTeam.players);
+        arrangeRepositories(
+          teams: [alreadyRegisteredTeam],
+          competitions: [
+            competition.copyWith(registrations: [alreadyRegisteredTeam]),
+          ],
+          players: List.of(alreadyRegisteredTeam.players),
+        );
       },
       build: () => createSut(player),
       skip: 3,
       act: (cubit) async {
         await Future.delayed(Duration.zero);
         cubit.registrationFormOpened();
-        cubit.registrationAdded(competitionList.first, null);
+        List<Competition> competitionCollection =
+            await competitionRepository.getList();
+        cubit.registrationAdded(competitionCollection.first, null);
         cubit.formSubmitted();
       },
       expect: () => [
         HasFormStatus(FormzSubmissionStatus.inProgress),
         HasFormStatus(FormzSubmissionStatus.failure),
       ],
-      verify: (bloc) {
-        expect(competitionList.first.registrations, [alreadyRegisteredTeam]);
+      verify: (bloc) async {
+        List<Competition> collection = await competitionRepository.getList();
+        expect(collection.first.registrations, [alreadyRegisteredTeam]);
       },
     );
   });

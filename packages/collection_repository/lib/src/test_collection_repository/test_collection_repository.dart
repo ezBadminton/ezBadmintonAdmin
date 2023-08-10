@@ -15,7 +15,7 @@ class TestCollectionRepository<M extends Model>
   }) : collection = List.of(initialCollection);
 
   /// If any calls to the repository should throw
-  final bool throwing;
+  bool throwing;
 
   /// When not null, all calls are answered with this delay
   /// (to simulate network delay for example)

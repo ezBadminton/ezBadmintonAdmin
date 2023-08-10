@@ -26,7 +26,15 @@ class CompetitionRegistrationCubit
             ageGroupRepository,
           ],
         ) {
-    loadPlayerData();
+    loadCollections();
+    subscribeToCollectionUpdates(
+      competitionRepository,
+      (_) => _competitionCollectionUpdated(),
+    );
+    subscribeToCollectionUpdates(
+      ageGroupRepository,
+      (_) => _competitionCollectionUpdated(),
+    );
   }
 
   final Player player;
@@ -34,7 +42,7 @@ class CompetitionRegistrationCubit
 
   late List<List<Type>> allFormSteps;
 
-  void loadPlayerData() {
+  void loadCollections() {
     if (state.loadingStatus != LoadingStatus.loading) {
       emit(state.copyWith(loadingStatus: LoadingStatus.loading));
     }
@@ -326,5 +334,11 @@ class CompetitionRegistrationCubit
   /// the given [formStep]
   List<Type> getFormStepParameterTypes(int formStep) {
     return allFormSteps[formStep];
+  }
+
+  /// When the competitions change while this form is open, it is reset
+  void _competitionCollectionUpdated() {
+    formStepBackTo(0);
+    loadCollections();
   }
 }

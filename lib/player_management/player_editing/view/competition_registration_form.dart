@@ -137,7 +137,7 @@ class _CompetitionRegistrationStepper extends StatelessWidget {
         var scrollController = context.read<ScrollController>();
         return LoadingScreen(
           loadingStatus: state.loadingStatus,
-          onRetry: registrationCubit.loadPlayerData,
+          onRetry: registrationCubit.loadCollections,
           builder: (_) {
             _scrollAfterBuild(scrollController);
             return Stepper(
