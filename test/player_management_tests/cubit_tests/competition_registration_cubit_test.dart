@@ -3,7 +3,7 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_state.dart';
-import 'package:ez_badminton_admin_app/player_management/player_editing/models/registration_warning.dart';
+import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -42,17 +42,6 @@ class HasCompetition extends CustomMatcher {
   @override
   featureValueOf(actual) =>
       (actual as CompetitionRegistrationState).competition.value;
-}
-
-class HasWarnings extends CustomMatcher {
-  HasWarnings(matcher)
-      : super(
-          'State with registration warnings',
-          'RegistrationWarning List',
-          matcher,
-        );
-  @override
-  featureValueOf(actual) => (actual as CompetitionRegistrationState).warnings;
 }
 
 var playingLevel = PlayingLevel(
@@ -450,20 +439,13 @@ void main() {
         cubit.formSubmitted();
       },
       expect: () => [
-        allOf(
-          HasCompetition(competitionWithPlayingLevelAndAgeGroup),
-          HasWarnings(isEmpty),
-        ),
+        HasCompetition(competitionWithPlayingLevelAndAgeGroup),
       ],
     );
 
     blocTest<CompetitionRegistrationCubit, CompetitionRegistrationState>(
       """submitting a Competition with parameters that don't match the Player
-      triggers warnings,
-      calling warningsDismissed(true) emits the same selected
-      Competition but without warnings,
-      calling warningsDismissed(false) emits no selected
-      Competition and no warnings""",
+      triggers warnings""",
       setUp: () {
         var today = DateTime.now();
         player = Player.newPlayer().copyWith(
@@ -502,25 +484,27 @@ void main() {
           CompetitionType.singles,
         );
         cubit.formSubmitted();
-        cubit.warningsDismissed(true);
-        cubit.warningsDismissed(false);
+        cubit.state.dialog.decisionCompleter!.complete(false);
+        await Future.delayed(Duration.zero);
+        cubit.formSubmitted();
+        cubit.state.dialog.decisionCompleter!.complete(true);
       },
       expect: () => [
         allOf(
-          HasCompetition(competitionWithPlayingLevelAndAgeGroup2),
-          HasWarnings(containsAll([
-            isA<PlayingLevelWarning>(),
-            isA<AgeGroupWarning>(),
-            isA<GenderWarning>(),
-          ])),
-        ),
-        allOf(
-          HasCompetition(competitionWithPlayingLevelAndAgeGroup2),
-          HasWarnings(isEmpty),
+          HasCompetition(isNull),
+          HasDialog(isA<CubitDialog<bool>>()),
         ),
         allOf(
           HasCompetition(isNull),
-          HasWarnings(isEmpty),
+          HasDialog(HasDialogCompleter(IsComplete(true))),
+        ),
+        allOf(
+          HasCompetition(isNull),
+          HasDialog(isA<CubitDialog<bool>>()),
+        ),
+        allOf(
+          HasCompetition(competitionWithPlayingLevelAndAgeGroup2),
+          HasDialog(HasDialogCompleter(IsComplete(true))),
         ),
       ],
     );

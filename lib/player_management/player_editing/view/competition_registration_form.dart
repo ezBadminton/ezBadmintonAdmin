@@ -8,6 +8,8 @@ import 'package:ez_badminton_admin_app/widgets/custom_input_fields/competition_t
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/gender_category_input.dart';
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/player_search_input/player_search_input.dart';
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/playing_level_input.dart';
+import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
+import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/registration_display_card.dart';
 import 'package:flutter/material.dart';
@@ -115,61 +117,61 @@ class _CompetitionRegistrationStepper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<CompetitionRegistrationCubit,
-        CompetitionRegistrationState>(
-      listenWhen: (previous, current) => current.competition.value != null,
-      listener: (context, state) {
-        if (state.warnings.isEmpty) {
+    return DialogListener<CompetitionRegistrationCubit,
+        CompetitionRegistrationState, bool>(
+      builder: _createWarningDialog,
+      child: BlocConsumer<CompetitionRegistrationCubit,
+          CompetitionRegistrationState>(
+        listenWhen: (previous, current) => current.competition.value != null,
+        listener: (context, state) {
           var editingCubit = context.read<PlayerEditingCubit>();
           editingCubit.registrationAdded(
             state.competition.value!,
             state.partner.value,
           );
-        } else {
-          _showWarningDialog(context, state.warnings);
-        }
-      },
-      buildWhen: (previous, current) =>
-          previous.formStep != current.formStep ||
-          previous.loadingStatus != current.loadingStatus,
-      builder: (context, state) {
-        var registrationCubit = context.read<CompetitionRegistrationCubit>();
-        var scrollController = context.read<ScrollController>();
-        return LoadingScreen(
-          loadingStatus: state.loadingStatus,
-          onRetry: registrationCubit.loadCollections,
-          builder: (_) {
-            _scrollAfterBuild(scrollController);
-            return Stepper(
-              currentStep: state.formStep,
-              onStepContinue: registrationCubit.formSubmitted,
-              onStepCancel: registrationCubit.formStepBack,
-              onStepTapped: (step) => registrationCubit.formStepBackTo(step),
-              stepIconBuilder: (stepIndex, stepState) {
-                if (stepIndex < state.formStep) {
-                  return const Icon(size: 16, Icons.check);
-                } else {
-                  return const Icon(size: 16, Icons.more_horiz);
-                }
-              },
-              margin: const EdgeInsets.fromLTRB(60.0, 0, 25.0, 0),
-              controlsBuilder: _formControlsBuilder,
-              steps: [
-                if (registrationCubit
-                    .getParameterOptions<PlayingLevel>()
-                    .isNotEmpty)
-                  _PlayingLevelStep(context, state),
-                if (registrationCubit
-                    .getParameterOptions<AgeGroup>()
-                    .isNotEmpty)
-                  _AgeGroupStep(context, state),
-                _CompetitionStep(context, state),
-                _FinalStep(context, state),
-              ],
-            );
-          },
-        );
-      },
+        },
+        buildWhen: (previous, current) =>
+            previous.formStep != current.formStep ||
+            previous.loadingStatus != current.loadingStatus,
+        builder: (context, state) {
+          var registrationCubit = context.read<CompetitionRegistrationCubit>();
+          var scrollController = context.read<ScrollController>();
+          return LoadingScreen(
+            loadingStatus: state.loadingStatus,
+            onRetry: registrationCubit.loadCollections,
+            builder: (_) {
+              _scrollAfterBuild(scrollController);
+              return Stepper(
+                currentStep: state.formStep,
+                onStepContinue: registrationCubit.formSubmitted,
+                onStepCancel: registrationCubit.formStepBack,
+                onStepTapped: (step) => registrationCubit.formStepBackTo(step),
+                stepIconBuilder: (stepIndex, stepState) {
+                  if (stepIndex < state.formStep) {
+                    return const Icon(size: 16, Icons.check);
+                  } else {
+                    return const Icon(size: 16, Icons.more_horiz);
+                  }
+                },
+                margin: const EdgeInsets.fromLTRB(60.0, 0, 25.0, 0),
+                controlsBuilder: _formControlsBuilder,
+                steps: [
+                  if (registrationCubit
+                      .getParameterOptions<PlayingLevel>()
+                      .isNotEmpty)
+                    _PlayingLevelStep(context, state),
+                  if (registrationCubit
+                      .getParameterOptions<AgeGroup>()
+                      .isNotEmpty)
+                    _AgeGroupStep(context, state),
+                  _CompetitionStep(context, state),
+                  _FinalStep(context, state),
+                ],
+              );
+            },
+          );
+        },
+      ),
     );
   }
 
@@ -221,48 +223,29 @@ class _CompetitionRegistrationStepper extends StatelessWidget {
     );
   }
 
-  Future<void> _showWarningDialog(
-    BuildContext context,
-    List<RegistrationWarning> warnings,
-  ) async {
+  Widget _createWarningDialog(context, _, reason) {
     var l10n = AppLocalizations.of(context)!;
-    var cubit = context.read<CompetitionRegistrationCubit>();
+    List<RegistrationWarning> warnings = reason as List<RegistrationWarning>;
     var bullet = '\u2022';
-    var doContinue = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(l10n.registrationWarning),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: Text(l10n.continueMsg),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: Text(l10n.cancel),
-            ),
+    return ConfirmDialog(
+      title: Text(l10n.registrationWarning),
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 700),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (var warning in warnings)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6.0),
+                child: Text('$bullet ${warning.getWarningMessage(context)}'),
+              ),
           ],
-          content: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 700),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (var warning in warnings)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6.0),
-                    child:
-                        Text('$bullet ${warning.getWarningMessage(context)}'),
-                  ),
-              ],
-            ),
-          ),
-        );
-      },
+        ),
+      ),
+      confirmButtonLabel: l10n.continueMsg,
+      cancelButtonLabel: l10n.cancel,
     );
-    cubit.warningsDismissed(doContinue!);
   }
 }
 

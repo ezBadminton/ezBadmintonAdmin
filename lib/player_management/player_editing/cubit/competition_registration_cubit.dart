@@ -8,10 +8,12 @@ import 'package:ez_badminton_admin_app/player_management/player_editing/models/r
 import 'package:ez_badminton_admin_app/utils/age_groups.dart';
 import 'package:ez_badminton_admin_app/player_management/utils/gender_categories.dart';
 import 'package:ez_badminton_admin_app/player_management/utils/playing_levels.dart';
+import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 
 class CompetitionRegistrationCubit
-    extends CollectionFetcherCubit<CompetitionRegistrationState> {
+    extends CollectionFetcherCubit<CompetitionRegistrationState>
+    with DialogCubit<CompetitionRegistrationState> {
   CompetitionRegistrationCubit({
     required this.player,
     required this.registrations,
@@ -79,39 +81,36 @@ class CompetitionRegistrationCubit
 
   int get lastFormStep => allFormSteps.length - 1;
 
-  void formSubmitted({bool ignoreWarnings = false}) {
+  void formSubmitted() async {
     var selection = getSelectedCompetitions();
     assert(
       selection.length == 1,
       'Registration form did not select only one competition',
     );
     var selected = selection.first;
-    CompetitionRegistrationState newState;
-    if (ignoreWarnings) {
-      newState = state.copyWith(warnings: []);
-    } else {
-      newState = _createWarnings(selected);
+
+    List<RegistrationWarning> warnings = _createWarnings(selected);
+    bool userConfirmation = true;
+    if (warnings.isNotEmpty) {
+      userConfirmation = (await requestDialogChoice<bool>(reason: warnings))!;
     }
-    newState = newState.copyWith(
-      competition: SelectionInput.dirty(value: selected),
-    );
+
+    CompetitionRegistrationState newState;
+    if (userConfirmation) {
+      newState = state.copyWith(
+        competition: SelectionInput.dirty(value: selected),
+      );
+    } else {
+      newState = state.copyWith(
+        competition: const SelectionInput.dirty(value: null),
+      );
+    }
+
     emit(newState);
   }
 
-  void warningsDismissed(bool doContinue) {
-    if (doContinue) {
-      formSubmitted(ignoreWarnings: true);
-    } else {
-      var newState = state.copyWith(
-        warnings: [],
-        competition: const SelectionInput.dirty(value: null),
-      );
-      emit(newState);
-    }
-  }
-
-  CompetitionRegistrationState _createWarnings(Competition selected) {
-    var warnings = List.of(state.warnings);
+  List<RegistrationWarning> _createWarnings(Competition selected) {
+    List<RegistrationWarning> warnings = [];
     if (!_verifyAgeGroup(selected)) {
       warnings.add(
         AgeGroupWarning(unfitAgeGroups: [selected.ageGroup!], player: player),
@@ -130,7 +129,7 @@ class CompetitionRegistrationCubit
         GenderWarning(conflictingGender: selected.genderCategory),
       );
     }
-    return state.copyWith(warnings: warnings);
+    return warnings;
   }
 
   bool _verifyAgeGroup(Competition competition) {

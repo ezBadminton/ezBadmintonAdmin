@@ -1,12 +1,13 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/input_models/selection.dart';
-import 'package:ez_badminton_admin_app/player_management/player_editing/models/registration_warning.dart';
+import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:formz/formz.dart';
 
 class CompetitionRegistrationState
-    extends CollectionFetcherState<CompetitionRegistrationState> {
+    extends CollectionFetcherState<CompetitionRegistrationState>
+    implements DialogState {
   CompetitionRegistrationState({
     super.collections = const {},
     this.loadingStatus = LoadingStatus.loading,
@@ -21,7 +22,7 @@ class CompetitionRegistrationState
     ),
     this.playingLevel =
         const SelectionInput.dirty(emptyAllowed: true, value: null),
-    this.warnings = const [],
+    this.dialog = const CubitDialog(),
   });
 
   final LoadingStatus loadingStatus;
@@ -34,7 +35,8 @@ class CompetitionRegistrationState
   final SelectionInput<AgeGroup> ageGroup;
   final SelectionInput<PlayingLevel> playingLevel;
 
-  final List<RegistrationWarning> warnings;
+  @override
+  final CubitDialog dialog;
 
   CompetitionRegistrationState copyWith({
     Map<Type, List<Model>>? collections,
@@ -46,7 +48,7 @@ class CompetitionRegistrationState
     SelectionInput<GenderCategory>? genderCategory,
     SelectionInput<AgeGroup>? ageGroup,
     SelectionInput<PlayingLevel>? playingLevel,
-    List<RegistrationWarning>? warnings,
+    CubitDialog? dialog,
   }) =>
       CompetitionRegistrationState(
         collections: collections ?? this.collections,
@@ -58,7 +60,7 @@ class CompetitionRegistrationState
         genderCategory: genderCategory ?? this.genderCategory,
         ageGroup: ageGroup ?? this.ageGroup,
         playingLevel: playingLevel ?? this.playingLevel,
-        warnings: warnings ?? this.warnings,
+        dialog: dialog ?? this.dialog,
       );
 
   CompetitionRegistrationState copyWithCompetitionParameter<P>(

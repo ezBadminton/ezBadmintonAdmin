@@ -188,6 +188,17 @@ class HasDialogCompleter extends CustomMatcher {
   featureValueOf(actual) => actual.decisionCompleter;
 }
 
+class IsComplete extends CustomMatcher {
+  IsComplete(matcher)
+      : super(
+          'A Completer with completion',
+          'bool',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.isCompleted;
+}
+
 class HasDialogReason extends CustomMatcher {
   HasDialogReason(matcher)
       : super(
