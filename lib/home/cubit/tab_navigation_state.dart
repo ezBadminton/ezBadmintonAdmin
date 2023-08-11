@@ -1,14 +1,17 @@
 class TabNavigationState {
   TabNavigationState({
     this.selectedIndex = 0,
-    this.previousIndex = 0,
+    this.tabChangeReason,
   });
   final int selectedIndex;
-  final int previousIndex;
+  final Object? tabChangeReason;
 
-  TabNavigationState copyWith({required int selectedIndex}) =>
+  TabNavigationState copyWith({
+    required int selectedIndex,
+    Object? tabChangeReason,
+  }) =>
       TabNavigationState(
         selectedIndex: selectedIndex,
-        previousIndex: this.selectedIndex,
+        tabChangeReason: tabChangeReason,
       );
 }

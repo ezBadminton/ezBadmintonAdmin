@@ -1,6 +1,7 @@
 import 'package:ez_badminton_admin_app/assets/badminton_icons_icons.dart';
 import 'package:ez_badminton_admin_app/competition_management/view/competition_list_page.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
+import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_state.dart';
 import 'package:ez_badminton_admin_app/home/widgets/navigation_tab.dart';
 import 'package:ez_badminton_admin_app/player_management/view/player_list_page.dart';
 import 'package:flutter/material.dart';
@@ -122,8 +123,8 @@ class _HomePageState extends State<HomePage>
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => TabNavigationCubit(),
-      child: BlocBuilder<TabNavigationCubit, int>(
-        builder: (context, selectedIndex) {
+      child: BlocBuilder<TabNavigationCubit, TabNavigationState>(
+        builder: (context, tabNavigationState) {
           return Row(
             children: [
               NavigationRail(
@@ -136,7 +137,7 @@ class _HomePageState extends State<HomePage>
                           label: Text(tab.label),
                         ))
                     .toList(),
-                selectedIndex: selectedIndex,
+                selectedIndex: tabNavigationState.selectedIndex,
                 backgroundColor: Theme.of(context).drawerTheme.backgroundColor,
                 minWidth: 100,
                 labelType: NavigationRailLabelType.all,
@@ -160,7 +161,7 @@ class _HomePageState extends State<HomePage>
                       children: tabs.map((NavigationTab tab) {
                         final int index = tab.index;
                         final Widget view = tabViews[index];
-                        if (index == selectedIndex) {
+                        if (index == tabNavigationState.selectedIndex) {
                           switchAnimationControllers[index].forward();
                           return Offstage(offstage: false, child: view);
                         } else {
