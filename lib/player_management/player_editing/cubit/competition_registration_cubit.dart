@@ -18,21 +18,15 @@ class CompetitionRegistrationCubit
     required CollectionRepository<Player> playerRepository,
     required CollectionRepository<Competition> competitionRepository,
     required CollectionRepository<AgeGroup> ageGroupRepository,
-    required CollectionRepository<Tournament> tournamentRepository,
   }) : super(
           CompetitionRegistrationState(),
           collectionRepositories: [
             playerRepository,
             competitionRepository,
             ageGroupRepository,
-            tournamentRepository,
           ],
         ) {
     loadCollections();
-    subscribeToCollectionUpdates(
-      competitionRepository,
-      _competitionCollectionUpdated,
-    );
   }
 
   final Player player;
@@ -49,7 +43,6 @@ class CompetitionRegistrationCubit
         collectionFetcher<Player>(),
         collectionFetcher<Competition>(),
         collectionFetcher<AgeGroup>(),
-        collectionFetcher<Tournament>(),
       ],
       onSuccess: (updatedState) {
         updatedState = updatedState.copyWith(
@@ -298,22 +291,5 @@ class CompetitionRegistrationCubit
   /// the given [formStep]
   List<Type> getFormStepParameterTypes(int formStep) {
     return allFormSteps[formStep];
-  }
-
-  /// When the competitions change while this form is open, it is reset
-  void _competitionCollectionUpdated(CollectionUpdateEvent event) {
-    Competition updatedCompetition = event.model as Competition;
-    // Do not update when the categorization changed because the registration
-    // form has to be closed by the PlayerEditingCubit anyways in this case
-    if (!_didCategorizationChange(updatedCompetition)) {
-      formStepBackTo(0);
-      loadCollections();
-    }
-  }
-
-  bool _didCategorizationChange(Competition competition) {
-    Tournament tournament = state.getCollection<Tournament>().first;
-    return (competition.ageGroup != null) != tournament.useAgeGroups ||
-        (competition.playingLevel != null) != tournament.usePlayingLevels;
   }
 }

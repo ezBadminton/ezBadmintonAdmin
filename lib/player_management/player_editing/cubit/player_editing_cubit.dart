@@ -42,8 +42,12 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
       _onCompetitionCollectionUpdate,
     );
     subscribeToCollectionUpdates(
+      competitionRepository,
+      _closeRegistrationFormOnUpdate,
+    );
+    subscribeToCollectionUpdates(
       tournamentRepository,
-      _onTournamentSettingUpdate,
+      _closeRegistrationFormOnUpdate,
     );
   }
 
@@ -339,7 +343,7 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     }
   }
 
-  void _onTournamentSettingUpdate(CollectionUpdateEvent _) {
+  void _closeRegistrationFormOnUpdate(CollectionUpdateEvent _) {
     if (state.registrationFormShown) {
       registrationCanceled();
     }

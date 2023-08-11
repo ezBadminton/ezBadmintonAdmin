@@ -106,7 +106,6 @@ class _CompetitionForm extends StatelessWidget {
         competitionRepository:
             context.read<CollectionRepository<Competition>>(),
         ageGroupRepository: context.read<CollectionRepository<AgeGroup>>(),
-        tournamentRepository: context.read<CollectionRepository<Tournament>>(),
       ),
       child: const _CompetitionRegistrationStepper(),
     );
