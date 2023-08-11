@@ -3,7 +3,7 @@ import 'package:expect_stream/expect_stream.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_filter/competition_filter.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../common_matchers/predicate_matchers.dart';
+import '../common_matchers/predicate_matchers.dart';
 
 class HasOverCount extends CustomMatcher {
   HasOverCount(matcher)

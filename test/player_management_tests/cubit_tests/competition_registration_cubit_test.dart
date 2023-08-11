@@ -450,11 +450,7 @@ void main() {
       """submitting a Competition with parameters that don't match the Player
       triggers warnings""",
       setUp: () {
-        var today = DateTime.now();
-        player = Player.newPlayer().copyWith(
-          playingLevel: playingLevel,
-          dateOfBirth: DateTime(today.year - 20, today.month, today.day),
-        );
+        player = Player.newPlayer().copyWith();
         var alreadyRegisteredCompetition =
             competitionWithPlayingLevelAndAgeGroup3.copyWith(
           registrations: [

@@ -5,9 +5,7 @@ import 'package:ez_badminton_admin_app/input_models/models.dart';
 import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_state.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/models/registration_warning.dart';
-import 'package:ez_badminton_admin_app/utils/age_groups.dart';
 import 'package:ez_badminton_admin_app/player_management/utils/gender_categories.dart';
-import 'package:ez_badminton_admin_app/player_management/utils/playing_levels.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 
@@ -110,44 +108,12 @@ class CompetitionRegistrationCubit
 
   List<RegistrationWarning> _createWarnings(Competition selected) {
     List<RegistrationWarning> warnings = [];
-    if (!_verifyAgeGroup(selected)) {
-      warnings.add(
-        AgeGroupWarning(unfitAgeGroups: [selected.ageGroup!], player: player),
-      );
-    }
-    if (!_verifyPlayingLevel(selected)) {
-      warnings.add(
-        PlayingLevelWarning(
-          unfitPlayingLevels: [selected.playingLevel!],
-          player: player,
-        ),
-      );
-    }
     if (!_verifyGenderCategory(selected)) {
       warnings.add(
         GenderWarning(conflictingGender: selected.genderCategory),
       );
     }
     return warnings;
-  }
-
-  bool _verifyAgeGroup(Competition competition) {
-    if (player.dateOfBirth == null || competition.ageGroup == null) {
-      return true;
-    }
-    var playerAgeGroups = ageToAgeGroups(
-      player.calculateAge(),
-      state.getCollection<AgeGroup>(),
-    );
-    return playerAgeGroups.contains(competition.ageGroup);
-  }
-
-  bool _verifyPlayingLevel(Competition competition) {
-    if (player.playingLevel == null || competition.playingLevel == null) {
-      return true;
-    }
-    var comparison = player.playingLevel!.compareTo(competition.playingLevel!);
-    return comparison == 0;
   }
 
   bool _verifyGenderCategory(Competition competition) {

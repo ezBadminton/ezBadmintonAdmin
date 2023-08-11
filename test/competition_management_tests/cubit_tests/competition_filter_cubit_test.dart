@@ -17,8 +17,8 @@ import '../../common_matchers/state_matchers.dart';
 class MockAgeGroupPredicateProducer extends Mock
     implements AgeGroupPredicateProducer {}
 
-class MockPlayingLevelPredicateProducer<M extends Model> extends Mock
-    implements PlayingLevelPredicateProducer<M> {}
+class MockPlayingLevelPredicateProducer extends Mock
+    implements PlayingLevelPredicateProducer {}
 
 class MockRegistrationCountPredicateProducer extends Mock
     implements RegistrationCountPredicateProducer {}
@@ -42,7 +42,7 @@ void main() {
   late CollectionRepository<PlayingLevel> playingLevelRepository;
   late CollectionRepository<Tournament> tournamentRepository;
   late AgeGroupPredicateProducer ageGroupPredicateProducer;
-  late PlayingLevelPredicateProducer<Competition> playingLevelPredicateProducer;
+  late PlayingLevelPredicateProducer playingLevelPredicateProducer;
   late RegistrationCountPredicateProducer registrationCountPredicateProducer;
   late CompetitionTypePredicateProducer competitionTypePredicateProducer;
   late GenderCategoryPredicateProducer genderCategoryPredicateProducer;
@@ -67,8 +67,7 @@ void main() {
 
   void arrangePredicateProducers() {
     ageGroupPredicateProducer = MockAgeGroupPredicateProducer();
-    playingLevelPredicateProducer =
-        MockPlayingLevelPredicateProducer<Competition>();
+    playingLevelPredicateProducer = MockPlayingLevelPredicateProducer();
     registrationCountPredicateProducer =
         MockRegistrationCountPredicateProducer();
     competitionTypePredicateProducer = MockCompetitionTypePredicateProducer();

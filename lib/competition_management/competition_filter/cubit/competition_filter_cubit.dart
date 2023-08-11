@@ -20,8 +20,7 @@ class CompetitionFilterCubit
     required CollectionRepository<PlayingLevel> playingLevelRepository,
     required CollectionRepository<Tournament> tournamentRepository,
     required AgeGroupPredicateProducer ageGroupPredicateProducer,
-    required PlayingLevelPredicateProducer<Competition>
-        playingLevelPredicateProducer,
+    required PlayingLevelPredicateProducer playingLevelPredicateProducer,
     required RegistrationCountPredicateProducer
         registrationCountPredicateProducer,
     required CompetitionTypePredicateProducer competitionTypePredicateProducer,

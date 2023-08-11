@@ -3,7 +3,7 @@ import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predica
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/predicate_producer.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate_producers.dart';
 
-class PlayingLevelPredicateProducer<M extends Model> extends PredicateProducer {
+class PlayingLevelPredicateProducer extends PredicateProducer {
   static const FilterGroup playingLevelDisjunction = FilterGroup.playingLevel;
   final _playingLevels = <PlayingLevel>[];
   List<PlayingLevel> get playingLevels => List.unmodifiable(_playingLevels);
@@ -12,24 +12,16 @@ class PlayingLevelPredicateProducer<M extends Model> extends PredicateProducer {
     FilterPredicate predicate;
     if (_playingLevels.contains(playingLevel)) {
       _playingLevels.remove(playingLevel);
-      predicate = FilterPredicate(null, M, '', playingLevel);
+      predicate = FilterPredicate(null, Competition, '', playingLevel);
     } else {
       _playingLevels.add(playingLevel);
-      playingLevelFilter(Object m) {
-        switch (m) {
-          case Player p:
-            return p.playingLevel == playingLevel;
-          case Competition c:
-            return c.playingLevel == playingLevel;
-          default:
-            assert(false, 'This model does not have a PlayingLevel relation');
-            return false;
-        }
+      playingLevelFilter(Object c) {
+        return (c as Competition).playingLevel == playingLevel;
       }
 
       predicate = FilterPredicate(
         playingLevelFilter,
-        M,
+        Competition,
         playingLevel.name,
         playingLevel,
         playingLevelDisjunction,

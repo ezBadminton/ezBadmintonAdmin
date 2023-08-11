@@ -3,7 +3,7 @@ import 'package:expect_stream/expect_stream.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/common_predicate_producers/playinglevel_predicate_producer.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../common_matchers/predicate_matchers.dart';
+import '../common_matchers/predicate_matchers.dart';
 
 class HasPlayingLevels extends CustomMatcher {
   HasPlayingLevels(matcher)
@@ -19,7 +19,7 @@ class HasPlayingLevels extends CustomMatcher {
 }
 
 void main() {
-  late PlayingLevelPredicateProducer<Player> sut;
+  late PlayingLevelPredicateProducer sut;
 
   var playingLevels = List<PlayingLevel>.generate(
     3,
@@ -32,7 +32,7 @@ void main() {
     ),
   );
 
-  setUp(() => sut = PlayingLevelPredicateProducer<Player>());
+  setUp(() => sut = PlayingLevelPredicateProducer());
 
   group('PlayingLevelPredicateProducer input values', () {
     test(
@@ -73,13 +73,14 @@ void main() {
               HasFunction(isNotNull),
               HasDomain(playingLevels[0]),
               HasDisjunction(
-                  PlayingLevelPredicateProducer.playingLevelDisjunction),
-              HasInputType(Player),
+                PlayingLevelPredicateProducer.playingLevelDisjunction,
+              ),
+              HasInputType(Competition),
             ),
             allOf(
               HasFunction(isNull),
               HasDomain(playingLevels[0]),
-              HasInputType(Player),
+              HasInputType(Competition),
             ),
           ],
         );
@@ -108,13 +109,32 @@ void main() {
   });
 
   group('PlayingLevelPredicateProducer player filtering', () {
-    var level0Player =
-        Player.newPlayer().copyWith(id: 'lvl0', playingLevel: playingLevels[0]);
-    var level1Player =
-        Player.newPlayer().copyWith(id: 'lvl1', playingLevel: playingLevels[1]);
-    var level2Player =
-        Player.newPlayer().copyWith(id: 'lvl2', playingLevel: playingLevels[2]);
-    var players = [level0Player, level1Player, level2Player];
+    var level0Competition = Competition.newCompetition(
+      teamSize: 2,
+      genderCategory: GenderCategory.mixed,
+      playingLevel: playingLevels[0],
+    ).copyWith(
+      id: 'lvl0',
+    );
+    var level1Competition = Competition.newCompetition(
+      teamSize: 2,
+      genderCategory: GenderCategory.mixed,
+      playingLevel: playingLevels[1],
+    ).copyWith(
+      id: 'lvl1',
+    );
+    var level2Competition = Competition.newCompetition(
+      teamSize: 2,
+      genderCategory: GenderCategory.mixed,
+      playingLevel: playingLevels[2],
+    ).copyWith(
+      id: 'lvl2',
+    );
+    var competitions = [
+      level0Competition,
+      level1Competition,
+      level2Competition
+    ];
     test(
       'produced predicates filter players by playing level',
       () async {
@@ -124,9 +144,9 @@ void main() {
         await expectStream(
           sut.predicateStream,
           [
-            HasFilterResult([level0Player], items: players),
-            HasFilterResult([level2Player], items: players),
-            HasFilterResult([level1Player], items: players),
+            HasFilterResult([level0Competition], items: competitions),
+            HasFilterResult([level2Competition], items: competitions),
+            HasFilterResult([level1Competition], items: competitions),
           ],
         );
       },

@@ -63,8 +63,6 @@ void main() {
           'updated': '2023-05-18T12:14:24.274',
           'firstName': 'Viktor',
           'lastName': 'Axelsen',
-          'gender': 'male',
-          'dateOfBirth': '1994-01-04T00:00:00.000',
           'notes': 'player@example.com',
           'status': 'notAttending',
         },
@@ -76,8 +74,6 @@ void main() {
           'updated': '2023-05-18T12:14:24.274',
           'firstName': 'He',
           'lastName': 'Bingjiao',
-          'gender': 'female',
-          'dateOfBirth': '',
           'notes': '',
           'status': 'notAttending',
         },
@@ -88,17 +84,15 @@ void main() {
           'updated': '2023-05-18T12:14:24.274',
           'firstName': 'Lee',
           'lastName': 'Chong Wei',
-          'gender': 'male',
-          'playingLevel': 'relatedfield123',
+          'club': 'relatedfield123',
           'status': 'notAttending',
         },
       ];
 
-      final playingLevelFromPocketBase = <String, dynamic>{
+      final clubFromPocketBase = <String, dynamic>{
         'id': 'relatedfield123',
         'created': '2023-05-18T12:14:24.274',
         'updated': '2023-05-18T12:14:24.274',
-        'index': 0,
         'name': 'very good player',
       };
 
@@ -116,18 +110,18 @@ void main() {
 
       void arrangePocketBaseReturnsPlayingLevelRelation() {
         when(
-          () => playerRecordService.getFullList(expand: 'playingLevel'),
+          () => playerRecordService.getFullList(expand: 'club'),
         ).thenAnswer(
           (_) async {
             return playersFromPocketBase.map((json) {
               var expansions = <String, List<RecordModel>>{};
-              if (json.containsKey('playingLevel')) {
+              if (json.containsKey('club')) {
                 expansions.putIfAbsent(
-                  'playingLevel',
+                  'club',
                   () => [
                     RecordModel(
-                      id: playingLevelFromPocketBase['id'],
-                      data: Map.of(playingLevelFromPocketBase),
+                      id: clubFromPocketBase['id'],
+                      data: Map.of(clubFromPocketBase),
                     )
                   ],
                 );
@@ -176,19 +170,6 @@ void main() {
             expect(players[i].id, playersFromPocketBase[i]['id']);
             expect(players[i].firstName, playersFromPocketBase[i]['firstName']);
             expect(players[i].lastName, playersFromPocketBase[i]['lastName']);
-            if (playersFromPocketBase[i].containsKey('gender')) {
-              expect(
-                players[i].gender?.name,
-                playersFromPocketBase[i]['gender'],
-              );
-            }
-            if (playersFromPocketBase[i].containsKey('dateOfBirth')) {
-              var dateOfBirth = playersFromPocketBase[i]['dateOfBirth'];
-              expect(
-                players[i].dateOfBirth?.toIso8601String(),
-                dateOfBirth.isEmpty ? null : dateOfBirth,
-              );
-            }
           }
         },
       );
@@ -200,16 +181,15 @@ void main() {
           arrangePocketBaseReturnsPlayingLevelRelation();
           List<Player> players = await sut.getList(
               expand: ExpansionTree(
-            Player.expandedFields.where((field) => field.key == 'playingLevel'),
+            Player.expandedFields.where((field) => field.key == 'club'),
           ));
-          verify(() => playerRecordService.getFullList(expand: 'playingLevel'))
+          verify(() => playerRecordService.getFullList(expand: 'club'))
               .called(1);
-          var expandedPlayers =
-              players.where((p) => p.playingLevel != null).toList();
+          var expandedPlayers = players.where((p) => p.club != null).toList();
           expect(expandedPlayers.length, 1);
           expect(
-            expandedPlayers[0].playingLevel!.name,
-            playingLevelFromPocketBase['name'],
+            expandedPlayers[0].club!.name,
+            clubFromPocketBase['name'],
           );
         },
       );
@@ -234,8 +214,6 @@ void main() {
       final newPlayer = Player.newPlayer().copyWith(
         firstName: 'Lin',
         lastName: 'Dan',
-        dateOfBirth: DateTime(1983, 10, 14),
-        gender: Gender.male,
       );
 
       final updatedPlayer = Player.newPlayer().copyWith(
@@ -243,8 +221,6 @@ void main() {
         updated: DateTime(2023),
         firstName: 'Gillian',
         lastName: 'Clark',
-        dateOfBirth: DateTime(1961, 9, 2),
-        gender: Gender.female,
       );
 
       void arrangePocketBaseCreatesPlayer() {
@@ -346,9 +322,7 @@ void main() {
         expect(player.id, 'freshnewid12345');
         expect(player.firstName, newPlayer.firstName);
         expect(player.lastName, newPlayer.lastName);
-        expect(player.dateOfBirth, newPlayer.dateOfBirth);
         expect(player.notes, newPlayer.notes);
-        expect(player.gender, newPlayer.gender);
       });
 
       test('updated player has same ID and correct data', () async {
@@ -358,9 +332,7 @@ void main() {
         expect(player.updated, isNot(updatedPlayer.updated));
         expect(player.firstName, updatedPlayer.firstName);
         expect(player.lastName, updatedPlayer.lastName);
-        expect(player.dateOfBirth, updatedPlayer.dateOfBirth);
         expect(player.notes, updatedPlayer.notes);
-        expect(player.gender, updatedPlayer.gender);
       });
 
       test('pocketbase delete is called', () async {

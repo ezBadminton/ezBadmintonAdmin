@@ -13,8 +13,6 @@ class PlayerEditingState extends CollectionFetcherState<PlayerEditingState>
     this.lastName = const NonEmptyInput.pure(),
     this.clubName = const NoValidationInput.pure(),
     this.notes = const NoValidationInput.pure(),
-    this.dateOfBirth = const DateInput.pure(emptyAllowed: true),
-    this.playingLevel = const SelectionInput.pure(emptyAllowed: true),
     this.registrationFormShown = false,
   }) : player = player ?? Player.newPlayer();
 
@@ -26,8 +24,6 @@ class PlayerEditingState extends CollectionFetcherState<PlayerEditingState>
   final NonEmptyInput lastName;
   final NoValidationInput clubName;
   final NoValidationInput notes;
-  final DateInput dateOfBirth;
-  final SelectionInput<PlayingLevel> playingLevel;
 
   final bool registrationFormShown;
 
@@ -37,8 +33,6 @@ class PlayerEditingState extends CollectionFetcherState<PlayerEditingState>
         lastName,
         clubName,
         notes,
-        dateOfBirth,
-        playingLevel,
         registrations,
       ];
 
@@ -52,14 +46,6 @@ class PlayerEditingState extends CollectionFetcherState<PlayerEditingState>
         lastName: NonEmptyInput.pure(player.lastName),
         clubName: NoValidationInput.pure(player.club?.name ?? ''),
         notes: NoValidationInput.pure(player.notes ?? ''),
-        dateOfBirth: DateInput.pure(
-          dateParser: dateParser,
-          emptyAllowed: true,
-        ),
-        playingLevel: SelectionInput.pure(
-          emptyAllowed: true,
-          value: player.playingLevel,
-        ),
       );
 
   PlayerEditingState copyWith({
@@ -72,8 +58,6 @@ class PlayerEditingState extends CollectionFetcherState<PlayerEditingState>
     NonEmptyInput? lastName,
     NoValidationInput? clubName,
     NoValidationInput? notes,
-    DateInput? dateOfBirth,
-    SelectionInput<PlayingLevel>? playingLevel,
     bool? registrationFormShown,
   }) =>
       PlayerEditingState(
@@ -86,8 +70,6 @@ class PlayerEditingState extends CollectionFetcherState<PlayerEditingState>
         lastName: lastName ?? this.lastName,
         clubName: clubName ?? this.clubName,
         notes: notes ?? this.notes,
-        dateOfBirth: dateOfBirth ?? this.dateOfBirth,
-        playingLevel: playingLevel ?? this.playingLevel,
         registrationFormShown:
             registrationFormShown ?? this.registrationFormShown,
       );

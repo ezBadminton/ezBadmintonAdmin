@@ -23,12 +23,9 @@ class Player extends Model with _$Player {
     required DateTime updated,
     required String firstName,
     required String lastName,
-    Gender? gender,
-    DateTime? dateOfBirth,
     String? notes,
     Club? club,
     required PlayerStatus status,
-    PlayingLevel? playingLevel,
   }) = _Player;
 
   factory Player.fromJson(Map<String, dynamic> json) =>
@@ -50,32 +47,13 @@ class Player extends Model with _$Player {
       key: 'club',
       isRequired: false,
       isSingle: true,
-    ),
-    ExpandedField(
-      model: PlayingLevel,
-      key: 'playingLevel',
-      isRequired: false,
-      isSingle: true,
-    ),
+    )
   ];
 
   @override
   Map<String, dynamic> toCollapsedJson() {
     Map<String, dynamic> json = toJson();
     return json..collapseExpansions(expandedFields);
-  }
-
-  int calculateAge() {
-    if (dateOfBirth == null) {
-      return -1;
-    }
-    var now = DateTime.now();
-    int age = now.year - dateOfBirth!.year;
-    if (now.month < dateOfBirth!.month ||
-        (now.month == dateOfBirth!.month && now.day < dateOfBirth!.day)) {
-      age--;
-    }
-    return age;
   }
 }
 

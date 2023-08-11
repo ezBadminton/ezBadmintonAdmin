@@ -114,21 +114,11 @@ void main() {
   late CollectionRepository<Team> teamRepository;
   late CollectionRepository<Tournament> tournamentRepository;
 
-  var playingLevel = PlayingLevel(
-    id: 'playinglevelid',
-    created: DateTime.now(),
-    updated: DateTime.now(),
-    name: 'good player',
-    index: 0,
-  );
-
   var player = Player.newPlayer().copyWith(
     id: 'playerid',
     firstName: 'Kento',
     lastName: 'Momota',
     notes: 'x@d.de',
-    dateOfBirth: DateTime(2000),
-    playingLevel: playingLevel,
     club: Club.newClub(name: 'Cool Guys Club'),
   );
 
@@ -240,10 +230,8 @@ void main() {
           HasLoadingStatus(LoadingStatus.done),
           HasFirstNameInput(player.firstName),
           HasLastNameInput(player.lastName),
-          HasDateOfBirthInput(DateFormat.yMd().format(player.dateOfBirth!)),
           HasNotesInput(player.notes),
           HasClubNameInput(player.club!.name),
-          HasPlayingLevelInput(player.playingLevel),
         ),
       ],
     );
@@ -260,8 +248,6 @@ void main() {
         cubit.lastNameChanged('changedLastName');
         cubit.notesChanged('changedNotes');
         cubit.clubNameChanged('changedClubName');
-        cubit.dateOfBirthChanged('2/2/2000');
-        cubit.playingLevelChanged(playingLevel);
         cubit.registrationFormOpened();
         await Future.delayed(Duration.zero);
         cubit.registrationCanceled();
@@ -271,10 +257,6 @@ void main() {
         HasLastNameInput('changedLastName'),
         HasNotesInput('changedNotes'),
         HasClubNameInput('changedClubName'),
-        HasDateOfBirthInput('2/2/2000'),
-        HasDateOfBirthInput('2/2/2000'),
-        HasPlayingLevelInput(playingLevel),
-        HasPlayingLevelInput(playingLevel),
         RegistrationFormShown(isTrue),
         RegistrationFormShown(isFalse),
       ],
@@ -401,15 +383,13 @@ void main() {
       """value inputs are correctly applied to the Player object,
       a new Club is created with the given name""",
       build: () => createSut(null),
-      skip: 9, // skip form input state changes
+      skip: 5, // skip form input state changes
       act: (cubit) async {
         await Future.delayed(Duration.zero);
         cubit.firstNameChanged('changedFirstName');
         cubit.lastNameChanged('changedLastName');
         cubit.notesChanged('changedEMail@example.com');
         cubit.clubNameChanged('changedClubName');
-        cubit.dateOfBirthChanged('2/2/2000');
-        cubit.playingLevelChanged(playingLevel);
         cubit.formSubmitted();
       },
       expect: () => [
@@ -419,8 +399,6 @@ void main() {
           HasLastName('changedLastName'),
           HasNotes('changedEMail@example.com'),
           HasClub(HasName('changedClubName')),
-          HasDateOfBirth(DateFormat.yMd().parse('2/2/2000')),
-          HasPlayingLevel(playingLevel),
         )),
       ],
       verify: (_) async {
@@ -450,8 +428,6 @@ void main() {
           HasLastName('changedLastName'),
           HasNotes(isEmpty),
           HasClub(HasName('existing club')),
-          HasDateOfBirth(isNull),
-          HasPlayingLevel(isNull),
         )),
       ],
       verify: (bloc) async {

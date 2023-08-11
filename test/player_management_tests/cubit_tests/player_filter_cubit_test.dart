@@ -18,8 +18,8 @@ class MockAgeGroupPredicateProducer extends Mock
 class MockGenderPredicateProducer extends Mock
     implements GenderCategoryPredicateProducer {}
 
-class MockPlayingLevelPredicateProducer<M extends Model> extends Mock
-    implements PlayingLevelPredicateProducer<M> {}
+class MockPlayingLevelPredicateProducer extends Mock
+    implements PlayingLevelPredicateProducer {}
 
 class MockCompetitionTypePredicateProducer extends Mock
     implements CompetitionTypePredicateProducer {}
@@ -47,7 +47,7 @@ void main() {
   late List<PredicateProducer> producers;
   late AgeGroupPredicateProducer ageGroupPredicateProducer;
   late GenderCategoryPredicateProducer genderPredicateProducer;
-  late PlayingLevelPredicateProducer<Competition> playingLevelPredicateProducer;
+  late PlayingLevelPredicateProducer playingLevelPredicateProducer;
   late CompetitionTypePredicateProducer competitionTypePredicateProducer;
   late StatusPredicateProducer statusPredicateProducer;
   late SearchPredicateProducer searchPredicateProducer;

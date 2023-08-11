@@ -12,7 +12,7 @@ class MockCollectionRepository<M extends Model> extends Mock
 void main() {
   late CachedCollectionRepository<Player> sut;
   late CollectionRepository<Player> targetCollectionRepository;
-  late CollectionRepository<PlayingLevel> playingLevelRepository;
+  late CollectionRepository<Club> clubRepository;
 
   group('call delegation to the wrapped targetCollectionRepository', () {
     setUp(() {
@@ -163,37 +163,36 @@ void main() {
   });
 
   group('relation update handlers', () {
-    List<PlayingLevel> playingLevels = List.generate(
+    List<Club> clubs = List.generate(
       3,
-      (index) => PlayingLevel.newPlayingLevel(
-        'PlayingLevel-$index',
-        index,
-      ).copyWith(id: 'PlayingLevel-$index'),
+      (index) => Club.newClub(
+        name: 'Club-$index',
+      ).copyWith(id: 'Club-$index'),
     );
-    List<Player> players = playingLevels
+    List<Player> players = clubs
         .map(
-          (playingLevel) => Player.newPlayer().copyWith(
-            playingLevel: playingLevel,
-            id: 'Player-${playingLevel.id}',
+          (club) => Player.newPlayer().copyWith(
+            club: club,
+            id: 'Player-${club.id}',
           ),
         )
         .toList();
 
     setUp(() {
-      playingLevelRepository = TestCollectionRepository<PlayingLevel>(
-        initialCollection: playingLevels,
+      clubRepository = TestCollectionRepository<Club>(
+        initialCollection: clubs,
       );
       targetCollectionRepository = TestCollectionRepository<Player>(
         initialCollection: players,
       );
       sut = CachedCollectionRepository(
         targetCollectionRepository,
-        relationRepositories: [playingLevelRepository],
+        relationRepositories: [clubRepository],
         relationUpdateHandler: (collection, updateEvent) {
-          PlayingLevel playingLevel = updateEvent.model as PlayingLevel;
+          Club club = updateEvent.model as Club;
           List<Player> updatedPlayers = collection
-              .where((player) => player.playingLevel == playingLevel)
-              .map((player) => player.copyWith(playingLevel: playingLevel))
+              .where((player) => player.club == club)
+              .map((player) => player.copyWith(club: club))
               .toList();
           return updatedPlayers;
         },
@@ -201,21 +200,20 @@ void main() {
     });
 
     test('update events are subscribed', () {
-      expect(playingLevelRepository.updateStreamController.hasListener, isTrue);
+      expect(clubRepository.updateStreamController.hasListener, isTrue);
     });
 
     test('relation update causes cached models to be updated', () async {
-      PlayingLevel updatedPlayingLevel =
-          playingLevels[0].copyWith(name: 'updated');
-      await playingLevelRepository.update(updatedPlayingLevel);
+      Club updatedClub = clubs[0].copyWith(name: 'updated');
+      await clubRepository.update(updatedClub);
 
       await Future.delayed(Duration.zero);
 
       Player updatedPlayer = await sut.getModel(players[0].id);
-      expect(updatedPlayer.playingLevel!.name, 'updated');
+      expect(updatedPlayer.club!.name, 'updated');
 
       updatedPlayer = await targetCollectionRepository.getModel(players[0].id);
-      expect(updatedPlayer.playingLevel!.name, isNot('updated'));
+      expect(updatedPlayer.club!.name, isNot('updated'));
     });
   });
 }

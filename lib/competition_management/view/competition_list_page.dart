@@ -34,8 +34,7 @@ class CompetitionListPage extends StatelessWidget {
             tournamentRepository:
                 context.read<CollectionRepository<Tournament>>(),
             ageGroupPredicateProducer: AgeGroupPredicateProducer(),
-            playingLevelPredicateProducer:
-                PlayingLevelPredicateProducer<Competition>(),
+            playingLevelPredicateProducer: PlayingLevelPredicateProducer(),
             registrationCountPredicateProducer:
                 RegistrationCountPredicateProducer(),
             competitionTypePredicateProducer:

@@ -19,8 +19,7 @@ class PlayerFilterCubit extends CollectionFetcherCubit<PlayerFilterState>
     required CollectionRepository<PlayingLevel> playingLevelRepository,
     required CollectionRepository<AgeGroup> ageGroupRepository,
     required AgeGroupPredicateProducer ageGroupPredicateProducer,
-    required PlayingLevelPredicateProducer<Competition>
-        playingLevelPredicateProducer,
+    required PlayingLevelPredicateProducer playingLevelPredicateProducer,
     required GenderCategoryPredicateProducer genderPredicateProducer,
     required CompetitionTypePredicateProducer competitionTypePredicateProducer,
     required StatusPredicateProducer statusPredicateProducer,

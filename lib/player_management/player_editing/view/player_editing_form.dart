@@ -2,7 +2,6 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/player_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/competition_registration_form.dart';
 import 'package:ez_badminton_admin_app/widgets/constrained_autocomplete/constrained_autocomplete.dart';
-import 'package:ez_badminton_admin_app/widgets/custom_input_fields/playing_level_input.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -61,12 +60,6 @@ class _PlayerEditingFormFields extends StatelessWidget {
                     onChanged: cubit.clubNameChanged,
                     initialValue: cubit.state.clubName.value,
                   ),
-                  const SizedBox(height: 3),
-                  _DateOfBirthInput(
-                    onChanged: cubit.dateOfBirthChanged,
-                    formInputGetter: (state) => state.dateOfBirth,
-                    initialValue: cubit.state.dateOfBirth.value,
-                  ),
                 ],
               ),
             ),
@@ -79,10 +72,6 @@ class _PlayerEditingFormFields extends StatelessWidget {
                     onChanged: cubit.lastNameChanged,
                     formInputGetter: (state) => state.lastName,
                     initialValue: cubit.state.lastName.value,
-                  ),
-                  _PlayingLevelInput(
-                    onChanged: cubit.playingLevelChanged,
-                    formInputGetter: (state) => state.playingLevel,
                   ),
                   const SizedBox(height: 3),
                   _NotesInput(
@@ -102,31 +91,6 @@ class _PlayerEditingFormFields extends StatelessWidget {
         const Divider(height: 25, indent: 20, endIndent: 20),
         const CompetitionRegistrationForm(),
       ],
-    );
-  }
-}
-
-class _PlayingLevelInput extends StatelessWidget {
-  const _PlayingLevelInput({
-    required this.onChanged,
-    required this.formInputGetter,
-  });
-
-  final void Function(PlayingLevel? value) onChanged;
-  final FormzInput Function(PlayerEditingState state) formInputGetter;
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
-      buildWhen: (previous, current) =>
-          previous.playingLevel != current.playingLevel,
-      builder: (context, state) {
-        return PlayingLevelInput(
-          onChanged: onChanged,
-          currentValue: formInputGetter(state).value,
-          playingLevelOptions: state.getCollection<PlayingLevel>(),
-        );
-      },
     );
   }
 }
@@ -157,63 +121,6 @@ class _NotesInput extends StatelessWidget {
           decoration: InputDecoration(
             label: Text(l10n.notes),
             counterText: ' ',
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _DateOfBirthInput extends StatelessWidget {
-  _DateOfBirthInput({
-    required this.onChanged,
-    required this.formInputGetter,
-    required String initialValue,
-  }) {
-    _controller.text = initialValue;
-  }
-
-  final void Function(String value) onChanged;
-  final FormzInput Function(PlayerEditingState state) formInputGetter;
-  final _controller = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    AppLocalizations l10n = AppLocalizations.of(context)!;
-    return BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
-      buildWhen: (previous, current) =>
-          previous.dateOfBirth != current.dateOfBirth ||
-          previous.formStatus != current.formStatus,
-      builder: (context, state) {
-        return TextField(
-          onChanged: onChanged,
-          controller: _controller,
-          decoration: InputDecoration(
-            label: Text(l10n.dateOfBirth),
-            hintText: MaterialLocalizations.of(context)
-                .dateHelpText, // DateFormat.yMd()
-            errorText: (state.formStatus == FormzSubmissionStatus.failure &&
-                    formInputGetter(state).isNotValid)
-                ? l10n.formatError
-                : null,
-            counterText: ' ',
-            suffixIcon: IconButton(
-              onPressed: () => showDatePicker(
-                context: context,
-                initialDate: DateTime.now(),
-                firstDate: DateTime(1900),
-                lastDate: DateTime.now(),
-              ).then((date) {
-                if (date == null) {
-                  return;
-                }
-                String formatted =
-                    MaterialLocalizations.of(context).formatCompactDate(date);
-                _controller.text = formatted;
-                onChanged(formatted);
-              }),
-              icon: const Icon(Icons.calendar_month_outlined),
-            ),
           ),
         );
       },

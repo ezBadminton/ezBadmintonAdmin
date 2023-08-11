@@ -42,8 +42,7 @@ class PlayerListPage extends StatelessWidget {
           create: (_) => PlayerFilterCubit(
             ageGroupPredicateProducer: AgeGroupPredicateProducer(),
             genderPredicateProducer: GenderCategoryPredicateProducer(),
-            playingLevelPredicateProducer:
-                PlayingLevelPredicateProducer<Competition>(),
+            playingLevelPredicateProducer: PlayingLevelPredicateProducer(),
             competitionTypePredicateProducer:
                 CompetitionTypePredicateProducer(),
             statusPredicateProducer: StatusPredicateProducer(),
@@ -239,24 +238,6 @@ class _PlayerList extends StatelessWidget {
                     child: Container(),
                   ),
                   SizedBox(
-                    width: 110,
-                    child: Text(l10n.playingLevel(1)),
-                  ),
-                  Flexible(
-                    flex: 1,
-                    child: Container(),
-                  ),
-                  SizedBox(
-                    child: SizedBox(
-                      width: 40,
-                      child: Text(l10n.age),
-                    ),
-                  ),
-                  Flexible(
-                    flex: 1,
-                    child: Container(),
-                  ),
-                  SizedBox(
                     child: SizedBox(
                       width: 45,
                       child: Text(l10n.status),
@@ -366,29 +347,6 @@ class PlayerExpansionPanel extends ExpansionPanelRadio {
               l10n,
             ),
             overflow: TextOverflow.fade,
-          ),
-        ),
-        Flexible(
-          flex: 1,
-          child: Container(),
-        ),
-        SizedBox(
-          width: 110,
-          child: Text(
-            player.playingLevel?.name ?? '-',
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        Flexible(
-          flex: 1,
-          child: Container(),
-        ),
-        SizedBox(
-          child: SizedBox(
-            width: 40,
-            child: Text(
-              player.dateOfBirth == null ? '-' : ('${player.calculateAge()}'),
-            ),
           ),
         ),
         Flexible(

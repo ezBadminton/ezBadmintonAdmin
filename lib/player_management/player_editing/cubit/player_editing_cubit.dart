@@ -78,17 +78,6 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
           loadingStatus: LoadingStatus.done,
         );
 
-        if (state.player.dateOfBirth != null) {
-          String dob = dateFormatter(state.player.dateOfBirth!);
-          updatedState = updatedState.copyWith(
-            dateOfBirth: DateInput.pure(
-              dateParser: dateParser,
-              emptyAllowed: true,
-              value: dob,
-            ),
-          );
-        }
-
         if (updatedState.getCollection<Competition>().isEmpty &&
             state.registrationFormShown) {
           updatedState = updatedState.copyWith(registrationFormShown: false);
@@ -126,29 +115,6 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
       clubName,
     ));
     emit(newState);
-  }
-
-  void dateOfBirthChanged(String dateOfBirth) {
-    var newState = state.copyWith(
-      dateOfBirth: DateInput.dirty(
-        dateParser: dateParser,
-        emptyAllowed: true,
-        value: dateOfBirth,
-      ),
-    );
-    emit(newState);
-    emit(state.copyWith(player: _applyPlayerChanges()));
-  }
-
-  void playingLevelChanged(PlayingLevel? playingLevel) {
-    var newState = state.copyWith(
-      playingLevel: SelectionInput.dirty(
-        emptyAllowed: true,
-        value: playingLevel,
-      ),
-    );
-    emit(newState);
-    emit(state.copyWith(player: _applyPlayerChanges()));
   }
 
   void registrationFormOpened() {
@@ -270,16 +236,10 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
   Player _applyPlayerChanges({
     Club? club,
   }) {
-    DateTime? dateOfBirth =
-        state.dateOfBirth.value.isEmpty || state.dateOfBirth.isNotValid
-            ? null
-            : dateParser(state.dateOfBirth.value);
     return state.player.copyWith(
       firstName: state.firstName.value,
       lastName: state.lastName.value,
       notes: state.notes.value,
-      dateOfBirth: dateOfBirth,
-      playingLevel: state.playingLevel.value,
       club: club,
     );
   }
