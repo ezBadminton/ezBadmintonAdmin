@@ -1,6 +1,7 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/common_predicate_producers/agegroup_predicate_producer.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/predicate_producer.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate_producers.dart';
@@ -11,7 +12,8 @@ import 'package:mocktail/mocktail.dart';
 import '../../common_matchers/predicate_matchers.dart';
 import '../../common_matchers/state_matchers.dart';
 
-class MockAgePredicateProducer extends Mock implements AgePredicateProducer {}
+class MockAgeGroupPredicateProducer extends Mock
+    implements AgeGroupPredicateProducer {}
 
 class MockGenderPredicateProducer extends Mock
     implements GenderCategoryPredicateProducer {}
@@ -43,9 +45,9 @@ void main() {
   late CollectionRepository<PlayingLevel> playingLevelRepository;
   late CollectionRepository<AgeGroup> ageGroupRepository;
   late List<PredicateProducer> producers;
-  late AgePredicateProducer agePredicateProducer;
+  late AgeGroupPredicateProducer ageGroupPredicateProducer;
   late GenderCategoryPredicateProducer genderPredicateProducer;
-  late PlayingLevelPredicateProducer<Player> playingLevelPredicateProducer;
+  late PlayingLevelPredicateProducer<Competition> playingLevelPredicateProducer;
   late CompetitionTypePredicateProducer competitionTypePredicateProducer;
   late StatusPredicateProducer statusPredicateProducer;
   late SearchPredicateProducer searchPredicateProducer;
@@ -71,7 +73,7 @@ void main() {
     return PlayerFilterCubit(
       playingLevelRepository: playingLevelRepository,
       ageGroupRepository: ageGroupRepository,
-      agePredicateProducer: agePredicateProducer,
+      ageGroupPredicateProducer: ageGroupPredicateProducer,
       genderPredicateProducer: genderPredicateProducer,
       playingLevelPredicateProducer: playingLevelPredicateProducer,
       competitionTypePredicateProducer: competitionTypePredicateProducer,
@@ -85,7 +87,7 @@ void main() {
       initialCollection: playingLevels,
     );
     ageGroupRepository = TestCollectionRepository();
-    agePredicateProducer = MockAgePredicateProducer();
+    ageGroupPredicateProducer = MockAgeGroupPredicateProducer();
     genderPredicateProducer = MockGenderPredicateProducer();
     playingLevelPredicateProducer = MockPlayingLevelPredicateProducer();
     competitionTypePredicateProducer = MockCompetitionTypePredicateProducer();
@@ -93,7 +95,7 @@ void main() {
     searchPredicateProducer = MockSearchPredicateProducer();
 
     producers = [
-      agePredicateProducer,
+      ageGroupPredicateProducer,
       genderPredicateProducer,
       playingLevelPredicateProducer,
       competitionTypePredicateProducer,
@@ -163,7 +165,7 @@ void main() {
     }
 
     setUp(() {
-      when(() => agePredicateProducer.predicateStream).thenAnswer(
+      when(() => ageGroupPredicateProducer.predicateStream).thenAnswer(
         (_) => Stream<FilterPredicate>.fromFuture(futurePredicate()),
       );
     });

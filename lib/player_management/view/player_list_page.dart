@@ -1,4 +1,5 @@
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/common_predicate_producers/agegroup_predicate_producer.dart';
 import 'package:ez_badminton_admin_app/constants.dart';
 import 'package:ez_badminton_admin_app/list_sorting/comparator/list_sorting_comparator.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_delete_cubit.dart';
@@ -39,10 +40,10 @@ class PlayerListPage extends StatelessWidget {
         BlocProvider(create: (_) => PredicateFilterCubit()),
         BlocProvider(
           create: (_) => PlayerFilterCubit(
-            agePredicateProducer: AgePredicateProducer(),
+            ageGroupPredicateProducer: AgeGroupPredicateProducer(),
             genderPredicateProducer: GenderCategoryPredicateProducer(),
             playingLevelPredicateProducer:
-                PlayingLevelPredicateProducer<Player>(),
+                PlayingLevelPredicateProducer<Competition>(),
             competitionTypePredicateProducer:
                 CompetitionTypePredicateProducer(),
             statusPredicateProducer: StatusPredicateProducer(),

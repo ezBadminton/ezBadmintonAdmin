@@ -7,6 +7,7 @@ import 'package:ez_badminton_admin_app/competition_management/cubit/competition_
 import 'package:ez_badminton_admin_app/competition_management/view/competition_list.dart';
 import 'package:ez_badminton_admin_app/competition_management/view/competition_selection_options.dart';
 import 'package:ez_badminton_admin_app/competition_management/view/tournament_categorization_options.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/common_predicate_producers/agegroup_predicate_producer.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate_producers.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';

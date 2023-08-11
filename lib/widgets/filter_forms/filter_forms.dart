@@ -1,5 +1,5 @@
 import 'package:collection_repository/collection_repository.dart';
-import 'package:ez_badminton_admin_app/competition_management/competition_filter/competition_filter.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/common_predicate_producers/agegroup_predicate_producer.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_consumer_cubit.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_consumer_state.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate_producers.dart';
@@ -14,17 +14,17 @@ class AgeGroupFilterForm<C extends PredicateConsumerCubit<S>,
     S extends PredicateConsumerState> extends StatelessWidget {
   const AgeGroupFilterForm({
     super.key,
-    required this.backgroudContext,
+    required this.backgroundContext,
     required this.ageGroups,
   });
 
-  final BuildContext backgroudContext;
+  final BuildContext backgroundContext;
   final List<AgeGroup> ageGroups;
 
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    C cubit = backgroudContext.read<C>();
+    C cubit = backgroundContext.read<C>();
     AgeGroupPredicateProducer predicateProducer =
         cubit.getPredicateProducer<AgeGroupPredicateProducer>();
     return Column(
@@ -32,7 +32,7 @@ class AgeGroupFilterForm<C extends PredicateConsumerCubit<S>,
       children: ageGroups
           .map(
             (ageGroup) => FilterCheckbox<C, S, AgeGroup>(
-              backgroundContext: backgroudContext,
+              backgroundContext: backgroundContext,
               checkboxValue: ageGroup,
               predicateProducer: predicateProducer,
               toggledValuesGetter: () => predicateProducer.ageGroups,

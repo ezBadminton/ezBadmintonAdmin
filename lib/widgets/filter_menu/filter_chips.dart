@@ -119,8 +119,8 @@ class _ClearFilterButton<C extends PredicateConsumerCubit>
     AppLocalizations l10n = AppLocalizations.of(context)!;
     return IconButton(
       onPressed: () {
-        for (FilterPredicate filter in predicates) {
-          cubit.onPredicateRemoved(filter);
+        for (FilterPredicate predicate in predicates) {
+          cubit.onPredicateRemoved(predicate);
         }
       },
       icon: const Icon(Icons.filter_alt_off),

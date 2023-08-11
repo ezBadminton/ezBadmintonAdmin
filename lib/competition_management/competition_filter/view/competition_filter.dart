@@ -53,7 +53,7 @@ class _FilterMenus extends StatelessWidget {
                 filterMenu: AgeGroupFilterForm<CompetitionFilterCubit,
                     CompetitionFilterState>(
                   ageGroups: state.getCollection<AgeGroup>(),
-                  backgroudContext: context,
+                  backgroundContext: context,
                 ),
                 buttonText: l10n.ageGroup(1),
               ),

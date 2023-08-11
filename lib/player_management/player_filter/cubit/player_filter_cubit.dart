@@ -1,5 +1,6 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/common_predicate_producers/agegroup_predicate_producer.dart';
 import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_consumer_cubit.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_consumer_state.dart';
@@ -17,10 +18,10 @@ class PlayerFilterCubit extends CollectionFetcherCubit<PlayerFilterState>
   PlayerFilterCubit({
     required CollectionRepository<PlayingLevel> playingLevelRepository,
     required CollectionRepository<AgeGroup> ageGroupRepository,
-    required AgePredicateProducer agePredicateProducer,
-    required GenderCategoryPredicateProducer genderPredicateProducer,
-    required PlayingLevelPredicateProducer<Player>
+    required AgeGroupPredicateProducer ageGroupPredicateProducer,
+    required PlayingLevelPredicateProducer<Competition>
         playingLevelPredicateProducer,
+    required GenderCategoryPredicateProducer genderPredicateProducer,
     required CompetitionTypePredicateProducer competitionTypePredicateProducer,
     required StatusPredicateProducer statusPredicateProducer,
     required SearchPredicateProducer searchPredicateProducer,
@@ -32,7 +33,7 @@ class PlayerFilterCubit extends CollectionFetcherCubit<PlayerFilterState>
           ],
         ) {
     initPredicateProducers([
-      agePredicateProducer,
+      ageGroupPredicateProducer,
       genderPredicateProducer,
       playingLevelPredicateProducer,
       competitionTypePredicateProducer,

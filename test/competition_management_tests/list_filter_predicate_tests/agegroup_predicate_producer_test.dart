@@ -1,6 +1,6 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:expect_stream/expect_stream.dart';
-import 'package:ez_badminton_admin_app/competition_management/competition_filter/competition_filter.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/common_predicate_producers/agegroup_predicate_producer.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../common_matchers/predicate_matchers.dart';

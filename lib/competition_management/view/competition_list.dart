@@ -4,6 +4,7 @@ import 'package:ez_badminton_admin_app/competition_management/competition_sorter
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_list_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
+import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/list_sorting/comparator/list_sorting_comparator.dart';
 import 'package:ez_badminton_admin_app/widgets/sortable_column_header/sortable_column_header.dart';
 import 'package:flutter/material.dart';
@@ -306,7 +307,7 @@ class _CompetitionExpansionPanel extends ExpansionPanelRadio {
               ),
               SizedBox(
                 width: 150,
-                child: Text('${competition.registrations.length}'),
+                child: _RegistrationCount(competition: competition),
               ),
               Expanded(
                 flex: 7,
@@ -316,6 +317,33 @@ class _CompetitionExpansionPanel extends ExpansionPanelRadio {
           ),
         );
       },
+    );
+  }
+}
+
+class _RegistrationCount extends StatelessWidget {
+  const _RegistrationCount({
+    required this.competition,
+  });
+
+  final Competition competition;
+
+  @override
+  Widget build(BuildContext context) {
+    int registrationCount = competition.registrations.length;
+    var l10n = AppLocalizations.of(context)!;
+    var navigationCubit = context.read<TabNavigationCubit>();
+    return Tooltip(
+      message: l10n.showRegistrations,
+      child: TextButton(
+        onPressed: registrationCount == 0
+            ? null
+            : () => navigationCubit.tabChanged(0, reason: competition),
+        child: Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: Text('$registrationCount'),
+        ),
+      ),
     );
   }
 }

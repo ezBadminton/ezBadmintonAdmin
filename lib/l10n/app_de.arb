@@ -117,5 +117,6 @@
   "deleteCompetitionsWarning": "{count, plural, =1{Die ausgewählte Disziplin wirklich löschen?} other{Die ausgewählten Disziplinen wirklich löschen?}}",
   "deleteCompetitionsWithTeamsWarning": "Für die Disziplinen wurden bereits Spieler gemeldet.",
   "orMore": "oder mehr",
-  "orLess": "oder weniger"
+  "orLess": "oder weniger",
+  "showRegistrations": "Meldeliste anzeigen"
 }

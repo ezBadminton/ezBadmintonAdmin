@@ -117,5 +117,6 @@
   "deleteCompetitionsWarning": "{count, plural, =1{Really delete the selected competition?} other{Really delete the selected competitions?}}",
   "deleteCompetitionsWithTeamsWarning": "The competitions already have registered players.",
   "orMore": "or more",
-  "orLess": "or less"
+  "orLess": "or less",
+  "showRegistrations": "Show registration list"
 }
