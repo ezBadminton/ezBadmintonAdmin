@@ -54,28 +54,33 @@ class _FilterMenus extends StatelessWidget {
         buildWhen: (previous, current) =>
             previous.collections != current.collections,
         builder: (context, state) {
+          Tournament tournament = state.getCollection<Tournament>().first;
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              FilterPopoverMenu(
-                filterMenu:
-                    AgeGroupFilterForm<PlayerFilterCubit, PlayerFilterState>(
-                  backgroundContext: context,
-                  ageGroups: state.getCollection<AgeGroup>(),
+              if (tournament.useAgeGroups) ...[
+                FilterPopoverMenu(
+                  filterMenu:
+                      AgeGroupFilterForm<PlayerFilterCubit, PlayerFilterState>(
+                    backgroundContext: context,
+                    ageGroups: state.getCollection<AgeGroup>(),
+                  ),
+                  buttonText: l10n.ageGroup(1),
                 ),
-                buttonText: l10n.ageGroup(1),
-              ),
-              const SizedBox(width: 10),
-              FilterPopoverMenu(
-                filterMenu: PlayingLevelFilterForm<PlayerFilterCubit,
-                    PlayerFilterState>(
-                  playingLevels: state.getCollection<PlayingLevel>(),
-                  backgroudContext: context,
+                const SizedBox(width: 10),
+              ],
+              if (tournament.usePlayingLevels) ...[
+                FilterPopoverMenu(
+                  filterMenu: PlayingLevelFilterForm<PlayerFilterCubit,
+                      PlayerFilterState>(
+                    playingLevels: state.getCollection<PlayingLevel>(),
+                    backgroudContext: context,
+                  ),
+                  buttonText: l10n.playingLevel(1),
                 ),
-                buttonText: l10n.playingLevel(1),
-              ),
-              const SizedBox(width: 10),
+                const SizedBox(width: 10),
+              ],
               FilterPopoverMenu(
                 filterMenu: GenderCategoryFilterForm<PlayerFilterCubit,
                     PlayerFilterState>(

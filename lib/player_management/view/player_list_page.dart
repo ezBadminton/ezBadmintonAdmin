@@ -50,6 +50,8 @@ class PlayerListPage extends StatelessWidget {
             playingLevelRepository:
                 context.read<CollectionRepository<PlayingLevel>>(),
             ageGroupRepository: context.read<CollectionRepository<AgeGroup>>(),
+            tournamentRepository:
+                context.read<CollectionRepository<Tournament>>(),
           ),
         ),
         BlocProvider(

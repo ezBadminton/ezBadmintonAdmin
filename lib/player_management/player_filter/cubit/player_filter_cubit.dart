@@ -18,6 +18,7 @@ class PlayerFilterCubit extends CollectionFetcherCubit<PlayerFilterState>
   PlayerFilterCubit({
     required CollectionRepository<PlayingLevel> playingLevelRepository,
     required CollectionRepository<AgeGroup> ageGroupRepository,
+    required CollectionRepository<Tournament> tournamentRepository,
     required AgeGroupPredicateProducer ageGroupPredicateProducer,
     required PlayingLevelPredicateProducer playingLevelPredicateProducer,
     required GenderCategoryPredicateProducer genderPredicateProducer,
@@ -29,6 +30,7 @@ class PlayerFilterCubit extends CollectionFetcherCubit<PlayerFilterState>
           collectionRepositories: [
             playingLevelRepository,
             ageGroupRepository,
+            tournamentRepository,
           ],
         ) {
     initPredicateProducers([
@@ -48,6 +50,10 @@ class PlayerFilterCubit extends CollectionFetcherCubit<PlayerFilterState>
       playingLevelRepository,
       (_) => loadCollections(),
     );
+    subscribeToCollectionUpdates(
+      tournamentRepository,
+      (_) => loadCollections(),
+    );
   }
 
   @override
@@ -63,6 +69,7 @@ class PlayerFilterCubit extends CollectionFetcherCubit<PlayerFilterState>
       [
         collectionFetcher<PlayingLevel>(),
         collectionFetcher<AgeGroup>(),
+        collectionFetcher<Tournament>(),
       ],
       onSuccess: (updatedState) {
         emit(updatedState.copyWith(loadingStatus: LoadingStatus.done));

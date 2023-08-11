@@ -44,6 +44,7 @@ var playingLevels = List<PlayingLevel>.generate(
 void main() {
   late CollectionRepository<PlayingLevel> playingLevelRepository;
   late CollectionRepository<AgeGroup> ageGroupRepository;
+  late CollectionRepository<Tournament> tournamentRepository;
   late List<PredicateProducer> producers;
   late AgeGroupPredicateProducer ageGroupPredicateProducer;
   late GenderCategoryPredicateProducer genderPredicateProducer;
@@ -73,6 +74,7 @@ void main() {
     return PlayerFilterCubit(
       playingLevelRepository: playingLevelRepository,
       ageGroupRepository: ageGroupRepository,
+      tournamentRepository: tournamentRepository,
       ageGroupPredicateProducer: ageGroupPredicateProducer,
       genderPredicateProducer: genderPredicateProducer,
       playingLevelPredicateProducer: playingLevelPredicateProducer,
@@ -87,6 +89,7 @@ void main() {
       initialCollection: playingLevels,
     );
     ageGroupRepository = TestCollectionRepository();
+    tournamentRepository = TestCollectionRepository();
     ageGroupPredicateProducer = MockAgeGroupPredicateProducer();
     genderPredicateProducer = MockGenderPredicateProducer();
     playingLevelPredicateProducer = MockPlayingLevelPredicateProducer();
