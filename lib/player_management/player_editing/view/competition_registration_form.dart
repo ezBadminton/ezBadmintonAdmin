@@ -66,7 +66,7 @@ class _RegistrationCancelButton extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
     var cubit = context.read<PlayerEditingCubit>();
     return OutlinedButton(
-      onPressed: cubit.registrationCancelled,
+      onPressed: cubit.registrationCanceled,
       child: Builder(builder: (context) {
         return Text(
           l10n.cancel,
@@ -106,6 +106,7 @@ class _CompetitionForm extends StatelessWidget {
         competitionRepository:
             context.read<CollectionRepository<Competition>>(),
         ageGroupRepository: context.read<CollectionRepository<AgeGroup>>(),
+        tournamentRepository: context.read<CollectionRepository<Tournament>>(),
       ),
       child: const _CompetitionRegistrationStepper(),
     );

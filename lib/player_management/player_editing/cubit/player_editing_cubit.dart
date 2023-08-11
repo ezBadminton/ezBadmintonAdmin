@@ -22,6 +22,7 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     required CollectionRepository<Club> clubRepository,
     required CollectionRepository<PlayingLevel> playingLevelRepository,
     required CollectionRepository<Team> teamRepository,
+    required CollectionRepository<Tournament> tournamentRepository,
   })  : _context = context,
         super(
           PlayerEditingState(player: player),
@@ -31,6 +32,7 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
             clubRepository,
             playingLevelRepository,
             teamRepository,
+            tournamentRepository,
           ],
         ) {
     loadCollections();
@@ -38,6 +40,10 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     subscribeToCollectionUpdates(
       competitionRepository,
       _onCompetitionCollectionUpdate,
+    );
+    subscribeToCollectionUpdates(
+      tournamentRepository,
+      _onTournamentSettingUpdate,
     );
   }
 
@@ -150,7 +156,7 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     emit(state.copyWith(registrationFormShown: true));
   }
 
-  void registrationCancelled() {
+  void registrationCanceled() {
     assert(state.registrationFormShown);
     emit(state.copyWith(registrationFormShown: false));
   }
@@ -370,6 +376,12 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
   void _onCompetitionCollectionUpdate(CollectionUpdateEvent _) {
     if (state.formStatus != FormzSubmissionStatus.success) {
       loadCollections();
+    }
+  }
+
+  void _onTournamentSettingUpdate(CollectionUpdateEvent _) {
+    if (state.registrationFormShown) {
+      registrationCanceled();
     }
   }
 

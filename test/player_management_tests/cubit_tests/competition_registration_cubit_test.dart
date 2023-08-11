@@ -108,6 +108,7 @@ void main() {
   late CollectionRepository<Player> playerRepository;
   late CollectionRepository<Competition> competitionRepository;
   late CollectionRepository<AgeGroup> ageGroupRepository;
+  late CollectionRepository<Tournament> tournamentRepository;
   late Player player;
   late List<CompetitionRegistration> registrations;
 
@@ -118,6 +119,7 @@ void main() {
       playerRepository: playerRepository,
       competitionRepository: competitionRepository,
       ageGroupRepository: ageGroupRepository,
+      tournamentRepository: tournamentRepository,
     );
   }
 
@@ -135,6 +137,7 @@ void main() {
     ageGroupRepository = TestCollectionRepository(
       initialCollection: ageGroups,
     );
+    tournamentRepository = TestCollectionRepository();
   }
 
   void arrangeRepositoryThrows() {

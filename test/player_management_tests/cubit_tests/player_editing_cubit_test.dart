@@ -86,6 +86,7 @@ class TestPlayerEditingCubit extends PlayerEditingCubit {
     required CollectionRepository<Club> clubRepository,
     required CollectionRepository<PlayingLevel> playingLevelRepository,
     required CollectionRepository<Team> teamRepository,
+    required CollectionRepository<Tournament> tournamentRepository,
   }) : super(
           context: context,
           player: player,
@@ -94,6 +95,7 @@ class TestPlayerEditingCubit extends PlayerEditingCubit {
           clubRepository: clubRepository,
           playingLevelRepository: playingLevelRepository,
           teamRepository: teamRepository,
+          tournamentRepository: tournamentRepository,
         );
 
   @override
@@ -110,6 +112,7 @@ void main() {
   late CollectionRepository<Club> clubRepository;
   late CollectionRepository<PlayingLevel> playingLevelRepository;
   late CollectionRepository<Team> teamRepository;
+  late CollectionRepository<Tournament> tournamentRepository;
 
   var playingLevel = PlayingLevel(
     id: 'playinglevelid',
@@ -149,6 +152,7 @@ void main() {
       clubRepository: clubRepository,
       playingLevelRepository: playingLevelRepository,
       teamRepository: teamRepository,
+      tournamentRepository: tournamentRepository,
     );
   }
 
@@ -181,6 +185,7 @@ void main() {
     teamRepository = TestCollectionRepository(
       initialCollection: teams,
     );
+    tournamentRepository = TestCollectionRepository();
   }
 
   void arrangeOneRepositoryThrows() {
@@ -259,7 +264,7 @@ void main() {
         cubit.playingLevelChanged(playingLevel);
         cubit.registrationFormOpened();
         await Future.delayed(Duration.zero);
-        cubit.registrationCancelled();
+        cubit.registrationCanceled();
       },
       expect: () => [
         HasFirstNameInput('changedFirstName'),
