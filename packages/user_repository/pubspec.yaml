@@ -9,6 +9,7 @@ dependencies:
   equatable: ^2.0.0
   pocketbase_provider:
     path: ../pocketbase_provider
+  pocketbase: ^0.9.1
 
 dev_dependencies:
   very_good_analysis: ^3.1.0

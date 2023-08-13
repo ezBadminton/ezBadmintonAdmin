@@ -66,7 +66,7 @@ packages:
     source: hosted
     version: "1.8.3"
   pocketbase:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: pocketbase
       sha256: "1438cb6f8dc539d6ab8f5db174632f21643e91ef21fdb04155e54bc2e829a6c8"

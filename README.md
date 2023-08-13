@@ -6,7 +6,7 @@ It is currently under development. The name and everything else is subject to ch
 
 ## Why?
 
-To make organizing fun badminton tournaments easy and free.
+To make organizing fun badminton tournaments easy and free (software-wise).
 
 **Is there no solution to that already?**
 

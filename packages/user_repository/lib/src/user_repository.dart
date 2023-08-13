@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:pocketbase/pocketbase.dart';
 import 'package:pocketbase_provider/pocketbase_provider.dart';
 import 'package:user_repository/src/models/models.dart';
 
@@ -6,7 +7,7 @@ class UserRepository {
   UserRepository({required PocketBaseProvider pocketBaseProvider})
       : _pocketBase = pocketBaseProvider.pocketBase;
 
-  final _pocketBase;
+  PocketBase _pocketBase;
   User? _user;
 
   Future<User?> getUser() async {
