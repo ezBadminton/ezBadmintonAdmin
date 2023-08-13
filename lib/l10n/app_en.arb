@@ -31,7 +31,7 @@
   "genderCategory": "{type, select, female{Womens} male{Mens} mixed{Mixed} other{Free}}",
   "competitionType": "{type, select, doubles{doubles} mixed{mixed} singles{singles} other{other}}",
   "competitionSuffix": "{type, select, doubles{ doubles} mixed{} singles{ singles} other{ other}}",
-  "competitionTypeAbbreviated": "{type, select, doubles{D} mixed{MX} singles{S} other{other}}",
+  "competitionTypeAbbreviated": "{type, select, doubles{D} mixed{XD} singles{S} other{other}}",
   "add" : "Add",
   "firstName": "first name",
   "lastName": "last name",
