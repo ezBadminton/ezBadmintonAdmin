@@ -12,20 +12,22 @@ part 'generated/court.g.dart';
 class Court extends Model with _$Court {
   const Court._();
 
-  /// A badminton court with a specified [location] usually the hall where it
-  /// is and a [name].
+  /// A badminton court with a specified [gymnasium] where it is located
+  /// and a [name].
   ///
-  /// The [positionX], [positionY] and [rotation] are for saving the court's
-  /// position on the drag and drop interface for mapping the courts of a hall.
+  /// The [positionX], [positionY] are for saving the court's
+  /// position in the rows and columns of courts in the gymnasium.
+  ///
+  /// When the court [isActive], [Match]es can be scheduled on it.
   const factory Court({
     required String id,
     required DateTime created,
     required DateTime updated,
-    required Location location,
+    required Gymnasium gymnasium,
     required String name,
     required int positionX,
     required int positionY,
-    required double rotation,
+    required bool isActive,
   }) = _Court;
 
   factory Court.fromJson(Map<String, dynamic> json) =>
@@ -33,7 +35,7 @@ class Court extends Model with _$Court {
 
   static const List<ExpandedField> expandedFields = [
     ExpandedField(
-      model: Location,
+      model: Gymnasium,
       key: 'location',
       isRequired: true,
       isSingle: true,
