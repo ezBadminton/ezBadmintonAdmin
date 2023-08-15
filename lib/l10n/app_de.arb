@@ -38,6 +38,7 @@
   "player": "{count, plural, other{Spieler}}",
   "playerManagement": "Spieler verwalten",
   "competitionManagement": "Disziplinen verwalten",
+  "courtManagement": "Felder verwalten",
   "birthday": "Geburtstag",
   "dateOfBirth": "Geburtsdatum",
   "personalData": "Zur Person",
