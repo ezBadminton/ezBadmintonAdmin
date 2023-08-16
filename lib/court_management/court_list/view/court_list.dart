@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/court_management/court_list/cubit/court_list_cubit.dart';
+import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/view/gymnasium_editing_page.dart';
 import 'package:ez_badminton_admin_app/widgets/map_listview/map_listview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,7 +28,9 @@ class CourtList extends StatelessWidget {
           LayoutId(
             id: 'button',
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).push(GymnasiumEditingPage.route());
+              },
               style: const ButtonStyle(
                 shape: MaterialStatePropertyAll(StadiumBorder()),
               ),

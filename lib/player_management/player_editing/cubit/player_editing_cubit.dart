@@ -15,7 +15,6 @@ part 'player_editing_state.dart';
 
 class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
   PlayerEditingCubit({
-    required BuildContext context,
     Player? player,
     required CollectionRepository<Player> playerRepository,
     required CollectionRepository<Competition> competitionRepository,
@@ -23,8 +22,7 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     required CollectionRepository<PlayingLevel> playingLevelRepository,
     required CollectionRepository<Team> teamRepository,
     required CollectionRepository<Tournament> tournamentRepository,
-  })  : _context = context,
-        super(
+  }) : super(
           PlayerEditingState(player: player),
           collectionRepositories: [
             playerRepository,
@@ -51,8 +49,6 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     );
   }
 
-  final BuildContext _context;
-
   void loadCollections() {
     if (state.loadingStatus != LoadingStatus.loading) {
       emit(state.copyWith(loadingStatus: LoadingStatus.loading));
@@ -68,7 +64,6 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
         if (state.player.id.isNotEmpty && state.isPure) {
           updatedState = updatedState.copyWithPlayer(
             player: state.player,
-            dateParser: dateParser,
           );
         }
 
@@ -347,12 +342,5 @@ class PlayerEditingCubit extends CollectionFetcherCubit<PlayerEditingState> {
     if (state.registrationFormShown) {
       registrationCanceled();
     }
-  }
-
-  String Function(DateTime) get dateFormatter =>
-      MaterialLocalizations.of(_context).formatCompactDate;
-
-  DateTime? Function(String) get dateParser {
-    return MaterialLocalizations.of(_context).parseCompactDate;
   }
 }

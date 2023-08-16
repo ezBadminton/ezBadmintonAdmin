@@ -27,8 +27,20 @@ class Gymnasium extends Model with _$Gymnasium {
   factory Gymnasium.fromJson(Map<String, dynamic> json) =>
       _$GymnasiumFromJson(json);
 
+  factory Gymnasium.newGymnasium() => Gymnasium(
+        id: '',
+        created: DateTime.now(),
+        updated: DateTime.now(),
+        name: '',
+        directions: '',
+        rows: defaultGridSize,
+        columns: defaultGridSize,
+      );
+
   @override
   Map<String, dynamic> toCollapsedJson() {
     return toJson();
   }
+
+  static const int defaultGridSize = 2;
 }

@@ -38,7 +38,6 @@ class PlayerEditingState extends CollectionFetcherState<PlayerEditingState>
 
   PlayerEditingState copyWithPlayer({
     required Player player,
-    required DateTime? Function(String) dateParser,
   }) =>
       copyWith(
         player: player,

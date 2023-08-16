@@ -120,5 +120,11 @@
   "orMore": "or more",
   "orLess": "or less",
   "showRegistrations": "Show registration list",
-  "gym": "{count, plural, =1{Hall} other{Halls}}"
+  "gym": "{count, plural, =1{Hall} other{Halls}}",
+  "row": "{count, plural, =1{Row} other{Rows}}",
+  "column": "{count, plural, =1{Column} other{Columns}}",
+  "description": "Description",
+  "gymFloorPlan": "Hall floor plan",
+  "directions": "Directions",
+  "gymFloorPlanHelpMessage": "The plan describes how the courts are arranged in the hall. Thus, a maximum of {rows}x{columns} courts fit into the hall. It is up to you which of the courts are actually used."
 }

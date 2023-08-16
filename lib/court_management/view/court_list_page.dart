@@ -16,6 +16,7 @@ class CourtListPage extends StatelessWidget {
     return BlocProvider(
       create: (context) => CourtListCubit(
         courtRepository: context.read<CollectionRepository<Court>>(),
+        gymnasiumRepository: context.read<CollectionRepository<Gymnasium>>(),
       ),
       child: const _CourtListPageScaffold(),
     );

@@ -31,7 +31,6 @@ class PlayerEditingPage extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
     return BlocProvider(
       create: (context) => PlayerEditingCubit(
-        context: context,
         player: player,
         playerRepository: context.read<CollectionRepository<Player>>(),
         competitionRepository:

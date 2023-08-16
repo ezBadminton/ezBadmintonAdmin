@@ -8,7 +8,6 @@ import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dar
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:formz/formz.dart';
-import 'package:intl/intl.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../common_matchers/model_matchers.dart';
@@ -88,7 +87,6 @@ class TestPlayerEditingCubit extends PlayerEditingCubit {
     required CollectionRepository<Team> teamRepository,
     required CollectionRepository<Tournament> tournamentRepository,
   }) : super(
-          context: context,
           player: player,
           playerRepository: playerRepository,
           competitionRepository: competitionRepository,
@@ -97,12 +95,6 @@ class TestPlayerEditingCubit extends PlayerEditingCubit {
           teamRepository: teamRepository,
           tournamentRepository: tournamentRepository,
         );
-
-  @override
-  String Function(DateTime) get dateFormatter => DateFormat.yMd().format;
-
-  @override
-  DateTime Function(String) get dateParser => DateFormat.yMd().parse;
 }
 
 void main() {

@@ -120,5 +120,11 @@
   "orMore": "oder mehr",
   "orLess": "oder weniger",
   "showRegistrations": "Meldeliste anzeigen",
-  "gym": "{count, plural, =1{Halle} other{Hallen}}"
+  "gym": "{count, plural, =1{Halle} other{Hallen}}",
+  "row": "{count, plural, =1{Reihe} other{Reihen}}",
+  "column": "{count, plural, =1{Spalte} other{Spalten}}",
+  "description": "Beschreibung",
+  "gymFloorPlan": "Hallenplan",
+  "directions": "Wegbeschreibung",
+  "gymFloorPlanHelpMessage": "Der Plan beschreibt, wie die Felder in der Halle angeordnet sind. Es passen also maximal {rows}x{columns} Felder in die Halle. Es steht frei, welche der Felder tatsächlich genutzt werden."
 }
