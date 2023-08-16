@@ -119,5 +119,6 @@
   "deleteCompetitionsWithTeamsWarning": "Für die Disziplinen wurden bereits Spieler gemeldet.",
   "orMore": "oder mehr",
   "orLess": "oder weniger",
-  "showRegistrations": "Meldeliste anzeigen"
+  "showRegistrations": "Meldeliste anzeigen",
+  "gym": "{count, plural, =1{Halle} other{Hallen}}"
 }

@@ -47,6 +47,7 @@ class PocketbaseCollectionRepository<M extends Model>
     Competition: ExpansionTree(Competition.expandedFields)
       ..expandWith(Team, Team.expandedFields),
     Team: ExpansionTree(Team.expandedFields),
+    Court: ExpansionTree(Court.expandedFields),
   };
 
   @override

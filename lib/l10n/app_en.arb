@@ -119,5 +119,6 @@
   "deleteCompetitionsWithTeamsWarning": "The competitions already have registered players.",
   "orMore": "or more",
   "orLess": "or less",
-  "showRegistrations": "Show registration list"
+  "showRegistrations": "Show registration list",
+  "gym": "{count, plural, =1{Hall} other{Halls}}"
 }

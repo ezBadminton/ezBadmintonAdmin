@@ -19,7 +19,7 @@ class Gymnasium extends Model with _$Gymnasium {
     required DateTime created,
     required DateTime updated,
     required String name,
-    required String directions,
+    String? directions,
     required int rows,
     required int columns,
   }) = _Gymnasium;

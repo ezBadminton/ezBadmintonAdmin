@@ -36,7 +36,7 @@ class Court extends Model with _$Court {
   static const List<ExpandedField> expandedFields = [
     ExpandedField(
       model: Gymnasium,
-      key: 'location',
+      key: 'gymnasium',
       isRequired: true,
       isSingle: true,
     ),
