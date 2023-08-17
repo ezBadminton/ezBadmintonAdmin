@@ -54,8 +54,8 @@ class _GymFloorPlanTitle extends StatelessWidget {
           builder: (context, state) {
             return LongTooltip(
               message: l10n.gymFloorPlanHelpMessage(
-                state.rows.value,
                 state.columns.value,
+                state.rows.value,
               ),
               child: Icon(
                 Icons.help_outline,

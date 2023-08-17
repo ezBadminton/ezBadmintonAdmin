@@ -4,6 +4,7 @@ import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/view/g
 import 'package:ez_badminton_admin_app/layout/fab_location.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:ez_badminton_admin_app/widgets/progress_indicator_icon/progress_indicator_icon.dart';
+import 'package:ez_badminton_admin_app/widgets/unsaved_changes_warning/unsaved_changes_warning.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -62,12 +63,15 @@ class GymnasiumEditingPage extends StatelessWidget {
             floatingActionButtonLocation: state.isPure
                 ? const EndOffscreenFabLocation()
                 : FloatingActionButtonLocation.endFloat,
-            body: LoadingScreen(
-              loadingStatus: state.loadingStatus,
-              builder: (context) => const Align(
-                alignment: Alignment.center,
-                child: SingleChildScrollView(
-                  child: GymnasiumEditingForm(),
+            body: UnsavedChangesWarning(
+              formState: state,
+              child: LoadingScreen(
+                loadingStatus: state.loadingStatus,
+                builder: (context) => const Align(
+                  alignment: Alignment.center,
+                  child: SingleChildScrollView(
+                    child: GymnasiumEditingForm(),
+                  ),
                 ),
               ),
             ),

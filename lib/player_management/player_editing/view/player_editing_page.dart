@@ -4,6 +4,7 @@ import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/pl
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/player_editing_form.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:ez_badminton_admin_app/widgets/progress_indicator_icon/progress_indicator_icon.dart';
+import 'package:ez_badminton_admin_app/widgets/unsaved_changes_warning/unsaved_changes_warning.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -95,14 +96,8 @@ class _PlayerEditingPageContent extends StatelessWidget {
           previous.loadingStatus != current.loadingStatus ||
           previous.isPure != current.isPure,
       builder: (context, state) {
-        return WillPopScope(
-          onWillPop: () async {
-            if (state.isDirty) {
-              return _showUnsavedChangesDialog(context);
-            } else {
-              return true;
-            }
-          },
+        return UnsavedChangesWarning(
+          formState: state,
           child: LoadingScreen(
             loadingStatus: state.loadingStatus,
             onRetry: () => cubit.loadCollections(),
@@ -126,29 +121,5 @@ class _PlayerEditingPageContent extends StatelessWidget {
         );
       },
     );
-  }
-
-  Future<bool> _showUnsavedChangesDialog(BuildContext context) async {
-    var l10n = AppLocalizations.of(context)!;
-    var dismissChanges = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(l10n.unsavedChanges),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: Text(l10n.dismissChanges),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: Text(l10n.cancel),
-            ),
-          ],
-        );
-      },
-    );
-    return dismissChanges!;
   }
 }
