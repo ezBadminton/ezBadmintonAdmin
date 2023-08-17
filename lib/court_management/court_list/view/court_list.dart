@@ -1,8 +1,10 @@
 import 'dart:math';
 
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/court_management/court_editing/cubit/court_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/court_list/cubit/court_list_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/view/gymnasium_editing_page.dart';
+import 'package:ez_badminton_admin_app/widgets/animated_hover/animated_hover.dart';
 import 'package:ez_badminton_admin_app/widgets/map_listview/map_listview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -65,21 +67,54 @@ class CourtList extends StatelessWidget {
   }
 
   Widget _buildGymnasiumItem(BuildContext context, Gymnasium gymnasium) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: Theme.of(context).primaryColor.withOpacity(.7),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-        child: SizedBox(
-          width: 170,
-          child: Text(
-            gymnasium.name,
-            style: const TextStyle(color: Colors.black87),
+    var cubit = context.read<CourtEditingCubit>();
+    return BlocBuilder<CourtEditingCubit, CourtEditingState>(
+      buildWhen: (previous, current) => previous.gymnasium != current.gymnasium,
+      builder: (context, state) {
+        bool selected = gymnasium == state.gymnasium.value;
+        return AnimatedHover(
+          duration: const Duration(milliseconds: 80),
+          builder: (context, animation, child) => SizedBox(
+            width: 200,
+            child: Column(
+              children: [
+                child!,
+                Divider(
+                  height: 0,
+                  thickness: 2,
+                  indent: selected ? 0 : (1 - animation) * 100,
+                  endIndent: selected ? 0 : (1 - animation) * 100,
+                  color: Theme.of(context).primaryColor,
+                ),
+              ],
+            ),
           ),
-        ),
-      ),
+          child: ChoiceChip(
+            selectedColor: Theme.of(context).primaryColor.withOpacity(.45),
+            onSelected: (_) => cubit.gymnasiumToggled(gymnasium),
+            selected: selected,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+            ),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 5,
+              vertical: 10,
+            ),
+            label: Row(
+              children: [
+                Text(
+                  gymnasium.name,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
