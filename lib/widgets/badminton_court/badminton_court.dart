@@ -3,10 +3,46 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 /// A depiction of a badminton court
-class BadmintonCourt extends CustomPaint {
+class BadmintonCourt extends StatelessWidget {
   /// Set the [lineWidthScale] to multiply the true to scale line width with.
-  BadmintonCourt({
+  const BadmintonCourt({
     super.key,
+    this.child,
+    this.size = const Size(61 * 4, 134 * 4),
+    this.orientation = Axis.horizontal,
+    this.lineWidthScale = 1.0,
+    this.lineColor = Colors.green,
+    this.netColor = Colors.black38,
+  });
+
+  final Axis orientation;
+
+  final Widget? child;
+  final Size size;
+  final double lineWidthScale;
+  final Color lineColor;
+  final Color netColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return RotatedBox(
+      quarterTurns: orientation == Axis.horizontal ? 1 : 0,
+      child: _BadmintonCourt(
+        size: size,
+        lineWidthScale: lineWidthScale,
+        lineColor: lineColor,
+        netColor: netColor,
+        child: RotatedBox(
+          quarterTurns: orientation == Axis.horizontal ? -1 : 0,
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+class _BadmintonCourt extends CustomPaint {
+  _BadmintonCourt({
     super.child,
     super.size = const Size(61 * 4, 134 * 4),
     double lineWidthScale = 1.0,

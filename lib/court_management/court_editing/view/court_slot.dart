@@ -24,21 +24,26 @@ class CourtSlot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<GymnasiumSelectionCubit, GymnasiumSelectionState>(
-      builder: (context, state) {
-        Court? courtInSlot = state.courtsOfGym.firstWhereOrNull(
-          (c) => c.positionX == column && c.positionY == row,
-        );
+    return Center(
+      child: AspectRatio(
+        aspectRatio: 134 / 61,
+        child: BlocBuilder<GymnasiumSelectionCubit, GymnasiumSelectionState>(
+          builder: (context, state) {
+            Court? courtInSlot = state.courtsOfGym.firstWhereOrNull(
+              (c) => c.positionX == column && c.positionY == row,
+            );
 
-        if (courtInSlot == null) {
-          return _EmptyCourtSlot(
-            row: row,
-            column: column,
-          );
-        } else {
-          return _FilledCourtSlot(courtInSlot: courtInSlot);
-        }
-      },
+            if (courtInSlot == null) {
+              return _EmptyCourtSlot(
+                row: row,
+                column: column,
+              );
+            } else {
+              return _FilledCourtSlot(courtInSlot: courtInSlot);
+            }
+          },
+        ),
+      ),
     );
   }
 }
@@ -67,19 +72,17 @@ class _FilledCourtSlot extends StatelessWidget {
           ),
         ),
       ],
-      child: Stack(
-        children: [
-          RotatedBox(
-            quarterTurns: 1,
-            child: BadmintonCourt(
-              lineWidthScale: 1.5,
-              lineColor: Colors.green.shade200,
-              netColor: Colors.black12,
-            ),
-          ),
-          _CourtNameCard(courtInSlot: courtInSlot),
-          _CourtOptions(courtInSlot: courtInSlot),
-        ],
+      child: BadmintonCourt(
+        lineWidthScale: 2,
+        lineColor: Colors.green.shade200,
+        netColor: Colors.black12,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            _CourtNameCard(courtInSlot: courtInSlot),
+            _CourtOptions(courtInSlot: courtInSlot),
+          ],
+        ),
       ),
     );
   }
@@ -96,13 +99,13 @@ class _CourtOptions extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Positioned.fill(
       child: Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: EdgeInsets.all(4.0),
         child: Align(
           alignment: AlignmentDirectional.topEnd,
           child: Card(
             elevation: 2,
             child: Padding(
-              padding: EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(2.0),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -132,7 +135,7 @@ class _DeleteButton extends StatelessWidget {
         return PopupMenuButton<VoidCallback>(
           onSelected: (callback) => callback(),
           tooltip: '',
-          splashRadius: 25,
+          splashRadius: 19,
           enabled: state.formStatus != FormzSubmissionStatus.inProgress,
           itemBuilder: (context) => [
             PopupMenuItem(
@@ -164,7 +167,7 @@ class _RenameButton extends StatelessWidget {
           onPressed: state.isFormOpen ? null : renameCubit.formOpened,
           icon: const Icon(Icons.edit),
           tooltip: l10n.rename,
-          splashRadius: 25,
+          splashRadius: 19,
         );
       },
     );
@@ -192,8 +195,8 @@ class _CourtNameCard extends StatelessWidget {
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(
-              vertical: 5.0,
-              horizontal: 25.0,
+              vertical: 4.0,
+              horizontal: 19.0,
             ),
             child: BlocBuilder<CourtRenamingCubit, CourtRenamingState>(
               buildWhen: (previous, current) =>
@@ -205,7 +208,7 @@ class _CourtNameCard extends StatelessWidget {
                   return Text(
                     courtInSlot.name,
                     style: const TextStyle(
-                      fontSize: 45,
+                      fontSize: 34,
                     ),
                   );
                 }
@@ -241,10 +244,10 @@ class _RenamingForm extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
-              width: 250,
+              width: 190,
               child: TextField(
                 style: const TextStyle(
-                  fontSize: 28,
+                  fontSize: 21,
                 ),
                 inputFormatters: [
                   LengthLimitingTextInputFormatter(courtNameMaxLength),
@@ -254,7 +257,7 @@ class _RenamingForm extends StatelessWidget {
                 decoration: InputDecoration(
                   labelText: l10n.name,
                   labelStyle: const TextStyle(
-                    fontSize: 18,
+                    fontSize: 14,
                   ),
                 ),
                 onChanged: cubit.nameChanged,
@@ -285,28 +288,23 @@ class _EmptyCourtSlot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var cubit = context.read<CourtAddingCubit>();
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        RotatedBox(
-          quarterTurns: 1,
-          child: BadmintonCourt(
-            lineColor: Colors.black26,
-            netColor: Colors.black12,
-          ),
-        ),
-        SizedBox.square(
-          dimension: 70,
+    return BadmintonCourt(
+      lineColor: Colors.black26,
+      netColor: Colors.black12,
+      child: Center(
+        child: SizedBox.square(
+          dimension: 60,
           child: ElevatedButton(
             onPressed: () => cubit.courtAdded(row, column),
             style: const ButtonStyle(
               shape: MaterialStatePropertyAll(CircleBorder()),
               elevation: MaterialStatePropertyAll(6),
+              padding: MaterialStatePropertyAll(EdgeInsets.zero),
             ),
             child: const Icon(Icons.add),
           ),
         ),
-      ],
+      ),
     );
   }
 }

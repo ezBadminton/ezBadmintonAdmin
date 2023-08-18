@@ -94,18 +94,20 @@ class GymnasiumSelectionCubit
 
   void _onGymnasiumCollectionUpdate(CollectionUpdateEvent<Gymnasium> event) {
     Gymnasium updatedGymnasium = event.model;
-    if (state.gymnasium.value != updatedGymnasium) {
-      return;
-    }
 
     switch (event.updateType) {
-      case UpdateType.update:
+      case UpdateType.create:
         _selectGymnasium(updatedGymnasium);
         break;
-      case UpdateType.delete:
-        _unselectGymnasium();
+      case UpdateType.update:
+        if (updatedGymnasium == state.gymnasium.value) {
+          _selectGymnasium(updatedGymnasium);
+        }
         break;
-      default:
+      case UpdateType.delete:
+        if (updatedGymnasium == state.gymnasium.value) {
+          _unselectGymnasium();
+        }
         break;
     }
   }
