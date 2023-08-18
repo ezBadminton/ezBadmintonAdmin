@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:collection_repository/collection_repository.dart';
-import 'package:ez_badminton_admin_app/court_management/court_editing/cubit/court_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/court_list/cubit/court_list_cubit.dart';
+import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/view/gymnasium_editing_page.dart';
 import 'package:ez_badminton_admin_app/widgets/animated_hover/animated_hover.dart';
 import 'package:ez_badminton_admin_app/widgets/map_listview/map_listview.dart';
@@ -67,8 +67,8 @@ class CourtList extends StatelessWidget {
   }
 
   Widget _buildGymnasiumItem(BuildContext context, Gymnasium gymnasium) {
-    var cubit = context.read<CourtEditingCubit>();
-    return BlocBuilder<CourtEditingCubit, CourtEditingState>(
+    var cubit = context.read<GymnasiumSelectionCubit>();
+    return BlocBuilder<GymnasiumSelectionCubit, GymnasiumSelectionState>(
       buildWhen: (previous, current) => previous.gymnasium != current.gymnasium,
       builder: (context, state) {
         bool selected = gymnasium == state.gymnasium.value;

@@ -1,7 +1,7 @@
 import 'package:collection_repository/collection_repository.dart';
-import 'package:ez_badminton_admin_app/court_management/court_editing/cubit/court_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/court_list/cubit/court_list_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/court_list/view/court_list.dart';
+import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,7 +14,6 @@ class CourtListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var l10n = AppLocalizations.of(context)!;
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -25,11 +24,10 @@ class CourtListPage extends StatelessWidget {
           ),
         ),
         BlocProvider(
-          create: (context) => CourtEditingCubit(
-            courtRepository: context.read<CollectionRepository<Court>>(),
+          create: (context) => GymnasiumSelectionCubit(
             gymnasiumRepository:
                 context.read<CollectionRepository<Gymnasium>>(),
-            l10n: l10n,
+            courtRepository: context.read<CollectionRepository<Court>>(),
           ),
         ),
       ],

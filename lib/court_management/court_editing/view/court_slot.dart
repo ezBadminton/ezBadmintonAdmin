@@ -2,8 +2,9 @@ import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/constants.dart';
 import 'package:ez_badminton_admin_app/court_management/court_editing/cubit/court_deletion_cubit.dart';
-import 'package:ez_badminton_admin_app/court_management/court_editing/cubit/court_editing_cubit.dart';
+import 'package:ez_badminton_admin_app/court_management/court_editing/cubit/court_adding_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/court_editing/cubit/court_renaming_cubit.dart';
+import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/badminton_court/badminton_court.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,9 +24,9 @@ class CourtSlot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CourtEditingCubit, CourtEditingState>(
+    return BlocBuilder<GymnasiumSelectionCubit, GymnasiumSelectionState>(
       builder: (context, state) {
-        Court? courtInSlot = state.courts.firstWhereOrNull(
+        Court? courtInSlot = state.courtsOfGym.firstWhereOrNull(
           (c) => c.positionX == column && c.positionY == row,
         );
 
@@ -283,7 +284,7 @@ class _EmptyCourtSlot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var cubit = context.read<CourtEditingCubit>();
+    var cubit = context.read<CourtAddingCubit>();
     return Stack(
       alignment: Alignment.center,
       children: [
