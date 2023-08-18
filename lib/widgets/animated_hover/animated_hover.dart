@@ -10,12 +10,14 @@ class AnimatedHover extends StatelessWidget {
     super.key,
     required this.builder,
     this.duration = const Duration(milliseconds: 100),
+    this.reverseDuration,
     this.child,
   });
 
   final Widget Function(BuildContext context, double value, Widget? child)
       builder;
   final Duration duration;
+  final Duration? reverseDuration;
   final Widget? child;
 
   @override
@@ -26,6 +28,7 @@ class AnimatedHover extends StatelessWidget {
           animationRunning: isHovered,
           tween: Tween(begin: 0.0, end: 1.0),
           duration: duration,
+          reverseDuration: reverseDuration,
           builder: builder,
           child: child,
         );

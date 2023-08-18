@@ -113,5 +113,7 @@ class _BadmintonCourtPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(_BadmintonCourtPainter oldDelegate) {
+    return oldDelegate.lineWidthScale != lineWidthScale;
+  }
 }

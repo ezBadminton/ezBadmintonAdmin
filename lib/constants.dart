@@ -6,6 +6,8 @@ const int playerSearchMaxLength = 50;
 
 const int playingLevelNameMaxLength = 30;
 
+const int courtNameMaxLength = 14;
+
 const Map<PlayerStatus, IconData> playerStatusIcons = {
   PlayerStatus.notAttending: Icons.question_mark,
   PlayerStatus.attending: Icons.done,

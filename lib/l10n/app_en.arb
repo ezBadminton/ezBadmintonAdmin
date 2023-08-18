@@ -21,7 +21,7 @@
   "playingLevel": "{count, plural, =1{Playing level} other{Playing levels}}",
   "competition": "{count, plural, =1{Competition} other{Competitions}}",
   "baseCompetition": "{count, plural, =1{Base competition} other{Base competitions}}",
-  "courts": "Courts",
+  "court": "{count, plural, =1{Court} other{Courts}}",
   "matches": "Matches",
   "women": "women",
   "men": "men",
@@ -126,5 +126,6 @@
   "description": "Description",
   "gymFloorPlan": "Hall floor plan",
   "directions": "Directions",
-  "gymFloorPlanHelpMessage": "The plan describes how the courts are arranged in the hall. Thus, a maximum of {rows}x{columns} courts fit into the hall. It is up to you which of the courts are actually used."
+  "gymFloorPlanHelpMessage": "The plan describes how the courts are arranged in the hall. Thus, a maximum of {rows}x{columns} courts fit into the hall. It is up to you which of the courts are actually used.",
+  "courtN": "Court {n}"
 }

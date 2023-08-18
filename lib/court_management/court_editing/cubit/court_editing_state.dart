@@ -5,7 +5,7 @@ class CourtEditingState extends CollectionFetcherState<CourtEditingState> {
     this.loadingStatus = LoadingStatus.done,
     this.formStatus = FormzSubmissionStatus.initial,
     this.gymnasium = const SelectionInput.pure(emptyAllowed: true, value: null),
-    this.court = const SelectionInput.pure(emptyAllowed: true, value: null),
+    this.courts = const [],
     super.collections = const {},
   });
 
@@ -13,20 +13,20 @@ class CourtEditingState extends CollectionFetcherState<CourtEditingState> {
   final FormzSubmissionStatus formStatus;
 
   final SelectionInput<Gymnasium> gymnasium;
-  final SelectionInput<Court> court;
+  final List<Court> courts;
 
   CourtEditingState copyWith({
     LoadingStatus? loadingStatus,
     FormzSubmissionStatus? formStatus,
     SelectionInput<Gymnasium>? gymnasium,
-    SelectionInput<Court>? court,
+    List<Court>? courts,
     Map<Type, List<Model>>? collections,
   }) {
     return CourtEditingState(
       loadingStatus: loadingStatus ?? this.loadingStatus,
       formStatus: formStatus ?? this.formStatus,
       gymnasium: gymnasium ?? this.gymnasium,
-      court: court ?? this.court,
+      courts: courts ?? this.courts,
       collections: collections ?? this.collections,
     );
   }

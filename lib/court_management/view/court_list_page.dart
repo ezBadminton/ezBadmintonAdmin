@@ -14,6 +14,7 @@ class CourtListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -28,6 +29,7 @@ class CourtListPage extends StatelessWidget {
             courtRepository: context.read<CollectionRepository<Court>>(),
             gymnasiumRepository:
                 context.read<CollectionRepository<Gymnasium>>(),
+            l10n: l10n,
           ),
         ),
       ],

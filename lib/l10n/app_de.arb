@@ -21,7 +21,7 @@
   "playingLevel": "{count, plural, =1{Spielklasse} other{Spielklassen}}",
   "competition": "{count, plural, =1{Disziplin} other{Disziplinen}}",
   "baseCompetition": "{count, plural, =1{Basisdisziplin} other{Basisdisziplinen}}",
-  "courts": "Felder",
+  "court": "{count, plural, =1{Feld} other{Felder}}",
   "matches": "Spiele",
   "women": "Damen",
   "men": "Herren",
@@ -126,5 +126,6 @@
   "description": "Beschreibung",
   "gymFloorPlan": "Hallenplan",
   "directions": "Wegbeschreibung",
-  "gymFloorPlanHelpMessage": "Der Plan beschreibt, wie die Felder in der Halle angeordnet sind. Es passen also maximal {rows}x{columns} Felder in die Halle. Es steht frei, welche der Felder tatsächlich genutzt werden."
+  "gymFloorPlanHelpMessage": "Der Plan beschreibt, wie die Felder in der Halle angeordnet sind. Es passen also maximal {rows}x{columns} Felder in die Halle. Es steht frei, welche der Felder tatsächlich genutzt werden.",
+  "courtN": "Feld {n}"
 }

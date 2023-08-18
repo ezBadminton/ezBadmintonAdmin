@@ -73,7 +73,7 @@ class _HomePageState extends State<HomePage>
         ),
         NavigationTab(
           index: 2,
-          label: l10n.courts,
+          label: l10n.court(2),
           root: const CourtListPage(),
           unselectedIcon: BadmintonIcons.badminton_court_with_net_outline,
           selectedIcon: BadmintonIcons.badminton_court_with_net,

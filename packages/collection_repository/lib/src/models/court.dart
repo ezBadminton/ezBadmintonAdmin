@@ -33,6 +33,23 @@ class Court extends Model with _$Court {
   factory Court.fromJson(Map<String, dynamic> json) =>
       _$CourtFromJson(json..cleanUpExpansions(expandedFields));
 
+  factory Court.newCourt({
+    required String name,
+    required Gymnasium gymnasium,
+    required int x,
+    required int y,
+  }) =>
+      Court(
+        id: '',
+        created: DateTime.now(),
+        updated: DateTime.now(),
+        gymnasium: gymnasium,
+        name: name,
+        positionX: x,
+        positionY: y,
+        isActive: true,
+      );
+
   static const List<ExpandedField> expandedFields = [
     ExpandedField(
       model: Gymnasium,
