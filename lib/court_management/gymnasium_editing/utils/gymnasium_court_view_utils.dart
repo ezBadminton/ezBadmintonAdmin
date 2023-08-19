@@ -29,29 +29,24 @@ EdgeInsets getGymCourtPadding(
   BoxConstraints constraints,
   Gymnasium gymnasium,
 ) {
-  double viewAspectRatio = constraints.biggest.aspectRatio;
-  if (!viewAspectRatio.isFinite) {
-    return EdgeInsets.zero;
-  }
-  double gridAspectRatio =
-      (gymnasium.columns * _baseWidth) / (gymnasium.rows * _baseHeight);
+  Size gridSize = Size(
+    gymnasium.columns * _baseWidth,
+    gymnasium.rows * _baseHeight,
+  );
 
-  double aspectRatioRatio = viewAspectRatio / gridAspectRatio;
-
-  double correctedWidth = _baseWidth;
-  double correctedHeight = _baseHeight;
-
-  if (aspectRatioRatio > 1) {
-    correctedWidth *= aspectRatioRatio;
-  } else {
-    correctedHeight *= (1 / aspectRatioRatio);
-  }
+  Size alignedGridSize = _alignAspectRatios(constraints.biggest, gridSize);
 
   double availableViewWidth = constraints.maxWidth / gymnasium.columns;
   double availableViewHeight = constraints.maxHeight / gymnasium.rows;
 
-  correctedWidth = max(correctedWidth, availableViewWidth);
-  correctedHeight = max(correctedHeight, availableViewHeight);
+  double correctedWidth = max(
+    alignedGridSize.width / gymnasium.columns,
+    availableViewWidth,
+  );
+  double correctedHeight = max(
+    alignedGridSize.height / gymnasium.rows,
+    availableViewHeight,
+  );
 
   double horizontalPadding = (correctedWidth - courtWidth) / 2;
   double verticalPadding = (correctedHeight - courtHeight) / 2;
@@ -88,25 +83,13 @@ EdgeInsets getGymBoundaryMargin(
   Size baseBoundarySize =
       gymSize + Offset(horizontalMargin * 2, verticalMargin * 2);
 
-  double viewAspectRatio = constraints.biggest.aspectRatio;
-  if (!viewAspectRatio.isFinite) {
-    return EdgeInsets.zero;
-  }
-  double boundaryAspectRatio = baseBoundarySize.aspectRatio;
+  Size alignedBondary = _alignAspectRatios(
+    constraints.biggest,
+    baseBoundarySize,
+  );
 
-  double aspectRatioRatio = viewAspectRatio / boundaryAspectRatio;
-
-  double correctedWidth = baseBoundarySize.width;
-  double correctedHeight = baseBoundarySize.height;
-
-  if (aspectRatioRatio > 1) {
-    correctedWidth *= aspectRatioRatio;
-  } else {
-    correctedHeight *= (1 / aspectRatioRatio);
-  }
-
-  horizontalMargin = (correctedWidth - gymSize.width) / 2;
-  verticalMargin = (correctedHeight - gymSize.height) / 2;
+  horizontalMargin = (alignedBondary.width - gymSize.width) / 2;
+  verticalMargin = (alignedBondary.height - gymSize.height) / 2;
 
   return EdgeInsets.symmetric(
     horizontal: horizontalMargin,
@@ -142,4 +125,38 @@ Size getGymSize(
   }
 
   return size;
+}
+
+/// Returns a copy of [size] with one of its dimensions altered so that it has
+/// the same aspect ratio as the [reference].
+///
+/// If one of the aspect ratios is infinite or 0 the [size] is returned
+/// as it is.
+Size _alignAspectRatios(
+  Size reference,
+  Size size,
+) {
+  double referenceRatio = reference.aspectRatio;
+  double sizeAspectRatio = size.aspectRatio;
+  if (!referenceRatio.isFinite ||
+      !sizeAspectRatio.isFinite ||
+      referenceRatio == 0 ||
+      sizeAspectRatio == 0) {
+    return size;
+  }
+
+  double aspectRatioRatio = reference.aspectRatio / size.aspectRatio;
+
+  double alignedWidth = size.width;
+  double alignedHeight = size.height;
+
+  if (aspectRatioRatio > 1) {
+    // Reference is wider than size
+    alignedWidth *= aspectRatioRatio;
+  } else {
+    // Reference is taller than size
+    alignedHeight *= (1 / aspectRatioRatio);
+  }
+
+  return Size(alignedWidth, alignedHeight);
 }
