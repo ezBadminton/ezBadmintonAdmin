@@ -1,6 +1,7 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/court_management/court_list/cubit/court_list_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/court_list/view/court_list.dart';
+import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_court_view_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/view/gymnasium_court_view.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
@@ -30,6 +31,9 @@ class CourtListPage extends StatelessWidget {
                 context.read<CollectionRepository<Gymnasium>>(),
             courtRepository: context.read<CollectionRepository<Court>>(),
           ),
+        ),
+        BlocProvider(
+          create: (context) => GymnasiumCourtViewCubit(),
         ),
       ],
       child: const _CourtListPageScaffold(),

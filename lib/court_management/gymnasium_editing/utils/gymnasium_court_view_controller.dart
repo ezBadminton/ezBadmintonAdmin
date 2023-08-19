@@ -74,6 +74,39 @@ class GymnasiumCourtViewController extends TransformationController {
     );
   }
 
+  void focusCourtSlot(int row, int column) {
+    if (_viewConstraints == null) {
+      return;
+    }
+    Offset courtCenter = gym_court_utils.getCourtSlotCenter(
+      row,
+      column,
+      _viewConstraints!,
+      gymnasium,
+    );
+
+    Offset targetView = gym_court_utils.correctForBoundary(
+      courtCenter,
+      _viewConstraints!,
+      gymnasium,
+    );
+
+    Offset viewCenter = _viewConstraints!.biggest.center(Offset.zero);
+
+    Offset viewTranslation = targetView - viewCenter;
+
+    Matrix4 centered = Matrix4.identity()
+      ..translate(
+        -viewTranslation.dx,
+        -viewTranslation.dy,
+      );
+
+    _animateTo(
+      centered,
+      curve: Curves.easeOutQuad,
+    );
+  }
+
   /// Cancels the current animation when the user interacts with the view
   void onInteractionStart() {
     _stopAnimation();

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/court_management/court_list/cubit/court_list_cubit.dart';
+import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_court_view_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/view/gymnasium_editing_page.dart';
 import 'package:ez_badminton_admin_app/widgets/animated_hover/animated_hover.dart';
@@ -119,11 +120,14 @@ class CourtList extends StatelessWidget {
   }
 
   Widget _buildCourtItem(BuildContext context, Court court) {
+    var cubit = context.read<GymnasiumCourtViewCubit>();
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         TextButton(
-          onPressed: () {},
+          onPressed: () => cubit
+              .getViewController(court.gymnasium)
+              .focusCourtSlot(court.positionY, court.positionX),
           style: ButtonStyle(
             backgroundColor: MaterialStateProperty.all(
               Theme.of(context).primaryColorLight.withOpacity(.5),

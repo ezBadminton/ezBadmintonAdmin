@@ -16,25 +16,22 @@ class GymnasiumCourtView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => GymnasiumCourtViewCubit(),
-      child: BlocBuilder<CourtListCubit, CourtListState>(
-        builder: (context, listState) {
-          bool gymsExist = listState.getCollection<Gymnasium>().isNotEmpty;
+    return BlocBuilder<CourtListCubit, CourtListState>(
+      builder: (context, listState) {
+        bool gymsExist = listState.getCollection<Gymnasium>().isNotEmpty;
 
-          return BlocBuilder<GymnasiumSelectionCubit, GymnasiumSelectionState>(
-            builder: (context, selectionState) {
-              Gymnasium? selectedGym = selectionState.gymnasium.value;
+        return BlocBuilder<GymnasiumSelectionCubit, GymnasiumSelectionState>(
+          builder: (context, selectionState) {
+            Gymnasium? selectedGym = selectionState.gymnasium.value;
 
-              if (selectedGym == null) {
-                return _SelectionHint(gymsExist: gymsExist);
-              } else {
-                return _GymnasiumCourtView(gymnasium: selectedGym);
-              }
-            },
-          );
-        },
-      ),
+            if (selectedGym == null) {
+              return _SelectionHint(gymsExist: gymsExist);
+            } else {
+              return _GymnasiumCourtView(gymnasium: selectedGym);
+            }
+          },
+        );
+      },
     );
   }
 }
@@ -92,7 +89,7 @@ class _GymnasiumCourtViewState extends State<_GymnasiumCourtView>
             InteractiveViewer(
               constrained: false,
               minScale: 0.01,
-              maxScale: 2,
+              maxScale: 1.5,
               boundaryMargin: gym_court_utils.getGymBoundaryMargin(
                 constraints,
                 widget.gymnasium,

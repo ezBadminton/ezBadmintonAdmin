@@ -127,7 +127,101 @@ Size getGymSize(
   return size;
 }
 
-/// Returns a copy of [size] with one of its dimensions altered so that it has
+/// Returns the position of the center of the court slot at [row]/[column]
+Offset getCourtSlotCenter(
+  int row,
+  int column,
+  BoxConstraints constraints,
+  Gymnasium gymnasium,
+) {
+  EdgeInsets courtPadding = getGymCourtPadding(
+    constraints,
+    gymnasium,
+  );
+
+  double paddedCourtWidth = courtWidth + courtPadding.horizontal;
+  double paddedCourtHeight = courtHeight + courtPadding.vertical;
+
+  Offset courtCenter = Offset(
+    (column + 0.5) * paddedCourtWidth,
+    (row + 0.5) * paddedCourtHeight,
+  );
+
+  return courtCenter;
+}
+
+/// Returns the distance of the given [point] to the limits of the
+/// gym boundary in all four cardinal directions.
+EdgeInsets getDistanceToBoundary(
+  Offset point,
+  BoxConstraints constraints,
+  Gymnasium gymnasium,
+) {
+  EdgeInsets boundaryMargin = getGymBoundaryMargin(constraints, gymnasium);
+  Size gymSize = getGymSize(constraints, gymnasium, withPadding: true);
+
+  double leftDistance = point.dx + boundaryMargin.left;
+  double rightDistance = gymSize.width - point.dx + boundaryMargin.right;
+  double topDistance = point.dy + boundaryMargin.top;
+  double bottomDistance = gymSize.height - point.dy + boundaryMargin.bottom;
+
+  EdgeInsets distance = EdgeInsets.fromLTRB(
+    leftDistance,
+    topDistance,
+    rightDistance,
+    bottomDistance,
+  );
+
+  return distance;
+}
+
+/// Returns a copy of [point] but if focusing that point would move the
+/// view over the boundary, the point is moved inwards until the view can safely
+/// focus there.
+///
+/// This assumes the zoom factor of the view is at `1.0`.
+///
+/// If the view can't fit the boundary the point is returned unchanged.
+Offset correctForBoundary(
+  Offset point,
+  BoxConstraints constraints,
+  Gymnasium gymnasium,
+) {
+  EdgeInsets distanceToBoundary = getDistanceToBoundary(
+    point,
+    constraints,
+    gymnasium,
+  );
+
+  Offset minDistanceToBoundary = Offset(
+    constraints.maxWidth / 2,
+    constraints.maxHeight / 2,
+  );
+
+  double leftCorrection =
+      max(0, minDistanceToBoundary.dx - distanceToBoundary.left);
+  double rightCorrection =
+      -1 * max(0, minDistanceToBoundary.dx - distanceToBoundary.right);
+  double topCorrection =
+      max(0, minDistanceToBoundary.dy - distanceToBoundary.top);
+  double bottomCorrection =
+      -1 * max(0, minDistanceToBoundary.dy - distanceToBoundary.bottom);
+
+  if ((leftCorrection > 0 && rightCorrection < 0) ||
+      (topCorrection > 0 && bottomCorrection < 0)) {
+    // View does not fit boundary
+    return point;
+  }
+
+  Offset boundaryCorrection = Offset(
+    leftCorrection + rightCorrection,
+    topCorrection + bottomCorrection,
+  );
+
+  return point + boundaryCorrection;
+}
+
+/// Returns a copy of [size] with one of its dimensions extended so that it has
 /// the same aspect ratio as the [reference].
 ///
 /// If one of the aspect ratios is infinite or 0 the [size] is returned
@@ -145,7 +239,7 @@ Size _alignAspectRatios(
     return size;
   }
 
-  double aspectRatioRatio = reference.aspectRatio / size.aspectRatio;
+  double aspectRatioRatio = referenceRatio / sizeAspectRatio;
 
   double alignedWidth = size.width;
   double alignedHeight = size.height;
