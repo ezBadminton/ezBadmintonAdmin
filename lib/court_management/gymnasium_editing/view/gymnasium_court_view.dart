@@ -42,9 +42,9 @@ class GymnasiumCourtView extends StatelessWidget {
 }
 
 class _GymnasiumCourtView extends StatefulWidget {
-  const _GymnasiumCourtView({
+  _GymnasiumCourtView({
     required this.gymnasium,
-  });
+  }) : super(key: ValueKey('${gymnasium.id}-GymnasiumCourtView'));
 
   final Gymnasium gymnasium;
 
