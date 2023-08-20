@@ -115,7 +115,7 @@ class _GymnasiumCourtViewState extends State<_GymnasiumCourtView>
             InteractiveViewer(
               constrained: false,
               minScale: 0.01,
-              maxScale: 1.5,
+              maxScale: gym_court_utils.maxZoomScale,
               boundaryMargin: gym_court_utils.getGymBoundaryMargin(
                 constraints,
                 widget.gymnasium,

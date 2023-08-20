@@ -5,6 +5,8 @@ import 'package:ez_badminton_admin_app/court_management/court_editing/view/court
 import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 
+const double maxZoomScale = 1.5;
+
 const double courtWidth = 134 * 3;
 const double courtHeight = 61 * 3;
 

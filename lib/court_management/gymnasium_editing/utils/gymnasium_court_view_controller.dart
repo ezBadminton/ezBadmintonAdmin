@@ -149,7 +149,7 @@ class GymnasiumCourtViewController extends TransformationController {
     );
     final double clampedTotalScale = min(
       totalScale,
-      1.5,
+      gym_court_utils.maxZoomScale,
     );
     final double clampedScale = clampedTotalScale / currentScale;
 
