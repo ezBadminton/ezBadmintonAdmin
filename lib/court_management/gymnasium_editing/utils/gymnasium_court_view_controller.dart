@@ -7,10 +7,22 @@ import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/utils/
 
 class GymnasiumCourtViewController extends TransformationController {
   GymnasiumCourtViewController({
-    required this.gymnasium,
-  });
+    required Gymnasium gymnasium,
+  }) : _gymnasium = gymnasium;
 
-  final Gymnasium gymnasium;
+  Gymnasium _gymnasium;
+
+  set gymnasium(Gymnasium gymnasium) {
+    bool updateSizes = _gymnasium.columns != gymnasium.columns ||
+        _gymnasium.rows != gymnasium.rows;
+
+    _gymnasium = gymnasium;
+
+    if (updateSizes) {
+      _updateSizes();
+      fitToScreen();
+    }
+  }
 
   late Size _boundarySize;
   late Size _gymnasiumSize;
@@ -24,19 +36,9 @@ class GymnasiumCourtViewController extends TransformationController {
       return;
     }
 
-    _boundarySize = gym_court_utils.getGymSize(
-      constraints,
-      gymnasium,
-      withPadding: true,
-      withBoundaryMargin: true,
-    );
-    _gymnasiumSize = gym_court_utils.getGymSize(
-      constraints,
-      gymnasium,
-      withPadding: true,
-    );
-
     _viewConstraints = constraints;
+
+    _updateSizes();
 
     // Fit the gym into the view when it is first loaded
     if (!hasInitializedView) {
@@ -98,13 +100,13 @@ class GymnasiumCourtViewController extends TransformationController {
       row,
       column,
       _viewConstraints!,
-      gymnasium,
+      _gymnasium,
     );
 
     Offset targetView = gym_court_utils.correctForBoundary(
       courtCenter,
       _viewConstraints!,
-      gymnasium,
+      _gymnasium,
     );
 
     Offset viewCenter = _viewConstraints!.biggest.center(Offset.zero);
@@ -157,7 +159,7 @@ class GymnasiumCourtViewController extends TransformationController {
     currentFocus = gym_court_utils.correctForBoundary(
       currentFocus,
       _viewConstraints!,
-      gymnasium,
+      _gymnasium,
       clampedTotalScale,
     );
 
@@ -214,5 +216,22 @@ class GymnasiumCourtViewController extends TransformationController {
     if (!_animationController!.isAnimating) {
       _stopAnimation();
     }
+  }
+
+  void _updateSizes() {
+    if (_viewConstraints == null) {
+      return;
+    }
+    _boundarySize = gym_court_utils.getGymSize(
+      _viewConstraints!,
+      _gymnasium,
+      withPadding: true,
+      withBoundaryMargin: true,
+    );
+    _gymnasiumSize = gym_court_utils.getGymSize(
+      _viewConstraints!,
+      _gymnasium,
+      withPadding: true,
+    );
   }
 }

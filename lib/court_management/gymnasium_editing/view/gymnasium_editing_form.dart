@@ -1,4 +1,6 @@
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_editing_cubit.dart';
+import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
+import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/gym_floor_plan/gym_floor_plan.dart';
 import 'package:ez_badminton_admin_app/widgets/long_tooltip/long_tooltip.dart';
 import 'package:flutter/material.dart';
@@ -12,23 +14,31 @@ class GymnasiumEditingForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    return SizedBox(
-      width: 960,
-      child: Column(
-        children: [
-          const SizedBox(height: 20),
-          Text(
-            l10n.description,
-            style: const TextStyle(fontSize: 22),
-          ),
-          const Divider(height: 25, indent: 100, endIndent: 100),
-          const _DescriptionForm(),
-          const SizedBox(height: 30),
-          const _GymFloorPlanTitle(),
-          const Divider(height: 25, indent: 100, endIndent: 100),
-          const SizedBox(height: 20),
-          const _FloorPlanForm(),
-        ],
+    return DialogListener<GymnasiumEditingCubit, GymnasiumEditingState, bool>(
+      builder: (context, state, reason) => ConfirmDialog(
+        title: Text(l10n.reduceHall),
+        content: Text(l10n.reduceHallWarning),
+        confirmButtonLabel: l10n.confirm,
+        cancelButtonLabel: l10n.cancel,
+      ),
+      child: SizedBox(
+        width: 960,
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            Text(
+              l10n.description,
+              style: const TextStyle(fontSize: 22),
+            ),
+            const Divider(height: 25, indent: 100, endIndent: 100),
+            const _DescriptionForm(),
+            const SizedBox(height: 30),
+            const _GymFloorPlanTitle(),
+            const Divider(height: 25, indent: 100, endIndent: 100),
+            const SizedBox(height: 20),
+            const _FloorPlanForm(),
+          ],
+        ),
       ),
     );
   }

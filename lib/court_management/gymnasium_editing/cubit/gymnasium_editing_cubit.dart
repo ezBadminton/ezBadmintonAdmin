@@ -1,46 +1,31 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
-import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
+import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
 import 'package:formz/formz.dart';
 
 part 'gymnasium_editing_state.dart';
 
 class GymnasiumEditingCubit
-    extends CollectionFetcherCubit<GymnasiumEditingState> {
+    extends CollectionQuerierCubit<GymnasiumEditingState>
+    with DialogCubit<GymnasiumEditingState> {
   GymnasiumEditingCubit({
     Gymnasium? gymnasium,
     required CollectionRepository<Gymnasium> gymnasiumRepository,
+    required CollectionRepository<Court> courtRepository,
   }) : super(
           collectionRepositories: [
             gymnasiumRepository,
+            courtRepository,
           ],
           GymnasiumEditingState(gymnasium: gymnasium),
         ) {
-    loadCollections();
+    if (gymnasium != null) {
+      emit(state.copyWithGymnasium(gymnasium));
+    }
   }
 
   static const _maxCourtGridDimension = 15;
-
-  void loadCollections() {
-    if (state.loadingStatus != LoadingStatus.loading) {
-      emit(state.copyWith(loadingStatus: LoadingStatus.loading));
-    }
-    fetchCollectionsAndUpdateState(
-      [
-        collectionFetcher<Gymnasium>(),
-      ],
-      onSuccess: (updatedState) {
-        if (state.gymnasium.id.isNotEmpty && state.isPure) {
-          updatedState = updatedState.copyWithGymnasium(state.gymnasium);
-        }
-        emit(updatedState.copyWith(loadingStatus: LoadingStatus.done));
-      },
-      onFailure: () {
-        emit(state.copyWith(loadingStatus: LoadingStatus.failed));
-      },
-    );
-  }
 
   void formSubmitted() async {
     if (!state.isValid) {
@@ -54,10 +39,17 @@ class GymnasiumEditingCubit
     );
     emit(progressState);
 
+    FormzSubmissionStatus gridHandled = await _applyCourtGridChanges();
+    if (gridHandled != FormzSubmissionStatus.success) {
+      emit(state.copyWith(formStatus: gridHandled));
+      return;
+    }
+
     Gymnasium editedGym = _applyChanges();
     Gymnasium? updatedGym = await querier.updateOrCreateModel(editedGym);
     if (updatedGym == null) {
       emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      return;
     }
 
     emit(state.copyWith(
@@ -84,6 +76,46 @@ class GymnasiumEditingCubit
     if (columns > 0 && columns <= _maxCourtGridDimension) {
       emit(state.copyWith(columns: PositiveNonzeroNumber.dirty(columns)));
     }
+  }
+
+  /// Deletes courts if the court grid was reduced
+  Future<FormzSubmissionStatus> _applyCourtGridChanges() async {
+    if (state.rows.value >= state.gymnasium.rows &&
+        state.columns.value >= state.gymnasium.columns) {
+      return FormzSubmissionStatus.success;
+    }
+
+    List<Court>? courts = await querier.fetchCollection<Court>();
+    if (courts == null) {
+      return FormzSubmissionStatus.failure;
+    }
+
+    List<Court> courtsOfGym =
+        courts.where((c) => c.gymnasium == state.gymnasium).toList();
+
+    List<Court> courtsToDelete = courtsOfGym
+        .where((c) =>
+            c.positionX > state.columns.value - 1 ||
+            c.positionY > state.rows.value - 1)
+        .toList();
+
+    if (courtsToDelete.isEmpty) {
+      return FormzSubmissionStatus.success;
+    }
+
+    bool userConfirmation = (await requestDialogChoice<bool>())!;
+    if (!userConfirmation) {
+      return FormzSubmissionStatus.canceled;
+    }
+
+    Iterable<Future<bool>> courtDeletions =
+        courtsToDelete.map((c) => querier.deleteModel(c));
+    List<bool> courtsDeleted = await Future.wait(courtDeletions);
+    if (courtsDeleted.contains(false)) {
+      return FormzSubmissionStatus.failure;
+    }
+
+    return FormzSubmissionStatus.success;
   }
 
   Gymnasium _applyChanges() {

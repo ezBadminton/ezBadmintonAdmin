@@ -133,5 +133,7 @@
   "zoom": "Zoom",
   "resetView": "Ansicht zurücksetzen",
   "deleteGymWarning": "Die Halle mit allen Feldern wirklich löschen?",
-  "addAllMissingCourts": "Alle fehlenden Felder hinzufügen"
+  "addAllMissingCourts": "Alle fehlenden Felder hinzufügen",
+  "reduceHall": "Halle verkleinern?",
+  "reduceHallWarning": "Durch das Verkleinern des Hallenplans werden Felder gelöscht werden. Fortfahren?"
 }

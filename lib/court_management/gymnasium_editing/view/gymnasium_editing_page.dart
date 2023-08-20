@@ -2,7 +2,6 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/view/gymnasium_editing_form.dart';
 import 'package:ez_badminton_admin_app/layout/fab_location.dart';
-import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:ez_badminton_admin_app/widgets/progress_indicator_icon/progress_indicator_icon.dart';
 import 'package:ez_badminton_admin_app/widgets/unsaved_changes_warning/unsaved_changes_warning.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +31,8 @@ class GymnasiumEditingPage extends StatelessWidget {
     return BlocProvider(
       create: (context) => GymnasiumEditingCubit(
         gymnasiumRepository: context.read<CollectionRepository<Gymnasium>>(),
+        courtRepository: context.read<CollectionRepository<Court>>(),
+        gymnasium: gymnasium,
       ),
       child: BlocConsumer<GymnasiumEditingCubit, GymnasiumEditingState>(
         listenWhen: (previous, current) =>
@@ -65,13 +66,10 @@ class GymnasiumEditingPage extends StatelessWidget {
                 : FloatingActionButtonLocation.endFloat,
             body: UnsavedChangesWarning(
               formState: state,
-              child: LoadingScreen(
-                loadingStatus: state.loadingStatus,
-                builder: (context) => const Align(
-                  alignment: Alignment.center,
-                  child: SingleChildScrollView(
-                    child: GymnasiumEditingForm(),
-                  ),
+              child: const Align(
+                alignment: Alignment.center,
+                child: SingleChildScrollView(
+                  child: GymnasiumEditingForm(),
                 ),
               ),
             ),

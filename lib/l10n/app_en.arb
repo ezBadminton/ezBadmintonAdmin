@@ -133,5 +133,7 @@
   "zoom": "Zoom",
   "resetView": "Reset view",
   "deleteGymWarning": "Really delete the hall with all courts?",
-  "addAllMissingCourts": "Add all missing courts"
+  "addAllMissingCourts": "Add all missing courts",
+  "reduceHall": "Reduce hall?",
+  "reduceHallWarning": "By shrinking the hall's floor plan, court will be deleted. Continue?"
 }

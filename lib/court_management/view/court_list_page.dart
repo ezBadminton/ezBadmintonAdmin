@@ -33,7 +33,10 @@ class CourtListPage extends StatelessWidget {
           ),
         ),
         BlocProvider(
-          create: (context) => GymnasiumCourtViewCubit(),
+          create: (context) => GymnasiumCourtViewCubit(
+            gymnasiumRepository:
+                context.read<CollectionRepository<Gymnasium>>(),
+          ),
         ),
       ],
       child: const _CourtListPageScaffold(),

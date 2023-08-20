@@ -6,6 +6,7 @@ import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_deletion_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/utils/gymnasium_court_view_controller.dart';
+import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/view/gymnasium_editing_page.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
 import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
 import 'package:flutter/material.dart';
@@ -191,7 +192,7 @@ class _ViewControlBar extends StatelessWidget {
                   ),
                 ),
               ),
-              const _GymnasiumOptions(),
+              _GymnasiumOptions(gymnasmium: gymnasium),
             ],
           ),
         ),
@@ -201,7 +202,11 @@ class _ViewControlBar extends StatelessWidget {
 }
 
 class _GymnasiumOptions extends StatelessWidget {
-  const _GymnasiumOptions();
+  const _GymnasiumOptions({
+    required this.gymnasmium,
+  });
+
+  final Gymnasium gymnasmium;
 
   @override
   Widget build(BuildContext context) {
@@ -218,9 +223,17 @@ class _GymnasiumOptions extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          TextButton(
-            onPressed: () {},
-            child: const Icon(Icons.edit),
+          Tooltip(
+            message: l10n.editSubject(l10n.gym(1)),
+            waitDuration: const Duration(milliseconds: 500),
+            child: TextButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  GymnasiumEditingPage.route(gymnasmium),
+                );
+              },
+              child: const Icon(Icons.edit),
+            ),
           ),
           Tooltip(
             message: l10n.addAllMissingCourts,
