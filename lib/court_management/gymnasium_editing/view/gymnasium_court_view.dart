@@ -54,7 +54,7 @@ class _GymnasiumCourtView extends StatefulWidget {
 
 class _GymnasiumCourtViewState extends State<_GymnasiumCourtView>
     with TickerProviderStateMixin {
-  late final GymnasiumCourtViewController _viewController;
+  GymnasiumCourtViewController? _viewController;
   late final AnimationController _viewAnimationController;
 
   @override
@@ -69,15 +69,15 @@ class _GymnasiumCourtViewState extends State<_GymnasiumCourtView>
 
     _viewController = viewCubit.getViewController(widget.gymnasium);
 
-    _viewController.animationController = _viewAnimationController;
+    _viewController!.animationController = _viewAnimationController;
     super.didChangeDependencies();
   }
 
   @override
   void dispose() {
     _viewAnimationController.dispose();
-    _viewController.animationController = null;
-    _viewController.viewConstraints = null;
+    _viewController!.animationController = null;
+    _viewController!.viewConstraints = null;
     super.dispose();
   }
 
@@ -108,7 +108,7 @@ class _GymnasiumCourtViewState extends State<_GymnasiumCourtView>
         ),
       ],
       child: LayoutBuilder(builder: (context, constraints) {
-        _viewController.viewConstraints = constraints;
+        _viewController!.viewConstraints = constraints;
 
         return Stack(
           children: [
@@ -122,7 +122,7 @@ class _GymnasiumCourtViewState extends State<_GymnasiumCourtView>
               ),
               scaleFactor: 1500,
               transformationController: _viewController,
-              onInteractionStart: (_) => _viewController.onInteractionStart(),
+              onInteractionStart: (_) => _viewController!.onInteractionStart(),
               child: _CourtGrid(
                 gymnasium: widget.gymnasium,
                 constraints: constraints,

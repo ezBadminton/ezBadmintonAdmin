@@ -40,6 +40,7 @@ class GymnasiumCourtViewCubit extends CollectionQuerierCubit<
         controller.gymnasium = event.model;
         break;
       case UpdateType.delete:
+        controller.dispose();
         var newState = Map.of(state)..remove(event.model);
         emit(newState);
         break;
