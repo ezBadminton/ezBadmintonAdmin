@@ -53,6 +53,7 @@ class _GymnasiumCourtView extends StatefulWidget {
 
 class _GymnasiumCourtViewState extends State<_GymnasiumCourtView>
     with TickerProviderStateMixin {
+  late final GymnasiumCourtViewController _viewController;
   late final AnimationController _viewAnimationController;
 
   @override
@@ -62,20 +63,26 @@ class _GymnasiumCourtViewState extends State<_GymnasiumCourtView>
   }
 
   @override
+  void didChangeDependencies() {
+    GymnasiumCourtViewCubit viewCubit = context.read<GymnasiumCourtViewCubit>();
+
+    _viewController = viewCubit.getViewController(widget.gymnasium);
+
+    _viewController.animationController = _viewAnimationController;
+    super.didChangeDependencies();
+  }
+
+  @override
   void dispose() {
     _viewAnimationController.dispose();
+    _viewController.animationController = null;
+    _viewController.viewConstraints = null;
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    GymnasiumCourtViewCubit viewCubit = context.read<GymnasiumCourtViewCubit>();
-
-    GymnasiumCourtViewController viewController =
-        viewCubit.getViewController(widget.gymnasium);
-
-    viewController.animationController = _viewAnimationController;
 
     return MultiBlocProvider(
       providers: [
@@ -100,7 +107,7 @@ class _GymnasiumCourtViewState extends State<_GymnasiumCourtView>
         ),
       ],
       child: LayoutBuilder(builder: (context, constraints) {
-        viewController.viewConstraints = constraints;
+        _viewController.viewConstraints = constraints;
 
         return Stack(
           children: [
@@ -113,8 +120,8 @@ class _GymnasiumCourtViewState extends State<_GymnasiumCourtView>
                 widget.gymnasium,
               ),
               scaleFactor: 1500,
-              transformationController: viewController,
-              onInteractionStart: (_) => viewController.onInteractionStart(),
+              transformationController: _viewController,
+              onInteractionStart: (_) => _viewController.onInteractionStart(),
               child: _CourtGrid(
                 gymnasium: widget.gymnasium,
                 constraints: constraints,
@@ -199,6 +206,7 @@ class _GymnasiumOptions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
+    var courtAddingcubit = context.read<CourtAddingCubit>();
     var deletionCubit = context.read<GymnasiumDeletionCubit>();
     return DialogListener<GymnasiumDeletionCubit, GymnasiumDeletionState, bool>(
       builder: (context, state, _) => ConfirmDialog(
@@ -214,9 +222,13 @@ class _GymnasiumOptions extends StatelessWidget {
             onPressed: () {},
             child: const Icon(Icons.edit),
           ),
-          TextButton(
-            onPressed: () {},
-            child: const Icon(Icons.library_add),
+          Tooltip(
+            message: l10n.addAllMissingCourts,
+            waitDuration: const Duration(milliseconds: 500),
+            child: TextButton(
+              onPressed: courtAddingcubit.addAllMissingCourts,
+              child: const Icon(Icons.library_add),
+            ),
           ),
           BlocBuilder<GymnasiumDeletionCubit, GymnasiumDeletionState>(
             builder: (context, state) {

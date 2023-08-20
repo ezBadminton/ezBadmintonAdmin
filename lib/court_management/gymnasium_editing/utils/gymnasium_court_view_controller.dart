@@ -18,8 +18,12 @@ class GymnasiumCourtViewController extends TransformationController {
   BoxConstraints? _viewConstraints;
 
   /// Set this whenever the view constraints change (LayoutBuilder does this)
-  set viewConstraints(BoxConstraints constraints) {
-    bool initialFit = _viewConstraints == null;
+  set viewConstraints(BoxConstraints? constraints) {
+    if (constraints == null) {
+      _viewConstraints = null;
+      return;
+    }
+
     _boundarySize = gym_court_utils.getGymSize(
       constraints,
       gymnasium,
@@ -34,15 +38,22 @@ class GymnasiumCourtViewController extends TransformationController {
 
     _viewConstraints = constraints;
 
-    if (initialFit) {
+    // Fit the gym into the view when it is first loaded
+    if (!hasInitializedView) {
       fitToScreen();
+      hasInitializedView = true;
     }
   }
 
+  AnimationController? _animationController;
+
   /// Set this whenever the GymnasiumCourtView gets initialized
-  late AnimationController animationController;
+  set animationController(AnimationController? controller) =>
+      _animationController = controller;
 
   Animation<Matrix4>? _transformAnimation;
+
+  bool hasInitializedView = false;
 
   /// The current view transform
   Matrix4 get currentTransform => super.value;
@@ -50,6 +61,10 @@ class GymnasiumCourtViewController extends TransformationController {
 
   /// Moves the view such that it is fully zoomed out and centered
   void fitToScreen() {
+    if (_animationController == null || _viewConstraints == null) {
+      return;
+    }
+
     Matrix4 current = currentTransform;
 
     double fullViewScale = min(
@@ -75,9 +90,10 @@ class GymnasiumCourtViewController extends TransformationController {
   }
 
   void focusCourtSlot(int row, int column) {
-    if (_viewConstraints == null) {
+    if (_animationController == null || _viewConstraints == null) {
       return;
     }
+
     Offset courtCenter = gym_court_utils.getCourtSlotCenter(
       row,
       column,
@@ -108,6 +124,10 @@ class GymnasiumCourtViewController extends TransformationController {
   }
 
   void zoom(double scale) {
+    if (_animationController == null || _viewConstraints == null) {
+      return;
+    }
+
     _stopAnimation();
 
     Offset currentFocus =
@@ -161,31 +181,37 @@ class GymnasiumCourtViewController extends TransformationController {
     Duration duration = const Duration(milliseconds: 250),
     Curve curve = Curves.linear,
   }) {
+    if (_animationController == null) {
+      return;
+    }
     _stopAnimation();
-    animationController.reset();
-    animationController.duration = duration;
+    _animationController!.reset();
+    _animationController!.duration = duration;
 
     _transformAnimation = Matrix4Tween(
       begin: currentTransform,
       end: targetTransform,
     ).animate(
-      CurvedAnimation(parent: animationController, curve: curve),
+      CurvedAnimation(parent: _animationController!, curve: curve),
     );
     _transformAnimation!.addListener(_onAnimate);
 
-    animationController.forward();
+    _animationController!.forward();
   }
 
   void _stopAnimation() {
-    animationController.stop();
+    if (_animationController == null) {
+      return;
+    }
+    _animationController!.stop();
     _transformAnimation?.removeListener(_onAnimate);
     _transformAnimation = null;
-    animationController.reset();
+    _animationController!.reset();
   }
 
   void _onAnimate() {
     currentTransform = _transformAnimation!.value;
-    if (!animationController.isAnimating) {
+    if (!_animationController!.isAnimating) {
       _stopAnimation();
     }
   }

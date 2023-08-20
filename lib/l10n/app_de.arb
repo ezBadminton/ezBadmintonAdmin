@@ -132,5 +132,6 @@
   "addFirstGymnasium": "Füge die erste Halle hinzu",
   "zoom": "Zoom",
   "resetView": "Ansicht zurücksetzen",
-  "deleteGymWarning": "Die Halle mit allen Feldern wirklich löschen?"
+  "deleteGymWarning": "Die Halle mit allen Feldern wirklich löschen?",
+  "addAllMissingCourts": "Alle fehlenden Felder hinzufügen"
 }
