@@ -3,13 +3,17 @@ import 'package:ez_badminton_admin_app/court_management/court_editing/cubit/cour
 import 'package:ez_badminton_admin_app/court_management/court_editing/view/court_slot.dart';
 import 'package:ez_badminton_admin_app/court_management/court_list/cubit/court_list_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_court_view_cubit.dart';
+import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_deletion_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/utils/gymnasium_court_view_controller.dart';
+import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
+import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/utils/gymnasium_court_view_utils.dart'
     as gym_court_utils;
+import 'package:formz/formz.dart';
 
 class GymnasiumCourtView extends StatelessWidget {
   const GymnasiumCourtView({super.key});
@@ -73,14 +77,28 @@ class _GymnasiumCourtViewState extends State<_GymnasiumCourtView>
 
     viewController.animationController = _viewAnimationController;
 
-    return BlocProvider(
-      key: ObjectKey(widget.gymnasium),
-      create: (context) => CourtAddingCubit(
-        courtRepository: context.read<CollectionRepository<Court>>(),
-        gymnasiumRepository: context.read<CollectionRepository<Gymnasium>>(),
-        gymnasium: widget.gymnasium,
-        l10n: l10n,
-      ),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          key: ValueKey('${widget.gymnasium.id}-CourtAddingCubit'),
+          create: (context) => CourtAddingCubit(
+            courtRepository: context.read<CollectionRepository<Court>>(),
+            gymnasiumRepository:
+                context.read<CollectionRepository<Gymnasium>>(),
+            gymnasium: widget.gymnasium,
+            l10n: l10n,
+          ),
+        ),
+        BlocProvider(
+          key: ValueKey('${widget.gymnasium.id}-GymnasiumDeletionCubit'),
+          create: (context) => GymnasiumDeletionCubit(
+            gymnasiumRepository:
+                context.read<CollectionRepository<Gymnasium>>(),
+            courtRepository: context.read<CollectionRepository<Court>>(),
+            gymnasium: widget.gymnasium,
+          ),
+        ),
+      ],
       child: LayoutBuilder(builder: (context, constraints) {
         viewController.viewConstraints = constraints;
 
@@ -121,7 +139,6 @@ class _ViewControlBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var l10n = AppLocalizations.of(context)!;
     GymnasiumCourtViewCubit viewCubit = context.read<GymnasiumCourtViewCubit>();
 
     GymnasiumCourtViewController viewController =
@@ -143,35 +160,7 @@ class _ViewControlBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Tooltip(
-                    message: l10n.zoom,
-                    waitDuration: const Duration(milliseconds: 500),
-                    child: TextButton(
-                      onPressed: () => viewController.zoom(1 / 1.15),
-                      child: const Icon(Icons.zoom_out),
-                    ),
-                  ),
-                  Tooltip(
-                    message: l10n.resetView,
-                    waitDuration: const Duration(milliseconds: 500),
-                    child: TextButton(
-                      onPressed: viewController.fitToScreen,
-                      child: const Icon(Icons.fit_screen_rounded),
-                    ),
-                  ),
-                  Tooltip(
-                    message: l10n.zoom,
-                    waitDuration: const Duration(milliseconds: 500),
-                    child: TextButton(
-                      onPressed: () => viewController.zoom(1.15),
-                      child: const Icon(Icons.zoom_in),
-                    ),
-                  ),
-                ],
-              ),
+              _ZoomButtons(viewController: viewController),
               ConstrainedBox(
                 constraints: const BoxConstraints(
                   minWidth: 170,
@@ -195,27 +184,113 @@ class _ViewControlBar extends StatelessWidget {
                   ),
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () {},
-                    child: const Icon(Icons.edit),
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child: const Icon(Icons.library_add),
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child: const Icon(Icons.more_vert),
-                  ),
-                ],
-              ),
+              const _GymnasiumOptions(),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class _GymnasiumOptions extends StatelessWidget {
+  const _GymnasiumOptions();
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+    var deletionCubit = context.read<GymnasiumDeletionCubit>();
+    return DialogListener<GymnasiumDeletionCubit, GymnasiumDeletionState, bool>(
+      builder: (context, state, _) => ConfirmDialog(
+        title: Text(l10n.deleteSubjectQuestion(l10n.gym(1))),
+        content: Text(l10n.deleteGymWarning),
+        confirmButtonLabel: l10n.confirm,
+        cancelButtonLabel: l10n.cancel,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          TextButton(
+            onPressed: () {},
+            child: const Icon(Icons.edit),
+          ),
+          TextButton(
+            onPressed: () {},
+            child: const Icon(Icons.library_add),
+          ),
+          BlocBuilder<GymnasiumDeletionCubit, GymnasiumDeletionState>(
+            builder: (context, state) {
+              return SizedBox(
+                height: 28,
+                child: PopupMenuButton<VoidCallback>(
+                  onSelected: (callback) => callback(),
+                  tooltip: '',
+                  splashRadius: 19,
+                  enabled: state.formStatus != FormzSubmissionStatus.inProgress,
+                  padding: EdgeInsets.zero,
+                  icon: Icon(
+                    Icons.more_vert,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: deletionCubit.gymnasiumDeleted,
+                      child: Text(
+                        l10n.deleteSubject(l10n.gym(1)),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ZoomButtons extends StatelessWidget {
+  const _ZoomButtons({
+    required this.viewController,
+  });
+
+  final GymnasiumCourtViewController viewController;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Tooltip(
+          message: l10n.zoom,
+          waitDuration: const Duration(milliseconds: 500),
+          child: TextButton(
+            onPressed: () => viewController.zoom(1 / 1.15),
+            child: const Icon(Icons.zoom_out),
+          ),
+        ),
+        Tooltip(
+          message: l10n.resetView,
+          waitDuration: const Duration(milliseconds: 500),
+          child: TextButton(
+            onPressed: viewController.fitToScreen,
+            child: const Icon(Icons.fit_screen_rounded),
+          ),
+        ),
+        Tooltip(
+          message: l10n.zoom,
+          waitDuration: const Duration(milliseconds: 500),
+          child: TextButton(
+            onPressed: () => viewController.zoom(1.15),
+            child: const Icon(Icons.zoom_in),
+          ),
+        ),
+      ],
     );
   }
 }

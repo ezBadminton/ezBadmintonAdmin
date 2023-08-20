@@ -131,5 +131,6 @@
   "noGymnasiumSelected": "Select a hall to edit the courts",
   "addFirstGymnasium": "Add your first hall",
   "zoom": "Zoom",
-  "resetView": "Reset view"
+  "resetView": "Reset view",
+  "deleteGymWarning": "Really delete the hall with all courts?"
 }
