@@ -129,5 +129,7 @@
   "gymFloorPlanHelpMessage": "The plan describes how the courts are arranged in the hall. Thus, a maximum of {rows}x{columns} courts fit into the hall. It is up to you which of the courts are actually used.",
   "courtN": "Court {n}",
   "noGymnasiumSelected": "Select a hall to edit the courts",
-  "addFirstGymnasium": "Add your first hall"
+  "addFirstGymnasium": "Add your first hall",
+  "zoom": "Zoom",
+  "resetView": "Reset view"
 }

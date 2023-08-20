@@ -103,12 +103,15 @@ class CourtList extends StatelessWidget {
             ),
             label: Row(
               children: [
-                Text(
-                  gymnasium.name,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                Expanded(
+                  child: Text(
+                    gymnasium.name,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
               ],

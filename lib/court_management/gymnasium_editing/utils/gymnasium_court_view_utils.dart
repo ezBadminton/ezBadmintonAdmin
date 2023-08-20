@@ -179,14 +179,13 @@ EdgeInsets getDistanceToBoundary(
 /// view over the boundary, the point is moved inwards until the view can safely
 /// focus there.
 ///
-/// This assumes the zoom factor of the view is at `1.0`.
-///
 /// If the view can't fit the boundary the point is returned unchanged.
 Offset correctForBoundary(
   Offset point,
   BoxConstraints constraints,
-  Gymnasium gymnasium,
-) {
+  Gymnasium gymnasium, [
+  double scale = 1.0,
+]) {
   EdgeInsets distanceToBoundary = getDistanceToBoundary(
     point,
     constraints,
@@ -194,8 +193,8 @@ Offset correctForBoundary(
   );
 
   Offset minDistanceToBoundary = Offset(
-    constraints.maxWidth / 2,
-    constraints.maxHeight / 2,
+    constraints.maxWidth * 0.5 * (1 / scale),
+    constraints.maxHeight * 0.5 * (1 / scale),
   );
 
   double leftCorrection =

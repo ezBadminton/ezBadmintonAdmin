@@ -129,5 +129,7 @@
   "gymFloorPlanHelpMessage": "Der Plan beschreibt, wie die Felder in der Halle angeordnet sind. Es passen also maximal {rows}x{columns} Felder in die Halle. Es steht frei, welche der Felder tatsächlich genutzt werden.",
   "courtN": "Feld {n}",
   "noGymnasiumSelected": "Wähle eine Halle, um die Felder zu bearbeiten",
-  "addFirstGymnasium": "Füge die erste Halle hinzu"
+  "addFirstGymnasium": "Füge die erste Halle hinzu",
+  "zoom": "Zoom",
+  "resetView": "Ansicht zurücksetzen"
 }

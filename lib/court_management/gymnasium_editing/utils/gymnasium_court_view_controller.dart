@@ -107,6 +107,49 @@ class GymnasiumCourtViewController extends TransformationController {
     );
   }
 
+  void zoom(double scale) {
+    _stopAnimation();
+
+    Offset currentFocus =
+        toScene(_viewConstraints!.biggest.center(Offset.zero));
+
+    // Scale clamping copied and adapted from
+    // flutter\lib\src\widgets\interactive_viewer.dart
+    final double currentScale = currentTransform.getMaxScaleOnAxis();
+    final double totalScale = max(
+      currentScale * scale,
+      // Ensure that the scale cannot become so small that the view
+      // is larger than the boundaries
+      max(
+        _viewConstraints!.maxWidth / _boundarySize.width,
+        _viewConstraints!.maxHeight / _boundarySize.height,
+      ),
+    );
+    final double clampedTotalScale = min(
+      totalScale,
+      1.5,
+    );
+    final double clampedScale = clampedTotalScale / currentScale;
+
+    Matrix4 scaled = currentTransform.clone()..scale(clampedScale);
+    currentTransform = scaled;
+
+    currentFocus = gym_court_utils.correctForBoundary(
+      currentFocus,
+      _viewConstraints!,
+      gymnasium,
+      clampedTotalScale,
+    );
+
+    Offset scaledFocus = toScene(_viewConstraints!.biggest.center(Offset.zero));
+
+    Offset focusCorrection = scaledFocus - currentFocus;
+
+    scaled.translate(focusCorrection.dx, focusCorrection.dy);
+
+    currentTransform = scaled;
+  }
+
   /// Cancels the current animation when the user interacts with the view
   void onInteractionStart() {
     _stopAnimation();
