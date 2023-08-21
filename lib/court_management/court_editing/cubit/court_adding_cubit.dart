@@ -36,8 +36,14 @@ class CourtAddingCubit extends CollectionQuerierCubit<CourtAddingState> {
 
     emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
+    List<Court>? courtsOfGym = await _fetchCourtsOfGym();
+    if (courtsOfGym == null) {
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      return;
+    }
+
     Court newCourt = Court.newCourt(
-      name: display_strings.courtName(state.gymnasium, row, column, l10n),
+      name: _getCourtName(row, column, courtsOfGym),
       gymnasium: state.gymnasium,
       x: column,
       y: row,
@@ -59,14 +65,11 @@ class CourtAddingCubit extends CollectionQuerierCubit<CourtAddingState> {
 
     emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
-    List<Court>? courts = await querier.fetchCollection<Court>();
-    if (courts == null) {
+    List<Court>? courtsOfGym = await _fetchCourtsOfGym();
+    if (courtsOfGym == null) {
       emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
       return;
     }
-
-    List<Court> courtsOfGym =
-        courts.where((c) => c.gymnasium == state.gymnasium).toList();
 
     List<({int row, int column})> freeCourtSlots = [
       for (int row = 0; row < state.gymnasium.rows; row += 1)
@@ -85,12 +88,7 @@ class CourtAddingCubit extends CollectionQuerierCubit<CourtAddingState> {
     List<Court> newCourts = freeCourtSlots
         .map(
           (slot) => Court.newCourt(
-            name: display_strings.courtName(
-              state.gymnasium,
-              slot.row,
-              slot.column,
-              l10n,
-            ),
+            name: _getCourtName(slot.row, slot.column, courtsOfGym),
             gymnasium: state.gymnasium,
             x: slot.column,
             y: slot.row,
@@ -108,6 +106,39 @@ class CourtAddingCubit extends CollectionQuerierCubit<CourtAddingState> {
     }
 
     emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+  }
+
+  Future<List<Court>?> _fetchCourtsOfGym() async {
+    List<Court>? courts = await querier.fetchCollection<Court>();
+    if (courts == null) {
+      return null;
+    }
+
+    List<Court> courtsOfGym =
+        courts.where((c) => c.gymnasium == state.gymnasium).toList();
+
+    return courtsOfGym;
+  }
+
+  String _getCourtName(int row, int column, List<Court> courtsOfGym) {
+    String name = display_strings.courtName(state.gymnasium, row, column, l10n);
+
+    List<String> otherNames = courtsOfGym.map((c) => c.name).toList();
+
+    int suffix = 1;
+    while (otherNames.contains(_numberSuffix(name, suffix))) {
+      suffix += 1;
+    }
+
+    return _numberSuffix(name, suffix);
+  }
+
+  String _numberSuffix(String name, int suffix) {
+    if (suffix == 1) {
+      return name;
+    } else {
+      return '$name ($suffix)';
+    }
   }
 
   void _onGymnasiumCollectionUpdate(CollectionUpdateEvent<Gymnasium> event) {
