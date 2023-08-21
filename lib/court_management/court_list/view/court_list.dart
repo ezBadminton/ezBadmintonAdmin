@@ -17,42 +17,56 @@ class CourtList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
+    double listBottomPadding = 200;
+    ScrollController controller = ScrollController();
+
     return BlocBuilder<CourtListCubit, CourtListState>(
       buildWhen: (previous, current) => previous.courtMap != current.courtMap,
-      builder: (context, state) => CustomMultiChildLayout(
-        delegate: _CourtListLayoutDelegate(),
-        children: [
-          LayoutId(
-            id: 'list',
-            child: MapListView(
-              itemMap: _buildCourtMapItems(context, state.courtMap),
+      builder: (context, state) {
+        return ListenableBuilder(
+          listenable: controller,
+          builder: (context, child) => CustomMultiChildLayout(
+            delegate: _CourtListLayoutDelegate(
+              scrollPosition:
+                  controller.hasClients ? controller.position : null,
+              listBottomPadding: listBottomPadding,
             ),
-          ),
-          LayoutId(
-            id: 'button',
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).push(GymnasiumEditingPage.route());
-              },
-              style: const ButtonStyle(
-                shape: MaterialStatePropertyAll(StadiumBorder()),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.add),
-                    const SizedBox(width: 3),
-                    Text(l10n.gym(1)),
-                    const SizedBox(width: 6),
-                  ],
+            children: [
+              LayoutId(
+                id: 'list',
+                child: MapListView(
+                  itemMap: _buildCourtMapItems(context, state.courtMap),
+                  bottomPadding: listBottomPadding,
+                  controller: controller,
                 ),
               ),
-            ),
+              LayoutId(
+                id: 'button',
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).push(GymnasiumEditingPage.route());
+                  },
+                  style: const ButtonStyle(
+                    shape: MaterialStatePropertyAll(StadiumBorder()),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.add),
+                        const SizedBox(width: 3),
+                        Text(l10n.gym(1)),
+                        const SizedBox(width: 6),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -161,6 +175,14 @@ class CourtList extends StatelessWidget {
 
 /// Lays out the court list with its add button
 class _CourtListLayoutDelegate extends MultiChildLayoutDelegate {
+  _CourtListLayoutDelegate({
+    required this.scrollPosition,
+    required this.listBottomPadding,
+  });
+
+  final ScrollPosition? scrollPosition;
+  final double listBottomPadding;
+
   @override
   void performLayout(Size size) {
     Size listSize = layoutChild(
@@ -178,8 +200,19 @@ class _CourtListLayoutDelegate extends MultiChildLayoutDelegate {
         maxWidth: size.width,
       ),
     );
-    // Position button under list but if list is too long keep button in view
-    double buttonYPos = min(listSize.height + 15, size.height - 60);
+
+    // The list height reduced by its bottom padding and corrected for scrolling
+    double scrollOverflow = scrollPosition?.maxScrollExtent ?? 0;
+    double scrollOffset = scrollPosition?.pixels ?? 0;
+    double listHeight = max(
+      0,
+      listSize.height + scrollOverflow - scrollOffset - listBottomPadding,
+    );
+
+    // Position button 15 units under list but if list is too long
+    // keep button 60 units above the bottom of the view
+    double buttonYPos = min(listHeight + 15, size.height - 60);
+
     positionChild(
       'button',
       Offset((size.width - buttonSize.width) / 2, buttonYPos),
@@ -187,7 +220,12 @@ class _CourtListLayoutDelegate extends MultiChildLayoutDelegate {
   }
 
   @override
-  bool shouldRelayout(covariant MultiChildLayoutDelegate oldDelegate) {
-    return false;
+  bool shouldRelayout(_CourtListLayoutDelegate oldDelegate) {
+    if (oldDelegate.scrollPosition == null || scrollPosition == null) {
+      return true;
+    }
+    return oldDelegate.scrollPosition!.pixels != scrollPosition!.pixels ||
+        oldDelegate.scrollPosition!.maxScrollExtent !=
+            scrollPosition!.maxScrollExtent;
   }
 }

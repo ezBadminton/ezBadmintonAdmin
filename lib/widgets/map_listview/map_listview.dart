@@ -17,26 +17,40 @@ class MapListView extends StatelessWidget {
     this.inset = 8.0,
     this.itemPadding = 10.0,
     this.keyPadding = 20.0,
+    this.bottomPadding = 0.0,
+    this.controller,
   });
 
   final Map<Widget, List<Widget>> itemMap;
-  // The inset width of the value items
+
+  /// The inset width of the value items
   final double inset;
-  // The padding between the value-items
+
+  /// The padding between the value-items
   final double itemPadding;
-  // The padding betweem the key-groups
+
+  /// The padding betweem the key-groups
   final double keyPadding;
+
+  /// The padding between the end of the list and the end of the scrollable area
+  final double bottomPadding;
+
+  final ScrollController? controller;
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
+      controller: controller,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           for (Widget key in itemMap.keys) ...[
             _buildKeyItem(context, key),
             _buildValueItems(context, itemMap[key]!),
-            if (itemMap.keys.last != key) SizedBox(height: keyPadding),
+            if (itemMap.keys.last != key)
+              SizedBox(height: keyPadding)
+            else
+              SizedBox(height: bottomPadding),
           ],
         ],
       ),
