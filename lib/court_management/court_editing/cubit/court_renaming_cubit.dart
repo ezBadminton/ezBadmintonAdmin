@@ -44,8 +44,8 @@ class CourtRenamingCubit extends CollectionQuerierCubit<CourtRenamingState> {
 
     emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
-    List<Court>? otherCourts = await querier.fetchCollection<Court>();
-    if (otherCourts == null) {
+    List<Court>? courts = await querier.fetchCollection<Court>();
+    if (courts == null) {
       emit(state.copyWith(
         formStatus: FormzSubmissionStatus.failure,
         isFormOpen: false,
@@ -53,8 +53,9 @@ class CourtRenamingCubit extends CollectionQuerierCubit<CourtRenamingState> {
       return;
     }
 
-    List<String> otherNames = otherCourts
-        .where((c) => c != state.court)
+    // Don't allow duplicate names in the same gym
+    List<String> otherNames = courts
+        .where((c) => c != state.court && c.gymnasium == state.court.gymnasium)
         .map((c) => c.name.toLowerCase())
         .toList();
 

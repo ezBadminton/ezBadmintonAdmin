@@ -3,6 +3,8 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:formz/formz.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
+    as display_strings;
 
 part 'court_adding_state.dart';
 
@@ -35,7 +37,7 @@ class CourtAddingCubit extends CollectionQuerierCubit<CourtAddingState> {
     emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
     Court newCourt = Court.newCourt(
-      name: l10n.courtN(column + row * state.gymnasium.columns + 1),
+      name: display_strings.courtName(state.gymnasium, row, column, l10n),
       gymnasium: state.gymnasium,
       x: column,
       y: row,
@@ -83,8 +85,12 @@ class CourtAddingCubit extends CollectionQuerierCubit<CourtAddingState> {
     List<Court> newCourts = freeCourtSlots
         .map(
           (slot) => Court.newCourt(
-            name: l10n
-                .courtN(slot.column + slot.row * state.gymnasium.columns + 1),
+            name: display_strings.courtName(
+              state.gymnasium,
+              slot.row,
+              slot.column,
+              l10n,
+            ),
             gymnasium: state.gymnasium,
             x: slot.column,
             y: slot.row,

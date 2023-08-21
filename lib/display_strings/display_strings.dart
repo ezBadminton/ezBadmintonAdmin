@@ -132,3 +132,14 @@ String filterChip(
       return '$count ${l10n.orLess}';
   }
 }
+
+String courtName(
+  Gymnasium gymnasium,
+  int row,
+  int column,
+  AppLocalizations l10n,
+) {
+  int courtNumber = row + column * gymnasium.rows + 1;
+
+  return l10n.courtN(courtNumber);
+}
