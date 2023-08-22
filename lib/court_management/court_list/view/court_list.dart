@@ -82,7 +82,8 @@ class CourtList extends StatelessWidget {
   }
 
   Widget _buildGymnasiumItem(BuildContext context, Gymnasium gymnasium) {
-    var cubit = context.read<GymnasiumSelectionCubit>();
+    var selectionCubit = context.read<GymnasiumSelectionCubit>();
+    var viewCubit = context.read<GymnasiumCourtViewCubit>();
     return BlocBuilder<GymnasiumSelectionCubit, GymnasiumSelectionState>(
       buildWhen: (previous, current) => previous.gymnasium != current.gymnasium,
       builder: (context, state) {
@@ -106,7 +107,15 @@ class CourtList extends StatelessWidget {
           ),
           child: ChoiceChip(
             selectedColor: Theme.of(context).primaryColor.withOpacity(.45),
-            onSelected: (_) => cubit.gymnasiumToggled(gymnasium),
+            onSelected: (_) {
+              if (!selected) {
+                Future.delayed(
+                  const Duration(milliseconds: 8),
+                  () => viewCubit.getViewController(gymnasium).fitToScreen(),
+                );
+              }
+              selectionCubit.gymnasiumToggled(gymnasium);
+            },
             selected: selected,
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
@@ -137,14 +146,27 @@ class CourtList extends StatelessWidget {
   }
 
   Widget _buildCourtItem(BuildContext context, Court court) {
-    var cubit = context.read<GymnasiumCourtViewCubit>();
+    var selectionCubit = context.read<GymnasiumSelectionCubit>();
+    var viewCubit = context.read<GymnasiumCourtViewCubit>();
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         TextButton(
-          onPressed: () => cubit
-              .getViewController(court.gymnasium)
-              .focusCourtSlot(court.positionY, court.positionX),
+          onPressed: () {
+            if (selectionCubit.state.gymnasium.value == court.gymnasium) {
+              viewCubit
+                  .getViewController(court.gymnasium)
+                  .focusCourtSlot(court.positionY, court.positionX);
+            } else {
+              selectionCubit.gymnasiumToggled(court.gymnasium);
+              Future.delayed(
+                const Duration(milliseconds: 8),
+                () => viewCubit
+                    .getViewController(court.gymnasium)
+                    .focusCourtSlot(court.positionY, court.positionX),
+              );
+            }
+          },
           style: ButtonStyle(
             backgroundColor: MaterialStateProperty.all(
               Theme.of(context).primaryColorLight.withOpacity(.5),
