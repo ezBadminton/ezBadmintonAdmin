@@ -7,7 +7,7 @@ class UserRepository {
   UserRepository({required PocketBaseProvider pocketBaseProvider})
       : _pocketBase = pocketBaseProvider.pocketBase;
 
-  PocketBase _pocketBase;
+  final PocketBase _pocketBase;
   User? _user;
 
   Future<User?> getUser() async {
