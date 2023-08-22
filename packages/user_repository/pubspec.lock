@@ -29,10 +29,10 @@ packages:
     dependency: transitive
     description:
       name: http
-      sha256: "5895291c13fa8a3bd82e76d5627f69e0d85ca6a30dcac95c4ea19a5d555879c2"
+      sha256: "759d1a329847dd0f39226c688d3e06a6b8679668e350e2891a6474f8b4bb8525"
       url: "https://pub.dev"
     source: hosted
-    version: "0.13.6"
+    version: "1.1.0"
   http_parser:
     dependency: transitive
     description:
@@ -69,10 +69,10 @@ packages:
     dependency: "direct main"
     description:
       name: pocketbase
-      sha256: "1438cb6f8dc539d6ab8f5db174632f21643e91ef21fdb04155e54bc2e829a6c8"
+      sha256: "7b0717c91f1dc4bc8b5ff0ee3c7584943e7df90b78a32b555e931a2adc09f1d3"
       url: "https://pub.dev"
     source: hosted
-    version: "0.9.1"
+    version: "0.14.1"
   pocketbase_provider:
     dependency: "direct main"
     description:
@@ -121,4 +121,4 @@ packages:
     source: hosted
     version: "3.1.0"
 sdks:
-  dart: ">=2.19.6 <4.0.0"
+  dart: ">=3.0.0 <4.0.0"

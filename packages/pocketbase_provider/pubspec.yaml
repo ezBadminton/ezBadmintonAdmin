@@ -6,7 +6,7 @@ environment:
   sdk: '>=2.19.6 <3.0.0'
 
 dependencies:
- pocketbase: ^0.9.1
+ pocketbase: ^0.14.1
 
 dev_dependencies:
-  very_good_analysis: ^3.1.0
+  very_good_analysis: ^5.0.0
