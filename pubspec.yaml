@@ -57,6 +57,7 @@ dependencies:
   font_awesome_flutter: ^10.4.0
   email_validator: ^2.1.17
   provider: ^6.0.5
+  mobkit_dashed_border: ^0.0.5
 
 dev_dependencies:
   flutter_test:

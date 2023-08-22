@@ -250,6 +250,7 @@ class _GymnasiumOptions extends StatelessWidget {
           DialogListener<CourtNumberingCubit, CourtNumberingState,
               CourtNumberingDialogState>(
             builder: (context, state, _) => const CourtNumberingDialog(),
+            barrierDismissable: true,
             child: BlocBuilder<CourtNumberingCubit, CourtNumberingState>(
               builder: (context, numberingState) {
                 return BlocBuilder<GymnasiumDeletionCubit,
