@@ -4,6 +4,7 @@ import 'package:ez_badminton_admin_app/constants.dart';
 import 'package:ez_badminton_admin_app/court_management/court_editing/cubit/court_deletion_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/court_editing/cubit/court_adding_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/court_editing/cubit/court_renaming_cubit.dart';
+import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_court_view_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/badminton_court/badminton_court.dart';
 import 'package:flutter/material.dart';
@@ -97,22 +98,22 @@ class _CourtOptions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Positioned.fill(
+    return Positioned.fill(
       child: Padding(
-        padding: EdgeInsets.all(4.0),
+        padding: const EdgeInsets.all(4.0),
         child: Align(
           alignment: AlignmentDirectional.topEnd,
           child: Card(
             elevation: 2,
             child: Padding(
-              padding: EdgeInsets.all(2.0),
+              padding: const EdgeInsets.all(2.0),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  _RenameButton(),
-                  SizedBox(width: 10),
-                  _DeleteButton(),
+                  _RenameButton(courtInSlot: courtInSlot),
+                  const SizedBox(width: 10),
+                  const _DeleteButton(),
                 ],
               ),
             ),
@@ -155,16 +156,31 @@ class _DeleteButton extends StatelessWidget {
 }
 
 class _RenameButton extends StatelessWidget {
-  const _RenameButton();
+  const _RenameButton({
+    required this.courtInSlot,
+  });
+
+  final Court courtInSlot;
 
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
     var renameCubit = context.read<CourtRenamingCubit>();
+    var viewCubit = context.read<GymnasiumCourtViewCubit>();
     return BlocBuilder<CourtRenamingCubit, CourtRenamingState>(
       builder: (context, state) {
         return IconButton(
-          onPressed: state.isFormOpen ? null : renameCubit.formOpened,
+          onPressed: state.isFormOpen
+              ? null
+              : () {
+                  renameCubit.formOpened();
+                  viewCubit
+                      .getViewController(courtInSlot.gymnasium)
+                      .focusCourtSlot(
+                        courtInSlot.positionY,
+                        courtInSlot.positionX,
+                      );
+                },
           icon: const Icon(Icons.edit),
           tooltip: l10n.rename,
           splashRadius: 19,
