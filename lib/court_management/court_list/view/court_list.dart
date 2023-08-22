@@ -10,6 +10,7 @@ import 'package:ez_badminton_admin_app/widgets/map_listview/map_listview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:notification_builder/notification_builder.dart';
 
 class CourtList extends StatelessWidget {
   const CourtList({super.key});
@@ -23,47 +24,52 @@ class CourtList extends StatelessWidget {
     return BlocBuilder<CourtListCubit, CourtListState>(
       buildWhen: (previous, current) => previous.courtMap != current.courtMap,
       builder: (context, state) {
-        return ListenableBuilder(
-          listenable: controller,
-          builder: (context, child) => CustomMultiChildLayout(
-            delegate: _CourtListLayoutDelegate(
-              scrollPosition:
-                  controller.hasClients ? controller.position : null,
-              listBottomPadding: listBottomPadding,
-            ),
-            children: [
-              LayoutId(
-                id: 'list',
-                child: MapListView(
-                  itemMap: _buildCourtMapItems(context, state.courtMap),
-                  bottomPadding: listBottomPadding,
-                  controller: controller,
-                ),
+        // This chain of NotificationBuilder and ListenableBuilder
+        // comes from the need to relayout the CustomMultiChildLayout on scroll
+        // events and on scroll metric changes there is no single source of both
+        return NotificationBuilder<ScrollMetricsNotification>(
+          builder: (context, notification, child) => ListenableBuilder(
+            listenable: controller,
+            builder: (context, child) => CustomMultiChildLayout(
+              delegate: _CourtListLayoutDelegate(
+                scrollPosition:
+                    controller.hasClients ? controller.position : null,
+                listBottomPadding: listBottomPadding,
               ),
-              LayoutId(
-                id: 'button',
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).push(GymnasiumEditingPage.route());
-                  },
-                  style: const ButtonStyle(
-                    shape: MaterialStatePropertyAll(StadiumBorder()),
+              children: [
+                LayoutId(
+                  id: 'list',
+                  child: MapListView(
+                    itemMap: _buildCourtMapItems(context, state.courtMap),
+                    bottomPadding: listBottomPadding,
+                    controller: controller,
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.add),
-                        const SizedBox(width: 3),
-                        Text(l10n.gym(1)),
-                        const SizedBox(width: 6),
-                      ],
+                ),
+                LayoutId(
+                  id: 'button',
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).push(GymnasiumEditingPage.route());
+                    },
+                    style: const ButtonStyle(
+                      shape: MaterialStatePropertyAll(StadiumBorder()),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.add),
+                          const SizedBox(width: 3),
+                          Text(l10n.gym(1)),
+                          const SizedBox(width: 6),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -202,7 +208,7 @@ class _CourtListLayoutDelegate extends MultiChildLayoutDelegate {
     required this.listBottomPadding,
   });
 
-  final ScrollPosition? scrollPosition;
+  ScrollPosition? scrollPosition;
   final double listBottomPadding;
 
   @override
@@ -243,6 +249,11 @@ class _CourtListLayoutDelegate extends MultiChildLayoutDelegate {
 
   @override
   bool shouldRelayout(_CourtListLayoutDelegate oldDelegate) {
+    if (oldDelegate.scrollPosition != null && scrollPosition == null) {
+      // If the scroll position gets set to null, use the old scroll position.
+      // That happens when the list goes off stage.
+      scrollPosition = oldDelegate.scrollPosition;
+    }
     if (oldDelegate.scrollPosition == null || scrollPosition == null) {
       return true;
     }
