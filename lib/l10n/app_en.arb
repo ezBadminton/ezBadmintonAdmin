@@ -95,6 +95,7 @@
   "nameSubject": "name {subject}",
   "reorder": "Reorder",
   "rename": "Rename",
+  "renameSubject": "Rename {subject}",
   "chooseCompetitions": "Choose base competitions",
   "chooseCategoriesAndCompetitions": "Choose categories and base competitions",
   "newCategories": "{count, plural, =0{No new categories} =1{1 new category} other{{count} new categories}}",
@@ -135,5 +136,14 @@
   "deleteGymWarning": "Really delete the hall with all courts?",
   "addAllMissingCourts": "Add all missing courts",
   "reduceHall": "Reduce hall?",
-  "reduceHallWarning": "By shrinking the hall's floor plan, court will be deleted. Continue?"
+  "reduceHallWarning": "By shrinking the hall's floor plan, court will be deleted. Continue?",
+  "numberCourts": "Number courts consecutively",
+  "countingDirection": "Counting direction",
+  "rowWise": "Row by row",
+  "columnWise": "Column by colum",
+  "allGyms": "Throughout all halls",
+  "onlyGym": "Just this hall",
+  "emptyCourts": "Empty courts",
+  "skip": "Skip",
+  "count": "Count in"
 }

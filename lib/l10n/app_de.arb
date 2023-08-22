@@ -95,6 +95,7 @@
   "nameSubject": "{subject} benennen",
   "reorder": "Umordnen",
   "rename": "Umbenennen",
+  "renameSubject": "{subject} umbenennen",
   "chooseCompetitions": "Basisdisziplinen wählen",
   "chooseCategoriesAndCompetitions": "Kategorien und Basisdisziplinen wählen",
   "newCategories": "{count, plural, =0{Keine neuen Kategorien} =1{1 neue Kategorie} other{{count} neue Kategorien}}",
@@ -135,5 +136,14 @@
   "deleteGymWarning": "Die Halle mit allen Feldern wirklich löschen?",
   "addAllMissingCourts": "Alle fehlenden Felder hinzufügen",
   "reduceHall": "Halle verkleinern?",
-  "reduceHallWarning": "Durch das Verkleinern des Hallenplans werden Felder gelöscht werden. Fortfahren?"
+  "reduceHallWarning": "Durch das Verkleinern des Hallenplans werden Felder gelöscht werden. Fortfahren?",
+  "numberCourts": "Felder durchnummerieren",
+  "countingDirection": "Zählrichtung",
+  "rowWise": "Reihe für Reihe",
+  "columnWise": "Spalte für Spalte",
+  "allGyms": "Durch alle Hallen",
+  "onlyGym": "Nur diese Halle",
+  "emptyCourts": "Leere Felder",
+  "skip": "Überspringen",
+  "count": "Mitzählen"
 }

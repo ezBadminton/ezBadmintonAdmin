@@ -2,6 +2,9 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/court_management/court_editing/cubit/court_adding_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/court_editing/view/court_slot.dart';
 import 'package:ez_badminton_admin_app/court_management/court_list/cubit/court_list_cubit.dart';
+import 'package:ez_badminton_admin_app/court_management/court_numbering/cubit/court_numbering_cubit.dart';
+import 'package:ez_badminton_admin_app/court_management/court_numbering/cubit/court_numbering_dialog_cubit.dart';
+import 'package:ez_badminton_admin_app/court_management/court_numbering/view/court_numbering_dialog.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_court_view_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_deletion_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_selection_cubit.dart';
@@ -213,6 +216,7 @@ class _GymnasiumOptions extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
     var courtAddingcubit = context.read<CourtAddingCubit>();
     var deletionCubit = context.read<GymnasiumDeletionCubit>();
+    var numberingCubit = context.read<CourtNumberingCubit>();
     return DialogListener<GymnasiumDeletionCubit, GymnasiumDeletionState, bool>(
       builder: (context, state, _) => ConfirmDialog(
         title: Text(l10n.deleteSubjectQuestion(l10n.gym(1))),
@@ -243,34 +247,51 @@ class _GymnasiumOptions extends StatelessWidget {
               child: const Icon(Icons.library_add),
             ),
           ),
-          BlocBuilder<GymnasiumDeletionCubit, GymnasiumDeletionState>(
-            builder: (context, state) {
-              return SizedBox(
-                height: 28,
-                child: PopupMenuButton<VoidCallback>(
-                  onSelected: (callback) => callback(),
-                  tooltip: '',
-                  splashRadius: 19,
-                  enabled: state.formStatus != FormzSubmissionStatus.inProgress,
-                  padding: EdgeInsets.zero,
-                  icon: Icon(
-                    Icons.more_vert,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                  itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: deletionCubit.gymnasiumDeleted,
-                      child: Text(
-                        l10n.deleteSubject(l10n.gym(1)),
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.error,
+          DialogListener<CourtNumberingCubit, CourtNumberingState,
+              CourtNumberingDialogState>(
+            builder: (context, state, _) => const CourtNumberingDialog(),
+            child: BlocBuilder<CourtNumberingCubit, CourtNumberingState>(
+              builder: (context, numberingState) {
+                return BlocBuilder<GymnasiumDeletionCubit,
+                    GymnasiumDeletionState>(
+                  builder: (context, deletionState) {
+                    return SizedBox(
+                      height: 28,
+                      child: PopupMenuButton<VoidCallback>(
+                        onSelected: (callback) => callback(),
+                        tooltip: '',
+                        splashRadius: 19,
+                        enabled: deletionState.formStatus !=
+                                FormzSubmissionStatus.inProgress &&
+                            numberingState.formStatus !=
+                                FormzSubmissionStatus.inProgress,
+                        padding: EdgeInsets.zero,
+                        icon: Icon(
+                          Icons.more_vert,
+                          color: Theme.of(context).primaryColor,
                         ),
+                        itemBuilder: (context) => [
+                          PopupMenuItem(
+                            value: () =>
+                                numberingCubit.courtsNumbered(gymnasmium),
+                            child: Text(l10n.numberCourts),
+                          ),
+                          PopupMenuItem(
+                            value: deletionCubit.gymnasiumDeleted,
+                            child: Text(
+                              l10n.deleteSubject(l10n.gym(1)),
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.error,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-              );
-            },
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),
