@@ -18,6 +18,7 @@ class MapListView extends StatelessWidget {
     this.itemPadding = 10.0,
     this.keyPadding = 20.0,
     this.bottomPadding = 0.0,
+    this.topPadding = 0.0,
     this.controller,
   });
 
@@ -35,6 +36,9 @@ class MapListView extends StatelessWidget {
   /// The padding between the end of the list and the end of the scrollable area
   final double bottomPadding;
 
+  /// The padding between the start of the scrollable area and the start of the list
+  final double topPadding;
+
   final ScrollController? controller;
 
   @override
@@ -45,6 +49,7 @@ class MapListView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           for (Widget key in itemMap.keys) ...[
+            if (itemMap.keys.first == key) SizedBox(height: topPadding),
             _buildKeyItem(context, key),
             _buildValueItems(context, itemMap[key]!),
             if (itemMap.keys.last != key)

@@ -28,6 +28,7 @@ class CourtList extends StatelessWidget {
           followerOffset: -listBottomPadding + 15,
           scrollable: MapListView(
             itemMap: _buildCourtMapItems(context, state.courtMap),
+            topPadding: 25,
             bottomPadding: listBottomPadding,
             controller: controller,
           ),

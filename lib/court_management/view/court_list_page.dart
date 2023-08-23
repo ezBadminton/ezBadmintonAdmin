@@ -82,12 +82,9 @@ class _CourtListPageScaffold extends StatelessWidget {
                   children: [
                     SizedBox(
                       width: 220,
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 25.0),
-                        child: Align(
-                          alignment: AlignmentDirectional.topCenter,
-                          child: CourtList(),
-                        ),
+                      child: Align(
+                        alignment: AlignmentDirectional.topCenter,
+                        child: CourtList(),
                       ),
                     ),
                     VerticalDivider(
