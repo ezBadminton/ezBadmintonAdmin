@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/court_management/court_list/cubit/court_list_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_court_view_cubit.dart';
@@ -7,10 +5,10 @@ import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/view/gymnasium_editing_page.dart';
 import 'package:ez_badminton_admin_app/widgets/animated_hover/animated_hover.dart';
 import 'package:ez_badminton_admin_app/widgets/map_listview/map_listview.dart';
+import 'package:ez_badminton_admin_app/widgets/sticky_scrollable_follower/sticky_scrollable_follower.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:notification_builder/notification_builder.dart';
 
 class CourtList extends StatelessWidget {
   const CourtList({super.key});
@@ -24,51 +22,33 @@ class CourtList extends StatelessWidget {
     return BlocBuilder<CourtListCubit, CourtListState>(
       buildWhen: (previous, current) => previous.courtMap != current.courtMap,
       builder: (context, state) {
-        // This chain of NotificationBuilder and ListenableBuilder
-        // comes from the need to relayout the CustomMultiChildLayout on scroll
-        // events and on scroll metric changes there is no single source of both
-        return NotificationBuilder<ScrollMetricsNotification>(
-          builder: (context, notification, child) => ListenableBuilder(
-            listenable: controller,
-            builder: (context, child) => CustomMultiChildLayout(
-              delegate: _CourtListLayoutDelegate(
-                scrollPosition:
-                    controller.hasClients ? controller.position : null,
-                listBottomPadding: listBottomPadding,
+        return StickyScrollableFollower(
+          scrollController: controller,
+          followerMargin: 30,
+          followerOffset: -listBottomPadding + 15,
+          scrollable: MapListView(
+            itemMap: _buildCourtMapItems(context, state.courtMap),
+            bottomPadding: listBottomPadding,
+            controller: controller,
+          ),
+          follower: ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).push(GymnasiumEditingPage.route());
+            },
+            style: const ButtonStyle(
+              shape: MaterialStatePropertyAll(StadiumBorder()),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.add),
+                  const SizedBox(width: 3),
+                  Text(l10n.gym(1)),
+                  const SizedBox(width: 6),
+                ],
               ),
-              children: [
-                LayoutId(
-                  id: 'list',
-                  child: MapListView(
-                    itemMap: _buildCourtMapItems(context, state.courtMap),
-                    bottomPadding: listBottomPadding,
-                    controller: controller,
-                  ),
-                ),
-                LayoutId(
-                  id: 'button',
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).push(GymnasiumEditingPage.route());
-                    },
-                    style: const ButtonStyle(
-                      shape: MaterialStatePropertyAll(StadiumBorder()),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.add),
-                          const SizedBox(width: 3),
-                          Text(l10n.gym(1)),
-                          const SizedBox(width: 6),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
             ),
           ),
         );
@@ -198,67 +178,5 @@ class CourtList extends StatelessWidget {
         ),
       ],
     );
-  }
-}
-
-/// Lays out the court list with its add button
-class _CourtListLayoutDelegate extends MultiChildLayoutDelegate {
-  _CourtListLayoutDelegate({
-    required this.scrollPosition,
-    required this.listBottomPadding,
-  });
-
-  ScrollPosition? scrollPosition;
-  final double listBottomPadding;
-
-  @override
-  void performLayout(Size size) {
-    Size listSize = layoutChild(
-      'list',
-      BoxConstraints(
-        maxHeight: size.height,
-        maxWidth: size.width,
-      ),
-    );
-    positionChild('list', Offset((size.width - listSize.width) / 2, 0));
-    Size buttonSize = layoutChild(
-      'button',
-      BoxConstraints(
-        maxHeight: size.height,
-        maxWidth: size.width,
-      ),
-    );
-
-    // The list height reduced by its bottom padding and corrected for scrolling
-    double scrollOverflow = scrollPosition?.maxScrollExtent ?? 0;
-    double scrollOffset = scrollPosition?.pixels ?? 0;
-    double listHeight = max(
-      0,
-      listSize.height + scrollOverflow - scrollOffset - listBottomPadding,
-    );
-
-    // Position button 15 units under list but if list is too long
-    // keep button 60 units above the bottom of the view
-    double buttonYPos = min(listHeight + 15, size.height - 60);
-
-    positionChild(
-      'button',
-      Offset((size.width - buttonSize.width) / 2, buttonYPos),
-    );
-  }
-
-  @override
-  bool shouldRelayout(_CourtListLayoutDelegate oldDelegate) {
-    if (oldDelegate.scrollPosition != null && scrollPosition == null) {
-      // If the scroll position gets set to null, use the old scroll position.
-      // That happens when the list goes off stage.
-      scrollPosition = oldDelegate.scrollPosition;
-    }
-    if (oldDelegate.scrollPosition == null || scrollPosition == null) {
-      return true;
-    }
-    return oldDelegate.scrollPosition!.pixels != scrollPosition!.pixels ||
-        oldDelegate.scrollPosition!.maxScrollExtent !=
-            scrollPosition!.maxScrollExtent;
   }
 }
