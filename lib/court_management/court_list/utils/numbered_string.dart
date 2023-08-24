@@ -83,12 +83,28 @@ class NumberedString implements Comparable<NumberedString> {
     int minLength = min(_comparables.length, otherComparables.length);
 
     for (int i = 0; i < minLength; i += 1) {
-      int comparison = _comparables[i].compareTo(otherComparables[i]);
+      Comparable a = _comparables[i];
+      Comparable b = otherComparables[i];
+
+      int comparison = _compareTypes(a, b);
+      if (comparison == 0) {
+        comparison = a.compareTo(b);
+      }
+
       if (comparison != 0) {
         return comparison;
       }
     }
 
     return _comparables.length.compareTo(otherComparables.length);
+  }
+
+  int _compareTypes(Comparable a, Comparable b) {
+    if (a is num && b is String) {
+      return -1;
+    } else if (a is String && b is num) {
+      return 1;
+    }
+    return 0;
   }
 }
