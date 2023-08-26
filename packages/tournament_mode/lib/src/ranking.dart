@@ -3,7 +3,7 @@ import 'package:tournament_mode/src/match_participant.dart';
 /// A class that ranks [MatchParticipant]s. It's not necessarily a ranking by
 /// match results but can also be the result of a random or seeded draw.
 abstract class Ranking<P> {
-  /// Returns list of [MatchParticipant]s ordered by rank
+  /// Returns a list of [MatchParticipant]s ordered by rank
   List<MatchParticipant<P>?> rank();
 }
 

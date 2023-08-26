@@ -6,21 +6,23 @@ abstract class TournamentMode<P, S> {
   /// All matches that are played in this mode.
   List<TournamentMatch<P, S>> get matches;
 
-  /// The [matches] grouped into stages.
-  /// Every match is part of exactly one stage.
+  /// The [matches] grouped into rounds.
+  /// Every match is part of exactly one round.
   ///
-  /// A stage is a set of matches that can be played in parallel
-  /// given the previous stage has completed. The list's order reflects the
-  /// order of the stages.
-  List<List<TournamentMatch<P, S>>> get stages;
+  /// A round is a set of matches that can be played in parallel
+  /// given the previous round has completed. The list's order reflects the
+  /// order of the rounds.
+  List<List<TournamentMatch<P, S>>> get rounds;
 
-  /// Returns the earliest stage that still has unfinished matches
+  /// Returns the earliest round that still has unfinished matches
   ///
   /// Returns `-1` if all matches are completed.
-  int ongoingStage() {
-    for (int i = 0; i < stages.length; i += 1) {
-      bool ongoing =
-          stages[i].firstWhereOrNull((match) => !match.isCompleted) != null;
+  int ongoingRound() {
+    for (int i = 0; i < rounds.length; i += 1) {
+      bool ongoing = rounds[i]
+              .where((match) => !match.isBye())
+              .firstWhereOrNull((match) => !match.isCompleted) !=
+          null;
       if (ongoing) {
         return i;
       }
@@ -29,15 +31,16 @@ abstract class TournamentMode<P, S> {
     return -1;
   }
 
-  /// Returns the latest stage that already has one or more matches in progress
+  /// Returns the latest round that already has one or more matches in progress
   /// or completed.
   ///
   /// Returns `0` if no matches have been started.
-  int latestOngoingStage() {
-    for (int i = stages.length - 1; i >= 0; i -= 1) {
-      bool inProgress =
-          stages[i].firstWhereOrNull((match) => match.startTime != null) !=
-              null;
+  int latestOngoingRound() {
+    for (int i = rounds.length - 1; i >= 0; i -= 1) {
+      bool inProgress = rounds[i]
+              .where((match) => !match.isBye())
+              .firstWhereOrNull((match) => match.startTime != null) !=
+          null;
       if (inProgress) {
         return i;
       }
@@ -46,19 +49,22 @@ abstract class TournamentMode<P, S> {
     return 0;
   }
 
-  /// Returns how many stages are currently in progress at once.
+  /// Returns how many rounds are currently in progress at once.
   ///
   /// This is useful for scheduling (e.g. a group phase) to not make the
-  /// progress between the stages too unbalanced.
-  int stageLag() {
+  /// progress between the rounds too unbalanced.
+  int roundLag() {
     if (isCompleted()) {
       return 0;
     }
-    return latestOngoingStage() - ongoingStage() + 1;
+    return latestOngoingRound() - ongoingRound() + 1;
   }
 
   /// Returns wheter all [matches] are completed.
   bool isCompleted() {
-    return matches.firstWhereOrNull((match) => !match.isCompleted) == null;
+    return matches
+            .where((match) => !match.isBye())
+            .firstWhereOrNull((match) => !match.isCompleted) ==
+        null;
   }
 }

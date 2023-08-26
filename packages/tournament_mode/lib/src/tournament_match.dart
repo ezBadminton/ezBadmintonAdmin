@@ -1,4 +1,5 @@
 import 'package:tournament_mode/src/match_participant.dart';
+import 'package:tournament_mode/src/ranking.dart';
 
 /// A match between two [MatchParticipant]s. The result of the match
 /// is recorded in a score object of generic type [S]
@@ -69,7 +70,15 @@ abstract class TournamentMatch<P, S> {
   /// This is `true` when both participants are resolvable
   /// (read: both opponents are determined).
   bool isPlayable() {
-    return a.resolvePlayer() != null && b.resolvePlayer() != null;
+    return a.readyToPlay() && b.readyToPlay();
+  }
+
+  /// Returns whether this match is a bye and thus only has one real
+  /// participant.
+  ///
+  /// Byes should be specially treated in [Ranking]s.
+  bool isBye() {
+    return a.isBye || b.isBye;
   }
 
   /// Sets the start time of this match. If [startTime] is `null` it uses
