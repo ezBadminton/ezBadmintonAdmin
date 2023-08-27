@@ -60,7 +60,7 @@ abstract class TournamentMode<P, S> {
     return latestOngoingRound() - ongoingRound() + 1;
   }
 
-  /// Returns wheter all [matches] are completed.
+  /// Returns whether all [matches] are completed.
   bool isCompleted() {
     return matches
             .where((match) => !match.isBye())
