@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:tournament_mode/src/match_participant.dart';
 import 'package:tournament_mode/src/ranking.dart';
 import 'package:tournament_mode/src/rankings/draw_seeds.dart';
@@ -69,36 +71,6 @@ class SingleElimination<P, S> extends TournamentMode<P, S> {
     _rounds = List.unmodifiable(eliminationMatches);
   }
 
-  /// Takes a seeded list of [roundParticipants] and matches them by
-  /// mirroring their ranks. Also the order of the returned match list separates
-  /// the top players from each other so they can't meet before the final.
-  ///
-  /// Example with 8 participants:
-  ///  * 1st vs 8th
-  ///  * 3rd vs 6th
-  ///  * 4th vs 5th
-  ///  * 2nd vs 7th
-  ///
-  /// 1st and 2nd seed are in opposite ends of the match list. Opponents are
-  /// matched by mirrored seed.
-  List<TournamentMatch<P, S>> _createSeededEliminationRound(
-    List<MatchParticipant<P>> roundParticipants,
-  ) {
-    List<TournamentMatch<P, S>> roundMatches = [];
-    for (int i = 0; i < roundParticipants.length ~/ 2; i += 1) {
-      MatchParticipant<P> a = roundParticipants[i];
-      MatchParticipant<P> b =
-          roundParticipants[roundParticipants.length - 1 - i];
-      if (i.isEven) {
-        roundMatches.insert(i ~/ 2, matcher(a, b));
-      } else {
-        roundMatches.insert(i ~/ 2 + 1, matcher(a, b));
-      }
-    }
-
-    return roundMatches;
-  }
-
   /// Takes a list of [roundParticipants] and matches them pair-wise in the
   /// list's order (1st vs 2nd, 3rd vs 4th, ...).
   List<TournamentMatch<P, S>> _createEliminationRound(
@@ -114,7 +86,67 @@ class SingleElimination<P, S> extends TournamentMode<P, S> {
     return roundMatches;
   }
 
-  /// Creates the participant list of the round coming
+  /// Takes a seeded list of [roundParticipants] and matches them according
+  /// to their seeds.
+  /// More info: https://en.wikipedia.org/wiki/Single-elimination_tournament#Seeding
+  ///
+  /// Example with 8 participants:
+  ///  * 1st vs 8th
+  ///  * 4th vs 5th
+  ///  * 2nd vs 7th
+  ///  * 3rd vs 6th
+  ///
+  /// 1st and 2nd seed are in opposite branches of the tournament tree.
+  /// Opponents are matched by mirrored seed.
+  List<TournamentMatch<P, S>> _createSeededEliminationRound(
+    List<MatchParticipant<P>> roundParticipants,
+  ) {
+    int rounds = _getNumRounds(roundParticipants.length);
+    List<(int, int)> seedMatchups = _createSeedMatchups(rounds);
+
+    List<TournamentMatch<P, S>> roundMatches = seedMatchups
+        .map(
+          (matchup) => matcher(
+            roundParticipants[matchup.$1],
+            roundParticipants[matchup.$2],
+          ),
+        )
+        .toList();
+
+    return roundMatches;
+  }
+
+  /// Creates a list of integer tuples that represent matchups between seeds.
+  /// The matchups are ordered such that the top 2 seeds' paths in the
+  /// tournament tree meet at the final, the top 4 meet at the semi-finals,
+  /// etc...
+  ///
+  /// The given [rounds] dictate how many rounds the returned matchups will
+  /// produce when played out until the final.
+  List<(int, int)> _createSeedMatchups(int rounds) {
+    // The root node (the final) where the paths of seed 0 and 1 meet.
+    List<(int, int)> seedMatchups = [(0, 1)];
+
+    for (int r = 1; r < rounds; r += 1) {
+      // Determine the matchups of the next 2^r seeds
+
+      List<(int, int)> nextSeedMatchups = [];
+      int totalSeeds = pow(2, r + 1) as int;
+      for ((int, int) parentMatchup in seedMatchups) {
+        int opponent1 = parentMatchup.$1;
+        int opponent2 = parentMatchup.$2;
+
+        nextSeedMatchups.add((opponent1, totalSeeds - 1 - opponent1));
+        nextSeedMatchups.add((opponent2, totalSeeds - 1 - opponent2));
+      }
+      // Go up the tournament tree
+      seedMatchups = nextSeedMatchups;
+    }
+
+    return seedMatchups;
+  }
+
+  /// Creates the match list of the round coming
   /// after the given [roundMatches].
   List<MatchParticipant<P>> _createNextRoundParticipants(
     List<TournamentMatch<P, S>> roundMatches,
