@@ -5,10 +5,15 @@ import 'package:tournament_mode/src/ranking.dart';
 class DrawSeeds<P> implements Ranking<P> {
   /// Creates [DrawSeeds] of the [seededPlayers] with the order of the list
   /// determining the seeds.
-  DrawSeeds(this.seededPlayers)
+  ///
+  /// Each [P] is wrapped with a [MatchParticipant.fromPlayer].
+  DrawSeeds(List<P> seededPlayers)
       : _seededParticipants = seededPlayers.map(_wrapPlayer).toList();
 
-  final List<P> seededPlayers;
+  /// Creates [DrawSeeds] of the [seededParticipants] with the order of the list
+  /// determining the seeds.
+  DrawSeeds.fromParticipants(List<MatchParticipant<P>> seededParticipants)
+      : _seededParticipants = seededParticipants;
 
   final List<MatchParticipant<P>> _seededParticipants;
 

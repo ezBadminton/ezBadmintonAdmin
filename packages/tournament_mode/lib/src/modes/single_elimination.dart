@@ -36,7 +36,7 @@ class SingleElimination<P, S> extends TournamentMode<P, S> {
     MatchParticipant<P> b,
   ) matcher;
 
-  late final List<MatchParticipant<P>> participants;
+  late final List<MatchParticipant<P>> _participants;
 
   @override
   List<TournamentMatch<P, S>> get matches =>
@@ -47,14 +47,14 @@ class SingleElimination<P, S> extends TournamentMode<P, S> {
   List<List<TournamentMatch<P, S>>> get rounds => _rounds;
 
   void _createMatches() {
-    participants = seeds.rank().whereType<MatchParticipant<P>>().toList();
+    _participants = seeds.rank().whereType<MatchParticipant<P>>().toList();
 
-    assert(participants.length > 1);
+    assert(_participants.length > 1);
 
-    int rounds = _getNumRounds(participants.length);
+    int rounds = _getNumRounds(_participants.length);
 
     List<List<TournamentMatch<P, S>>> eliminationMatches = [];
-    List<MatchParticipant<P>> roundParticipants = participants;
+    List<MatchParticipant<P>> roundParticipants = _participants;
     for (int round = 0; round < rounds; round += 1) {
       List<TournamentMatch<P, S>> roundMatches;
       if (round == 0) {
@@ -175,7 +175,7 @@ class SingleElimination<P, S> extends TournamentMode<P, S> {
   }
 }
 
-///A ranking with a number of ranks that is a power of two.
+/// A ranking with a number of ranks that is a power of two.
 class _BinaryRanking<P> implements Ranking<P> {
   /// Decorates the given [targetRanking] by padding the rank list with
   /// [MatchParticipant.bye] until the number of ranks reaches a power of two.
