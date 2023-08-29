@@ -1,8 +1,24 @@
 import 'package:collection/collection.dart';
+import 'package:tournament_mode/src/modes/group_phase.dart';
+import 'package:tournament_mode/src/modes/single_elimination.dart';
+import 'package:tournament_mode/src/ranking.dart';
 import 'package:tournament_mode/src/tournament_match.dart';
 
 /// A tournament mode made up of specifically chained stages of matches.
+///
+/// It is basically a process to determine how the [entries]
+/// transform into the [finalRanking].
+///
+/// The [finalRanking] can then be used as the [entries] for another mode,
+/// effectively chaining them (e.g. [GroupPhase] => [SingleElimination]).
 abstract class TournamentMode<P, S> {
+  /// The participants of this tournament mode in a ranked entry list.
+  ///
+  /// The [entries] ranking can be interpreted as a seeded list, as the result
+  /// from a tournament mode that came before this in the chain or just as
+  /// a list with no meaning in the order.
+  abstract final Ranking<P> entries;
+
   /// All matches that are played in this mode.
   List<TournamentMatch<P, S>> get matches;
 
@@ -13,6 +29,9 @@ abstract class TournamentMode<P, S> {
   /// given the previous round has completed. The list's order reflects the
   /// order of the rounds.
   List<List<TournamentMatch<P, S>>> get rounds;
+
+  /// The final ranks of the players after all matches are finished.
+  Ranking<P> get finalRanking;
 
   /// Returns the earliest round that still has unfinished matches
   ///

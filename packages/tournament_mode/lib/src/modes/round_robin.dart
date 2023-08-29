@@ -8,22 +8,24 @@ import 'package:tournament_mode/src/tournament_mode.dart';
 class RoundRobin<P, S> extends TournamentMode<P, S> {
   /// Creates a [RoundRobin] tournament.
   RoundRobin({
-    required this.players,
-    required this.ranking,
+    required this.entries,
+    required this.finalRanking,
     required this.matcher,
     this.passes = 1,
   }) {
     _createMatches();
-    ranking.initMatches(matches);
+    finalRanking.initRounds(rounds);
   }
 
   /// The competing players. The ranking order is unimportant for the matches
   /// and just provides the list of participants.
-  final Ranking<P> players;
+  @override
+  final Ranking<P> entries;
 
-  /// The ranking to use. When all matches have been played the
+  /// The final ranking to use. When all matches have been played the
   /// [MatchRanking.rank] method should return the ranked player list.
-  final MatchRanking<P, S> ranking;
+  @override
+  final MatchRanking<P, S> finalRanking;
 
   /// A function turning two participants into a specific [TournamentMatch].
   final TournamentMatch<P, S> Function(
@@ -36,7 +38,7 @@ class RoundRobin<P, S> extends TournamentMode<P, S> {
   final int passes;
 
   /// The participants of the round robin. This includes a
-  /// [MatchParticipant.bye] in case [players] has an uneven length.
+  /// [MatchParticipant.bye] in case [entries] has an uneven length.
   late final List<MatchParticipant<P>> participants;
 
   @override
@@ -51,7 +53,7 @@ class RoundRobin<P, S> extends TournamentMode<P, S> {
   /// https://en.wikipedia.org/wiki/Round-robin_tournament#Circle_method
   /// to create the matches
   void _createMatches() {
-    participants = players.rank().whereType<MatchParticipant<P>>().toList();
+    participants = entries.rank().whereType<MatchParticipant<P>>().toList();
 
     if (!participants.length.isEven) {
       participants.insert(1, const MatchParticipant.bye());

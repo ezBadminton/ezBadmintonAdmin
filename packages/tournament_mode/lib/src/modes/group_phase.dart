@@ -3,6 +3,7 @@ import 'package:tournament_mode/src/match_participant.dart';
 import 'package:tournament_mode/src/modes/round_robin.dart';
 import 'package:tournament_mode/src/ranking.dart';
 import 'package:tournament_mode/src/rankings/draw_seeds.dart';
+import 'package:tournament_mode/src/rankings/group_phase_ranking.dart';
 import 'package:tournament_mode/src/rankings/match_ranking.dart';
 import 'package:tournament_mode/src/tournament_match.dart';
 import 'package:tournament_mode/src/tournament_mode.dart';
@@ -11,18 +12,20 @@ import 'package:tournament_mode/src/tournament_mode.dart';
 class GroupPhase<P, S> extends TournamentMode<P, S> {
   /// Creates a [GroupPhase] with [numGroups]
   GroupPhase({
-    required this.seeds,
+    required this.entries,
     required this.numGroups,
     required this.rankingBuilder,
     required this.matcher,
   }) {
     _createMatches();
+    _finalRanking = GroupPhaseRanking(groupRoundRobins);
   }
 
   /// The players are entered in a seeded Ranking (e.g. [DrawSeeds])
   ///
   /// If no seeding is needed a random ranking can be used aswell.
-  final Ranking<P> seeds;
+  @override
+  final Ranking<P> entries;
 
   /// The number of groups to split the players into.
   ///
@@ -53,8 +56,12 @@ class GroupPhase<P, S> extends TournamentMode<P, S> {
   @override
   List<List<TournamentMatch<P, S>>> get rounds => _rounds;
 
+  late final GroupPhaseRanking<P, S> _finalRanking;
+  @override
+  GroupPhaseRanking<P, S> get finalRanking => _finalRanking;
+
   void _createMatches() {
-    _participants = seeds.rank().whereType<MatchParticipant<P>>().toList();
+    _participants = entries.rank().whereType<MatchParticipant<P>>().toList();
 
     List<List<MatchParticipant<P>>> groups =
         _createSeededGroups(_participants, numGroups);
@@ -62,8 +69,8 @@ class GroupPhase<P, S> extends TournamentMode<P, S> {
     groupRoundRobins = groups
         .map(
           (group) => RoundRobin<P, S>(
-            players: DrawSeeds.fromParticipants(group),
-            ranking: rankingBuilder(),
+            entries: DrawSeeds.fromParticipants(group),
+            finalRanking: rankingBuilder(),
             matcher: matcher,
           ),
         )

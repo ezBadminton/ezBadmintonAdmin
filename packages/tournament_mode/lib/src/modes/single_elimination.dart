@@ -2,7 +2,8 @@ import 'dart:math';
 
 import 'package:tournament_mode/src/match_participant.dart';
 import 'package:tournament_mode/src/ranking.dart';
-import 'package:tournament_mode/src/rankings/draw_seeds.dart';
+import 'package:tournament_mode/src/rankings/elimination_ranking.dart';
+import 'package:tournament_mode/src/rankings/match_ranking.dart';
 import 'package:tournament_mode/src/rankings/winner_ranking.dart';
 import 'package:tournament_mode/src/tournament_match.dart';
 import 'package:tournament_mode/src/tournament_mode.dart';
@@ -10,25 +11,27 @@ import 'package:tournament_mode/src/tournament_mode.dart';
 /// Single elimination mode. All players are entered into a tournament
 /// tree where each winner progresses to the next round until the finals.
 class SingleElimination<P, S> extends TournamentMode<P, S> {
-  /// Creates a [SingleElimination] tournament with the given [seeds].
-  ///
-  /// The rounded up binary logarithm of the amount of seeded players
-  /// (length of [Ranking.rank]) determines the number of rounds. In other words
-  /// a minimum complete tournament tree is always constructed.
-  SingleElimination({
-    required Ranking<P> seeds,
-    required this.matcher,
-  }) : seeds = _BinaryRanking(seeds) {
-    _createMatches();
-  }
-
-  /// The players are entered in a seeded Ranking (e.g. [DrawSeeds])
+  /// Creates a [SingleElimination] tournament with the given [seededEntries].
   ///
   /// If no seeding is needed a random ranking can be used aswell.
   ///
   /// If the amount of players is not a power of 2, the first seeds get a bye
   /// in the first round.
-  final Ranking<P> seeds;
+  ///
+  /// The rounded up binary logarithm of the amount of seeded players
+  /// (length of [Ranking.rank]) determines the number of rounds. In other words
+  /// a minimum complete tournament tree is always constructed.
+  SingleElimination({
+    required Ranking<P> seededEntries,
+    required this.matcher,
+  })  : entries = _BinaryRanking(seededEntries),
+        finalRanking = EliminationRanking() {
+    _createMatches();
+    finalRanking.initRounds(rounds);
+  }
+
+  @override
+  final Ranking<P> entries;
 
   /// A function turning two participants into a specific [TournamentMatch].
   final TournamentMatch<P, S> Function(
@@ -46,8 +49,11 @@ class SingleElimination<P, S> extends TournamentMode<P, S> {
   @override
   List<List<TournamentMatch<P, S>>> get rounds => _rounds;
 
+  @override
+  final MatchRanking<P, S> finalRanking;
+
   void _createMatches() {
-    _participants = seeds.rank().whereType<MatchParticipant<P>>().toList();
+    _participants = entries.rank().whereType<MatchParticipant<P>>().toList();
 
     assert(_participants.length > 1);
 

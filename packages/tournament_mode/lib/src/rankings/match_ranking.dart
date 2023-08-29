@@ -4,19 +4,21 @@ import 'package:collection/collection.dart';
 
 /// A ranking based on match results.
 abstract class MatchRanking<P, S> implements Ranking<P> {
-  List<TournamentMatch<P, S>>? _matches;
-  List<TournamentMatch<P, S>>? get matches => _matches;
+  List<List<TournamentMatch<P, S>>>? _rounds;
+  List<List<TournamentMatch<P, S>>>? get rounds => _rounds;
+  Iterable<TournamentMatch<P, S>>? get matches =>
+      _rounds?.expand((round) => round);
 
-  void initMatches(List<TournamentMatch<P, S>> matches) {
-    _matches = matches;
+  void initRounds(List<List<TournamentMatch<P, S>>> rounds) {
+    _rounds = rounds;
   }
 
   bool ranksAvailable() {
-    if (_matches == null) {
+    if (_rounds == null) {
       return false;
     }
 
-    return _matches!
+    return matches!
             .where((match) => !match.isBye())
             .firstWhereOrNull((match) => !match.isCompleted) ==
         null;
