@@ -3,7 +3,7 @@ import 'package:tournament_mode/src/modes/chained_tournament_mode.dart';
 import 'package:tournament_mode/src/modes/group_phase.dart';
 import 'package:tournament_mode/src/modes/single_elimination.dart';
 import 'package:tournament_mode/src/ranking.dart';
-import 'package:tournament_mode/src/rankings/group_qualifiaction_ranking.dart';
+import 'package:tournament_mode/src/rankings/group_qualification_ranking.dart';
 import 'package:tournament_mode/src/rankings/match_ranking.dart';
 import 'package:tournament_mode/src/tournament_match.dart';
 
