@@ -1,6 +1,7 @@
 import 'package:tournament_mode/src/match_participant.dart';
 import 'package:tournament_mode/src/ranking.dart';
 import 'package:tournament_mode/src/rankings/match_ranking.dart';
+import 'package:tournament_mode/src/round_types/round_robin_round.dart';
 import 'package:tournament_mode/src/tournament_match.dart';
 import 'package:tournament_mode/src/tournament_mode.dart';
 
@@ -43,11 +44,11 @@ class RoundRobin<P, S> extends TournamentMode<P, S> {
 
   @override
   List<TournamentMatch<P, S>> get matches =>
-      [for (List<TournamentMatch<P, S>> round in rounds) ...round];
+      [for (RoundRobinRound<P, S> round in rounds) ...round];
 
-  late List<List<TournamentMatch<P, S>>> _rounds;
+  late List<RoundRobinRound<P, S>> _rounds;
   @override
-  List<List<TournamentMatch<P, S>>> get rounds => _rounds;
+  List<RoundRobinRound<P, S>> get rounds => _rounds;
 
   /// This method uses
   /// https://en.wikipedia.org/wiki/Round-robin_tournament#Circle_method
@@ -84,7 +85,14 @@ class RoundRobin<P, S> extends TournamentMode<P, S> {
       }
     }
 
-    _rounds = List.unmodifiable(roundRobinMatches);
+    _rounds = List.generate(
+      roundRobinMatches.length,
+      (index) => RoundRobinRound(
+        roundMatches: roundRobinMatches[index],
+        roundNumber: index,
+        totalRounds: roundsPerPass * passes,
+      ),
+    );
   }
 
   void _rotateMatchingCircle(

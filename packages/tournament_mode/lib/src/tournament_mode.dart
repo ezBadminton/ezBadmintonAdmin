@@ -3,6 +3,7 @@ import 'package:tournament_mode/src/modes/group_phase.dart';
 import 'package:tournament_mode/src/modes/single_elimination.dart';
 import 'package:tournament_mode/src/ranking.dart';
 import 'package:tournament_mode/src/tournament_match.dart';
+import 'package:tournament_mode/src/tournament_round.dart';
 
 /// A tournament mode made up of specifically chained stages of matches.
 ///
@@ -28,7 +29,7 @@ abstract class TournamentMode<P, S> {
   /// A round is a set of matches that can be played in parallel
   /// given the previous round has completed. The list's order reflects the
   /// order of the rounds.
-  List<List<TournamentMatch<P, S>>> get rounds;
+  List<TournamentRound<P, S>> get rounds;
 
   /// The final ranks of the players after all matches are finished.
   Ranking<P> get finalRanking;

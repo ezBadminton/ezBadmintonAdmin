@@ -5,6 +5,7 @@ import 'package:tournament_mode/src/ranking.dart';
 import 'package:tournament_mode/src/rankings/draw_seeds.dart';
 import 'package:tournament_mode/src/rankings/group_phase_ranking.dart';
 import 'package:tournament_mode/src/rankings/match_ranking.dart';
+import 'package:tournament_mode/src/round_types/group_phase_round.dart';
 import 'package:tournament_mode/src/tournament_match.dart';
 import 'package:tournament_mode/src/tournament_mode.dart';
 
@@ -50,11 +51,11 @@ class GroupPhase<P, S> extends TournamentMode<P, S> {
 
   @override
   List<TournamentMatch<P, S>> get matches =>
-      [for (List<TournamentMatch<P, S>> round in rounds) ...round];
+      [for (GroupPhaseRound<P, S> round in rounds) ...round];
 
-  late List<List<TournamentMatch<P, S>>> _rounds;
+  late List<GroupPhaseRound<P, S>> _rounds;
   @override
-  List<List<TournamentMatch<P, S>>> get rounds => _rounds;
+  List<GroupPhaseRound<P, S>> get rounds => _rounds;
 
   late final GroupPhaseRanking<P, S> _finalRanking;
   @override
@@ -128,41 +129,19 @@ class GroupPhase<P, S> extends TournamentMode<P, S> {
     return groups;
   }
 
-  List<List<TournamentMatch<P, S>>> _getGroupPhaseRounds() {
+  List<GroupPhaseRound<P, S>> _getGroupPhaseRounds() {
     int maxRounds =
         groupRoundRobins.map((roundRobin) => roundRobin.rounds.length).max;
 
-    List<List<TournamentMatch<P, S>>> rounds = List.generate(
+    List<GroupPhaseRound<P, S>> rounds = List.generate(
       maxRounds,
-      (round) => _intertwineGroupRound(groupRoundRobins, round),
+      (round) => GroupPhaseRound(
+        groupRoundRobins: groupRoundRobins,
+        roundNumber: round,
+        totalRounds: maxRounds,
+      ),
     );
 
     return rounds;
-  }
-
-  /// Returns a list of matches that contains all the matches of the [round]
-  /// inside the [groups].
-  ///
-  /// The matches are ordered such that the first match of each group comes
-  /// first, then all the second matches and so on.
-  List<TournamentMatch<P, S>> _intertwineGroupRound(
-    List<RoundRobin<P, S>> groups,
-    int round,
-  ) {
-    List<List<TournamentMatch<P, S>>> groupRounds = groups
-        .where((roundRobin) => round < roundRobin.rounds.length)
-        .map((roundRobin) => roundRobin.rounds[round])
-        .toList();
-
-    int maxLength = groupRounds.map((round) => round.length).max;
-
-    List<TournamentMatch<P, S>> groupRound = [
-      for (int i = 0; i < maxLength; i += 1)
-        ...groupRounds
-            .where((round) => i < round.length)
-            .map((round) => round[i]),
-    ];
-
-    return groupRound;
   }
 }

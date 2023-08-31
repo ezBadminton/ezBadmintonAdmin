@@ -2,6 +2,7 @@ import 'package:tournament_mode/src/ranking.dart';
 import 'package:tournament_mode/src/rankings/ranking_decorator.dart';
 import 'package:tournament_mode/src/tournament_match.dart';
 import 'package:tournament_mode/src/tournament_mode.dart';
+import 'package:tournament_mode/src/tournament_round.dart';
 
 /// Builds a [TournamentMode] from a [Ranking] containing the entries.
 typedef TournamentModeBuilder<P, S> = TournamentMode<P, S> Function(
@@ -52,7 +53,7 @@ class ChainedTournamentMode<P, S> extends TournamentMode<P, S> {
       rounds.expand((round) => round).toList();
 
   @override
-  List<List<TournamentMatch<P, S>>> get rounds => [
+  List<TournamentRound<P, S>> get rounds => [
         ...first.rounds,
         ...second.rounds,
       ];

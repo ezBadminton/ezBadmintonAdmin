@@ -5,6 +5,7 @@ import 'package:tournament_mode/src/ranking.dart';
 import 'package:tournament_mode/src/rankings/elimination_ranking.dart';
 import 'package:tournament_mode/src/rankings/match_ranking.dart';
 import 'package:tournament_mode/src/rankings/winner_ranking.dart';
+import 'package:tournament_mode/src/round_types/elimination_round.dart';
 import 'package:tournament_mode/src/tournament_match.dart';
 import 'package:tournament_mode/src/tournament_mode.dart';
 
@@ -43,11 +44,11 @@ class SingleElimination<P, S> extends TournamentMode<P, S> {
 
   @override
   List<TournamentMatch<P, S>> get matches =>
-      [for (List<TournamentMatch<P, S>> round in rounds) ...round];
+      [for (EliminationRound<P, S> round in rounds) ...round];
 
-  late List<List<TournamentMatch<P, S>>> _rounds;
+  late List<EliminationRound<P, S>> _rounds;
   @override
-  List<List<TournamentMatch<P, S>>> get rounds => _rounds;
+  List<EliminationRound<P, S>> get rounds => _rounds;
 
   @override
   final MatchRanking<P, S> finalRanking;
@@ -74,7 +75,13 @@ class SingleElimination<P, S> extends TournamentMode<P, S> {
       eliminationMatches.add(roundMatches);
     }
 
-    _rounds = List.unmodifiable(eliminationMatches);
+    _rounds = List.generate(
+      eliminationMatches.length,
+      (index) => EliminationRound(
+        roundMatches: eliminationMatches[index],
+        roundSize: pow(2, eliminationMatches.length - index) as int,
+      ),
+    );
   }
 
   /// Takes a list of [roundParticipants] and matches them pair-wise in the
