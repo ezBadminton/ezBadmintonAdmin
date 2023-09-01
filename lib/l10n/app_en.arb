@@ -40,6 +40,7 @@
   "playerManagement": "Manage players",
   "competitionManagement": "Competition management",
   "courtManagement": "Court management",
+  "drawManagement": "Draw management",
   "birthday": "birthday",
   "dateOfBirth": "date of birth",
   "personalData": "Personal",

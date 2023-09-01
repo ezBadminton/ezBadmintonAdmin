@@ -1,6 +1,7 @@
 import 'package:ez_badminton_admin_app/assets/badminton_icons_icons.dart';
 import 'package:ez_badminton_admin_app/competition_management/view/competition_list_page.dart';
 import 'package:ez_badminton_admin_app/court_management/view/court_list_page.dart';
+import 'package:ez_badminton_admin_app/draw_management/view/draw_management_page.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_state.dart';
 import 'package:ez_badminton_admin_app/home/widgets/navigation_tab.dart';
@@ -81,7 +82,7 @@ class _HomePageState extends State<HomePage>
         NavigationTab(
           index: 3,
           label: l10n.draw(2),
-          root: const Placeholder(),
+          root: const DrawManagementPage(),
           unselectedIcon: BadmintonIcons.tournament_tree,
           selectedIcon: BadmintonIcons.tournament_tree,
         ),
