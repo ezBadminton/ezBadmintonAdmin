@@ -147,5 +147,6 @@
   "onlyGym": "Nur diese Halle",
   "emptyCourts": "Leere Felder",
   "skip": "Überspringen",
-  "count": "Mitzählen"
+  "count": "Mitzählen",
+  "assignTournamentMode": "Turniermodus festlegen"
 }
