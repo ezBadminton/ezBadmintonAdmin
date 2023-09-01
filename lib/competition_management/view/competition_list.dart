@@ -10,8 +10,6 @@ import 'package:ez_badminton_admin_app/widgets/sortable_column_header/sortable_c
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:ez_badminton_admin_app/widgets/custom_expansion_panel_list/expansion_panel_list.dart'
-    as custom_expansion_panel;
 import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
     as display_strings;
 
@@ -134,7 +132,7 @@ class _CompetitionListHeader extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 10),
               child: Row(
                 children: [
-                  const SizedBox(width: 20),
+                  const SizedBox(width: 15),
                   Transform.scale(
                     scale: 1.2,
                     child: Checkbox(
@@ -207,18 +205,21 @@ class _CompetitionListBody extends StatelessWidget {
             const _MissingCategoriesHint(),
             Expanded(
               child: SingleChildScrollView(
-                child: custom_expansion_panel.ExpansionPanelList.radio(
-                  hasExpandIcon: false,
-                  elevation: 0,
+                child: Column(
                   children: [
                     for (Competition competition
-                        in state.displayCompetitionList)
-                      _CompetitionExpansionPanel(
-                        context: context,
+                        in state.displayCompetitionList) ...[
+                      _CompetitionListItem(
                         competition: competition,
                         useAgeGroups: useAgeGroups,
                         usePlayingLevels: usePlayingLevels,
                       ),
+                      if (state.displayCompetitionList.last != competition)
+                        const Divider(
+                          height: 1,
+                          thickness: 0.0,
+                        ),
+                    ],
                   ],
                 ),
               ),
@@ -230,90 +231,78 @@ class _CompetitionListBody extends StatelessWidget {
   }
 }
 
-class _CompetitionExpansionPanel extends ExpansionPanelRadio {
-  _CompetitionExpansionPanel({
-    required BuildContext context,
-    required Competition competition,
-    required bool useAgeGroups,
-    required bool usePlayingLevels,
-  }) : super(
-          value: competition.id,
-          headerBuilder: (context, _) => _headerBuilder(
-            context,
-            competition,
-            useAgeGroups,
-            usePlayingLevels,
-          ),
-          body: const Placeholder(),
-          canTapOnHeader: true,
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        );
+class _CompetitionListItem extends StatelessWidget {
+  const _CompetitionListItem({
+    required this.competition,
+    required this.useAgeGroups,
+    required this.usePlayingLevels,
+  });
 
-  static Widget _headerBuilder(
-    BuildContext context,
-    Competition competition,
-    bool useAgeGroups,
-    bool usePlayingLevels,
-  ) {
+  final Competition competition;
+  final bool useAgeGroups;
+  final bool usePlayingLevels;
+
+  @override
+  Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
     var selectionCubit = context.read<CompetitionSelectionCubit>();
+
     return BlocBuilder<CompetitionSelectionCubit, CompetitionSelectionState>(
       buildWhen: (previous, current) =>
           previous.selectedCompetitions != current.selectedCompetitions,
       builder: (context, state) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 3),
-          child: Row(
-            children: [
-              const SizedBox(width: 20),
-              Checkbox(
-                value: state.selectedCompetitions.contains(competition),
-                onChanged: (_) =>
-                    selectionCubit.competitionToggled(competition),
-              ),
-              const SizedBox(width: 30),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 150),
-                width: useAgeGroups ? 200 : 0,
-                child: Text(
-                  competition.ageGroup != null
-                      ? display_strings.ageGroup(l10n, competition.ageGroup!)
-                      : '',
-                  overflow: TextOverflow.clip,
-                  softWrap: false,
-                ),
-              ),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 150),
-                width: usePlayingLevels ? 300 : 0,
-                child: Text(
-                  competition.playingLevel?.name ?? '',
-                  overflow: TextOverflow.clip,
-                  softWrap: false,
-                ),
-              ),
-              SizedBox(
-                width: 150,
-                child: Text(
-                  display_strings.competitionCategory(
-                    l10n,
-                    CompetitionDiscipline.fromCompetition(competition),
+        return CheckboxListTile(
+          controlAffinity: ListTileControlAffinity.leading,
+          value: state.selectedCompetitions.contains(competition),
+          onChanged: (_) => selectionCubit.competitionToggled(competition),
+          title: DefaultTextStyle.merge(
+            style: const TextStyle(fontSize: 14),
+            child: Row(
+              children: [
+                const SizedBox(width: 10),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  width: useAgeGroups ? 200 : 0,
+                  child: Text(
+                    competition.ageGroup != null
+                        ? display_strings.ageGroup(l10n, competition.ageGroup!)
+                        : '',
+                    overflow: TextOverflow.clip,
+                    softWrap: false,
                   ),
                 ),
-              ),
-              Flexible(
-                flex: 1,
-                child: Container(),
-              ),
-              SizedBox(
-                width: 150,
-                child: _RegistrationCount(competition: competition),
-              ),
-              Expanded(
-                flex: 7,
-                child: Container(),
-              ),
-            ],
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  width: usePlayingLevels ? 300 : 0,
+                  child: Text(
+                    competition.playingLevel?.name ?? '',
+                    overflow: TextOverflow.clip,
+                    softWrap: false,
+                  ),
+                ),
+                SizedBox(
+                  width: 150,
+                  child: Text(
+                    display_strings.competitionCategory(
+                      l10n,
+                      CompetitionDiscipline.fromCompetition(competition),
+                    ),
+                  ),
+                ),
+                Flexible(
+                  flex: 1,
+                  child: Container(),
+                ),
+                SizedBox(
+                  width: 150,
+                  child: _RegistrationCount(competition: competition),
+                ),
+                Expanded(
+                  flex: 7,
+                  child: Container(),
+                ),
+              ],
+            ),
           ),
         );
       },
