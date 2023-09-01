@@ -22,12 +22,15 @@ class CourtList extends StatelessWidget {
     return BlocBuilder<CourtListCubit, CourtListState>(
       buildWhen: (previous, current) => previous.courtMap != current.courtMap,
       builder: (context, state) {
+        Map<Widget, List<Widget>> courtListWidgets =
+            _buildCourtMapItems(context, state.courtMap);
         return StickyScrollableFollower(
           scrollController: controller,
           followerMargin: 30,
-          followerOffset: -listBottomPadding + 15,
+          followerOffset:
+              courtListWidgets.isEmpty ? 40 : -listBottomPadding + 15,
           scrollable: MapListView(
-            itemMap: _buildCourtMapItems(context, state.courtMap),
+            itemMap: courtListWidgets,
             topPadding: 25,
             bottomPadding: listBottomPadding,
             controller: controller,
