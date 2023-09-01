@@ -22,6 +22,7 @@
   "competition": "{count, plural, =1{Competition} other{Competitions}}",
   "baseCompetition": "{count, plural, =1{Base competition} other{Base competitions}}",
   "court": "{count, plural, =1{Court} other{Courts}}",
+  "draw": "{count, plural, =1{Draw} other{Draws}}",
   "matches": "Matches",
   "women": "women",
   "men": "men",

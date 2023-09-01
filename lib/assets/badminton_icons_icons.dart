@@ -37,6 +37,8 @@ class BadmintonIcons {
       IconData(0xe805, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData badminton_court_with_net_outline =
       IconData(0xe806, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData tournament_tree =
+      IconData(0xe807, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData badminton_shuttlecock =
       IconData(0xe808, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData badminton_shuttlecock_outline =

@@ -59,7 +59,7 @@ class MatchParticipant<P> {
     return placement!.getPlacement()?.resolvePlayer();
   }
 
-  /// Returns wheter this participant is ready to start a match.
+  /// Returns whether this participant is ready to start a match.
   bool readyToPlay() {
     if (isBye) {
       return true;

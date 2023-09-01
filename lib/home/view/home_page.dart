@@ -25,7 +25,7 @@ class _HomePageState extends State<HomePage>
     with TickerProviderStateMixin<HomePage> {
   late final List<GlobalKey<NavigatorState>> navigatorKeys;
   late final List<AnimationController> switchAnimationControllers;
-  final int numTabs = 4;
+  final int numTabs = 5;
   late List<NavigationTab> tabs;
   late List<Widget> tabViews;
 
@@ -80,6 +80,13 @@ class _HomePageState extends State<HomePage>
         ),
         NavigationTab(
           index: 3,
+          label: l10n.draw(2),
+          root: const Placeholder(),
+          unselectedIcon: BadmintonIcons.tournament_tree,
+          selectedIcon: BadmintonIcons.tournament_tree,
+        ),
+        NavigationTab(
+          index: 4,
           label: l10n.matches,
           root: const Placeholder(),
           unselectedIcon: BadmintonIcons.badminton_shuttlecock_outline,
@@ -140,7 +147,7 @@ class _HomePageState extends State<HomePage>
                     .toList(),
                 selectedIndex: tabNavigationState.selectedIndex,
                 backgroundColor: Theme.of(context).drawerTheme.backgroundColor,
-                minWidth: 100,
+                minWidth: 103,
                 labelType: NavigationRailLabelType.all,
                 useIndicator: true,
                 indicatorColor:
