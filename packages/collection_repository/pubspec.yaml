@@ -3,7 +3,7 @@ description: Dart package which manages the data collections of the pocketbase b
 publish_to: none
 
 environment:
-  sdk: '>=2.19.6 <3.0.0'
+  sdk: '^3.0.0'
 
 dependencies:
   collection: ^1.17.1
@@ -24,7 +24,7 @@ dev_dependencies:
     sdk: flutter
   freezed: ^2.3.3
   json_serializable: ^6.6.2
-  mocktail: ^0.3.0
+  mocktail: ^1.0.0
   flutter_lints: ^2.0.0
   very_good_analysis: ^5.0.0
   expect_stream:

@@ -25,8 +25,9 @@ class PocketbaseCollectionRepository<M extends Model>
     required PocketBaseProvider pocketBaseProvider,
   })  : _modelConstructor = modelConstructor,
         _pocketBase = pocketBaseProvider.pocketBase,
-        // All model classes have a corresponding collection name
-        _collectionName = '${M.toString().snakeCase}s';
+        // All model classes have a corresponding plural collection name
+        _collectionName =
+            '${M.toString().snakeCase}${M.toString().endsWith('s') ? '' : 's'}';
 
   // The pocketbase SDK abstracts all the DB querying
   final PocketBase _pocketBase;

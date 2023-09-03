@@ -32,10 +32,9 @@
         "problemMatcher": []
       },
       {
-        "type": "flutter",
-        "command": "flutter",
+        "type": "dart",
+        "command": "dart",
         "args": [
-          "pub",
           "run",
           "build_runner",
           "build"

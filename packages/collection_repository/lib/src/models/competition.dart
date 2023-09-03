@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:collection_repository/collection_repository.dart';
 import 'package:collection_repository/src/expansion_tree/expanded_field.dart';
+import 'package:collection_repository/src/models/tournament_mode_settings.dart';
 import 'package:collection_repository/src/utils/model_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -24,6 +27,9 @@ class Competition extends Model with _$Competition {
     AgeGroup? ageGroup,
     PlayingLevel? playingLevel,
     required List<Team> registrations,
+    TournamentModeSettings? tournamentModeSettings,
+    required List<Team> seeds,
+    required int rngSeed,
   }) = _Competition;
 
   factory Competition.fromJson(Map<String, dynamic> json) =>
@@ -45,6 +51,8 @@ class Competition extends Model with _$Competition {
       ageGroup: ageGroup,
       playingLevel: playingLevel,
       registrations: registrations,
+      seeds: const [],
+      rngSeed: Random().nextInt(1 << 32),
     );
   }
 
@@ -79,6 +87,18 @@ class Competition extends Model with _$Competition {
     ExpandedField(
       model: Team,
       key: 'registrations',
+      isRequired: true,
+      isSingle: false,
+    ),
+    ExpandedField(
+      model: TournamentModeSettings,
+      key: 'tournamentModeSettings',
+      isRequired: false,
+      isSingle: true,
+    ),
+    ExpandedField(
+      model: Team,
+      key: 'seeds',
       isRequired: true,
       isSingle: false,
     ),
