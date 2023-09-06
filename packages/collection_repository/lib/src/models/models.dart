@@ -10,3 +10,4 @@ export 'court.dart';
 export 'match.dart';
 export 'match_set.dart';
 export 'age_group.dart';
+export 'tournament_mode_settings.dart';

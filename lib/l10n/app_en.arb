@@ -148,5 +148,22 @@
   "emptyCourts": "Empty courts",
   "skip": "Skip",
   "count": "Count in",
-  "assignTournamentMode": "Assign tournament mode"
+  "assignTournamentMode": "Assign tournament mode",
+  "roundRobin": "Round robin",
+  "singleElimination": "Single elimination",
+  "doubleElimination": "Double elimination",
+  "classificationElimination": "Elimination with classification",
+  "groupKnockout": "Group tournament",
+  "roundRobinHelp": "Each participant plays everyone else. How often is determined by the configurable number of rounds.",
+  "singleEliminationHelp": "A tournament bracket that ends in a final. To make a match for 3rd place or play out more ranks use the \"elimination with classification\" mode.",
+  "doubleEliminationHelp": "In a double elimination participants go into a \"lower\" bracket after their first loss. Another loss eliminates the participant. The final is played between the last unbeaten participant and the winner of the lower bracket.",
+  "classificationEliminationHelp": "This mode makes the amount of played out ranks configurable. Placements will be played in extra classification rounds, which will be filled by the losers of the main round.",
+  "groupKnockoutHelp": "The group stage consists of a round robin in each group. The top ranked participants of each group advance to an elimination stage.",
+  "pleaseChoose": "Please choose",
+  "tournamentMode": "Tournament mode",
+  "seedingMode": "Seeding mode",
+  "singleSeeding": "Single",
+  "tieredSeeding": "Tiered",
+  "singleSeedingHelp": "Every seed list entry gets their own rank.",
+  "tieredSeedingHelp": "1st and 2nd seed are individually set. Afterwards the ranks will be staggered in tiers: 3/4, 5/8, 9/16, etc."
 }

@@ -121,7 +121,7 @@ class CourtAddingCubit extends CollectionQuerierCubit<CourtAddingState> {
   }
 
   String _getCourtName(int row, int column, List<Court> courtsOfGym) {
-    String name = display_strings.courtName(state.gymnasium, row, column, l10n);
+    String name = display_strings.courtName(l10n, state.gymnasium, row, column);
 
     List<String> otherNames = courtsOfGym.map((c) => c.name).toList();
 

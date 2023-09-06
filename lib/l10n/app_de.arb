@@ -148,5 +148,22 @@
   "emptyCourts": "Leere Felder",
   "skip": "Überspringen",
   "count": "Mitzählen",
-  "assignTournamentMode": "Turniermodus festlegen"
+  "assignTournamentMode": "Turniermodus festlegen",
+  "roundRobin": "Jeder gegen Jeden",
+  "singleElimination": "KO-System",
+  "doubleElimination": "Doppeltes KO-System",
+  "classificationElimination": "KO-System mit Plätze ausspielen",
+  "groupKnockout": "Gruppensystem",
+  "roundRobinHelp": "Jeder Teilnehmer spielt gegen jeden Anderen. Die einstellbare Anzahl der Durchgänge bestimmt, wie oft.",
+  "singleEliminationHelp": "Ein Turnierbaum, der in einem Finale gipfelt. Um ein Spiel um Platz 3 zu bekommen oder noch mehr Plätze auszuspielen, nutze das \"KO-System mit Plätze ausspielen\".",
+  "doubleEliminationHelp": "Bei einem doppelten KO-System kommen Teilnehmer nach der ersten Niederlage in einen \"unteren\" Turnierbaum. Eine weitere Niederlage führt zum Ausscheiden. Das Finale findet zwischen dem letzten ungeschlagenen Spieler und dem Gewinner des unteren Turniernaums statt.",
+  "classificationEliminationHelp": "Dieser Modus erlaubt es einzustellen, wie viele Plätze ausgespielt werden sollen. Die Plätze werden in Extrarunden ausgespielt, die durch die Verlierer der Hauptrunde besetzt werden.",
+  "groupKnockoutHelp": "In einer Gruppenphase spielen alle Gruppen jeweils ein Jeder-gegen-Jeden. Die Besten jeder Gruppe qualifizieren sich für die KO-Runde.",
+  "pleaseChoose": "Bitte wählen",
+  "tournamentMode": "Turniermodus",
+  "seedingMode": "Setzplätze",
+  "singleSeeding": "Einzeln",
+  "tieredSeeding": "Gestaffelt",
+  "singleSeedingHelp": "Jeder Eintrag auf der Setzliste erhält seinen eigenen Rang.",
+  "tieredSeedingHelp": "1. und 2. Setzplatz sind einzeln. Danach werden die Ränge gestaffelt: 3/4, 5/8, 9/16, etc."
 }

@@ -30,6 +30,8 @@ class _AppState extends State<App> {
   late final CollectionRepository<Club> _clubRepository;
   late final CollectionRepository<Court> _courtRepository;
   late final CollectionRepository<Gymnasium> _gymnasiumRepository;
+  late final CollectionRepository<TournamentModeSettings>
+      _tournamentModeSettingsRepository;
 
   @override
   void initState() {
@@ -97,6 +99,12 @@ class _AppState extends State<App> {
         pocketBaseProvider: _pocketBaseProvider,
       ),
     );
+    _tournamentModeSettingsRepository = CachedCollectionRepository(
+      PocketbaseCollectionRepository(
+        modelConstructor: TournamentModeSettings.fromJson,
+        pocketBaseProvider: _pocketBaseProvider,
+      ),
+    );
   }
 
   @override
@@ -111,6 +119,7 @@ class _AppState extends State<App> {
     _clubRepository.dispose();
     _courtRepository.dispose();
     _gymnasiumRepository.dispose();
+    _tournamentModeSettingsRepository.dispose();
     super.dispose();
   }
 
@@ -128,6 +137,7 @@ class _AppState extends State<App> {
         RepositoryProvider.value(value: _clubRepository),
         RepositoryProvider.value(value: _courtRepository),
         RepositoryProvider.value(value: _gymnasiumRepository),
+        RepositoryProvider.value(value: _tournamentModeSettingsRepository),
       ],
       child: BlocProvider(
         create: (_) => AuthenticationBloc(

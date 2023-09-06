@@ -134,12 +134,42 @@ String filterChip(
 }
 
 String courtName(
+  AppLocalizations l10n,
   Gymnasium gymnasium,
   int row,
   int column,
-  AppLocalizations l10n,
 ) {
   int courtNumber = row + column * gymnasium.rows + 1;
 
   return l10n.courtN(courtNumber);
+}
+
+String tournamentMode<M extends TournamentModeSettings>(
+  AppLocalizations l10n,
+) {
+  switch (M) {
+    case RoundRobinSettings:
+      return l10n.roundRobin;
+    case SingleEliminationSettings:
+      return l10n.singleElimination;
+    case GroupKnockoutSettings:
+      return l10n.groupKnockout;
+    default:
+      return 'OTHER';
+  }
+}
+
+String tournamentModeTooltip<M extends TournamentModeSettings>(
+  AppLocalizations l10n,
+) {
+  switch (M) {
+    case RoundRobinSettings:
+      return l10n.roundRobinHelp;
+    case SingleEliminationSettings:
+      return l10n.singleEliminationHelp;
+    case GroupKnockoutSettings:
+      return l10n.groupKnockoutHelp;
+    default:
+      return 'OTHER';
+  }
 }
