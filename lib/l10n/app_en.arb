@@ -165,5 +165,11 @@
   "singleSeeding": "Single",
   "tieredSeeding": "Tiered",
   "singleSeedingHelp": "Every seed list entry gets their own rank.",
-  "tieredSeedingHelp": "1st and 2nd seed are individually set. Afterwards the ranks will be staggered in tiers: 3/4, 5/8, 9/16, etc."
+  "tieredSeedingHelp": "1st and 2nd seed are individually set. Afterwards the ranks will be staggered in tiers: 3/4, 5/8, 9/16, etc.",
+  "passes": "Rounds",
+  "roundRobinPassesHelp": "How often everyone plays everyone else. E.g. 2 means each matchup happens twice.",
+  "numGroups": "Number of groups",
+  "numGroupsHelp": "How many groups the participants will be divided among. Manual assignments are possible after the draw.",
+  "qualificationsPerGroup": "Qualifications per group",
+  "qualificationsPerGroupHelp": "How many of the top finishers from each group will advance to the knockout round."
 }

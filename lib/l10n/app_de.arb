@@ -165,5 +165,11 @@
   "singleSeeding": "Einzeln",
   "tieredSeeding": "Gestaffelt",
   "singleSeedingHelp": "Jeder Eintrag auf der Setzliste erhält seinen eigenen Rang.",
-  "tieredSeedingHelp": "1. und 2. Setzplatz sind einzeln. Danach werden die Ränge gestaffelt: 3/4, 5/8, 9/16, etc."
+  "tieredSeedingHelp": "1. und 2. Setzplatz sind einzeln. Danach werden die Ränge gestaffelt: 3/4, 5/8, 9/16, etc.",
+  "passes": "Durchgänge",
+  "roundRobinPassesHelp": "Wie oft Jeder gegen Jeden spielt. 2 Durchgänge bedeuten z.B. es gibt eine Hin- und eine Rückrunde.",
+  "numGroups": "Anzahl Gruppen",
+  "numGroupsHelp": "Auf wie viele Gruppen die Teilnehmer gleichmäßig aufgeteilt werden. Manuelle Zuweisungen sind nach der Auslosung möglich.",
+  "qualificationsPerGroup": "Qualifikationen pro Gruppe",
+  "qualificationsPerGroupHelp": "Wie viele der Top-Platzierten von jeder Gruppe in die KO-Runde einziehen."
 }

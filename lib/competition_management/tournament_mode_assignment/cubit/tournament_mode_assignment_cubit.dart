@@ -31,6 +31,16 @@ class TournamentModeAssignmentCubit
     emit(newState);
   }
 
+  void tournamentModeSettingsChanged(TournamentModeSettings settings) {
+    TournamentModeAssignmentState newState = state.copyWith(
+      modeSettings: SelectionInput.dirty(
+        value: settings,
+      ),
+    );
+
+    emit(newState);
+  }
+
   static TournamentModeSettings? _createDefaultSettings(
     Type? tournamentMode,
   ) {

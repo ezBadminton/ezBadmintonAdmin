@@ -2,8 +2,8 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:equatable/equatable.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_editing/cubit/competition_adding_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
+import 'package:ez_badminton_admin_app/widgets/help_tooltip_icon/help_tooltip_icon.dart';
 import 'package:ez_badminton_admin_app/widgets/implicit_animated_list/implicit_animated_list.dart';
-import 'package:ez_badminton_admin_app/widgets/long_tooltip/long_tooltip.dart';
 import 'package:ez_badminton_admin_app/widgets/mouse_hover_builder/mouse_hover_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -60,21 +60,13 @@ class CompetitionAdditionPreview extends StatelessWidget {
                 ),
                 if (!noCategories && numNewCategories > 0) ...[
                   const SizedBox(width: 7),
-                  LongTooltip(
-                    message: _getHelpMessage(
+                  HelpTooltipIcon(
+                    helpText: _getHelpMessage(
                       l10n,
                       useAgeGroups,
                       usePlayingLevels,
                       numNewCategories,
                       numBaseDisciplines,
-                    ),
-                    child: Icon(
-                      Icons.help_outline,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withOpacity(.5),
-                      size: 21,
                     ),
                   ),
                 ],

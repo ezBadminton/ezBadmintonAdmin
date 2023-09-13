@@ -2,7 +2,7 @@ import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
 import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/gym_floor_plan/gym_floor_plan.dart';
-import 'package:ez_badminton_admin_app/widgets/long_tooltip/long_tooltip.dart';
+import 'package:ez_badminton_admin_app/widgets/help_tooltip_icon/help_tooltip_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -62,15 +62,10 @@ class _GymFloorPlanTitle extends StatelessWidget {
         const SizedBox(width: 8),
         BlocBuilder<GymnasiumEditingCubit, GymnasiumEditingState>(
           builder: (context, state) {
-            return LongTooltip(
-              message: l10n.gymFloorPlanHelpMessage(
+            return HelpTooltipIcon(
+              helpText: l10n.gymFloorPlanHelpMessage(
                 state.columns.value,
                 state.rows.value,
-              ),
-              child: Icon(
-                Icons.help_outline,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(.5),
-                size: 21,
               ),
             );
           },

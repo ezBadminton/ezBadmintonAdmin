@@ -1,6 +1,7 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/cubit/tournament_mode_assignment_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/widgets/tournament_mode_selector.dart';
+import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/widgets/tournament_mode_settings_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -55,6 +56,8 @@ class _TournamentModeAssignmentPageScaffold extends StatelessWidget {
                 endIndent: 20,
                 thickness: 0,
               ),
+              SizedBox(height: 30),
+              TournamentModeSettingsWidget(),
             ],
           ),
         ),

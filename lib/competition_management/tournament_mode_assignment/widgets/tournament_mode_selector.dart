@@ -1,6 +1,6 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/cubit/tournament_mode_assignment_cubit.dart';
-import 'package:ez_badminton_admin_app/widgets/long_tooltip/long_tooltip.dart';
+import 'package:ez_badminton_admin_app/widgets/tooltip_dropdown_menu_item/tooltip_dropdown_menu_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -37,9 +37,9 @@ class TournametModeSelector extends StatelessWidget {
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
                 items: [
-                  _TournamentModeMenuItem<RoundRobinSettings>(),
-                  _TournamentModeMenuItem<SingleEliminationSettings>(),
-                  _TournamentModeMenuItem<GroupKnockoutSettings>(),
+                  _TournamentModeMenuItem<RoundRobinSettings>(l10n),
+                  _TournamentModeMenuItem<SingleEliminationSettings>(l10n),
+                  _TournamentModeMenuItem<GroupKnockoutSettings>(l10n),
                 ],
               ),
             ),
@@ -51,36 +51,11 @@ class TournametModeSelector extends StatelessWidget {
 }
 
 class _TournamentModeMenuItem<M extends TournamentModeSettings>
-    extends DropdownMenuItem<Type> {
-  _TournamentModeMenuItem({
-    super.key,
-  }) : super(
+    extends TooltipDropdownMenuItem<Type> {
+  _TournamentModeMenuItem(AppLocalizations l10n)
+      : super(
           value: M,
-          child: _TournamentModeMenuLabel<M>(),
+          label: display_strings.tournamentMode<M>(l10n),
+          helpText: display_strings.tournamentModeTooltip<M>(l10n),
         );
-}
-
-class _TournamentModeMenuLabel<M extends TournamentModeSettings>
-    extends StatelessWidget {
-  const _TournamentModeMenuLabel();
-
-  @override
-  Widget build(BuildContext context) {
-    var l10n = AppLocalizations.of(context)!;
-    return Row(
-      children: [
-        Expanded(
-          child: Text(display_strings.tournamentMode<M>(l10n)),
-        ),
-        LongTooltip(
-          message: display_strings.tournamentModeTooltip<M>(l10n),
-          child: Icon(
-            Icons.help_outline,
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(.5),
-            size: 21,
-          ),
-        ),
-      ],
-    );
-  }
 }
