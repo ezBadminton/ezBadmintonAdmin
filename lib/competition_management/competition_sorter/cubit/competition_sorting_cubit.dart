@@ -9,12 +9,14 @@ class CompetitionSortingCubit extends ListSortingCubit<Competition> {
     required CompetitionComparator<PlayingLevel> playingLevelComparator,
     required CompetitionComparator<CompetitionDiscipline> categoryComparator,
     required CompetitionComparator<Team> registrationComparator,
+    required CompetitionComparator<TournamentModeSettings> modeComparator,
   }) : super(
           comparators: [
             ageGroupComparator,
             playingLevelComparator,
             categoryComparator,
             registrationComparator,
+            modeComparator,
           ],
           defaultComparator: const CompetitionComparator(),
         );

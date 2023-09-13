@@ -1,5 +1,5 @@
-import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/cubit/tournament_mode_assignment_cubit.dart';
+import 'package:ez_badminton_admin_app/constants.dart' as constants;
 import 'package:ez_badminton_admin_app/widgets/tooltip_dropdown_menu_item/tooltip_dropdown_menu_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,9 +37,18 @@ class TournametModeSelector extends StatelessWidget {
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
                 items: [
-                  _TournamentModeMenuItem<RoundRobinSettings>(l10n),
-                  _TournamentModeMenuItem<SingleEliminationSettings>(l10n),
-                  _TournamentModeMenuItem<GroupKnockoutSettings>(l10n),
+                  for (Type tournamentMode in constants.tournamentModes)
+                    TooltipDropdownMenuItem(
+                      value: tournamentMode,
+                      label: display_strings.tournamentModeFromType(
+                        l10n,
+                        tournamentMode,
+                      ),
+                      helpText: display_strings.tournamentModeTooltip(
+                        l10n,
+                        tournamentMode,
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -48,14 +57,4 @@ class TournametModeSelector extends StatelessWidget {
       },
     );
   }
-}
-
-class _TournamentModeMenuItem<M extends TournamentModeSettings>
-    extends TooltipDropdownMenuItem<Type> {
-  _TournamentModeMenuItem(AppLocalizations l10n)
-      : super(
-          value: M,
-          label: display_strings.tournamentMode<M>(l10n),
-          helpText: display_strings.tournamentModeTooltip<M>(l10n),
-        );
 }

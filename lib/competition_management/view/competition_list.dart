@@ -4,6 +4,7 @@ import 'package:ez_badminton_admin_app/competition_management/competition_sorter
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_list_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
+import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/view/tournament_mode_assignment_page.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/list_sorting/comparator/list_sorting_comparator.dart';
 import 'package:ez_badminton_admin_app/widgets/sortable_column_header/sortable_column_header.dart';
@@ -27,6 +28,7 @@ class CompetitionList extends StatelessWidget {
                 AgeGroup,
                 PlayingLevel,
                 CompetitionDiscipline,
+                TournamentModeSettings,
               ],
             ),
             playingLevelComparator: const CompetitionComparator<PlayingLevel>(
@@ -34,6 +36,7 @@ class CompetitionList extends StatelessWidget {
                 PlayingLevel,
                 AgeGroup,
                 CompetitionDiscipline,
+                TournamentModeSettings,
               ],
             ),
             categoryComparator:
@@ -42,11 +45,21 @@ class CompetitionList extends StatelessWidget {
                 CompetitionDiscipline,
                 AgeGroup,
                 PlayingLevel,
+                TournamentModeSettings,
               ],
             ),
             registrationComparator: const CompetitionComparator<Team>(
               criteria: [
                 Team,
+                AgeGroup,
+                PlayingLevel,
+                CompetitionDiscipline,
+                TournamentModeSettings,
+              ],
+            ),
+            modeComparator: const CompetitionComparator<TournamentModeSettings>(
+              criteria: [
+                TournamentModeSettings,
                 AgeGroup,
                 PlayingLevel,
                 CompetitionDiscipline,
@@ -141,41 +154,56 @@ class _CompetitionListHeader extends StatelessWidget {
                       tristate: true,
                     ),
                   ),
-                  const SizedBox(width: 30),
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
-                    width: useAgeGroups ? 200 : 0,
-                    child:
-                        _SortableColumnHeader<CompetitionComparator<AgeGroup>>(
-                      width: 0,
-                      title: l10n.ageGroup(1),
-                    ),
-                  ),
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
-                    width: usePlayingLevels ? 300 : 0,
-                    child: _SortableColumnHeader<
-                        CompetitionComparator<PlayingLevel>>(
-                      width: 0,
-                      title: l10n.playingLevel(1),
-                    ),
-                  ),
-                  _SortableColumnHeader<
-                      CompetitionComparator<CompetitionDiscipline>>(
-                    width: 150,
-                    title: l10n.competition(1),
-                  ),
-                  Flexible(
-                    flex: 1,
-                    child: Container(),
-                  ),
-                  _SortableColumnHeader<CompetitionComparator<Team>>(
-                    width: 150,
-                    title: l10n.registrations,
-                  ),
+                  const SizedBox(width: 20),
                   Expanded(
-                    flex: 7,
-                    child: Container(),
+                    child: Row(
+                      children: [
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 150),
+                          width: useAgeGroups ? 200 : 0,
+                          child: _SortableColumnHeader<
+                              CompetitionComparator<AgeGroup>>(
+                            width: 0,
+                            title: l10n.ageGroup(1),
+                          ),
+                        ),
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 150),
+                          width: usePlayingLevels ? 300 : 0,
+                          child: _SortableColumnHeader<
+                              CompetitionComparator<PlayingLevel>>(
+                            width: 0,
+                            title: l10n.playingLevel(1),
+                          ),
+                        ),
+                        _SortableColumnHeader<
+                            CompetitionComparator<CompetitionDiscipline>>(
+                          width: 150,
+                          title: l10n.competition(1),
+                        ),
+                        Flexible(
+                          flex: 1,
+                          child: Container(),
+                        ),
+                        _SortableColumnHeader<CompetitionComparator<Team>>(
+                          width: 150,
+                          title: l10n.registrations,
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Container(),
+                        ),
+                        _SortableColumnHeader<
+                            CompetitionComparator<TournamentModeSettings>>(
+                          width: 150,
+                          title: l10n.tournamentMode,
+                        ),
+                        Expanded(
+                          flex: 5,
+                          child: Container(),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -252,6 +280,7 @@ class _CompetitionListItem extends StatelessWidget {
           previous.selectedCompetitions != current.selectedCompetitions,
       builder: (context, state) {
         return CheckboxListTile(
+          contentPadding: const EdgeInsetsDirectional.only(start: 16),
           controlAffinity: ListTileControlAffinity.leading,
           value: state.selectedCompetitions.contains(competition),
           onChanged: (_) => selectionCubit.competitionToggled(competition),
@@ -259,7 +288,6 @@ class _CompetitionListItem extends StatelessWidget {
             style: const TextStyle(fontSize: 14),
             child: Row(
               children: [
-                const SizedBox(width: 10),
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
                   width: useAgeGroups ? 200 : 0,
@@ -298,7 +326,15 @@ class _CompetitionListItem extends StatelessWidget {
                   child: _RegistrationCount(competition: competition),
                 ),
                 Expanded(
-                  flex: 7,
+                  flex: 1,
+                  child: Container(),
+                ),
+                SizedBox(
+                  width: 150,
+                  child: _TournamentModeLabel(competition: competition),
+                ),
+                Expanded(
+                  flex: 5,
                   child: Container(),
                 ),
               ],
@@ -323,7 +359,7 @@ class _RegistrationCount extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
     var navigationCubit = context.read<TabNavigationCubit>();
     return Tooltip(
-      message: l10n.showRegistrations,
+      message: registrationCount == 0 ? '' : l10n.showRegistrations,
       child: TextButton(
         onPressed: registrationCount == 0
             ? null
@@ -331,6 +367,54 @@ class _RegistrationCount extends StatelessWidget {
         child: Align(
           alignment: AlignmentDirectional.centerStart,
           child: Text('$registrationCount'),
+        ),
+      ),
+    );
+  }
+}
+
+class _TournamentModeLabel extends StatelessWidget {
+  const _TournamentModeLabel({
+    required this.competition,
+  });
+
+  final Competition competition;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+    bool hasModeAssigned = competition.tournamentModeSettings != null;
+    String label;
+
+    if (hasModeAssigned) {
+      label = display_strings.tournamentMode(
+        l10n,
+        competition.tournamentModeSettings!,
+      );
+    } else {
+      label = l10n.assign;
+    }
+
+    return Tooltip(
+      message: hasModeAssigned
+          ? l10n.changeTournamentMode
+          : l10n.assignTournamentMode,
+      child: TextButton(
+        onPressed: () {
+          Navigator.of(context).push(
+            TournamentModeAssignmentPage.route([competition]),
+          );
+        },
+        child: Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: Text(
+            label,
+            style: TextStyle(
+              color: hasModeAssigned
+                  ? null
+                  : Theme.of(context).primaryColor.withOpacity(.4),
+            ),
+          ),
         ),
       ),
     );

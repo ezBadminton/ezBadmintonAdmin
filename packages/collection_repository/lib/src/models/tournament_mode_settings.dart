@@ -8,7 +8,8 @@ part 'generated/tournament_mode_settings.g.dart';
 ///
 /// For each of the different modes there is a union type with its settings.
 @Freezed(unionKey: 'type', unionValueCase: FreezedUnionCase.pascal)
-class TournamentModeSettings extends Model with _$TournamentModeSettings {
+sealed class TournamentModeSettings extends Model
+    with _$TournamentModeSettings {
   const TournamentModeSettings._();
 
   @FreezedUnionValue('RoundRobin')

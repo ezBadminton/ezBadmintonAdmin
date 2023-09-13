@@ -3,6 +3,7 @@ import 'package:ez_badminton_admin_app/competition_management/models/competition
 import 'package:ez_badminton_admin_app/competition_management/utils/sorting.dart';
 import 'package:ez_badminton_admin_app/list_sorting/comparator/list_sorting_comparator.dart';
 import 'package:ez_badminton_admin_app/list_sorting/cubit/list_sorting_cubit.dart';
+import 'package:ez_badminton_admin_app/constants.dart' as constants;
 
 /// A [ListSortingComparator] for [Competition]s. The type parameter [C]
 /// serves no purpose other than creating discernable types of
@@ -17,12 +18,13 @@ class CompetitionComparator<C extends Object>
       AgeGroup,
       PlayingLevel,
       CompetitionDiscipline,
+      TournamentModeSettings,
     ],
   });
 
   /// What this comparator should compare [Competition]s by.
   /// The possible types are [AgeGroup], [PlayingLevel], [CompetitionDiscipline]
-  /// and [Team] (registration counts).
+  /// ,[Team] (registration counts) and [TournamentModeSettings].
   /// The sorting is done by the first criterion but it falls back on the
   /// following ones when the comparison comes out equal.
   final List<Type> criteria;
@@ -33,6 +35,7 @@ class CompetitionComparator<C extends Object>
     PlayingLevel: _comparePlayingLevels,
     CompetitionDiscipline: _compareCategories,
     Team: _compareRegistrationCounts,
+    TournamentModeSettings: _compareTournamentModes,
   };
 
   @override
@@ -98,5 +101,27 @@ class CompetitionComparator<C extends Object>
 
   static int _compareRegistrationCounts(Competition a, Competition b) {
     return a.registrations.length.compareTo(b.registrations.length);
+  }
+
+  static int _compareTournamentModes(Competition a, Competition b) {
+    if (a.tournamentModeSettings == b.tournamentModeSettings) {
+      return 0;
+    }
+    return _getTournamentModeIndex(a.tournamentModeSettings).compareTo(
+      _getTournamentModeIndex(b.tournamentModeSettings),
+    );
+  }
+
+  static int _getTournamentModeIndex(TournamentModeSettings? mode) {
+    switch (mode) {
+      case RoundRobinSettings _:
+        return constants.tournamentModes.indexOf(RoundRobinSettings);
+      case SingleEliminationSettings _:
+        return constants.tournamentModes.indexOf(SingleEliminationSettings);
+      case GroupKnockoutSettings _:
+        return constants.tournamentModes.indexOf(GroupKnockoutSettings);
+      case null:
+        return 9999;
+    }
   }
 }

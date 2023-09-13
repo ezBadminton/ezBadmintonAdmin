@@ -144,10 +144,25 @@ String courtName(
   return l10n.courtN(courtNumber);
 }
 
-String tournamentMode<M extends TournamentModeSettings>(
+String tournamentMode(
   AppLocalizations l10n,
+  TournamentModeSettings tournamentModeSettings,
 ) {
-  switch (M) {
+  switch (tournamentModeSettings) {
+    case RoundRobinSettings _:
+      return tournamentModeFromType(l10n, RoundRobinSettings);
+    case SingleEliminationSettings _:
+      return tournamentModeFromType(l10n, SingleEliminationSettings);
+    case GroupKnockoutSettings _:
+      return tournamentModeFromType(l10n, GroupKnockoutSettings);
+  }
+}
+
+String tournamentModeFromType(
+  AppLocalizations l10n,
+  Type tournamentModeSettings,
+) {
+  switch (tournamentModeSettings) {
     case RoundRobinSettings:
       return l10n.roundRobin;
     case SingleEliminationSettings:
@@ -159,10 +174,11 @@ String tournamentMode<M extends TournamentModeSettings>(
   }
 }
 
-String tournamentModeTooltip<M extends TournamentModeSettings>(
+String tournamentModeTooltip(
   AppLocalizations l10n,
+  Type tournamentModeSettings,
 ) {
-  switch (M) {
+  switch (tournamentModeSettings) {
     case RoundRobinSettings:
       return l10n.roundRobinHelp;
     case SingleEliminationSettings:

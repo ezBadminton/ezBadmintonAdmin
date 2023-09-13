@@ -25,3 +25,9 @@ const Map<PlayerStatus, IconData> playerStatusIcons = {
 };
 
 const IconData partnerMissingIcon = Icons.group;
+
+const List<Type> tournamentModes = [
+  RoundRobinSettings,
+  SingleEliminationSettings,
+  GroupKnockoutSettings,
+];
