@@ -18,7 +18,7 @@ class TournamentModeSettingsWidget extends StatelessWidget {
           RoundRobinSettings => const RoundRobinSettingsWidget(),
           SingleEliminationSettings => const SingleEliminationSettingsWidget(),
           GroupKnockoutSettings => const GroupKnockoutSettingsWidget(),
-          _ => const Text('Bitte auswählen'),
+          _ => const SizedBox(),
         };
       },
     );

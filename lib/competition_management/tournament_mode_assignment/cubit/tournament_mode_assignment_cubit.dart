@@ -11,9 +11,11 @@ class TournamentModeAssignmentCubit
     required this.competitions,
     required CollectionRepository<TournamentModeSettings>
         tournamentModeSettingsRepository,
+    required CollectionRepository<Competition> competitionRepository,
   }) : super(
           collectionRepositories: [
             tournamentModeSettingsRepository,
+            competitionRepository,
           ],
           TournamentModeAssignmentState(),
         );
@@ -41,6 +43,35 @@ class TournamentModeAssignmentCubit
     emit(newState);
   }
 
+  void formSubmitted() async {
+    if (state.formStatus == FormzSubmissionStatus.inProgress ||
+        state.modeSettings.value == null) {
+      return;
+    }
+    emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
+
+    TournamentModeSettings? createdSettings =
+        await querier.createModel(state.modeSettings.value!);
+    if (createdSettings == null) {
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      return;
+    }
+
+    List<Competition> competitionsWithSettings = competitions
+        .map((c) => c.copyWith(tournamentModeSettings: createdSettings))
+        .toList();
+
+    List<Competition?> updatedCompetitions =
+        await querier.updateModels(competitionsWithSettings);
+
+    if (updatedCompetitions.contains(null)) {
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      return;
+    }
+
+    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+  }
+
   static TournamentModeSettings? _createDefaultSettings(
     Type? tournamentMode,
   ) {
@@ -62,7 +93,7 @@ class TournamentModeAssignmentCubit
         );
       case GroupKnockoutSettings:
         return GroupKnockoutSettings(
-          id: 'id',
+          id: '',
           created: DateTime.now(),
           updated: DateTime.now(),
           seedingMode: SeedingMode.tiered,

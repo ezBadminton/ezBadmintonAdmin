@@ -1,6 +1,6 @@
 part of 'tournament_mode_assignment_cubit.dart';
 
-class TournamentModeAssignmentState {
+class TournamentModeAssignmentState with FormzMixin {
   TournamentModeAssignmentState({
     this.formStatus = FormzSubmissionStatus.initial,
     this.modeType = const SelectionInput.pure(value: null),
@@ -23,4 +23,7 @@ class TournamentModeAssignmentState {
       modeSettings: modeSettings ?? this.modeSettings,
     );
   }
+
+  @override
+  List<FormzInput> get inputs => [modeSettings];
 }
