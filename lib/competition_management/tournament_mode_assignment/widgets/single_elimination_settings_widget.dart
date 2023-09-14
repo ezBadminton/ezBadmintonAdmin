@@ -1,6 +1,7 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/cubit/single_elimination_settings_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/cubit/tournament_mode_assignment_cubit.dart';
+import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/cubit/tournament_mode_settings_state.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/widgets/seeding_mode_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,12 +15,15 @@ class SingleEliminationSettingsWidget extends StatelessWidget {
 
     return BlocProvider(
       create: (context) => SingleEliminationSettingsCubit(
-        assignmentCubit.state.modeSettings.value as SingleEliminationSettings,
+        TournamentModeSettingsState(
+          settings: assignmentCubit.state.modeSettings.value
+              as SingleEliminationSettings,
+        ),
       ),
       child: BlocListener<SingleEliminationSettingsCubit,
-          SingleEliminationSettings>(
+          TournamentModeSettingsState<SingleEliminationSettings>>(
         listener: (context, state) {
-          assignmentCubit.tournamentModeSettingsChanged(state);
+          assignmentCubit.tournamentModeSettingsChanged(state.settings);
         },
         child: const _SeedingModeSelector(),
       ),

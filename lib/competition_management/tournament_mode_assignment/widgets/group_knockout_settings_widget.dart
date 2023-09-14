@@ -1,6 +1,7 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/cubit/group_knockout_settings_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/cubit/tournament_mode_assignment_cubit.dart';
+import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/cubit/tournament_mode_settings_state.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/widgets/seeding_mode_selector.dart';
 import 'package:ez_badminton_admin_app/constants.dart' as constants;
 import 'package:ez_badminton_admin_app/widgets/integer_stepper/integer_stepper_card.dart';
@@ -16,11 +17,15 @@ class GroupKnockoutSettingsWidget extends StatelessWidget {
     var assignmentCubit = context.read<TournamentModeAssignmentCubit>();
     return BlocProvider(
       create: (context) => GroupKnockoutSettingsCubit(
-        assignmentCubit.state.modeSettings.value as GroupKnockoutSettings,
+        TournamentModeSettingsState(
+          settings:
+              assignmentCubit.state.modeSettings.value as GroupKnockoutSettings,
+        ),
       ),
-      child: BlocListener<GroupKnockoutSettingsCubit, GroupKnockoutSettings>(
+      child: BlocListener<GroupKnockoutSettingsCubit,
+          TournamentModeSettingsState<GroupKnockoutSettings>>(
         listener: (context, state) {
-          assignmentCubit.tournamentModeSettingsChanged(state);
+          assignmentCubit.tournamentModeSettingsChanged(state.settings);
         },
         child: const Column(
           children: [
@@ -44,7 +49,7 @@ class _NumGroupsInputStepper extends StatelessWidget {
 
     return IntegerStepperCard(
       onChanged: cubit.numGroupsChanged,
-      initialValue: cubit.state.numGroups,
+      initialValue: cubit.state.settings.numGroups,
       minValue: constants.minGroups,
       maxValue: constants.maxGroups,
       title: Text(l10n.numGroups),
@@ -63,7 +68,7 @@ class _QualificationsPerGroupInputStepper extends StatelessWidget {
 
     return IntegerStepperCard(
       onChanged: cubit.qualificationsPerGroupChanged,
-      initialValue: cubit.state.qualificationsPerGroup,
+      initialValue: cubit.state.settings.qualificationsPerGroup,
       minValue: constants.minQualificationsPerGroup,
       maxValue: constants.maxQualificationsPerGroup,
       title: Text(l10n.qualificationsPerGroup),

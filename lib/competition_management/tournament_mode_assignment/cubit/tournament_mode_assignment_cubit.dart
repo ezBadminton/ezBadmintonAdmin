@@ -18,15 +18,23 @@ class TournamentModeAssignmentCubit
             competitionRepository,
           ],
           TournamentModeAssignmentState(),
-        );
+        ) {
+    if (competitions.length == 1) {
+      _initializeFromExistingSettings(competitions.first);
+    }
+  }
 
   final List<Competition> competitions;
 
-  void tournamentModeChanged(Type? tournamentMode) {
+  void tournamentModeChanged(
+    Type? tournamentMode, {
+    TournamentModeSettings? initialSettings,
+  }) {
+    initialSettings = initialSettings ?? _createDefaultSettings(tournamentMode);
     TournamentModeAssignmentState newState = state.copyWith(
       modeType: SelectionInput.dirty(value: tournamentMode),
       modeSettings: SelectionInput.dirty(
-        value: _createDefaultSettings(tournamentMode),
+        value: initialSettings,
       ),
     );
 
@@ -70,6 +78,30 @@ class TournamentModeAssignmentCubit
     }
 
     emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+  }
+
+  void _initializeFromExistingSettings(Competition competititon) {
+    TournamentModeSettings? initialSettings =
+        competitions.first.tournamentModeSettings?.copyWith(id: '');
+
+    if (initialSettings != null) {
+      tournamentModeChanged(
+        _typeOfTournamentModeSettings(initialSettings),
+        initialSettings: initialSettings,
+      );
+    }
+  }
+
+  static Type _typeOfTournamentModeSettings(
+      TournamentModeSettings modeSettings) {
+    switch (modeSettings) {
+      case RoundRobinSettings _:
+        return RoundRobinSettings;
+      case SingleEliminationSettings _:
+        return SingleEliminationSettings;
+      case GroupKnockoutSettings _:
+        return GroupKnockoutSettings;
+    }
   }
 
   static TournamentModeSettings? _createDefaultSettings(

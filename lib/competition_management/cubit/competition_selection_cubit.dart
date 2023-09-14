@@ -15,6 +15,10 @@ class CompetitionSelectionCubit
           CompetitionSelectionState(),
         ) {
     loadCollections();
+    subscribeToCollectionUpdates(
+      competitionRepository,
+      _onCompetitionCollectionUpdate,
+    );
   }
 
   void loadCollections() {
@@ -78,5 +82,17 @@ class CompetitionSelectionCubit
             )
             .toList();
     return updatedState.copyWith(selectedCompetitions: updatedSelection);
+  }
+
+  void _onCompetitionCollectionUpdate(
+      CollectionUpdateEvent<Competition> event) {
+    Competition updated = event.model;
+    if (state.selectedCompetitions.contains(updated)) {
+      List<Competition> selected = List.of(state.selectedCompetitions);
+      selected.removeWhere((c) => c.id == updated.id);
+      selected.add(updated);
+
+      emit(state.copyWith(selectedCompetitions: selected));
+    }
   }
 }

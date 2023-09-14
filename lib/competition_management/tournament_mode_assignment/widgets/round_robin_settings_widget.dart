@@ -1,6 +1,7 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/cubit/round_robin_settings_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/cubit/tournament_mode_assignment_cubit.dart';
+import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/cubit/tournament_mode_settings_state.dart';
 import 'package:ez_badminton_admin_app/constants.dart' as constants;
 import 'package:ez_badminton_admin_app/widgets/integer_stepper/integer_stepper_card.dart';
 import 'package:flutter/material.dart';
@@ -15,11 +16,15 @@ class RoundRobinSettingsWidget extends StatelessWidget {
     var assignmentCubit = context.read<TournamentModeAssignmentCubit>();
     return BlocProvider(
       create: (context) => RoundRobinSettingsCubit(
-        assignmentCubit.state.modeSettings.value as RoundRobinSettings,
+        TournamentModeSettingsState(
+          settings:
+              assignmentCubit.state.modeSettings.value as RoundRobinSettings,
+        ),
       ),
-      child: BlocListener<RoundRobinSettingsCubit, RoundRobinSettings>(
+      child: BlocListener<RoundRobinSettingsCubit,
+          TournamentModeSettingsState<RoundRobinSettings>>(
         listener: (context, state) {
-          assignmentCubit.tournamentModeSettingsChanged(state);
+          assignmentCubit.tournamentModeSettingsChanged(state.settings);
         },
         child: const _PassesInputStepper(),
       ),
@@ -37,7 +42,7 @@ class _PassesInputStepper extends StatelessWidget {
 
     return IntegerStepperCard(
       onChanged: cubit.passesChanged,
-      initialValue: cubit.state.passes,
+      initialValue: cubit.state.settings.passes,
       minValue: 1,
       maxValue: constants.roundRobinMaxPasses,
       title: Text(l10n.passes),
