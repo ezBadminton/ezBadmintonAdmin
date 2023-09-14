@@ -434,17 +434,13 @@ class _TournamentModeLabel extends StatelessWidget {
 
     switch (competition.tournamentModeSettings!) {
       case RoundRobinSettings(passes: int passes):
-        modeDescription.write('${l10n.passes}: $passes');
+        modeDescription.writeln('${l10n.passes}: $passes');
         break;
-      case SingleEliminationSettings(seedingMode: SeedingMode seedingMode):
-        modeDescription.write(
-          '${l10n.seedingMode}: ${l10n.seedingModeLabel(seedingMode.toString())}',
-        );
+      case SingleEliminationSettings _:
         break;
       case GroupKnockoutSettings(
           numGroups: int numGroups,
           qualificationsPerGroup: int qualificationsPerGroup,
-          seedingMode: SeedingMode seedingMode,
         ):
         modeDescription.writeln(
           '${l10n.numGroups}: $numGroups',
@@ -452,13 +448,19 @@ class _TournamentModeLabel extends StatelessWidget {
         modeDescription.writeln(
           '${l10n.qualificationsPerGroup}: $qualificationsPerGroup',
         );
-        modeDescription.write(
-          '${l10n.seedingMode}: ${l10n.seedingModeLabel(seedingMode.toString())}',
-        );
         break;
     }
 
-    return modeDescription.toString();
+    if (competition.tournamentModeSettings!
+        case TournamentModeSettings(
+          seedingMode: (SeedingMode seedingMode) && (!= SeedingMode.random),
+        )) {
+      modeDescription.writeln(
+        '${l10n.seedingMode}: ${l10n.seedingModeLabel(seedingMode.toString())}',
+      );
+    }
+
+    return modeDescription.toString().trimRight();
   }
 }
 
