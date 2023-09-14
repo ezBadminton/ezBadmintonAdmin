@@ -396,9 +396,7 @@ class _TournamentModeLabel extends StatelessWidget {
     }
 
     return Tooltip(
-      message: hasModeAssigned
-          ? l10n.changeTournamentMode
-          : l10n.assignTournamentMode,
+      message: _getModeTooltip(l10n),
       child: TextButton(
         onPressed: () {
           Navigator.of(context).push(
@@ -418,6 +416,49 @@ class _TournamentModeLabel extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _getModeTooltip(AppLocalizations l10n) {
+    if (competition.tournamentModeSettings == null) {
+      return l10n.assignTournamentMode;
+    }
+
+    StringBuffer modeDescription = StringBuffer(
+      display_strings.tournamentMode(
+        l10n,
+        competition.tournamentModeSettings!,
+      ),
+    );
+    modeDescription.writeln();
+    modeDescription.writeln();
+
+    switch (competition.tournamentModeSettings!) {
+      case RoundRobinSettings(passes: int passes):
+        modeDescription.write('${l10n.passes}: $passes');
+        break;
+      case SingleEliminationSettings(seedingMode: SeedingMode seedingMode):
+        modeDescription.write(
+          '${l10n.seedingMode}: ${l10n.seedingModeLabel(seedingMode.toString())}',
+        );
+        break;
+      case GroupKnockoutSettings(
+          numGroups: int numGroups,
+          qualificationsPerGroup: int qualificationsPerGroup,
+          seedingMode: SeedingMode seedingMode,
+        ):
+        modeDescription.writeln(
+          '${l10n.numGroups}: $numGroups',
+        );
+        modeDescription.writeln(
+          '${l10n.qualificationsPerGroup}: $qualificationsPerGroup',
+        );
+        modeDescription.write(
+          '${l10n.seedingMode}: ${l10n.seedingModeLabel(seedingMode.toString())}',
+        );
+        break;
+    }
+
+    return modeDescription.toString();
   }
 }
 

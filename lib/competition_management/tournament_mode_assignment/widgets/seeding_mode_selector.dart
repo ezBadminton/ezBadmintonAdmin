@@ -27,12 +27,12 @@ class SeedingModeSelector extends StatelessWidget {
           items: [
             TooltipDropdownMenuItem(
               value: SeedingMode.tiered,
-              label: l10n.tieredSeeding,
+              label: l10n.seedingModeLabel(SeedingMode.tiered.toString()),
               helpText: l10n.tieredSeedingHelp,
             ),
             TooltipDropdownMenuItem(
               value: SeedingMode.single,
-              label: l10n.singleSeeding,
+              label: l10n.seedingModeLabel(SeedingMode.single.toString()),
               helpText: l10n.singleSeedingHelp,
             ),
           ],
