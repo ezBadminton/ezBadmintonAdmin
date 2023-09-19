@@ -67,17 +67,24 @@ class _AppState extends State<App> {
         pocketBaseProvider: _pocketBaseProvider,
       ),
     );
-    _competitionRepository = CachedCollectionRepository(
-      relationRepositories: [_playingLevelRepository],
-      relationUpdateHandler: onCompetitionRelationUpdate,
+    _teamRepository = CachedCollectionRepository(
+      relationRepositories: [
+        _playerRepository,
+      ],
+      relationUpdateHandler: onTeamRelationUpdate,
       PocketbaseCollectionRepository(
-        modelConstructor: Competition.fromJson,
+        modelConstructor: Team.fromJson,
         pocketBaseProvider: _pocketBaseProvider,
       ),
     );
-    _teamRepository = CachedCollectionRepository(
+    _competitionRepository = CachedCollectionRepository(
+      relationRepositories: [
+        _playingLevelRepository,
+        _teamRepository,
+      ],
+      relationUpdateHandler: onCompetitionRelationUpdate,
       PocketbaseCollectionRepository(
-        modelConstructor: Team.fromJson,
+        modelConstructor: Competition.fromJson,
         pocketBaseProvider: _pocketBaseProvider,
       ),
     );
@@ -114,8 +121,8 @@ class _AppState extends State<App> {
     _playingLevelRepository.dispose();
     _ageGroupRepository.dispose();
     _playerRepository.dispose();
-    _competitionRepository.dispose();
     _teamRepository.dispose();
+    _competitionRepository.dispose();
     _clubRepository.dispose();
     _courtRepository.dispose();
     _gymnasiumRepository.dispose();
@@ -132,8 +139,8 @@ class _AppState extends State<App> {
         RepositoryProvider.value(value: _playingLevelRepository),
         RepositoryProvider.value(value: _ageGroupRepository),
         RepositoryProvider.value(value: _playerRepository),
-        RepositoryProvider.value(value: _competitionRepository),
         RepositoryProvider.value(value: _teamRepository),
+        RepositoryProvider.value(value: _competitionRepository),
         RepositoryProvider.value(value: _clubRepository),
         RepositoryProvider.value(value: _courtRepository),
         RepositoryProvider.value(value: _gymnasiumRepository),

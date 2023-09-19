@@ -2,6 +2,7 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/partner_registration_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/partner_registration_state.dart';
+import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/player_search_input/player_search_input.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter/material.dart';
@@ -35,14 +36,7 @@ class RegistrationDisplayCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    var divider = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Icon(
-        Icons.circle,
-        size: 7,
-        color: Theme.of(context).colorScheme.onSurface.withOpacity(.5),
-      ),
-    );
+
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -70,44 +64,7 @@ class RegistrationDisplayCard extends StatelessWidget {
               ),
             Column(
               children: [
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    if (competition.playingLevel != null) ...[
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 240),
-                        child: Text(
-                          competition.playingLevel!.name,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      divider,
-                    ],
-                    if (competition.ageGroup != null) ...[
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 140),
-                        child: Text(
-                          display_strings.ageGroup(
-                            l10n,
-                            competition.ageGroup!,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      divider,
-                    ],
-                    Text(
-                      display_strings.competitionGenderAndType(
-                        l10n,
-                        competition.genderCategory,
-                        competition.type,
-                      ),
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
+                CompetitionLabel(competition: competition),
                 if (competition.teamSize == 2) ...[
                   const Divider(
                     height: 6,

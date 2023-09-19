@@ -1,4 +1,10 @@
+import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/draw_management/cubit/competition_draw_selection_cubit.dart';
+import 'package:ez_badminton_admin_app/draw_management/widgets/competition_draw_selection_list.dart';
+import 'package:ez_badminton_admin_app/draw_management/widgets/entry_list.dart';
+import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class DrawManagementPage extends StatelessWidget {
@@ -8,7 +14,13 @@ class DrawManagementPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const _DrawManagementPageScaffold();
+    return BlocProvider(
+      create: (context) => CompetitionDrawSelectionCubit(
+        competitionRepository:
+            context.read<CollectionRepository<Competition>>(),
+      ),
+      child: const _DrawManagementPageScaffold(),
+    );
   }
 }
 
@@ -20,7 +32,48 @@ class _DrawManagementPageScaffold extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.drawManagement)),
-      body: const Placeholder(),
+      body: BlocBuilder<CompetitionDrawSelectionCubit,
+          CompetitionDrawSelectionState>(
+        builder: (context, state) {
+          return LoadingScreen(
+            loadingStatus: state.loadingStatus,
+            builder: (context) {
+              return Row(
+                children: [
+                  const SizedBox(
+                    width: 260,
+                    child: Align(
+                      child: CompetitionDrawSelectionList(),
+                    ),
+                  ),
+                  const VerticalDivider(
+                    thickness: 1,
+                    width: 1,
+                    color: Colors.black26,
+                  ),
+                  if (state.selectedCompetition.value != null)
+                    SizedBox(
+                      width: 400,
+                      child: EntryList(
+                        competition: state.selectedCompetition.value!,
+                      ),
+                    )
+                  else
+                    const SizedBox(width: 400),
+                  const VerticalDivider(
+                    thickness: 1,
+                    width: 1,
+                    color: Colors.black26,
+                  ),
+                  const Expanded(
+                    child: SizedBox(),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

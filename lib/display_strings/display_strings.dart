@@ -75,6 +75,26 @@ String competitionCategoryAbbreviation(
   );
 }
 
+String competitionLabel(
+  AppLocalizations l10n,
+  Competition competition,
+) {
+  StringBuffer label = StringBuffer();
+
+  if (competition.playingLevel != null) {
+    label.write('${competition.playingLevel!.name} ● ');
+  }
+  if (competition.ageGroup != null) {
+    label.write('${ageGroup(l10n, competition.ageGroup!)} ● ');
+  }
+  label.write(competitionCategory(
+    l10n,
+    CompetitionDiscipline.fromCompetition(competition),
+  ));
+
+  return label.toString();
+}
+
 String filterChipGroup(AppLocalizations l10n, FilterGroup filterGroup) {
   switch (filterGroup) {
     case FilterGroup.overAge:

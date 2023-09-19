@@ -27,9 +27,9 @@ class PlayerStatusCubit extends CollectionQuerierCubit<PlayerStatusState> {
     }
   }
 
-  void _onPlayerUpdated(CollectionUpdateEvent event) {
+  void _onPlayerUpdated(CollectionUpdateEvent<Player> event) {
     if (event.model == state.player) {
-      emit(state.copyWith(player: event.model as Player));
+      emit(state.copyWith(player: event.model));
     }
   }
 }

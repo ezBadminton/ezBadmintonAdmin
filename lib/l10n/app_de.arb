@@ -172,5 +172,8 @@
   "numGroups": "Anzahl Gruppen",
   "numGroupsHelp": "Auf wie viele Gruppen die Teilnehmer gleichmäßig aufgeteilt werden. Manuelle Zuweisungen sind nach der Auslosung möglich.",
   "qualificationsPerGroup": "Qualifikationen pro Gruppe",
-  "qualificationsPerGroupHelp": "Wie viele der Top-Platzierten von jeder Gruppe in die KO-Runde einziehen."
+  "qualificationsPerGroupHelp": "Wie viele der Top-Platzierten von jeder Gruppe in die KO-Runde einziehen.",
+  "entryList": "Starterliste/Setzliste",
+  "addToSeeds": "Setzplatz geben",
+  "removeFromSeeds": "Von Setzliste nehmen"
 }

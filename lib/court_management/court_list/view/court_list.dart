@@ -3,7 +3,7 @@ import 'package:ez_badminton_admin_app/court_management/court_list/cubit/court_l
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_court_view_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/view/gymnasium_editing_page.dart';
-import 'package:ez_badminton_admin_app/widgets/animated_hover/animated_hover.dart';
+import 'package:ez_badminton_admin_app/widgets/choice_chip_tab/choice_chip_tab.dart';
 import 'package:ez_badminton_admin_app/widgets/map_listview/map_listview.dart';
 import 'package:ez_badminton_admin_app/widgets/sticky_scrollable_follower/sticky_scrollable_follower.dart';
 import 'package:flutter/material.dart';
@@ -78,56 +78,27 @@ class CourtList extends StatelessWidget {
       buildWhen: (previous, current) => previous.gymnasium != current.gymnasium,
       builder: (context, state) {
         bool selected = gymnasium == state.gymnasium.value;
-        return AnimatedHover(
-          duration: const Duration(milliseconds: 80),
-          builder: (context, animation, child) => SizedBox(
-            width: 200,
-            child: Column(
-              children: [
-                child!,
-                Divider(
-                  height: 0,
-                  thickness: 2,
-                  indent: selected ? 0 : (1 - animation) * 100,
-                  endIndent: selected ? 0 : (1 - animation) * 100,
-                  color: Theme.of(context).primaryColor,
-                ),
-              ],
-            ),
-          ),
-          child: ChoiceChip(
-            selectedColor: Theme.of(context).primaryColor.withOpacity(.45),
-            onSelected: (_) {
-              if (!selected) {
-                Future.delayed(
-                  const Duration(milliseconds: 8),
-                  () => viewCubit.getViewController(gymnasium).fitToScreen(),
-                );
-              }
-              selectionCubit.gymnasiumToggled(gymnasium);
-            },
-            selected: selected,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-            ),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 5,
-              vertical: 10,
-            ),
-            label: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    gymnasium.name,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ),
-              ],
+        return ChoiceChipTab(
+          selected: selected,
+          onSelected: (_) {
+            if (!selected) {
+              Future.delayed(
+                const Duration(milliseconds: 8),
+                () => viewCubit.getViewController(gymnasium).fitToScreen(),
+              );
+            }
+            selectionCubit.gymnasiumToggled(gymnasium);
+          },
+          label: SizedBox(
+            width: 165,
+            child: Text(
+              gymnasium.name,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
         );

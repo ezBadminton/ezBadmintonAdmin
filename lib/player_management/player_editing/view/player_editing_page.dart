@@ -44,9 +44,10 @@ class PlayerEditingPage extends StatelessWidget {
       ),
       child: BlocConsumer<PlayerEditingCubit, PlayerEditingState>(
         listenWhen: (previous, current) =>
+            previous.formStatus != current.formStatus &&
             current.formStatus == FormzSubmissionStatus.success,
         listener: (context, state) {
-          Navigator.of(context).pop(state.player);
+          Navigator.of(context).pop();
         },
         buildWhen: (previous, current) =>
             previous.isPure != current.isPure ||

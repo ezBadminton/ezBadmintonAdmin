@@ -5,6 +5,7 @@ import 'package:ez_badminton_admin_app/constants.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
 import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/dialogs/dropdown_selection_dialog.dart';
+import 'package:ez_badminton_admin_app/widgets/implicit_animated_list/reorderable_item_gap.dart';
 import 'package:ez_badminton_admin_app/widgets/mouse_hover_builder/mouse_hover_builder.dart';
 import 'package:ez_badminton_admin_app/widgets/implicit_animated_list/reorderable_implicit_animated_list.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
@@ -294,10 +295,11 @@ class _PlayingLevelListItem extends StatelessWidget {
             height: 1,
             thickness: 1,
           ),
-        _PlayingLevelItemGap(
+        ReorderableItemGap(
           elementIndex: playingLevelIndex,
           hoveringIndex: hoveringIndex,
           top: true,
+          indicatorEndIndent: 85,
         ),
         if (cubit.state.renamingPlayingLevel.value != playingLevel)
           Padding(
@@ -315,10 +317,11 @@ class _PlayingLevelListItem extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: _PlayingLevelRenameForm(playingLevel: playingLevel),
           ),
-        _PlayingLevelItemGap(
+        ReorderableItemGap(
           elementIndex: playingLevelIndex,
           hoveringIndex: hoveringIndex,
           top: false,
+          indicatorEndIndent: 85,
         ),
       ],
     );
@@ -442,56 +445,6 @@ class _PlayingLevelDisplayWithControls extends StatelessWidget {
           ],
         ],
       ),
-    );
-  }
-}
-
-class _PlayingLevelItemGap extends StatelessWidget {
-  /// A gap between reorderable items that highlights the position where a
-  /// hovering item will land if dropped there.
-  const _PlayingLevelItemGap({
-    required this.elementIndex,
-    this.hoveringIndex,
-    required this.top,
-  });
-
-  final int elementIndex;
-  final int? hoveringIndex;
-
-  /// Whether this [_PlayingLevelItemGap] is above or below its item.
-  ///
-  /// Each item is padded by two [_PlayingLevelItemGap]s one above one below
-  /// with [top] set accrodingly.
-  final bool top;
-
-  @override
-  Widget build(BuildContext context) {
-    if (hoveringIndex != null &&
-        elementIndex != hoveringIndex &&
-        elementIndex < hoveringIndex! == top) {
-      return Padding(
-        padding: top
-            ? const EdgeInsets.only(bottom: 6)
-            : const EdgeInsets.only(top: 6),
-        child: const _ReorderIndicator(),
-      );
-    }
-
-    return const SizedBox(height: 8);
-  }
-}
-
-class _ReorderIndicator extends StatelessWidget {
-  const _ReorderIndicator();
-
-  @override
-  Widget build(BuildContext context) {
-    return Divider(
-      color: Theme.of(context).primaryColor,
-      height: 2,
-      thickness: 2,
-      indent: 2,
-      endIndent: 85,
     );
   }
 }

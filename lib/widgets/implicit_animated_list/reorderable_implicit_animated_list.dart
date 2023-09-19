@@ -133,7 +133,6 @@ class ReorderableImplicitAnimatedList<T extends Object>
         itemDragBuilder: itemDragBuilder,
         onReorder: onReorder,
         draggingEnabled: draggingEnabled,
-        duration: duration,
         reorderTooltip: reorderTooltip,
       );
     }
@@ -176,7 +175,6 @@ class _ReorderableItem<T extends Object> extends StatelessWidget {
     required this.itemDragBuilder,
     this.onReorder,
     this.draggingEnabled = true,
-    this.duration,
     this.reorderTooltip,
   });
 
@@ -193,7 +191,6 @@ class _ReorderableItem<T extends Object> extends StatelessWidget {
   final ItemBuilder<T> itemDragBuilder;
   final void Function(int from, int to)? onReorder;
   final bool draggingEnabled;
-  final Duration? duration;
 
   final String? reorderTooltip;
 

@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
+import 'package:ez_badminton_admin_app/competition_management/competition_sorter/comparators/competition_comparator.dart';
 
 extension CollectionSorting<S extends CollectionFetcherState<S>>
     on CollectionFetcherState<S> {
@@ -32,6 +33,25 @@ extension CollectionSorting<S extends CollectionFetcherState<S>>
     S updatedState = copyWithCollection(
       modelType: PlayingLevel,
       collection: playingLevels,
+    );
+
+    return updatedState;
+  }
+
+  /// Copies the [CollectionFetcherState] with the [Competition]
+  /// collection sorted by the default [CompetitionComparator].
+  ///
+  /// Only works on a state that holds the [Competition] collection.
+  S copyWithCompetitionSorting() {
+    List<Competition> competitions = getCollection<Competition>();
+    Comparator<Competition> comparator =
+        const CompetitionComparator().comparator;
+
+    competitions.sortByCompare((c) => c, comparator);
+
+    S updatedState = copyWithCollection(
+      modelType: Competition,
+      collection: competitions,
     );
 
     return updatedState;

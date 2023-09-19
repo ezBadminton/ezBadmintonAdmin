@@ -47,4 +47,8 @@ class BadmintonIcons {
       IconData(0xe80a, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData badminton_court =
       IconData(0xe80b, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData crossed_seedling =
+      IconData(0xe80c, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData seedling =
+      IconData(0xe80d, fontFamily: _kFontFam, fontPackage: _kFontPkg);
 }
