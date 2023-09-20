@@ -14,31 +14,34 @@ class CompetitionDrawSelectionList extends StatelessWidget {
     return BlocBuilder<CompetitionDrawSelectionCubit,
         CompetitionDrawSelectionState>(
       builder: (context, state) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 25),
-            for (Competition competition
-                in state.getCollection<Competition>()) ...[
-              ChoiceChipTab(
-                onSelected: (_) {
-                  cubit.competitionToggled(competition);
-                },
-                selected: state.selectedCompetition.value == competition,
-                label: SizedBox(
-                  width: 210,
-                  child: CompetitionLabel(
-                    competition: competition,
-                    abbreviated: true,
-                    playingLevelMaxWidth: 100,
+        return SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 25),
+              for (Competition competition
+                  in state.getCollection<Competition>()) ...[
+                ChoiceChipTab(
+                  onSelected: (_) {
+                    cubit.competitionToggled(competition);
+                  },
+                  selected: state.selectedCompetition.value == competition,
+                  label: SizedBox(
+                    width: 210,
+                    child: CompetitionLabel(
+                      competition: competition,
+                      abbreviated: true,
+                      playingLevelMaxWidth: 100,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(
-                height: 8,
-              ),
+                const SizedBox(
+                  height: 8,
+                ),
+              ],
+              const SizedBox(height: 200),
             ],
-          ],
+          ),
         );
       },
     );

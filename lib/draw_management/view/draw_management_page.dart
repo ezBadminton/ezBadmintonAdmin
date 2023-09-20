@@ -43,6 +43,7 @@ class _DrawManagementPageScaffold extends StatelessWidget {
                   const SizedBox(
                     width: 260,
                     child: Align(
+                      alignment: Alignment.topCenter,
                       child: CompetitionDrawSelectionList(),
                     ),
                   ),
