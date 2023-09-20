@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/assets/badminton_icons_icons.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/seeding_cubit.dart';
+import 'package:ez_badminton_admin_app/player_management/player_sorter/comparators/team_comparator.dart';
 import 'package:ez_badminton_admin_app/utils/powers_of_two.dart';
 import 'package:ez_badminton_admin_app/widgets/implicit_animated_list/reorderable_implicit_animated_list.dart';
 import 'package:ez_badminton_admin_app/widgets/implicit_animated_list/reorderable_item_gap.dart';
@@ -45,24 +46,14 @@ class EntryList extends StatelessWidget {
   }
 
   static List<Team> _getUnseededEntries(Competition competition) {
-    return _sortTeamsByPlayerNames(_filterUnseededTeams(competition));
+    return TeamComparator.sortTeamsByPlayerNames(
+      _filterUnseededTeams(competition),
+    );
   }
 
   static List<Team> _filterUnseededTeams(Competition competition) {
     return competition.registrations
         .whereNot((t) => competition.seeds.contains(t))
-        .toList();
-  }
-
-  /// Sorts the [teams] alphabetically by the names of the players.
-  static List<Team> _sortTeamsByPlayerNames(List<Team> teams) {
-    return teams
-        .sortedBy(
-          (t) => t.players
-              .map((p) => display_strings.playerName(p))
-              .sortedBy((name) => name)
-              .join(),
-        )
         .toList();
   }
 }

@@ -1,4 +1,6 @@
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/player_management/player_sorter/comparators/team_comparator.dart';
+import 'package:ez_badminton_admin_app/player_management/player_sorter/cubit/unique_competition_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/common_predicate_producers/agegroup_predicate_producer.dart';
 import 'package:ez_badminton_admin_app/constants.dart';
 import 'package:ez_badminton_admin_app/list_sorting/comparator/list_sorting_comparator.dart';
@@ -66,6 +68,14 @@ class PlayerListPage extends StatelessWidget {
           ),
         ),
         BlocProvider(
+          create: (context) => UniqueCompetitionFilterCubit(
+            tournamentRepository:
+                context.read<CollectionRepository<Tournament>>(),
+            competitionRepository:
+                context.read<CollectionRepository<Competition>>(),
+          ),
+        ),
+        BlocProvider(
           create: (_) => PlayerListCubit(
             playerRepository: context.read<CollectionRepository<Player>>(),
             competitionRepository:
@@ -122,45 +132,96 @@ class _PlayerListWithFilter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLocalizations l10n = AppLocalizations.of(context)!;
+
     return BlocListener<PredicateFilterCubit, PredicateFilterState>(
       listener: (context, state) {
         context.read<PlayerListCubit>().filterChanged(state.filters);
+        context.read<UniqueCompetitionFilterCubit>().filterPredicatesChanged(
+              state.filterPredicates,
+              state.filters,
+            );
       },
-      child: BlocBuilder<PlayerListCubit, PlayerListState>(
-        buildWhen: (previous, current) =>
-            previous.loadingStatus != current.loadingStatus,
-        builder: (context, listState) {
-          return BlocBuilder<PlayerFilterCubit, PlayerFilterState>(
-            buildWhen: (previous, current) =>
-                previous.loadingStatus != current.loadingStatus,
-            builder: (context, filterState) {
-              return LoadingScreen(
-                loadingStatus: loadingStatusConjunction(
-                  [listState.loadingStatus, filterState.loadingStatus],
-                ),
-                errorMessage: l10n.playerListLoadingError,
-                retryButtonLabel: l10n.retry,
-                onRetry: () {
-                  if (listState.loadingStatus == LoadingStatus.failed) {
-                    context.read<PlayerListCubit>().loadPlayerData();
-                  }
-                  if (filterState.loadingStatus == LoadingStatus.failed) {
-                    context.read<PlayerFilterCubit>().loadCollections();
-                  }
-                },
-                builder: (_) => const Column(
-                  children: [
-                    PlayerFilter(),
-                    SizedBox(height: 20),
-                    _PlayerList(),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+      child: BlocListener<UniqueCompetitionFilterCubit,
+          UniqueCompetitionFilterState>(
+        listenWhen: (previous, current) =>
+            previous.competition != current.competition,
+        listener: _toggleTeamSorting,
+        child: BlocBuilder<PlayerListCubit, PlayerListState>(
+          buildWhen: (previous, current) =>
+              previous.loadingStatus != current.loadingStatus,
+          builder: (context, listState) {
+            return BlocBuilder<PlayerFilterCubit, PlayerFilterState>(
+              buildWhen: (previous, current) =>
+                  previous.loadingStatus != current.loadingStatus,
+              builder: (context, filterState) {
+                return LoadingScreen(
+                  loadingStatus: loadingStatusConjunction(
+                    [listState.loadingStatus, filterState.loadingStatus],
+                  ),
+                  errorMessage: l10n.playerListLoadingError,
+                  retryButtonLabel: l10n.retry,
+                  onRetry: () {
+                    if (listState.loadingStatus == LoadingStatus.failed) {
+                      context.read<PlayerListCubit>().loadPlayerData();
+                    }
+                    if (filterState.loadingStatus == LoadingStatus.failed) {
+                      context.read<PlayerFilterCubit>().loadCollections();
+                    }
+                  },
+                  builder: (_) => const Column(
+                    children: [
+                      PlayerFilter(),
+                      SizedBox(height: 20),
+                      _PlayerList(),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
+  }
+
+  void _toggleTeamSorting(
+    BuildContext context,
+    UniqueCompetitionFilterState state,
+  ) {
+    if (state.competition.value != null) {
+      _enableTeamSorting(context, state.competition.value!);
+    } else {
+      _disableTeamSorting(context);
+    }
+  }
+
+  /// Activates the [TeamComparator] for the currently filtered [Competition].
+  void _enableTeamSorting(
+    BuildContext context,
+    Competition filteredCompetition,
+  ) async {
+    var sortingCubit = context.read<PlayerSortingCubit>();
+    var listCubit = context.read<PlayerListCubit>();
+
+    if (filteredCompetition.teamSize == 1) {
+      // No team sorting needed for singles competitions
+      return;
+    }
+
+    sortingCubit.resetComparator();
+    await Future.delayed(Duration.zero);
+
+    List<Team> teams = filteredCompetition.registrations;
+    listCubit.comparatorChanged(TeamComparator(teams));
+  }
+
+  void _disableTeamSorting(BuildContext context) {
+    var sortingCubit = context.read<PlayerSortingCubit>();
+    var listCubit = context.read<PlayerListCubit>();
+    if (sortingCubit.state is TeamComparator) {
+      sortingCubit.resetComparator();
+      listCubit.comparatorChanged(sortingCubit.defaultComparator);
+    }
   }
 }
 

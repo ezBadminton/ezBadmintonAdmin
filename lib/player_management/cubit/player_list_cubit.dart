@@ -79,12 +79,9 @@ class PlayerListCubit extends CollectionFetcherCubit<PlayerListState>
           .getCollection<Competition>()
           .where(filters[Competition]!)
           .toList();
-      var teams = filteredCompetitions
-          .map((comp) => comp.registrations)
-          .expand((teamList) => teamList);
-      filteredByCompetition = teams
-          .map((team) => team.players)
-          .expand((playerList) => playerList)
+      filteredByCompetition = filteredCompetitions
+          .expand((comp) => comp.registrations)
+          .expand((team) => team.players)
           .toList();
     }
     if (filteredByCompetition != null) {

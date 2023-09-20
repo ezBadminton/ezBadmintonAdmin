@@ -34,6 +34,10 @@ class ListSortingCubit<T> extends Cubit<ListSortingComparator<T>> {
     emit(nextComparator);
   }
 
+  void resetComparator() {
+    emit(defaultComparator);
+  }
+
   C getComparator<C extends ListSortingComparator<T>>() {
     Iterable<C> comparatorsOfType = comparators.whereType<C>();
     assert(
