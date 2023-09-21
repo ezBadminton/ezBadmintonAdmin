@@ -373,71 +373,78 @@ class PlayerExpansionPanel extends ExpansionPanelRadio {
     bool needsPartner = _playerNeedsPartner(
       listState.competitionRegistrations[player]!,
     );
-    return Row(
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const SizedBox(width: 20),
-        SizedBox(
-          width: 190,
-          child: Text(
-            display_strings.playerName(player),
-            overflow: TextOverflow.fade,
-            style: TextStyle(
-              fontWeight: isExpanded ? FontWeight.w600 : FontWeight.normal,
-            ),
-          ),
-        ),
-        Flexible(
-          flex: 1,
-          child: Container(),
-        ),
-        SizedBox(
-          width: 190,
-          child: Text(
-            player.club?.name ?? '-',
-            overflow: TextOverflow.fade,
-          ),
-        ),
-        Flexible(
-          flex: 1,
-          child: Container(),
-        ),
-        SizedBox(
-          width: 80,
-          child: Text(
-            _competitionAbbreviations(
-              listState.competitionRegistrations[player]!
-                  .map((r) => r.competition),
-              l10n,
-            ),
-            overflow: TextOverflow.fade,
-          ),
-        ),
-        Flexible(
-          flex: 1,
-          child: Container(),
-        ),
-        SizedBox(
-          child: SizedBox(
-            width: 45,
-            child: Tooltip(
-              message: _statusTooltip(l10n, player, needsPartner),
-              child: Row(
-                children: [
-                  Icon(
-                    playerStatusIcons[player.status],
-                    size: 21,
-                  ),
-                  if (needsPartner)
-                    const Icon(
-                      partnerMissingIcon,
-                      size: 21,
-                    )
-                ],
+        const SizedBox(),
+        Row(
+          children: [
+            const SizedBox(width: 20),
+            SizedBox(
+              width: 190,
+              child: Text(
+                display_strings.playerName(player),
+                overflow: TextOverflow.fade,
+                style: TextStyle(
+                  fontWeight: isExpanded ? FontWeight.w600 : FontWeight.normal,
+                ),
               ),
             ),
-          ),
+            Flexible(
+              flex: 1,
+              child: Container(),
+            ),
+            SizedBox(
+              width: 190,
+              child: Text(
+                player.club?.name ?? '-',
+                overflow: TextOverflow.fade,
+              ),
+            ),
+            Flexible(
+              flex: 1,
+              child: Container(),
+            ),
+            SizedBox(
+              width: 80,
+              child: Text(
+                _competitionAbbreviations(
+                  listState.competitionRegistrations[player]!
+                      .map((r) => r.competition),
+                  l10n,
+                ),
+                overflow: TextOverflow.fade,
+              ),
+            ),
+            Flexible(
+              flex: 1,
+              child: Container(),
+            ),
+            SizedBox(
+              child: SizedBox(
+                width: 45,
+                child: Tooltip(
+                  message: _statusTooltip(l10n, player, needsPartner),
+                  child: Row(
+                    children: [
+                      Icon(
+                        playerStatusIcons[player.status],
+                        size: 21,
+                      ),
+                      if (needsPartner)
+                        const Icon(
+                          partnerMissingIcon,
+                          size: 21,
+                        )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+          ],
         ),
-        const SizedBox(width: 10),
+        _TeamDivider(player: player),
       ],
     );
   }
@@ -487,6 +494,43 @@ class PlayerExpansionPanel extends ExpansionPanelRadio {
       }
     }
     return false;
+  }
+}
+
+class _TeamDivider extends StatelessWidget {
+  const _TeamDivider({
+    required this.player,
+  });
+
+  final Player player;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<PlayerListCubit, PlayerListState>(
+      builder: (context, state) {
+        if (state.sortingComparator is! TeamComparator) {
+          return const SizedBox();
+        }
+        var cubit = context.read<UniqueCompetitionFilterCubit>();
+        List<Team> teams = cubit.state.competition.value!.registrations;
+
+        Team team = teams.firstWhere((t) => t.players.contains(player));
+
+        bool isLastTeamMember = state.filteredPlayers.reversed
+                .firstWhere((p) => team.players.contains(p)) ==
+            player;
+
+        if (isLastTeamMember && state.filteredPlayers.last != player) {
+          return Divider(
+            height: 0,
+            thickness: 1.5,
+            color: Theme.of(context).disabledColor,
+          );
+        } else {
+          return const SizedBox();
+        }
+      },
+    );
   }
 }
 
