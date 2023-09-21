@@ -63,6 +63,7 @@ class _TournamentModeAssignmentPageScaffold extends StatelessWidget {
               icon: state.formStatus == FormzSubmissionStatus.inProgress
                   ? const ProgressIndicatorIcon()
                   : const Icon(Icons.save),
+              heroTag: 'tournament_mode_assignment_save_button',
             ),
           ),
           floatingActionButtonAnimator:

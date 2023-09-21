@@ -57,6 +57,7 @@ class GymnasiumEditingPage extends StatelessWidget {
                 icon: state.formStatus == FormzSubmissionStatus.inProgress
                     ? const ProgressIndicatorIcon()
                     : const Icon(Icons.save),
+                heroTag: 'gymnasium_editing_save_button',
               ),
             ),
             floatingActionButtonAnimator:

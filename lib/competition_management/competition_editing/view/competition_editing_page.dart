@@ -64,6 +64,7 @@ class _CompetitionEditingPageScaffold extends StatelessWidget {
               icon: state.formStatus == FormzSubmissionStatus.inProgress
                   ? const ProgressIndicatorIcon()
                   : const Icon(Icons.save),
+              heroTag: 'competition_editing_save_button',
             ),
           ),
           floatingActionButtonAnimator:

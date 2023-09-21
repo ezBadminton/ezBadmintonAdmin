@@ -69,6 +69,7 @@ class PlayerEditingPage extends StatelessWidget {
                 icon: state.formStatus == FormzSubmissionStatus.inProgress
                     ? const ProgressIndicatorIcon()
                     : const Icon(Icons.save),
+                heroTag: 'player_editing_save_button',
               ),
             ),
             floatingActionButtonAnimator:
