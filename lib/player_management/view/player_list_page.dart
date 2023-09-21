@@ -218,7 +218,7 @@ class _PlayerListWithFilter extends StatelessWidget {
   void _disableTeamSorting(BuildContext context) {
     var sortingCubit = context.read<PlayerSortingCubit>();
     var listCubit = context.read<PlayerListCubit>();
-    if (sortingCubit.state is TeamComparator) {
+    if (listCubit.state.sortingComparator is TeamComparator) {
       sortingCubit.resetComparator();
       listCubit.comparatorChanged(sortingCubit.defaultComparator);
     }
