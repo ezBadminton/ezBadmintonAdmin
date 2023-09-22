@@ -75,7 +75,7 @@ class PlayerExpansionPanel extends ExpansionPanelRadio {
               child: Container(),
             ),
             SizedBox(
-              width: 80,
+              width: 100,
               child: _RegistrationList(
                 registrations: listState.competitionRegistrations[player]!,
               ),

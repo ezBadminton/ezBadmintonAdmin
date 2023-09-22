@@ -93,7 +93,7 @@ class _PlayerListHeader extends StatelessWidget {
                 child: Container(),
               ),
               SizedBox(
-                width: 80,
+                width: 100,
                 child: Text(l10n.registrations),
               ),
               Flexible(
