@@ -36,6 +36,8 @@ dependencies:
     path: packages/pocketbase_provider
   collection_repository:
     path: packages/collection_repository
+  tournament_mode:
+    path: packages/tournament_mode
   bloc: ^8.1.0
   equatable: ^2.0.3
   flutter:

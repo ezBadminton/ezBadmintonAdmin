@@ -27,12 +27,19 @@ List<Competition> onCompetitionRelationUpdate(
 
     for (Competition competition in containingCompetitions) {
       List<Team> registrations = List.of(competition.registrations);
+      List<Team> seeds = List.of(competition.seeds);
+      List<Team> draw = List.of(competition.draw);
 
-      registrations.removeWhere((t) => t.id == updatedTeam.id);
-      registrations.add(updatedTeam);
+      _replaceInList(registrations, updatedTeam.id, updatedTeam);
+      _replaceInList(seeds, updatedTeam.id, updatedTeam);
+      _replaceInList(draw, updatedTeam.id, updatedTeam);
 
       updatedCompetitions.add(
-        competition.copyWith(registrations: registrations),
+        competition.copyWith(
+          registrations: registrations,
+          seeds: seeds,
+          draw: draw,
+        ),
       );
     }
 
@@ -50,17 +57,13 @@ List<Team> onTeamRelationUpdate(
       updateEvent.updateType == UpdateType.update) {
     Player updatedPlayer = updateEvent.model as Player;
 
-    List<Team> containingTeams = teams
-        .where(
-          (t) => t.players.contains(updatedPlayer),
-        )
-        .toList();
+    List<Team> containingTeams =
+        teams.where((t) => t.players.contains(updatedPlayer)).toList();
 
     List<Team> updatedTeams = [];
     for (Team team in containingTeams) {
       List<Player> players = List.of(team.players);
-      players.removeWhere((p) => p.id == updatedPlayer.id);
-      players.add(updatedPlayer);
+      _replaceInList(players, updatedPlayer.id, updatedPlayer);
 
       updatedTeams.add(team.copyWith(players: players));
     }
@@ -69,4 +72,14 @@ List<Team> onTeamRelationUpdate(
   }
 
   return [];
+}
+
+/// In the [list], replaces the [Model] with the [id] with the [replacement].
+///
+/// Does nothing if the [list] does not contain a model with the [id].
+void _replaceInList(List<Model> list, String id, Model replacement) {
+  int index = list.indexWhere((m) => m.id == id);
+  if (index >= 0) {
+    list[index] = replacement;
+  }
 }

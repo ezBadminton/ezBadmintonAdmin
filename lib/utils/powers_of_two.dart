@@ -16,11 +16,19 @@ int nextPowerOfTwo(int from) {
 ///
 /// Only works with [from] >= 1
 int previousPowerOfTwo(int from) {
+  return pow(2, previousPowerOfTwoExponent(from)) as int;
+}
+
+/// Returns the exponent to 2 (in 2^n) of the power of two that is immediately
+/// smaller than or equal to [from].
+///
+/// Only works with [from] >= 1
+int previousPowerOfTwoExponent(int from) {
   int shifts = 0;
   while (from > 1) {
     from >>= 1;
     shifts += 1;
   }
 
-  return pow(2, shifts) as int;
+  return shifts;
 }

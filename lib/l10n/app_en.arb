@@ -176,5 +176,8 @@
   "qualificationsPerGroupHelp": "How many of the top finishers from each group will advance to the knockout round.",
   "entryList": "Entry list/Seeds",
   "addToSeeds": "Add to seeds",
-  "removeFromSeeds": "Remove from seeds"
+  "removeFromSeeds": "Remove from seeds",
+  "noDrawCompetitionSelected": "Select a competition to make a draw",
+  "noTournamentMode": "This competition has no tournament mode assigned",
+  "makeDraw": "Make draw"
 }

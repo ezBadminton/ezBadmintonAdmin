@@ -1,6 +1,7 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/competition_draw_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/draw_management/widgets/competition_draw_selection_list.dart';
+import 'package:ez_badminton_admin_app/draw_management/widgets/draw_editor.dart';
 import 'package:ez_badminton_admin_app/draw_management/widgets/entry_list.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter/material.dart';
@@ -67,7 +68,7 @@ class _DrawManagementPageScaffold extends StatelessWidget {
                     color: Colors.black26,
                   ),
                   const Expanded(
-                    child: SizedBox(),
+                    child: DrawEditor(),
                   ),
                 ],
               );

@@ -29,7 +29,7 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   equatable: ^2.0.0
-  collection: ^1.18.0
+  collection: ^1.17.2
 
 dev_dependencies:
   very_good_analysis: ^5.0.0

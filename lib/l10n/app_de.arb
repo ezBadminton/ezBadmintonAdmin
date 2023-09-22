@@ -176,5 +176,8 @@
   "qualificationsPerGroupHelp": "Wie viele der Top-Platzierten von jeder Gruppe in die KO-Runde einziehen.",
   "entryList": "Starterliste/Setzliste",
   "addToSeeds": "Setzplatz geben",
-  "removeFromSeeds": "Von Setzliste nehmen"
+  "removeFromSeeds": "Von Setzliste nehmen",
+  "noDrawCompetitionSelected": "Wähle eine Disziplin, um eine Auslosung zu machen",
+  "noTournamentMode": "Diese Disziplin hat keinen Turniermodus festgelegt",
+  "makeDraw": "Auslosung machen"
 }

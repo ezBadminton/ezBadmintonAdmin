@@ -19,7 +19,7 @@ class CompetitionDrawSelectionCubit
     loadCollections();
     subscribeToCollectionUpdates(
       competitionRepository,
-      (_) => loadCollections(),
+      _onCompetitionCollectionUpdate,
     );
   }
 
@@ -50,5 +50,27 @@ class CompetitionDrawSelectionCubit
     emit(state.copyWith(
       selectedCompetition: SelectionInput.dirty(value: selectedCompetition),
     ));
+  }
+
+  void _onCompetitionCollectionUpdate(
+      CollectionUpdateEvent<Competition> event) {
+    if (state.selectedCompetition.value == event.model) {
+      switch (event.updateType) {
+        case UpdateType.update:
+          emit(state.copyWith(
+            selectedCompetition: SelectionInput.dirty(value: event.model),
+          ));
+          break;
+        case UpdateType.delete:
+          emit(state.copyWith(
+            selectedCompetition: const SelectionInput.dirty(value: null),
+          ));
+          break;
+        case UpdateType.create:
+          break;
+      }
+    }
+
+    loadCollections();
   }
 }
