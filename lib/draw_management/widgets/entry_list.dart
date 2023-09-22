@@ -3,7 +3,6 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/assets/badminton_icons_icons.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/seeding_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/player_sorter/comparators/team_comparator.dart';
-import 'package:ez_badminton_admin_app/utils/powers_of_two.dart';
 import 'package:ez_badminton_admin_app/widgets/implicit_animated_list/reorderable_implicit_animated_list.dart';
 import 'package:ez_badminton_admin_app/widgets/implicit_animated_list/reorderable_item_gap.dart';
 import 'package:flutter/material.dart';
@@ -383,12 +382,7 @@ class _SeedLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String label;
-    if (seedingMode == SeedingMode.tiered) {
-      label = _seedIndexToTier(seed);
-    } else {
-      label = '${seed + 1}';
-    }
+    String label = display_strings.seedLabel(seed, seedingMode);
 
     return Padding(
       padding: const EdgeInsetsDirectional.only(start: 2.0, end: 6.0),
@@ -399,20 +393,5 @@ class _SeedLabel extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _seedIndexToTier(int seedIndex) {
-    int rank = seedIndex + 1;
-    if (rank <= 2) {
-      return '$rank';
-    }
-
-    int nextPowOf2 = nextPowerOfTwo(rank);
-    if (nextPowOf2 == rank) {
-      rank -= 1;
-    }
-    int prevPowOf2 = previousPowerOfTwo(rank);
-
-    return '${prevPowOf2 + 1}/$nextPowOf2';
   }
 }

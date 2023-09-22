@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/constants.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_list_cubit.dart';
@@ -75,13 +76,8 @@ class PlayerExpansionPanel extends ExpansionPanelRadio {
             ),
             SizedBox(
               width: 80,
-              child: Text(
-                _competitionAbbreviations(
-                  listState.competitionRegistrations[player]!
-                      .map((r) => r.competition),
-                  l10n,
-                ),
-                overflow: TextOverflow.fade,
+              child: _RegistrationList(
+                registrations: listState.competitionRegistrations[player]!,
               ),
             ),
             Flexible(
@@ -129,29 +125,6 @@ class PlayerExpansionPanel extends ExpansionPanelRadio {
     return statusTooltip;
   }
 
-  static String _competitionAbbreviations(
-    Iterable<Competition> competitions,
-    AppLocalizations l10n,
-  ) {
-    List<String> abbreviations = [];
-    for (var competition in competitions) {
-      String competitionAbbreviation =
-          l10n.competitionTypeAbbreviated(competition.type.name);
-      if (competition.genderCategory == GenderCategory.mixed ||
-          competition.genderCategory == GenderCategory.any) {
-        abbreviations.add(competitionAbbreviation);
-      } else {
-        String genderPrefix =
-            competition.genderCategory == GenderCategory.female
-                ? l10n.womenAbbreviated
-                : l10n.menAbbreviated;
-        abbreviations.add('$genderPrefix$competitionAbbreviation');
-      }
-    }
-    abbreviations.sort();
-    return abbreviations.join(', ');
-  }
-
   static bool _playerNeedsPartner(
     Iterable<CompetitionRegistration> registrations,
   ) {
@@ -162,6 +135,92 @@ class PlayerExpansionPanel extends ExpansionPanelRadio {
       }
     }
     return false;
+  }
+}
+
+class _RegistrationList extends StatelessWidget {
+  const _RegistrationList({
+    required this.registrations,
+  });
+
+  final List<CompetitionRegistration> registrations;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+    var cubit = context.read<UniqueCompetitionFilterCubit>();
+    String separator = ', ';
+
+    return BlocBuilder<PlayerListCubit, PlayerListState>(
+      builder: (context, listState) {
+        UniqueCompetitionFilterState? state =
+            listState.sortingComparator is TeamComparator ? cubit.state : null;
+        Competition? uniqueFiltered = state?.competition.value;
+        CompetitionRegistration? uniqueFilteredRegistration = registrations
+            .firstWhereOrNull((r) => r.competition == uniqueFiltered);
+
+        List<CompetitionRegistration> sortedRegistrations =
+            List.of(registrations);
+        TextStyle? nonUniqueStyle;
+        Text? seedText;
+
+        if (uniqueFilteredRegistration != null) {
+          sortedRegistrations
+            ..remove(uniqueFilteredRegistration)
+            ..insert(0, uniqueFilteredRegistration);
+
+          nonUniqueStyle = TextStyle(
+            color: Theme.of(context).disabledColor,
+          );
+
+          if (uniqueFilteredRegistration.seed != null) {
+            SeedingMode seedingMode = uniqueFilteredRegistration
+                    .competition.tournamentModeSettings?.seedingMode ??
+                SeedingMode.tiered;
+            String seedLabel = display_strings.seedLabel(
+              uniqueFilteredRegistration.seed!,
+              seedingMode,
+            );
+
+            seedText = Text(':$seedLabel');
+          }
+        }
+
+        List<Widget> abbreviationTexts = [
+          for (CompetitionRegistration r in sortedRegistrations)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _competitionAbbreviation(r.competition, l10n),
+                  style: sortedRegistrations.first == r ? null : nonUniqueStyle,
+                ),
+                if (sortedRegistrations.first == r && seedText != null)
+                  seedText,
+                if (sortedRegistrations.last != r) Text(separator),
+              ],
+            ),
+        ];
+
+        return Wrap(children: abbreviationTexts);
+      },
+    );
+  }
+
+  static String _competitionAbbreviation(
+    Competition competition,
+    AppLocalizations l10n,
+  ) {
+    String competitionAbbreviation =
+        l10n.competitionTypeAbbreviated(competition.type.name);
+    if (competition.genderCategory == GenderCategory.male ||
+        competition.genderCategory == GenderCategory.female) {
+      String genderPrefix = competition.genderCategory == GenderCategory.female
+          ? l10n.womenAbbreviated
+          : l10n.menAbbreviated;
+      competitionAbbreviation = '$genderPrefix$competitionAbbreviation';
+    }
+    return competitionAbbreviation;
   }
 }
 

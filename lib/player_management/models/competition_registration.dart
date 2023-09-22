@@ -8,18 +8,19 @@ class CompetitionRegistration {
     required this.player,
     required this.competition,
     required this.team,
-  });
+  }) : seed = _getSeed(competition, team);
 
   CompetitionRegistration.fromCompetition({
     required this.player,
     required this.competition,
-  }) : team = competition.registrations
-            .where((team) => team.players.contains(player))
-            .first;
+  })  : team = _getTeamOfPlayer(competition, player),
+        seed = _getSeed(competition, _getTeamOfPlayer(competition, player));
 
   final Player player;
   final Competition competition;
   final Team team;
+
+  final int? seed;
 
   /// Returns null if the player is alone on the team
   Player? get partner {
@@ -51,4 +52,18 @@ class CompetitionRegistration {
         competition: competition ?? this.competition,
         team: team ?? this.team,
       );
+
+  static Team _getTeamOfPlayer(Competition competition, Player player) {
+    return competition.registrations
+        .where((team) => team.players.contains(player))
+        .first;
+  }
+
+  static int? _getSeed(Competition competition, Team team) {
+    if (competition.seeds.contains(team)) {
+      return competition.seeds.indexOf(team);
+    } else {
+      return null;
+    }
+  }
 }
