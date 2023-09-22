@@ -37,6 +37,7 @@
   "firstName": "first name",
   "lastName": "last name",
   "player": "{count, plural, =1{Player} other{Players}}",
+  "playerAndRegistrations": "Player and Registrations",
   "playerManagement": "Manage players",
   "competitionManagement": "Competition management",
   "courtManagement": "Court management",

@@ -37,6 +37,7 @@
   "firstName": "Vorname",
   "lastName": "Nachname",
   "player": "{count, plural, other{Spieler}}",
+  "playerAndRegistrations": "Spieler und Meldungen",
   "playerManagement": "Spieler verwalten",
   "competitionManagement": "Disziplinen verwalten",
   "courtManagement": "Felder verwalten",

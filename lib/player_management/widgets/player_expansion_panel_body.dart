@@ -158,7 +158,7 @@ class _PlayerEditButton extends StatelessWidget {
           children: [
             const Icon(Icons.edit, size: 22),
             const SizedBox(width: 10),
-            Text(l10n.editSubject(l10n.player(1))),
+            Text(l10n.editSubject(l10n.playerAndRegistrations)),
           ],
         ),
       ),
