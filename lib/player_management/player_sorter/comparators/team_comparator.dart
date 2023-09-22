@@ -5,8 +5,11 @@ import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
     as display_strings;
 
 class TeamComparator extends ListSortingComparator<Player> {
-  TeamComparator(List<Team> teams) : _teams = sortTeamsByPlayerNames(teams);
+  TeamComparator({
+    required this.competition,
+  }) : _teams = sortTeams(competition, competition.registrations);
 
+  final Competition competition;
   final List<Team> _teams;
 
   @override
@@ -30,20 +33,64 @@ class TeamComparator extends ListSortingComparator<Player> {
     return playerIndex;
   }
 
-  /// Sorts the [teams] alphabetically by the names of the players.
-  static List<Team> sortTeamsByPlayerNames(List<Team> teams) {
-    return teams
-        .sortedBy(
-          (t) => t.players
-              .map((p) => display_strings.playerName(p))
-              .sortedBy((name) => name)
-              .join(),
-        )
-        .toList();
+  /// Sorts the teams that are registered in the [competition] by their seed and
+  /// by the names of the players.
+  static List<Team> sortTeams(Competition competition, List<Team> teams) {
+    Comparator<Team> teamComparator = nestComparators(
+      (a, b) => _teamStateComparator(competition, a, b),
+      (a, b) => _teamStateSecondaryComparator(competition, a, b),
+    );
+    return teams.sorted(teamComparator).toList();
+  }
+
+  static int _teamStateSecondaryComparator(
+      Competition competition, Team a, Team b) {
+    _TeamState teamState = _teamState(competition, a);
+
+    switch (teamState) {
+      case _TeamState.seeded:
+        int seedA = competition.seeds.indexOf(a);
+        int seedB = competition.seeds.indexOf(b);
+        return seedA.compareTo(seedB);
+      default:
+        String teamNameA = _teamName(a);
+        String teamNameB = _teamName(b);
+        return teamNameA.compareTo(teamNameB);
+    }
+  }
+
+  static int _teamStateComparator(Competition competition, Team a, Team b) {
+    return _teamState(competition, a)
+        .index
+        .compareTo(_teamState(competition, b).index);
+  }
+
+  static _TeamState _teamState(Competition competition, Team team) {
+    if (competition.seeds.contains(team)) {
+      return _TeamState.seeded;
+    }
+    if (competition.teamSize == team.players.length) {
+      return _TeamState.normal;
+    } else {
+      return _TeamState.incomplete;
+    }
+  }
+
+  static String _teamName(Team team) {
+    return team.players
+        .map((p) => display_strings.playerName(p))
+        .sortedBy((name) => name)
+        .join();
   }
 
   @override
   ListSortingComparator<Player> copyWith(ComparatorMode mode) {
     throw UnimplementedError();
   }
+}
+
+enum _TeamState {
+  seeded,
+  normal,
+  incomplete,
 }

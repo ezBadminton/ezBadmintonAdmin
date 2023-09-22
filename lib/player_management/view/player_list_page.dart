@@ -130,8 +130,6 @@ class _PlayerListWithFilter extends StatelessWidget {
       },
       child: BlocListener<UniqueCompetitionFilterCubit,
           UniqueCompetitionFilterState>(
-        listenWhen: (previous, current) =>
-            previous.competition != current.competition,
         listener: _toggleTeamSorting,
         child: BlocBuilder<PlayerListCubit, PlayerListState>(
           buildWhen: (previous, current) =>
@@ -190,16 +188,12 @@ class _PlayerListWithFilter extends StatelessWidget {
     var sortingCubit = context.read<PlayerSortingCubit>();
     var listCubit = context.read<PlayerListCubit>();
 
-    if (filteredCompetition.teamSize == 1) {
-      // No team sorting needed for singles competitions
-      return;
-    }
-
     sortingCubit.resetComparator();
     await Future.delayed(Duration.zero);
 
-    List<Team> teams = filteredCompetition.registrations;
-    listCubit.comparatorChanged(TeamComparator(teams));
+    listCubit.comparatorChanged(TeamComparator(
+      competition: filteredCompetition,
+    ));
   }
 
   void _disableTeamSorting(BuildContext context) {

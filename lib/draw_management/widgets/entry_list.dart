@@ -45,7 +45,8 @@ class EntryList extends StatelessWidget {
   }
 
   static List<Team> _getUnseededEntries(Competition competition) {
-    return TeamComparator.sortTeamsByPlayerNames(
+    return TeamComparator.sortTeams(
+      competition,
       _filterUnseededTeams(competition),
     );
   }

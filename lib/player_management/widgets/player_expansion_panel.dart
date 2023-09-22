@@ -239,7 +239,8 @@ class _TeamDivider extends StatelessWidget {
           return const SizedBox();
         }
         var cubit = context.read<UniqueCompetitionFilterCubit>();
-        List<Team> teams = cubit.state.competition.value!.registrations;
+        Competition uniqueFiltered = cubit.state.competition.value!;
+        List<Team> teams = uniqueFiltered.registrations;
 
         Team team = teams.firstWhere((t) => t.players.contains(player));
 
@@ -247,7 +248,9 @@ class _TeamDivider extends StatelessWidget {
                 .firstWhere((p) => team.players.contains(p)) ==
             player;
 
-        if (isLastTeamMember && state.filteredPlayers.last != player) {
+        if (isLastTeamMember &&
+            state.filteredPlayers.last != player &&
+            uniqueFiltered.teamSize > 1) {
           return Divider(
             height: 0,
             thickness: 1.5,
