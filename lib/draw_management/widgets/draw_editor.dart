@@ -2,6 +2,7 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/view/tournament_mode_assignment_page.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/competition_draw_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/drawing_cubit.dart';
+import 'package:ez_badminton_admin_app/draw_management/widgets/tournament_mode_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -31,19 +32,19 @@ class DrawEditor extends StatelessWidget {
         Competition selectedCompetition = state.selectedCompetition.value!;
 
         if (selectedCompetition.tournamentModeSettings == null) {
-          return _TournamentModeButton(
+          return _TournamentModeAssignmentMenu(
             selectedCompetition: selectedCompetition,
           );
         }
 
-        return _DrawButton(selectedCompetition: selectedCompetition);
+        return _DrawMenu(selectedCompetition: selectedCompetition);
       },
     );
   }
 }
 
-class _DrawButton extends StatelessWidget {
-  const _DrawButton({
+class _DrawMenu extends StatelessWidget {
+  const _DrawMenu({
     required this.selectedCompetition,
   });
 
@@ -62,17 +63,28 @@ class _DrawButton extends StatelessWidget {
       child: Builder(builder: (context) {
         var cubit = context.read<DrawingCubit>();
         return Center(
-          child: ElevatedButton(
-            onPressed: cubit.makeDraw,
-            style: const ButtonStyle(
-              shape: MaterialStatePropertyAll(StadiumBorder()),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Text(
-                l10n.makeDraw,
-                style: const TextStyle(fontSize: 17),
-              ),
+          child: TournamentModeCard(
+            modeSettings: selectedCompetition.tournamentModeSettings!,
+            child: Column(
+              children: [
+                ElevatedButton(
+                  onPressed: cubit.makeDraw,
+                  style: const ButtonStyle(
+                    shape: MaterialStatePropertyAll(StadiumBorder()),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Text(
+                      l10n.makeDraw,
+                      style: const TextStyle(fontSize: 17),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                _TournamentModeAssignmentButton(
+                  selectedCompetition: selectedCompetition,
+                )
+              ],
             ),
           ),
         );
@@ -81,8 +93,8 @@ class _DrawButton extends StatelessWidget {
   }
 }
 
-class _TournamentModeButton extends StatelessWidget {
-  const _TournamentModeButton({
+class _TournamentModeAssignmentMenu extends StatelessWidget {
+  const _TournamentModeAssignmentMenu({
     required this.selectedCompetition,
   });
 
@@ -91,6 +103,7 @@ class _TournamentModeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
+
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -103,17 +116,49 @@ class _TournamentModeButton extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 30),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                TournamentModeAssignmentPage.route([selectedCompetition]),
-              );
-            },
-            child: Text(l10n.assignTournamentMode),
+          _TournamentModeAssignmentButton(
+            selectedCompetition: selectedCompetition,
           ),
         ],
       ),
     );
+  }
+}
+
+class _TournamentModeAssignmentButton extends StatelessWidget {
+  const _TournamentModeAssignmentButton({
+    required this.selectedCompetition,
+  });
+
+  final Competition selectedCompetition;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+
+    bool isEditButton = selectedCompetition.tournamentModeSettings != null;
+
+    Text buttonLabel = Text(
+      isEditButton ? l10n.changeTournamentMode : l10n.assignTournamentMode,
+    );
+
+    onPressed() {
+      Navigator.push(
+        context,
+        TournamentModeAssignmentPage.route([selectedCompetition]),
+      );
+    }
+
+    if (isEditButton) {
+      return TextButton(
+        onPressed: onPressed,
+        child: buttonLabel,
+      );
+    } else {
+      return ElevatedButton(
+        onPressed: onPressed,
+        child: buttonLabel,
+      );
+    }
   }
 }

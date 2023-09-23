@@ -211,6 +211,42 @@ String tournamentModeTooltip(
   }
 }
 
+List<String> tournamentModeSettingsList(
+  AppLocalizations l10n,
+  TournamentModeSettings modeSettings,
+) {
+  List<String> settingsStrings = [];
+  switch (modeSettings) {
+    case RoundRobinSettings(passes: int passes):
+      settingsStrings.add('${l10n.passes}: $passes');
+      break;
+    case SingleEliminationSettings _:
+      break;
+    case GroupKnockoutSettings(
+        numGroups: int numGroups,
+        qualificationsPerGroup: int qualificationsPerGroup,
+      ):
+      settingsStrings.add(
+        '${l10n.numGroups}: $numGroups',
+      );
+      settingsStrings.add(
+        '${l10n.qualificationsPerGroup}: $qualificationsPerGroup',
+      );
+      break;
+  }
+
+  if (modeSettings
+      case TournamentModeSettings(
+        seedingMode: (SeedingMode seedingMode) && (!= SeedingMode.random),
+      )) {
+    settingsStrings.add(
+      '${l10n.seedingMode}: ${l10n.seedingModeLabel(seedingMode.toString())}',
+    );
+  }
+
+  return settingsStrings;
+}
+
 String seedLabel(int seed, SeedingMode seedingMode) {
   int rank = seed + 1;
   if (rank <= 2 || seedingMode == SeedingMode.single) {

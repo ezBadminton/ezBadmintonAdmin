@@ -432,33 +432,10 @@ class _TournamentModeLabel extends StatelessWidget {
     modeDescription.writeln();
     modeDescription.writeln();
 
-    switch (competition.tournamentModeSettings!) {
-      case RoundRobinSettings(passes: int passes):
-        modeDescription.writeln('${l10n.passes}: $passes');
-        break;
-      case SingleEliminationSettings _:
-        break;
-      case GroupKnockoutSettings(
-          numGroups: int numGroups,
-          qualificationsPerGroup: int qualificationsPerGroup,
-        ):
-        modeDescription.writeln(
-          '${l10n.numGroups}: $numGroups',
-        );
-        modeDescription.writeln(
-          '${l10n.qualificationsPerGroup}: $qualificationsPerGroup',
-        );
-        break;
-    }
+    List<String> modeSettingsStrings = display_strings
+        .tournamentModeSettingsList(l10n, competition.tournamentModeSettings!);
 
-    if (competition.tournamentModeSettings!
-        case TournamentModeSettings(
-          seedingMode: (SeedingMode seedingMode) && (!= SeedingMode.random),
-        )) {
-      modeDescription.writeln(
-        '${l10n.seedingMode}: ${l10n.seedingModeLabel(seedingMode.toString())}',
-      );
-    }
+    modeDescription.writeAll(modeSettingsStrings, '\n');
 
     return modeDescription.toString().trimRight();
   }
