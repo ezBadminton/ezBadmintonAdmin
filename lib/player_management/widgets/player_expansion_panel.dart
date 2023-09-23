@@ -161,15 +161,19 @@ class _RegistrationList extends StatelessWidget {
 
         List<CompetitionRegistration> sortedRegistrations =
             List.of(registrations);
-        TextStyle? nonUniqueStyle;
-        Text? seedText;
+
+        // Styles for the competitions that are uniquely filtered or not
+        TextStyle uniqueStyle = Theme.of(context).textTheme.bodyMedium!;
+        TextStyle nonUniqueStyle = uniqueStyle;
+
+        TextSpan? seedText;
 
         if (uniqueFilteredRegistration != null) {
           sortedRegistrations
             ..remove(uniqueFilteredRegistration)
             ..insert(0, uniqueFilteredRegistration);
 
-          nonUniqueStyle = TextStyle(
+          nonUniqueStyle = uniqueStyle.copyWith(
             color: Theme.of(context).disabledColor,
           );
 
@@ -182,27 +186,30 @@ class _RegistrationList extends StatelessWidget {
               seedingMode,
             );
 
-            seedText = Text(':$seedLabel');
+            seedText = TextSpan(
+              text: ':$seedLabel',
+              style: uniqueStyle,
+            );
           }
         }
 
-        List<Widget> abbreviationTexts = [
-          for (CompetitionRegistration r in sortedRegistrations)
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  _competitionAbbreviation(r.competition, l10n),
-                  style: sortedRegistrations.first == r ? null : nonUniqueStyle,
-                ),
-                if (sortedRegistrations.first == r && seedText != null)
-                  seedText,
-                if (sortedRegistrations.last != r) Text(separator),
-              ],
+        List<TextSpan> abbreviationTexts = [
+          for (CompetitionRegistration r in sortedRegistrations) ...[
+            TextSpan(
+              text: _competitionAbbreviation(r.competition, l10n),
+              style:
+                  sortedRegistrations.first == r ? uniqueStyle : nonUniqueStyle,
             ),
+            if (sortedRegistrations.first == r && seedText != null) seedText,
+            if (sortedRegistrations.last != r)
+              TextSpan(
+                text: separator,
+                style: uniqueStyle,
+              ),
+          ]
         ];
 
-        return Wrap(children: abbreviationTexts);
+        return RichText(text: TextSpan(children: abbreviationTexts));
       },
     );
   }
