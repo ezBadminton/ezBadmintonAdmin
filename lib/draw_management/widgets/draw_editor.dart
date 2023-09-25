@@ -2,10 +2,13 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/view/tournament_mode_assignment_page.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/competition_draw_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/drawing_cubit.dart';
+import 'package:ez_badminton_admin_app/draw_management/models/badminton_tournament_modes.dart';
 import 'package:ez_badminton_admin_app/draw_management/widgets/tournament_mode_card.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:tournament_mode/tournament_mode.dart';
 
 class DrawEditor extends StatelessWidget {
   const DrawEditor({super.key});
@@ -34,6 +37,19 @@ class DrawEditor extends StatelessWidget {
         if (selectedCompetition.tournamentModeSettings == null) {
           return _TournamentModeAssignmentMenu(
             selectedCompetition: selectedCompetition,
+          );
+        }
+
+        if (selectedCompetition.draw.isNotEmpty &&
+            selectedCompetition.tournamentModeSettings
+                is SingleEliminationSettings) {
+          BadmintonSingleElimination tournament = BadmintonSingleElimination(
+            seededEntries: DrawSeeds(selectedCompetition.draw),
+          );
+
+          return SingleEliminationTree(
+            rounds: tournament.rounds,
+            competition: selectedCompetition,
           );
         }
 

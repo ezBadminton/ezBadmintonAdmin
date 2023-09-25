@@ -136,7 +136,7 @@ class SingleElimination<P, S> extends TournamentMode<P, S> {
   ///
   /// The given [rounds] dictate how many rounds the returned matchups will
   /// produce when played out until the final.
-  List<(int, int)> _createSeedMatchups(int rounds) {
+  static List<(int, int)> _createSeedMatchups(int rounds) {
     // The root node (the final) where the paths of seed 0 and 1 meet.
     List<(int, int)> seedMatchups = [(0, 1)];
 

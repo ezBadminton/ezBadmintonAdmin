@@ -179,5 +179,6 @@
   "removeFromSeeds": "Von Setzliste nehmen",
   "noDrawCompetitionSelected": "Wähle eine Disziplin, um eine Auslosung zu machen",
   "noTournamentMode": "Diese Disziplin hat keinen Turniermodus festgelegt",
-  "makeDraw": "Auslosung machen"
+  "makeDraw": "Auslosung machen",
+  "bye": "Freilos"
 }

@@ -179,5 +179,6 @@
   "removeFromSeeds": "Remove from seeds",
   "noDrawCompetitionSelected": "Select a competition to make a draw",
   "noTournamentMode": "This competition has no tournament mode assigned",
-  "makeDraw": "Make draw"
+  "makeDraw": "Make draw",
+  "bye": "Bye"
 }
