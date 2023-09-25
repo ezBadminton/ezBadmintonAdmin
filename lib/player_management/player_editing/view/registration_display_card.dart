@@ -51,17 +51,6 @@ class RegistrationDisplayCard extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            if (showDeleteButton)
-              Align(
-                alignment: AlignmentDirectional.centerEnd,
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  onPressed: () => onDelete!(registration),
-                  tooltip: l10n.deleteRegistration,
-                  icon: const Icon(Icons.close, size: 22),
-                ),
-              ),
             Column(
               children: [
                 CompetitionLabel(competition: competition),
@@ -79,6 +68,17 @@ class RegistrationDisplayCard extends StatelessWidget {
                 ],
               ],
             ),
+            if (showDeleteButton)
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onPressed: () => onDelete!(registration),
+                  tooltip: l10n.deleteRegistration,
+                  icon: const Icon(Icons.close, size: 22),
+                ),
+              ),
           ],
         ),
       ),
