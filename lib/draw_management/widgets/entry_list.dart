@@ -104,11 +104,30 @@ class _EntryList extends StatelessWidget {
               itemDragBuilder: _itemDragBuilder,
               itemReorderBuilder: _itemReorderBuilder,
               itemPlaceholderBuilder: _itemPlaceholderBuilder,
+              elementsEqual: _entryListElementsEqual,
             ),
           ),
         ),
       ],
     );
+  }
+
+  bool _entryListElementsEqual(Team element1, Team element2) {
+    bool hasSameMembers =
+        element1 == element2 && element1.players.equals(element2.players);
+    bool areMembersRenamed = false;
+
+    if (hasSameMembers) {
+      for (int i = 0; i < element1.players.length; i += 1) {
+        String nameA = display_strings.playerWithClub(element1.players[i]);
+        String nameB = display_strings.playerWithClub(element2.players[i]);
+        if (nameA != nameB) {
+          areMembersRenamed = true;
+        }
+      }
+    }
+
+    return hasSameMembers && !areMembersRenamed;
   }
 
   Widget _itemBuilder(

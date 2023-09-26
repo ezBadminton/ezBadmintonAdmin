@@ -61,6 +61,10 @@ dependencies:
   provider: ^6.0.5
   mobkit_dashed_border: ^0.0.5
   notification_builder: ^0.0.1
+  local_hero:
+    git:
+      url: https://github.com/Snonky/local_hero.git
+      ref: fix/detached-repaint
 
 dev_dependencies:
   flutter_test:

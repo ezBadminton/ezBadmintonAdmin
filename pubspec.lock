@@ -317,6 +317,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.1"
+  local_hero:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: "fix/detached-repaint"
+      resolved-ref: a57ee73fc7338c571e5b779ac896a692ac43b34f
+      url: "https://github.com/Snonky/local_hero.git"
+    source: git
+    version: "0.2.0"
   logging:
     dependency: transitive
     description:

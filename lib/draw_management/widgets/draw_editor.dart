@@ -47,9 +47,15 @@ class DrawEditor extends StatelessWidget {
             seededEntries: DrawSeeds(selectedCompetition.draw),
           );
 
-          return SingleEliminationTree(
-            rounds: tournament.rounds,
-            competition: selectedCompetition,
+          return InteractiveViewer(
+            constrained: false,
+            minScale: .1,
+            boundaryMargin: const EdgeInsets.all(400),
+            scaleFactor: 1500,
+            child: SingleEliminationTree(
+              rounds: tournament.rounds,
+              competition: selectedCompetition,
+            ),
           );
         }
 
