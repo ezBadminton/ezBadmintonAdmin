@@ -1,6 +1,6 @@
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/draw_editing_cubit.dart';
-import 'package:ez_badminton_admin_app/draw_management/models/badminton_match.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_elimination_match_node.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

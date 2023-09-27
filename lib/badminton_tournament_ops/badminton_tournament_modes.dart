@@ -1,5 +1,5 @@
 import 'package:collection_repository/collection_repository.dart';
-import 'package:ez_badminton_admin_app/draw_management/models/badminton_match.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
 import 'package:tournament_mode/tournament_mode.dart';
 
 BadmintonMatch _matcher(MatchParticipant<Team> a, MatchParticipant<Team> b) =>
@@ -16,6 +16,7 @@ class BadmintonRoundRobin extends RoundRobin<Team, List<MatchSet>> {
   BadmintonRoundRobin({
     required super.entries,
     required super.finalRanking,
+    super.passes,
   }) : super(matcher: _matcher);
 }
 

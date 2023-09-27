@@ -1,8 +1,8 @@
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/view/tournament_mode_assignment_page.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/competition_draw_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/drawing_cubit.dart';
-import 'package:ez_badminton_admin_app/draw_management/models/badminton_tournament_modes.dart';
 import 'package:ez_badminton_admin_app/draw_management/widgets/tournament_mode_card.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
 import 'package:flutter/material.dart';

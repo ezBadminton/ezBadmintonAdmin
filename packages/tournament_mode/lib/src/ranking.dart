@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:tournament_mode/src/match_participant.dart';
 
 /// A class that ranks [MatchParticipant]s. It's not necessarily a ranking by
@@ -5,6 +6,20 @@ import 'package:tournament_mode/src/match_participant.dart';
 abstract class Ranking<P> {
   /// Returns a list of [MatchParticipant]s ordered by rank
   List<MatchParticipant<P>?> rank();
+}
+
+/// A [Ranking] that possibly has multiple participants on a single rank (ties).
+mixin TieableRanking<P> implements Ranking<P> {
+  @override
+  List<MatchParticipant<P>?> rank() {
+    return tiedRank().expand((tie) => tie).toList();
+  }
+
+  bool get hasTies =>
+      tiedRank().firstWhereOrNull((tie) => tie.length > 1) != null;
+  bool get hasNoTies => !hasTies;
+
+  List<List<MatchParticipant<P>?>> tiedRank();
 }
 
 /// A simple index into a [Ranking].

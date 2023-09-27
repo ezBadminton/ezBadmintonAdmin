@@ -24,3 +24,6 @@ abstract class MatchRanking<P, S> implements Ranking<P> {
         null;
   }
 }
+
+abstract class TieableMatchRanking<P, S> extends MatchRanking<P, S>
+    with TieableRanking<P> {}
