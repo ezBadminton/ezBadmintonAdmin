@@ -6,7 +6,7 @@ import 'package:tournament_mode/tournament_mode.dart';
 class BadmintonRoundRobinRanking
     extends TieableMatchRanking<Team, List<MatchSet>> {
   @override
-  List<List<MatchParticipant<Team>?>> tiedRank() {
+  List<List<MatchParticipant<Team>>> tiedRank() {
     if (!ranksAvailable()) {
       return [];
     }

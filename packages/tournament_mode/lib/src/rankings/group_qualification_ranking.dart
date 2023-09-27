@@ -38,7 +38,7 @@ class GroupQualificationRanking<P> extends RankingDecorator<P> {
   late final List<int> _groupKnockoutSeeds;
 
   @override
-  List<MatchParticipant<P>?> rank() {
+  List<MatchParticipant<P>> rank() {
     List<MatchParticipant<P>> groupResults =
         targetRanking.rank().whereType<MatchParticipant<P>>().toList();
 

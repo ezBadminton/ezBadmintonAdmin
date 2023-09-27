@@ -1,4 +1,5 @@
 import 'package:tournament_mode/src/ranking.dart';
+import 'package:tournament_mode/src/rankings/tieable_ranking.dart';
 import 'package:tournament_mode/src/tournament_match.dart';
 import 'package:collection/collection.dart';
 

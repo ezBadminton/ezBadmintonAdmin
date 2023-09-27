@@ -10,14 +10,14 @@ class WinnerRanking<P, S> implements Ranking<P> {
   final TournamentMatch<P, S> match;
 
   @override
-  List<MatchParticipant<P>?> rank() {
+  List<MatchParticipant<P>> rank() {
     if (match.isBye()) {
       MatchParticipant<P> winner = match.a.isBye ? match.b : match.a;
-      return [winner, null];
+      return [winner];
     } else if (match.isCompleted) {
-      return [match.getWinner(), match.getLoser()];
+      return [match.getWinner()!, match.getLoser()!];
     } else {
-      return [null, null];
+      return [];
     }
   }
 }

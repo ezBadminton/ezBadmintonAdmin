@@ -13,7 +13,7 @@ class EliminationRanking<P, S> extends MatchRanking<P, S> {
   List<List<WinnerRanking<P, S>>> get _roundResults =>
       rounds!.map(_getRoundResults).toList();
 
-  List<MatchParticipant<P>?>? _ranks;
+  List<MatchParticipant<P>>? _ranks;
 
   @override
   void initRounds(List<List<TournamentMatch<P, S>>> rounds) {
@@ -36,7 +36,7 @@ class EliminationRanking<P, S> extends MatchRanking<P, S> {
   }
 
   @override
-  List<MatchParticipant<P>?> rank() => _ranks!;
+  List<MatchParticipant<P>> rank() => _ranks!;
 
   List<WinnerRanking<P, S>> _getRoundResults(
     List<TournamentMatch<P, S>> round,

@@ -200,8 +200,8 @@ class _BinaryRanking<P> implements Ranking<P> {
   final Ranking<P> targetRanking;
 
   @override
-  List<MatchParticipant<P>?> rank() {
-    List<MatchParticipant<P>?> targetRanks = targetRanking.rank();
+  List<MatchParticipant<P>> rank() {
+    List<MatchParticipant<P>> targetRanks = targetRanking.rank();
     int numRanks = targetRanks.length;
 
     int padding = _nextPowerOfTwo(numRanks) - numRanks;
