@@ -40,27 +40,50 @@ class DrawEditor extends StatelessWidget {
           );
         }
 
-        if (selectedCompetition.draw.isNotEmpty &&
-            selectedCompetition.tournamentModeSettings
-                is SingleEliminationSettings) {
-          BadmintonSingleElimination tournament = BadmintonSingleElimination(
-            seededEntries: DrawSeeds(selectedCompetition.draw),
-          );
-
-          return InteractiveViewer(
-            constrained: false,
-            minScale: .1,
-            boundaryMargin: const EdgeInsets.all(400),
-            scaleFactor: 1500,
-            child: SingleEliminationTree(
-              rounds: tournament.rounds,
-              competition: selectedCompetition,
-            ),
-          );
+        if (selectedCompetition.draw.isNotEmpty) {
+          return _InteractiveDraw(competition: selectedCompetition);
         }
 
         return _DrawMenu(selectedCompetition: selectedCompetition);
       },
+    );
+  }
+}
+
+class _InteractiveDraw extends StatelessWidget {
+  const _InteractiveDraw({
+    required this.competition,
+  });
+
+  final Competition competition;
+
+  @override
+  Widget build(BuildContext context) {
+    DrawSeeds<Team> entries = DrawSeeds(competition.draw);
+
+    TournamentMode tournament = switch (competition.tournamentModeSettings!) {
+      SingleEliminationSettings _ =>
+        BadmintonSingleElimination(seededEntries: entries),
+      RoundRobinSettings settings =>
+        BadmintonRoundRobin(entries: entries, settings: settings),
+      GroupKnockoutSettings settings =>
+        BadmintonGroupKnockout(entries: entries, settings: settings),
+    };
+
+    Widget drawView = switch (tournament) {
+      BadmintonSingleElimination tournament => SingleEliminationTree(
+          rounds: tournament.rounds,
+          competition: competition,
+        ),
+      _ => const Text('No View implemented yet'),
+    };
+
+    return InteractiveViewer(
+      constrained: false,
+      minScale: .1,
+      boundaryMargin: const EdgeInsets.all(400),
+      scaleFactor: 1500,
+      child: drawView,
     );
   }
 }
