@@ -44,8 +44,6 @@ class GroupPhase<P, S> extends TournamentMode<P, S> {
     MatchParticipant<P> b,
   ) matcher;
 
-  late final List<MatchParticipant<P>> _participants;
-
   /// Each group is a realized as a [RoundRobin] tournament.
   late final List<RoundRobin<P, S>> groupRoundRobins;
 
@@ -62,10 +60,10 @@ class GroupPhase<P, S> extends TournamentMode<P, S> {
   GroupPhaseRanking<P, S> get finalRanking => _finalRanking;
 
   void _createMatches() {
-    _participants = entries.rank();
+    List<MatchParticipant<P>> participants = entries.rank();
 
     List<List<MatchParticipant<P>>> groups =
-        _createSeededGroups(_participants, numGroups);
+        _createSeededGroups(participants, numGroups);
 
     groupRoundRobins = groups
         .map(

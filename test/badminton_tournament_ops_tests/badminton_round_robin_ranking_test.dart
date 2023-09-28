@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_round_robin_ranking.dart';
-import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tournament_mode/tournament_mode.dart';
 
@@ -55,12 +54,15 @@ void main() {
       )
       .toList();
 
-  BadmintonRoundRobin createTournament(int numParticipants, [int passes = 1]) {
+  RoundRobin<Team, List<MatchSet>> createTournament(int numParticipants,
+      [int passes = 1]) {
     assert(numParticipants >= 2 && numParticipants <= 10);
-    return BadmintonRoundRobin(
+    return RoundRobin(
       entries: DrawSeeds(createTeams(players.sublist(0, numParticipants))),
       finalRanking: BadmintonRoundRobinRanking(),
       passes: passes,
+      matcher: (MatchParticipant<Team> a, MatchParticipant<Team> b) =>
+          BadmintonMatch(a, b),
     );
   }
 
@@ -119,7 +121,7 @@ void main() {
   }
 
   test('inital ranking is empty', () {
-    BadmintonRoundRobin tournament = createTournament(3);
+    RoundRobin<Team, List<MatchSet>> tournament = createTournament(3);
     BadmintonRoundRobinRanking sut =
         tournament.finalRanking as BadmintonRoundRobinRanking;
 
@@ -127,7 +129,7 @@ void main() {
   });
 
   test('three-way-tie', () {
-    BadmintonRoundRobin tournament = createTournament(3);
+    RoundRobin<Team, List<MatchSet>> tournament = createTournament(3);
     BadmintonRoundRobinRanking sut =
         tournament.finalRanking as BadmintonRoundRobinRanking;
 
@@ -145,7 +147,7 @@ void main() {
   });
 
   test('three-way tie-break via overall sets', () {
-    BadmintonRoundRobin tournament = createTournament(3);
+    RoundRobin<Team, List<MatchSet>> tournament = createTournament(3);
     BadmintonRoundRobinRanking sut =
         tournament.finalRanking as BadmintonRoundRobinRanking;
 
@@ -167,7 +169,7 @@ void main() {
   });
 
   test('three-way tie-break via overall points', () {
-    BadmintonRoundRobin tournament = createTournament(3);
+    RoundRobin<Team, List<MatchSet>> tournament = createTournament(3);
     BadmintonRoundRobinRanking sut =
         tournament.finalRanking as BadmintonRoundRobinRanking;
 
@@ -189,7 +191,7 @@ void main() {
   });
 
   test('three-way tie-break via points and direct comparison', () {
-    BadmintonRoundRobin tournament = createTournament(4);
+    RoundRobin<Team, List<MatchSet>> tournament = createTournament(4);
     BadmintonRoundRobinRanking sut =
         tournament.finalRanking as BadmintonRoundRobinRanking;
 
@@ -218,7 +220,7 @@ void main() {
   });
 
   test('two-way tie-break via direct win', () {
-    BadmintonRoundRobin tournament = createTournament(4);
+    RoundRobin<Team, List<MatchSet>> tournament = createTournament(4);
     BadmintonRoundRobinRanking sut =
         tournament.finalRanking as BadmintonRoundRobinRanking;
 
@@ -246,7 +248,7 @@ void main() {
   });
 
   test('two-way-tie', () {
-    BadmintonRoundRobin tournament = createTournament(2, 2);
+    RoundRobin<Team, List<MatchSet>> tournament = createTournament(2, 2);
     BadmintonRoundRobinRanking sut =
         tournament.finalRanking as BadmintonRoundRobinRanking;
 
@@ -264,7 +266,7 @@ void main() {
   });
 
   test('two-way tie-break via direct sets', () {
-    BadmintonRoundRobin tournament = createTournament(2, 2);
+    RoundRobin<Team, List<MatchSet>> tournament = createTournament(2, 2);
     BadmintonRoundRobinRanking sut =
         tournament.finalRanking as BadmintonRoundRobinRanking;
 
@@ -285,7 +287,7 @@ void main() {
   });
 
   test('two-way tie-break via direct points', () {
-    BadmintonRoundRobin tournament = createTournament(2, 2);
+    RoundRobin<Team, List<MatchSet>> tournament = createTournament(2, 2);
     BadmintonRoundRobinRanking sut =
         tournament.finalRanking as BadmintonRoundRobinRanking;
 
@@ -306,7 +308,7 @@ void main() {
   });
 
   test('two-way tie-break via overall sets', () {
-    BadmintonRoundRobin tournament = createTournament(3, 2);
+    RoundRobin<Team, List<MatchSet>> tournament = createTournament(3, 2);
     BadmintonRoundRobinRanking sut =
         tournament.finalRanking as BadmintonRoundRobinRanking;
 
@@ -340,7 +342,7 @@ void main() {
   });
 
   test('two-way tie-break via overall points', () {
-    BadmintonRoundRobin tournament = createTournament(3, 2);
+    RoundRobin<Team, List<MatchSet>> tournament = createTournament(3, 2);
     BadmintonRoundRobinRanking sut =
         tournament.finalRanking as BadmintonRoundRobinRanking;
 
