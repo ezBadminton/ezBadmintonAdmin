@@ -23,10 +23,11 @@ class RoundRobin<P, S> extends TournamentMode<P, S> {
   @override
   final Ranking<P> entries;
 
-  /// The final ranking to use. When all matches have been played the
-  /// [MatchRanking.rank] method should return the ranked player list.
+  /// The final ranking to use. When all matches have been played and all
+  /// blocking ties are broken the [TieableMatchRanking.rank] method should
+  /// return the ranked player list.
   @override
-  final MatchRanking<P, S> finalRanking;
+  final TieableMatchRanking<P, S> finalRanking;
 
   /// A function turning two participants into a specific [TournamentMatch].
   final TournamentMatch<P, S> Function(
@@ -54,7 +55,7 @@ class RoundRobin<P, S> extends TournamentMode<P, S> {
   /// https://en.wikipedia.org/wiki/Round-robin_tournament#Circle_method
   /// to create the matches
   void _createMatches() {
-    participants = entries.rank().whereType<MatchParticipant<P>>().toList();
+    participants = entries.rank();
 
     if (!participants.length.isEven) {
       participants.insert(1, const MatchParticipant.bye());

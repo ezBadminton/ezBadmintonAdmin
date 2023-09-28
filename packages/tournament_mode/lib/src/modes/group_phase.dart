@@ -34,9 +34,9 @@ class GroupPhase<P, S> extends TournamentMode<P, S> {
   /// group(s) will have one less member.
   final int numGroups;
 
-  /// The group ranking to use. When all matches of a group have been played the
-  /// [MatchRanking.rank] method should return the ranked player list.
-  final MatchRanking<P, S> Function() rankingBuilder;
+  /// The group ranking to use. When the group [RoundRobin]s are created
+  /// this [rankingBuilder] supplies their rankings.
+  final TieableMatchRanking<P, S> Function() rankingBuilder;
 
   /// A function turning two participants into a specific [TournamentMatch].
   final TournamentMatch<P, S> Function(
@@ -62,7 +62,7 @@ class GroupPhase<P, S> extends TournamentMode<P, S> {
   GroupPhaseRanking<P, S> get finalRanking => _finalRanking;
 
   void _createMatches() {
-    _participants = entries.rank().whereType<MatchParticipant<P>>().toList();
+    _participants = entries.rank();
 
     List<List<MatchParticipant<P>>> groups =
         _createSeededGroups(_participants, numGroups);

@@ -19,18 +19,22 @@ import 'package:tournament_mode/src/rankings/ranking_decorator.dart';
 ///  * [GroupKnockout] where this ranking is used as a transition between
 /// group phase and knockout phase.
 class GroupQualificationRanking<P> extends RankingDecorator<P> {
-  /// Creates a [GroupQualificationRanking] from the [targetRanking] like
+  /// Creates a [GroupQualificationRanking] from the [targetRanking] which is
   /// a [GroupPhaseRanking].
   ///
   /// The [numGroups] and [qualificationsPerGroup] under which the
   /// [targetRanking] was played out need to be provided.
   GroupQualificationRanking(
-    super.targetRanking, {
+    GroupPhaseRanking<P, dynamic> targetRanking, {
     required this.numGroups,
     required this.qualificationsPerGroup,
-  }) {
+  }) : super(targetRanking) {
     _groupKnockoutSeeds = _createGroupKnockoutSeeds();
   }
+
+  @override
+  GroupPhaseRanking<P, dynamic> get targetRanking =>
+      super.targetRanking as GroupPhaseRanking<P, dynamic>;
 
   final int numGroups;
   final int qualificationsPerGroup;
@@ -39,8 +43,7 @@ class GroupQualificationRanking<P> extends RankingDecorator<P> {
 
   @override
   List<MatchParticipant<P>> rank() {
-    List<MatchParticipant<P>> groupResults =
-        targetRanking.rank().whereType<MatchParticipant<P>>().toList();
+    List<MatchParticipant<P>> groupResults = targetRanking.rank();
 
     List<MatchParticipant<P>> seeds = List.generate(
       numGroups * qualificationsPerGroup,

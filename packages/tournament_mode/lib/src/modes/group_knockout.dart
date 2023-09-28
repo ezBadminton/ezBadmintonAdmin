@@ -3,6 +3,7 @@ import 'package:tournament_mode/src/modes/chained_tournament_mode.dart';
 import 'package:tournament_mode/src/modes/group_phase.dart';
 import 'package:tournament_mode/src/modes/single_elimination.dart';
 import 'package:tournament_mode/src/ranking.dart';
+import 'package:tournament_mode/src/rankings/group_phase_ranking.dart';
 import 'package:tournament_mode/src/rankings/group_qualification_ranking.dart';
 import 'package:tournament_mode/src/rankings/match_ranking.dart';
 import 'package:tournament_mode/src/tournament_match.dart';
@@ -13,7 +14,7 @@ class GroupKnockout<P, S> extends ChainedTournamentMode<P, S> {
     required Ranking<P> entries,
     required int numGroups,
     required int qualificationsPerGroup,
-    required MatchRanking<P, S> Function() groupRankingBuilder,
+    required TieableMatchRanking<P, S> Function() groupRankingBuilder,
     required TournamentMatch<P, S> Function(
       MatchParticipant<P> a,
       MatchParticipant<P> b,
@@ -23,7 +24,8 @@ class GroupKnockout<P, S> extends ChainedTournamentMode<P, S> {
           firstBuilder: (Ranking<P> entries) => GroupPhase(
             entries: entries,
             numGroups: numGroups,
-            rankingBuilder: groupRankingBuilder,
+            rankingBuilder: () => groupRankingBuilder()
+              ..requiredUntiedRanks = qualificationsPerGroup,
             matcher: matcher,
           ),
           secondBuilder: (Ranking<P> entries) => SingleElimination(
@@ -32,7 +34,7 @@ class GroupKnockout<P, S> extends ChainedTournamentMode<P, S> {
           ),
           rankingTransition: (Ranking<P> groupResults) =>
               GroupQualificationRanking(
-            groupResults,
+            groupResults as GroupPhaseRanking<P, S>,
             numGroups: numGroups,
             qualificationsPerGroup: qualificationsPerGroup,
           ),

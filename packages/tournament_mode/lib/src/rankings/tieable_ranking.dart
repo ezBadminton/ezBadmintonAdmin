@@ -12,6 +12,9 @@ mixin TieableRanking<P> implements Ranking<P> {
 
   @override
   List<MatchParticipant<P>> rank() {
+    if (blockingTies.isNotEmpty) {
+      return [];
+    }
     return tieBreakingRank().expand((tie) => tie).toList();
   }
 
@@ -29,6 +32,25 @@ mixin TieableRanking<P> implements Ranking<P> {
   /// For example this could contain the result of a coin toss or a
   /// tie-breaker match.
   List<Ranking<P>> tieBreakers = [];
+
+  /// Set this to guarantee that the output from [rank] has no ties in the
+  /// first [requiredUntiedRanks].
+  ///
+  /// While that is not the case [rank] will return empty.
+  ///
+  /// The ties that are blocking this requirement can be read from
+  /// the [blockingTies] property.
+  ///
+  /// This does not guarantee that this many ranks exist. If less ranks exist
+  /// that have no ties they will be returned by [rank].
+  int requiredUntiedRanks = 0;
+
+  /// Returns the ties that need to be broken in order to fulfill
+  /// [requiredUntiedRanks].
+  List<List<MatchParticipant<P>>> get blockingTies => tieBreakingRank()
+      .whereIndexed(
+          (index, tie) => tie.length > 1 && index < requiredUntiedRanks)
+      .toList();
 
   /// Try to find one of the [tieBreakers] that can break the given [tie].
   List<List<MatchParticipant<P>>> _tryTieBreak(
@@ -54,7 +76,6 @@ mixin TieableRanking<P> implements Ranking<P> {
         List<MatchParticipant<P>> ranks = tie
             .sortedBy<num>((participant) => tieBreakerRanks
                 .indexWhere((player) => player == participant.resolvePlayer()))
-            .reversed
             .toList();
 
         return ranks.map((participant) => [participant]).toList();

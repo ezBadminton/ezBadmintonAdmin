@@ -54,7 +54,7 @@ class SingleElimination<P, S> extends TournamentMode<P, S> {
   final MatchRanking<P, S> finalRanking;
 
   void _createMatches() {
-    _participants = entries.rank().whereType<MatchParticipant<P>>().toList();
+    _participants = entries.rank();
 
     assert(_participants.length > 1);
 
