@@ -12,8 +12,8 @@ import 'package:tournament_mode/src/tournament_match.dart';
 class GroupKnockout<P, S> extends ChainedTournamentMode<P, S> {
   GroupKnockout({
     required Ranking<P> entries,
-    required int numGroups,
-    required int qualificationsPerGroup,
+    required this.numGroups,
+    required this.qualificationsPerGroup,
     required TieableMatchRanking<P, S> Function() groupRankingBuilder,
     required TournamentMatch<P, S> Function(
       MatchParticipant<P> a,
@@ -39,6 +39,9 @@ class GroupKnockout<P, S> extends ChainedTournamentMode<P, S> {
             qualificationsPerGroup: qualificationsPerGroup,
           ),
         );
+
+  final int numGroups;
+  final int qualificationsPerGroup;
 
   GroupPhase<P, S> get groupPhase => super.first as GroupPhase<P, S>;
 

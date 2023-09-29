@@ -2,13 +2,16 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/view/tournament_mode_assignment_page.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/competition_draw_selection_cubit.dart';
+import 'package:ez_badminton_admin_app/draw_management/cubit/draw_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/drawing_cubit.dart';
 import 'package:ez_badminton_admin_app/draw_management/widgets/tournament_mode_card.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/group_knockout_plan.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/round_robin_plan.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:local_hero/local_hero.dart';
 import 'package:tournament_mode/tournament_mode.dart';
 
 class DrawEditor extends StatelessWidget {
@@ -75,21 +78,37 @@ class _InteractiveDraw extends StatelessWidget {
       BadmintonSingleElimination tournament => SingleEliminationTree(
           rounds: tournament.rounds,
           competition: competition,
+          isEditable: true,
         ),
       BadmintonRoundRobin tournament => RoundRobinPlan(
-          participants: tournament.participants,
-          rounds: tournament.rounds,
+          tournament: tournament,
+          competition: competition,
+        ),
+      BadmintonGroupKnockout tournament => GroupKnockoutPlan(
+          tournament: tournament,
           competition: competition,
         ),
       _ => const Text('No View implemented yet'),
     };
 
-    return InteractiveViewer(
-      constrained: false,
-      minScale: .1,
-      boundaryMargin: const EdgeInsets.all(400),
-      scaleFactor: 1500,
-      child: drawView,
+    return BlocProvider(
+      key: ValueKey<String>('DrawEditingCubit${competition.id}'),
+      create: (context) => DrawEditingCubit(
+        competition: competition,
+        competitionRepository:
+            context.read<CollectionRepository<Competition>>(),
+      ),
+      child: InteractiveViewer(
+        constrained: false,
+        minScale: .1,
+        boundaryMargin: const EdgeInsets.all(400),
+        scaleFactor: 1500,
+        child: LocalHeroScope(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOutQuad,
+          child: drawView,
+        ),
+      ),
     );
   }
 }

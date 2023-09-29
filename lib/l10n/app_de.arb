@@ -183,5 +183,7 @@
   "bye": "Freilos",
   "freeOfPlay": "Spielfrei",
   "encounterNumber": "{number}. Begegnung",
-  "participant": "{count, plural, other{Teilnehmer}}"
+  "participant": "{count, plural, other{Teilnehmer}}",
+  "groupNumber": "Gruppe {number}",
+  "groupQualification": "{place}. Platz, Gruppe {group}"
 }

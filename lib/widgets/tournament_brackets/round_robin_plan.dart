@@ -7,31 +7,39 @@ import 'package:tournament_mode/tournament_mode.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class RoundRobinPlan extends StatelessWidget {
-  RoundRobinPlan({
+  const RoundRobinPlan({
     super.key,
-    required List<MatchParticipant<Team>> participants,
-    required this.rounds,
+    required this.tournament,
     required this.competition,
-  }) : participants = participants.where((p) => !p.isBye).toList();
+    this.isEditable = false,
+    this.title,
+  });
 
-  final List<MatchParticipant<Team>> participants;
-  final List<RoundRobinRound<Team, List<MatchSet>>> rounds;
+  final RoundRobin<Team, List<MatchSet>> tournament;
   final Competition competition;
+
+  final bool isEditable;
+
+  final String? title;
 
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
+
+    List<MatchParticipant<Team>> participants =
+        tournament.participants.where((p) => !p.isBye).toList();
 
     return Column(
       children: [
         _RoundRobinTable(
           participants: participants,
           competition: competition,
-          title: l10n.participant(2),
+          isEditable: isEditable,
+          title: title ?? l10n.participant(2),
         ),
         const SizedBox(height: 5),
         _RoundRobinMatchList(
-          rounds: rounds,
+          rounds: tournament.rounds,
           competition: competition,
         ),
       ],
@@ -43,11 +51,14 @@ class _RoundRobinTable extends StatelessWidget {
   const _RoundRobinTable({
     required this.participants,
     required this.competition,
+    required this.isEditable,
     this.title,
   });
 
   final List<MatchParticipant<Team>> participants;
   final Competition competition;
+
+  final bool isEditable;
 
   final String? title;
 
@@ -98,7 +109,7 @@ class _RoundRobinTable extends StatelessWidget {
               child: MatchParticipantLabel(
                 participant,
                 teamSize: competition.teamSize,
-                isEditable: false,
+                isEditable: isEditable,
                 width: width,
                 showClub: true,
               ),

@@ -183,5 +183,7 @@
   "bye": "Bye",
   "freeOfPlay": "Free of play",
   "encounterNumber": "{number}. Encounter",
-  "participant": "{count, plural, =1{Participant} other{Participants}}"
+  "participant": "{count, plural, =1{Participant} other{Participants}}",
+  "groupNumber": "Group {number}",
+  "groupQualification": "{place}. Place, Group {group}"
 }

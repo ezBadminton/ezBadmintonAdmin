@@ -2,6 +2,7 @@ import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.
 import 'package:ez_badminton_admin_app/widgets/bent_line/bent_line.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';
 import 'package:flutter/material.dart';
+import 'package:tournament_mode/tournament_mode.dart';
 
 class SingleEliminationMatchNode extends StatelessWidget {
   const SingleEliminationMatchNode({
@@ -12,6 +13,7 @@ class SingleEliminationMatchNode extends StatelessWidget {
     required this.isFirstRound,
     required this.isLastRound,
     required this.isEditable,
+    this.placeholderLabels = const {},
   });
 
   final BadmintonMatch match;
@@ -22,6 +24,8 @@ class SingleEliminationMatchNode extends StatelessWidget {
   final bool isFirstRound;
   final bool isLastRound;
   final bool isEditable;
+
+  final Map<MatchParticipant, String> placeholderLabels;
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +51,7 @@ class SingleEliminationMatchNode extends StatelessWidget {
             teamSize: teamSize,
             isEditable: isEditable && isFirstRound,
             width: width,
+            placeholderLabel: placeholderLabels[match.a],
           ),
           SizedBox(
             width: width,
@@ -55,8 +60,9 @@ class SingleEliminationMatchNode extends StatelessWidget {
           MatchParticipantLabel(
             match.b,
             teamSize: teamSize,
-            isEditable: isFirstRound,
+            isEditable: isEditable && isFirstRound,
             width: width,
+            placeholderLabel: placeholderLabels[match.b],
           ),
         ],
       ),

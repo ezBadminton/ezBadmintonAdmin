@@ -16,6 +16,7 @@ class MatchParticipantLabel extends StatelessWidget {
     required this.isEditable,
     required this.width,
     this.showClub = false,
+    this.placeholderLabel,
     this.alignment = CrossAxisAlignment.start,
     this.byeLabel,
   });
@@ -28,6 +29,8 @@ class MatchParticipantLabel extends StatelessWidget {
   final double width;
 
   final bool showClub;
+
+  final String? placeholderLabel;
 
   final CrossAxisAlignment alignment;
 
@@ -56,6 +59,7 @@ class MatchParticipantLabel extends StatelessWidget {
         leadingWidget:
             isEditable ? SizedBox(width: iconSize + 8, height: iconSize) : null,
         showClub: showClub,
+        placeholderLabel: placeholderLabel,
         alignment: alignment,
         byeLabel: byeLabel,
       );
@@ -74,6 +78,7 @@ class _MatchParticipantLabel extends StatelessWidget {
     this.leadingWidget,
     // ignore: unused_element
     this.trailingWidget,
+    this.placeholderLabel,
     required this.alignment,
     required this.byeLabel,
   });
@@ -90,6 +95,8 @@ class _MatchParticipantLabel extends StatelessWidget {
 
   final Widget? leadingWidget;
   final Widget? trailingWidget;
+
+  final String? placeholderLabel;
 
   final CrossAxisAlignment alignment;
 
@@ -152,7 +159,12 @@ class _MatchParticipantLabel extends StatelessWidget {
     Team? team = participant.resolvePlayer();
 
     if (team == null) {
-      return List.generate(teamSize, (index) => const Text(''));
+      return List.generate(
+        teamSize,
+        (index) => Text(
+          (index == 0 && placeholderLabel != null) ? placeholderLabel! : '',
+        ),
+      );
     }
 
     return [
