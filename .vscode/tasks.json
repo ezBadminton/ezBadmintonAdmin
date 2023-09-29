@@ -20,7 +20,11 @@
       {
         "label": "Run pocketbase server",
         "type": "shell",
-        "command": "pocketbase serve",
+        "command": "pocketbase",
+        "windows": {
+          "command": "./pocketbase.exe"
+        },
+        "args": ["serve"],
         "group": "none",
         "options": {
           "cwd": "${workspaceRoot}/../../pocketbase"
