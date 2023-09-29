@@ -180,5 +180,8 @@
   "noDrawCompetitionSelected": "Wähle eine Disziplin, um eine Auslosung zu machen",
   "noTournamentMode": "Diese Disziplin hat keinen Turniermodus festgelegt",
   "makeDraw": "Auslosung machen",
-  "bye": "Freilos"
+  "bye": "Freilos",
+  "freeOfPlay": "Spielfrei",
+  "encounterNumber": "{number}. Begegnung",
+  "participant": "{count, plural, other{Teilnehmer}}"
 }

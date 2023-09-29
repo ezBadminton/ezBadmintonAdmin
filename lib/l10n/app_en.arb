@@ -180,5 +180,8 @@
   "noDrawCompetitionSelected": "Select a competition to make a draw",
   "noTournamentMode": "This competition has no tournament mode assigned",
   "makeDraw": "Make draw",
-  "bye": "Bye"
+  "bye": "Bye",
+  "freeOfPlay": "Free of play",
+  "encounterNumber": "{number}. Encounter",
+  "participant": "{count, plural, =1{Participant} other{Participants}}"
 }

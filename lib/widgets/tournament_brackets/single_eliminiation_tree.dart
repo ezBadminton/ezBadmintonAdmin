@@ -19,13 +19,13 @@ class SingleEliminationTree extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<List<Widget>> matchNodes = [];
+    List<List<Widget>> roundNodes = [];
 
     for (EliminationRound<Team, List<MatchSet>> round in rounds) {
       bool isFirst = rounds.first == round;
       bool isLast = rounds.last == round;
 
-      matchNodes.add(
+      roundNodes.add(
         List.generate(
           round.length,
           (index) => Expanded(
@@ -55,8 +55,8 @@ class SingleEliminationTree extends StatelessWidget {
         child: IntrinsicHeight(
           child: Row(
             children: [
-              for (List<Widget> roundNodes in matchNodes)
-                Column(children: roundNodes)
+              for (List<Widget> matchNodes in roundNodes)
+                Column(children: matchNodes)
             ],
           ),
         ),
