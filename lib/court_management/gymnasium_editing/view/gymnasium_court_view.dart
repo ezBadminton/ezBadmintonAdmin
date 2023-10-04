@@ -58,28 +58,23 @@ class _GymnasiumCourtView extends StatefulWidget {
 class _GymnasiumCourtViewState extends State<_GymnasiumCourtView>
     with TickerProviderStateMixin {
   GymnasiumCourtViewController? _viewController;
-  late final AnimationController _viewAnimationController;
-
-  @override
-  void initState() {
-    super.initState();
-    _viewAnimationController = AnimationController(vsync: this);
-  }
 
   @override
   void didChangeDependencies() {
     GymnasiumCourtViewCubit viewCubit = context.read<GymnasiumCourtViewCubit>();
 
-    _viewController = viewCubit.getViewController(widget.gymnasium);
+    if (_viewController == null) {
+      _viewController = viewCubit.getViewController(widget.gymnasium);
 
-    _viewController!.animationController = _viewAnimationController;
+      _viewController!.vsync = this;
+    }
+
     super.didChangeDependencies();
   }
 
   @override
   void dispose() {
-    _viewAnimationController.dispose();
-    _viewController!.animationController = null;
+    _viewController!.vsync = null;
     _viewController!.viewConstraints = null;
     super.dispose();
   }
@@ -333,7 +328,10 @@ class _ZoomButtons extends StatelessWidget {
           message: l10n.zoom,
           waitDuration: const Duration(milliseconds: 500),
           child: TextButton(
-            onPressed: () => viewController.zoom(1.15),
+            onPressed: () => viewController.zoom(
+              1.15,
+              maxScale: gym_court_utils.maxZoomScale,
+            ),
             child: const Icon(Icons.zoom_in),
           ),
         ),
