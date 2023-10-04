@@ -321,8 +321,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "fix/detached-repaint"
-      resolved-ref: a57ee73fc7338c571e5b779ac896a692ac43b34f
+      ref: "feature/only-remount"
+      resolved-ref: "9b9d52a078638679b6c25ad98d691fd1043c6e1a"
       url: "https://github.com/Snonky/local_hero.git"
     source: git
     version: "0.2.0"

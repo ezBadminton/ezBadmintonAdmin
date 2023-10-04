@@ -106,6 +106,7 @@ class _InteractiveDraw extends StatelessWidget {
         child: LocalHeroScope(
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOutQuad,
+          onlyAnimateRemount: true,
           child: drawView,
         ),
       ),
