@@ -1,8 +1,10 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/interactive_view_blocker_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_label.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tournament_mode/tournament_mode.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'bracket_widths.dart' as bracket_widths;
@@ -66,6 +68,7 @@ class _RoundRobinTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double width = bracket_widths.roundRobinTableWidth;
+
     return Card(
       elevation: 0,
       clipBehavior: Clip.antiAlias,
@@ -127,7 +130,7 @@ class _RoundRobinTable extends StatelessWidget {
   }
 }
 
-class _RoundRobinMatchList extends StatelessWidget {
+class _RoundRobinMatchList extends StatefulWidget {
   const _RoundRobinMatchList({
     required this.rounds,
     required this.competition,
@@ -137,8 +140,30 @@ class _RoundRobinMatchList extends StatelessWidget {
   final Competition competition;
 
   @override
+  State<_RoundRobinMatchList> createState() => _RoundRobinMatchListState();
+}
+
+class _RoundRobinMatchListState extends State<_RoundRobinMatchList> {
+  late final ScrollController _scrollController;
+
+  @override
+  void initState() {
+    _scrollController = ScrollController();
+    super.initState();
+  }
+
+  bool _isScrollable() {
+    if (!_scrollController.hasClients) {
+      return false;
+    }
+    ScrollPosition pos = _scrollController.position;
+    return pos.extentTotal > pos.extentInside;
+  }
+
+  @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
+    var interactionBlockerCubit = context.read<InteractiveViewBlockerCubit>();
 
     return Card(
       elevation: 0,
@@ -152,21 +177,39 @@ class _RoundRobinMatchList extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          vertical: 15.0,
           horizontal: 5.0,
         ),
-        child: Column(
-          children: [
-            for (RoundRobinRound<Team, List<MatchSet>> round in rounds) ...[
-              Text(
-                l10n.encounterNumber(round.roundNumber + 1),
-                style: const TextStyle(fontWeight: FontWeight.w600),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 550),
+          child: MouseRegion(
+            onEnter: (_) {
+              /// Prevent zooming and scrolling at the same time
+              if (_isScrollable()) {
+                interactionBlockerCubit.addBlock();
+              }
+            },
+            onExit: (_) => interactionBlockerCubit.removeBlock(),
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              child: Column(
+                children: [
+                  for (RoundRobinRound<Team, List<MatchSet>> round
+                      in widget.rounds) ...[
+                    if (widget.rounds.first == round)
+                      const SizedBox(height: 15),
+                    Text(
+                      l10n.encounterNumber(round.roundNumber + 1),
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    for (BadmintonMatch match in round.cast<BadmintonMatch>())
+                      MatchLabel(match: match, competition: widget.competition),
+                    if (widget.rounds.last != round) const SizedBox(height: 10),
+                    if (widget.rounds.last == round) const SizedBox(height: 15),
+                  ],
+                ],
               ),
-              for (BadmintonMatch match in round.cast<BadmintonMatch>())
-                MatchLabel(match: match, competition: competition),
-              if (rounds.last != round) const SizedBox(height: 12),
-            ],
-          ],
+            ),
+          ),
         ),
       ),
     );

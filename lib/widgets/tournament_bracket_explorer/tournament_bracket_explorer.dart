@@ -2,6 +2,7 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/utils/simple_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section_navigator.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/bracket_section_navigator_cubit.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/interactive_view_blocker_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/tournament_bracket_explorer_controller_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/tournament_bracket_explorer_controller.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/section_labels.dart';
@@ -62,6 +63,9 @@ class _TournamentBracketExplorerState extends State<TournamentBracketExplorer>
         BlocProvider(
           create: (context) => SimpleCubit<EdgeInsets>(EdgeInsets.zero),
         ),
+        BlocProvider(
+          create: (context) => InteractiveViewBlockerCubit(),
+        ),
       ],
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -90,17 +94,23 @@ class _TournamentBracketExplorerState extends State<TournamentBracketExplorer>
             children: [
               BlocBuilder<SimpleCubit<EdgeInsets>, EdgeInsets>(
                 builder: (context, boundaryMargin) {
-                  return InteractiveViewer(
-                    constrained: false,
-                    minScale: .01,
-                    maxScale: 1.33,
-                    boundaryMargin: boundaryMargin,
-                    scaleFactor: 1500,
-                    transformationController: _viewController,
-                    child: KeyedSubtree(
-                      key: _viewController!.bracketViewKey,
-                      child: widget.tournamentBracket,
-                    ),
+                  return BlocBuilder<InteractiveViewBlockerCubit,
+                      InteractiveViewBlockerState>(
+                    builder: (context, blockerState) {
+                      return InteractiveViewer(
+                        constrained: false,
+                        minScale: .01,
+                        maxScale: 1.33,
+                        scaleEnabled: !blockerState.isBlocked,
+                        boundaryMargin: boundaryMargin,
+                        scaleFactor: 1500,
+                        transformationController: _viewController,
+                        child: KeyedSubtree(
+                          key: _viewController!.bracketViewKey,
+                          child: widget.tournamentBracket,
+                        ),
+                      );
+                    },
                   );
                 },
               ),
