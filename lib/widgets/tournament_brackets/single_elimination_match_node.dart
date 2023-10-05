@@ -3,6 +3,7 @@ import 'package:ez_badminton_admin_app/widgets/bent_line/bent_line.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';
 import 'package:flutter/material.dart';
 import 'package:tournament_mode/tournament_mode.dart';
+import 'bracket_widths.dart' as bracket_widths;
 
 class SingleEliminationMatchNode extends StatelessWidget {
   const SingleEliminationMatchNode({
@@ -29,7 +30,9 @@ class SingleEliminationMatchNode extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double width = isEditable && isFirstRound ? 360 : 230;
+    double width = isEditable && isFirstRound
+        ? bracket_widths.editableSingleEliminationNodeWidth
+        : bracket_widths.singleEliminatioNodeWith;
 
     Widget matchCard = Card(
       elevation: 0,
@@ -73,7 +76,7 @@ class SingleEliminationMatchNode extends StatelessWidget {
     double treeArmThickness = 1.3;
 
     Widget incomingTreeArm = SizedBox(
-      width: 10,
+      width: bracket_widths.singleEliminationRoundGap * 0.5,
       child: Divider(
         height: 0,
         thickness: treeArmThickness,
@@ -87,7 +90,7 @@ class SingleEliminationMatchNode extends StatelessWidget {
       child: FractionallySizedBox(
         heightFactor: .5,
         child: SizedBox(
-          width: 10,
+          width: bracket_widths.singleEliminationRoundGap * 0.5,
           child: BentLine(
             bendCorner: isEven ? Corner.topRight : Corner.bottomRight,
             bendRadius: 5.0,

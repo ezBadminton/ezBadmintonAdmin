@@ -68,16 +68,14 @@ class GymnasiumCourtViewController extends AnimatedTransformationController {
   }
 
   void _updateSizes() {
-    boundarySize = gym_court_utils.getGymSize(
-      viewConstraints!,
-      _gymnasium,
-      withPadding: true,
-      withBoundaryMargin: true,
-    );
     sceneSize = gym_court_utils.getGymSize(
       viewConstraints!,
       _gymnasium,
       withPadding: true,
+    );
+    boundaryMargin = gym_court_utils.getGymBoundaryMargin(
+      viewConstraints!,
+      _gymnasium,
     );
   }
 }

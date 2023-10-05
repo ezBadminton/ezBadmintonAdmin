@@ -5,6 +5,8 @@ import 'package:ez_badminton_admin_app/draw_management/cubit/competition_draw_se
 import 'package:ez_badminton_admin_app/draw_management/cubit/draw_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/drawing_cubit.dart';
 import 'package:ez_badminton_admin_app/draw_management/widgets/tournament_mode_card.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/tournament_bracket_explorer_controller_cubit.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/tournament_bracket_explorer.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/group_knockout_plan.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/round_robin_plan.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
@@ -21,35 +23,39 @@ class DrawEditor extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
-    return BlocBuilder<CompetitionDrawSelectionCubit,
-        CompetitionDrawSelectionState>(
-      builder: (context, state) {
-        if (state.selectedCompetition.value == null) {
-          return Center(
-            child: Text(
-              l10n.noDrawCompetitionSelected,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(.25),
-                fontSize: 25,
+    return BlocProvider(
+      create: (context) => TournamentBracketExplorerControllerCubit(),
+      child: BlocBuilder<CompetitionDrawSelectionCubit,
+          CompetitionDrawSelectionState>(
+        builder: (context, state) {
+          if (state.selectedCompetition.value == null) {
+            return Center(
+              child: Text(
+                l10n.noDrawCompetitionSelected,
+                style: TextStyle(
+                  color:
+                      Theme.of(context).colorScheme.onSurface.withOpacity(.25),
+                  fontSize: 25,
+                ),
               ),
-            ),
-          );
-        }
+            );
+          }
 
-        Competition selectedCompetition = state.selectedCompetition.value!;
+          Competition selectedCompetition = state.selectedCompetition.value!;
 
-        if (selectedCompetition.tournamentModeSettings == null) {
-          return _TournamentModeAssignmentMenu(
-            selectedCompetition: selectedCompetition,
-          );
-        }
+          if (selectedCompetition.tournamentModeSettings == null) {
+            return _TournamentModeAssignmentMenu(
+              selectedCompetition: selectedCompetition,
+            );
+          }
 
-        if (selectedCompetition.draw.isNotEmpty) {
-          return _InteractiveDraw(competition: selectedCompetition);
-        }
+          if (selectedCompetition.draw.isNotEmpty) {
+            return _InteractiveDraw(competition: selectedCompetition);
+          }
 
-        return _DrawMenu(selectedCompetition: selectedCompetition);
-      },
+          return _DrawMenu(selectedCompetition: selectedCompetition);
+        },
+      ),
     );
   }
 }
@@ -98,16 +104,13 @@ class _InteractiveDraw extends StatelessWidget {
         competitionRepository:
             context.read<CollectionRepository<Competition>>(),
       ),
-      child: InteractiveViewer(
-        constrained: false,
-        minScale: .1,
-        boundaryMargin: const EdgeInsets.all(400),
-        scaleFactor: 1500,
-        child: LocalHeroScope(
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOutQuad,
-          onlyAnimateRemount: true,
-          child: drawView,
+      child: LocalHeroScope(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutQuad,
+        onlyAnimateRemount: true,
+        child: TournamentBracketExplorer(
+          competition: competition,
+          tournamentBracket: drawView,
         ),
       ),
     );

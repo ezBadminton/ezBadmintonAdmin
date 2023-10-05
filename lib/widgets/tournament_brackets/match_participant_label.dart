@@ -246,6 +246,9 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
         builder: (context, candidateData, rejectedData) => Draggable<Team>(
           data: team,
           feedback: _teamNames(team),
+          maxSimultaneousDrags: 1,
+          dragAnchorStrategy: (draggable, context, position) =>
+              const Offset(0, 0),
           childWhenDragging: _MatchParticipantLabel(
             participant: participant,
             teamSize: teamSize,
@@ -264,6 +267,7 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
                 : Theme.of(context).primaryColor.withOpacity(.2),
             leadingWidget: Tooltip(
               message: l10n.reorder,
+              triggerMode: TooltipTriggerMode.manual,
               waitDuration: const Duration(milliseconds: 500),
               child: dragIndicator,
             ),
@@ -277,7 +281,7 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
     );
   }
 
-  Text _teamNames(Team team) {
+  Widget _teamNames(Team team) {
     StringBuffer names = StringBuffer();
     for (Player p in team.players) {
       names.writeln(display_strings.playerWithClub(p));
@@ -285,6 +289,12 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
 
     String teamNames = names.toString().trimRight();
 
-    return Text(teamNames);
+    return Transform.translate(
+      offset: const Offset(-10, -5),
+      child: FractionalTranslation(
+        translation: const Offset(-1, 0),
+        child: Text(teamNames),
+      ),
+    );
   }
 }

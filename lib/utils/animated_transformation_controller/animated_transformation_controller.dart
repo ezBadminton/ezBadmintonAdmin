@@ -29,14 +29,19 @@ class AnimatedTransformationController extends TransformationController {
   Matrix4 get currentTransform => super.value;
   set currentTransform(Matrix4 transform) => super.value = transform;
 
-  /// Set this initially and when the size of the view boundary changes
-  late Size boundarySize;
+  /// Set this initially and when the margin of the view boundary changes
+  late EdgeInsets boundaryMargin;
 
   /// Set this initially and when the size of the widget inside the view changes
   late Size sceneSize;
 
+  Size get boundarySize => boundaryMargin.inflateSize(sceneSize);
+
   /// Set this initially and whenever the view constraints change (LayoutBuilder does this)
   BoxConstraints? viewConstraints;
+
+  Offset get currentSceneFocus =>
+      toScene(viewConstraints!.biggest.center(Offset.zero));
 
   AnimationController? _animationController;
   Animation<Matrix4>? _transformAnimation;
@@ -179,13 +184,10 @@ class AnimatedTransformationController extends TransformationController {
   EdgeInsets _getDistanceToBoundary(
     Offset point,
   ) {
-    EdgeInsets boundaryMargins = _getBoundaryMargins();
-
-    double leftDistance = point.dx + boundaryMargins.left;
-    double rightDistance = sceneSize.width - point.dx + boundaryMargins.right;
-    double topDistance = point.dy + boundaryMargins.top;
-    double bottomDistance =
-        sceneSize.height - point.dy + boundaryMargins.bottom;
+    double leftDistance = point.dx + boundaryMargin.left;
+    double rightDistance = sceneSize.width - point.dx + boundaryMargin.right;
+    double topDistance = point.dy + boundaryMargin.top;
+    double bottomDistance = sceneSize.height - point.dy + boundaryMargin.bottom;
 
     EdgeInsets distance = EdgeInsets.fromLTRB(
       leftDistance,
@@ -195,15 +197,6 @@ class AnimatedTransformationController extends TransformationController {
     );
 
     return distance;
-  }
-
-  /// Returns the distance of the scene's edges to the edge of the view boundary
-  /// in all four cardinal directions.
-  EdgeInsets _getBoundaryMargins() {
-    double horizontal = (boundarySize.width - sceneSize.width) * 0.5;
-    double vertical = (boundarySize.height - sceneSize.height) * 0.5;
-
-    return EdgeInsets.symmetric(horizontal: horizontal, vertical: vertical);
   }
 
   /// Returns the transform matrix that focuses the [point]

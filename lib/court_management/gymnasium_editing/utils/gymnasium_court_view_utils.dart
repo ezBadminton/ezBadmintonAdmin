@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/court_management/court_editing/view/court_slot.dart';
+import 'package:ez_badminton_admin_app/utils/aspect_ratios.dart'
+    as aspect_ratios;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 
@@ -36,7 +38,8 @@ EdgeInsets getGymCourtPadding(
     gymnasium.rows * _baseHeight,
   );
 
-  Size alignedGridSize = _alignAspectRatios(constraints.biggest, gridSize);
+  Size alignedGridSize =
+      aspect_ratios.alignAspectRatios(constraints.biggest, gridSize);
 
   double availableViewWidth = constraints.maxWidth / gymnasium.columns;
   double availableViewHeight = constraints.maxHeight / gymnasium.rows;
@@ -85,7 +88,7 @@ EdgeInsets getGymBoundaryMargin(
   Size baseBoundarySize =
       gymSize + Offset(horizontalMargin * 2, verticalMargin * 2);
 
-  Size alignedBondary = _alignAspectRatios(
+  Size alignedBondary = aspect_ratios.alignAspectRatios(
     constraints.biggest,
     baseBoundarySize,
   );
@@ -103,7 +106,6 @@ Size getGymSize(
   BoxConstraints constraints,
   Gymnasium gymnasium, {
   bool withPadding = false,
-  bool withBoundaryMargin = false,
 }) {
   Size size = Size(
     courtWidth * gymnasium.columns,
@@ -115,14 +117,6 @@ Size getGymSize(
     size += Offset(
       courtPadding.horizontal * gymnasium.columns,
       courtPadding.vertical * gymnasium.rows,
-    );
-  }
-
-  if (withBoundaryMargin) {
-    EdgeInsets boundaryMargin = getGymBoundaryMargin(constraints, gymnasium);
-    size += Offset(
-      boundaryMargin.horizontal,
-      boundaryMargin.vertical,
     );
   }
 
@@ -150,38 +144,4 @@ Offset getCourtSlotCenter(
   );
 
   return courtCenter;
-}
-
-/// Returns a copy of [size] with one of its dimensions extended so that it has
-/// the same aspect ratio as the [reference].
-///
-/// If one of the aspect ratios is infinite or 0 the [size] is returned
-/// as it is.
-Size _alignAspectRatios(
-  Size reference,
-  Size size,
-) {
-  double referenceRatio = reference.aspectRatio;
-  double sizeAspectRatio = size.aspectRatio;
-  if (!referenceRatio.isFinite ||
-      !sizeAspectRatio.isFinite ||
-      referenceRatio == 0 ||
-      sizeAspectRatio == 0) {
-    return size;
-  }
-
-  double aspectRatioRatio = referenceRatio / sizeAspectRatio;
-
-  double alignedWidth = size.width;
-  double alignedHeight = size.height;
-
-  if (aspectRatioRatio > 1) {
-    // Reference is wider than size
-    alignedWidth *= aspectRatioRatio;
-  } else {
-    // Reference is taller than size
-    alignedHeight *= (1 / aspectRatioRatio);
-  }
-
-  return Size(alignedWidth, alignedHeight);
 }

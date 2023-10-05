@@ -5,6 +5,7 @@ import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_partici
 import 'package:flutter/material.dart';
 import 'package:tournament_mode/tournament_mode.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'bracket_widths.dart' as bracket_widths;
 
 class RoundRobinPlan extends StatelessWidget {
   const RoundRobinPlan({
@@ -64,7 +65,7 @@ class _RoundRobinTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double width = 440;
+    double width = bracket_widths.roundRobinTableWidth;
     return Card(
       elevation: 0,
       clipBehavior: Clip.antiAlias,

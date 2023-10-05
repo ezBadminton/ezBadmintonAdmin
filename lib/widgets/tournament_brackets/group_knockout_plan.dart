@@ -2,12 +2,14 @@ import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/round_robin_plan.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/section_labels.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
 import 'package:flutter/material.dart';
 import 'package:tournament_mode/tournament_mode.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'bracket_widths.dart' as bracket_widths;
 
-class GroupKnockoutPlan extends StatelessWidget {
+class GroupKnockoutPlan extends StatelessWidget implements SectionLabels {
   const GroupKnockoutPlan({
     super.key,
     required this.tournament,
@@ -43,9 +45,9 @@ class GroupKnockoutPlan extends StatelessWidget {
       children: [
         for (Widget groupPlan in groupPlans) ...[
           groupPlan,
-          const SizedBox(width: 30),
+          const SizedBox(width: bracket_widths.groupKnockoutGroupGap),
         ],
-        const SizedBox(width: 50),
+        const SizedBox(width: bracket_widths.groupKnockoutEliminationGap),
         eliminationTree,
       ],
     );
@@ -66,5 +68,34 @@ class GroupKnockoutPlan extends StatelessWidget {
     };
 
     return placeholders;
+  }
+
+  @override
+  List<SectionLabel> getSectionLabels(AppLocalizations l10n) {
+    int numGroups = tournament.numGroups;
+
+    List<SectionLabel> groupPhaseSectionLabels = [
+      for (int g = 0; g < numGroups; g += 1) ...[
+        SectionLabel(
+          width: bracket_widths.roundRobinTableWidth,
+          label: l10n.groupNumber(g + 1),
+        ),
+        SectionLabel(width: bracket_widths.groupKnockoutGroupGap),
+      ],
+    ];
+
+    SingleEliminationTree eliminationTree = SingleEliminationTree(
+      rounds: tournament.knockoutPhase.rounds,
+      competition: competition,
+    );
+
+    List<SectionLabel> eliminationSectionLabels =
+        eliminationTree.getSectionLabels(l10n);
+
+    return [
+      ...groupPhaseSectionLabels,
+      SectionLabel(width: bracket_widths.groupKnockoutEliminationGap),
+      ...eliminationSectionLabels,
+    ];
   }
 }
