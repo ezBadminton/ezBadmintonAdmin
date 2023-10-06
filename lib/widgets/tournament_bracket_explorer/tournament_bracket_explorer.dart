@@ -40,6 +40,8 @@ class _TournamentBracketExplorerState extends State<TournamentBracketExplorer>
       _viewController!.vsync = this;
     }
 
+    _viewInitialized = _viewController!.viewConstraints != null;
+
     super.didChangeDependencies();
   }
 

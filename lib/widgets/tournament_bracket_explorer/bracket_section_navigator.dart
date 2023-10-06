@@ -30,28 +30,44 @@ class BracketSectionNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    const double height = 30;
+    const double indicatorHeigt = 2;
+
+    return Column(
       children: [
-        _SectionIndicator(width: _navigatorWidth),
         Row(
           children: sectionLabels.map((section) {
-            return SizedBox(
-              height: 50,
+            return Container(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              height: height,
               width: _widthScale * section.width,
               child: section.label != null
-                  ? Align(
-                      child: TextButton(
-                        onPressed: () {
-                          viewController.focusHorizontal(
-                            _getTotalOffset(section),
-                          );
-                        },
-                        child: Text(section.label!),
+                  ? Container(
+                      color: Theme.of(context).highlightColor.withOpacity(.2),
+                      child: SizedBox.expand(
+                        child: TextButton(
+                          onPressed: () {
+                            viewController.focusHorizontal(
+                              _getTotalOffset(section),
+                            );
+                          },
+                          child: Text(
+                            section.label!,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
                       ),
                     )
                   : null,
             );
           }).toList(),
+        ),
+        _SectionIndicator(
+          width: viewController.viewConstraints!.maxWidth,
+          height: indicatorHeigt,
         ),
       ],
     );
@@ -69,29 +85,38 @@ class BracketSectionNavigator extends StatelessWidget {
 class _SectionIndicator extends StatelessWidget {
   const _SectionIndicator({
     required this.width,
+    required this.height,
   });
 
   final double width;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<BracketSectionNavigatorCubit,
         BracketSectionNavigatorState>(
       builder: (context, state) {
-        return Positioned(
-          top: 0,
-          child: Row(
-            children: [
-              SizedBox(width: max(0, state.horizontalOffset)),
-              SizedBox(
-                height: 50,
-                width: max(0, state.visibleWidth),
-                child: Container(
-                  color: Theme.of(context).primaryColor.withOpacity(.1),
-                ),
-              )
-            ],
+        final double offset = max(0, state.horizontalOffset);
+        final double visibleWidth = max(
+          0,
+          min(
+            state.visibleWidth,
+            min(
+              width - offset,
+              state.visibleWidth + offset,
+            ),
           ),
+        );
+
+        return Row(
+          children: [
+            SizedBox(width: offset),
+            Container(
+              height: height,
+              width: visibleWidth,
+              color: Theme.of(context).primaryColor.withOpacity(.75),
+            )
+          ],
         );
       },
     );
