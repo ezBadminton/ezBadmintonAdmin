@@ -63,7 +63,7 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionLabels {
     Map<MatchParticipant, String> placeholders = {
       for (int place = 0; place < tournament.qualificationsPerGroup; place += 1)
         for (int group = 0; group < tournament.numGroups; group += 1)
-          finalGroupRanking[group * tournament.qualificationsPerGroup + place]:
+          finalGroupRanking[place * tournament.numGroups + group]:
               l10n.groupQualification(group + 1, place + 1),
     };
 
