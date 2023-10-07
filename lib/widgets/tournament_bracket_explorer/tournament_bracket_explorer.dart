@@ -17,6 +17,7 @@ import 'package:ez_badminton_admin_app/widgets/transformation_zoom_buttons/trans
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:local_hero/local_hero.dart';
 
 class TournamentBracketExplorer extends StatefulWidget {
   const TournamentBracketExplorer({
@@ -115,9 +116,14 @@ class _TournamentBracketExplorerState extends State<TournamentBracketExplorer>
                         boundaryMargin: boundaryMargin,
                         scaleFactor: 1500,
                         transformationController: _viewController,
-                        child: KeyedSubtree(
-                          key: _viewController!.bracketViewKey,
-                          child: widget.tournamentBracket,
+                        child: LocalHeroScope(
+                          duration: const Duration(milliseconds: 180),
+                          curve: Curves.easeOutQuad,
+                          onlyAnimateRemount: true,
+                          child: KeyedSubtree(
+                            key: _viewController!.bracketViewKey,
+                            child: widget.tournamentBracket,
+                          ),
                         ),
                       );
                     },

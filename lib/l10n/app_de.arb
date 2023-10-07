@@ -191,7 +191,7 @@
   "expand": "Ausklappen",
   "undoManualDraw": "Manuelle Änderungen zurücksetzen",
   "redraw": "Neu auslosen",
-  "undoManualDrawWarning": "Sollen die manuellen Änderungen an der Auslosung wirklich zurückgesetzt werden?\nTeilnehmer, deren Anwesenheitsstatus sich seit der letzten Auslosung geändert hat, werden entspechend berücksichtigt.",
-  "redrawWarning": "Soll die Auslosung wirklich neu gemacht werden?\nTeilnehmer, deren Anwesenheitsstatus sich seit der letzten Auslosung geändert hat, werden entspechend berücksichtigt.",
+  "undoManualDrawWarning": "Sollen die manuellen Änderungen an der Auslosung wirklich zurückgesetzt werden?\nTeilnehmer, deren Anwesenheitsstatus sich seit der letzten Auslosung geändert hat, werden entsprechend berücksichtigt.",
+  "redrawWarning": "Soll die Auslosung wirklich neu gemacht werden?\nTeilnehmer, deren Anwesenheitsstatus sich seit der letzten Auslosung geändert hat, werden entsprechend berücksichtigt.",
   "deleteDrawWarning": "Soll die Auslosung wirklich gelöscht werden?\nHierdurch können Turniermodus und Setzliste wieder bearbeitet werden."
 }

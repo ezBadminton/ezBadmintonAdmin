@@ -14,7 +14,6 @@ import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_elimin
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:local_hero/local_hero.dart';
 import 'package:tournament_mode/tournament_mode.dart';
 
 class DrawEditor extends StatelessWidget {
@@ -129,14 +128,9 @@ class _InteractiveDraw extends StatelessWidget {
       _ => const Text('No View implemented yet'),
     };
 
-    return LocalHeroScope(
-      duration: const Duration(milliseconds: 180),
-      curve: Curves.easeOutQuad,
-      onlyAnimateRemount: true,
-      child: TournamentBracketExplorer(
-        competition: competition,
-        tournamentBracket: drawView,
-      ),
+    return TournamentBracketExplorer(
+      competition: competition,
+      tournamentBracket: drawView,
     );
   }
 }
