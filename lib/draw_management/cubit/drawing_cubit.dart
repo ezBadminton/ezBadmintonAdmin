@@ -24,15 +24,38 @@ class DrawingCubit extends CollectionQuerierCubit<DrawingState> {
     );
   }
 
+  /// Make the draw using the existing [Competition.rngSeed]
   void makeDraw() async {
     if (state.formStatus == FormzSubmissionStatus.inProgress) {
       return;
     }
     emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
-    if (state.competition.tournamentModeSettings == null) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+    FormzSubmissionStatus drawSuccess = await _draw(state.competition);
+
+    emit(state.copyWith(formStatus: drawSuccess));
+  }
+
+  /// Make the draw with a newly created RNG seed
+  void redraw() async {
+    if (state.formStatus == FormzSubmissionStatus.inProgress) {
       return;
+    }
+    emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
+
+    int newRngSeed = Random().nextInt(1 << 32);
+
+    Competition newRngCompetition =
+        state.competition.copyWith(rngSeed: newRngSeed);
+
+    FormzSubmissionStatus drawSuccess = await _draw(newRngCompetition);
+
+    emit(state.copyWith(formStatus: drawSuccess));
+  }
+
+  Future<FormzSubmissionStatus> _draw(Competition competition) async {
+    if (competition.tournamentModeSettings == null) {
+      return FormzSubmissionStatus.failure;
     }
 
     List<List<Team>> seededTiers = _getSeededTiers();
@@ -42,26 +65,24 @@ class DrawingCubit extends CollectionQuerierCubit<DrawingState> {
         .toList();
 
     if (attendingPlayers.length < 2) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-      return;
+      return FormzSubmissionStatus.failure;
     }
 
-    Random random = Random(state.competition.rngSeed);
+    Random random = Random(competition.rngSeed);
 
     List<Team> draw = [
       for (List<Team> tier in seededTiers) ...tier..shuffle(random),
     ];
 
-    Competition competitionWithDraw = state.competition.copyWith(draw: draw);
+    Competition competitionWithDraw = competition.copyWith(draw: draw);
 
     Competition? updatedCompetition =
         await querier.updateModel(competitionWithDraw);
     if (updatedCompetition == null) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-      return;
+      return FormzSubmissionStatus.failure;
     }
 
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+    return FormzSubmissionStatus.success;
   }
 
   /// Returns all registered players sorted into seeded tiers.

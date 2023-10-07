@@ -10,11 +10,14 @@ class CompetitionLabel extends StatelessWidget {
     required this.competition,
     this.abbreviated = false,
     this.playingLevelMaxWidth = 240,
+    this.textStyle,
   });
 
   final Competition competition;
   final bool abbreviated;
   final double playingLevelMaxWidth;
+
+  final TextStyle? textStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -32,49 +35,52 @@ class CompetitionLabel extends StatelessWidget {
     return Tooltip(
       message: display_strings.competitionLabel(l10n, competition),
       waitDuration: const Duration(milliseconds: 500),
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          if (competition.playingLevel != null) ...[
-            ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: playingLevelMaxWidth),
-              child: Text(
-                competition.playingLevel!.name,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            divider,
-          ],
-          if (competition.ageGroup != null) ...[
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 140),
-              child: Text(
-                display_strings.ageGroup(
-                  l10n,
-                  competition.ageGroup!,
+      child: DefaultTextStyle.merge(
+        style: textStyle,
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (competition.playingLevel != null) ...[
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: playingLevelMaxWidth),
+                child: Text(
+                  competition.playingLevel!.name,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                overflow: TextOverflow.ellipsis,
               ),
-            ),
-            divider,
-          ],
-          Text(
-            abbreviated
-                ? display_strings.competitionGenderAndTypeAbbreviation(
+              divider,
+            ],
+            if (competition.ageGroup != null) ...[
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 140),
+                child: Text(
+                  display_strings.ageGroup(
                     l10n,
-                    competition.genderCategory,
-                    competition.type,
-                  )
-                : display_strings.competitionGenderAndType(
-                    l10n,
-                    competition.genderCategory,
-                    competition.type,
+                    competition.ageGroup!,
                   ),
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ],
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              divider,
+            ],
+            Text(
+              abbreviated
+                  ? display_strings.competitionGenderAndTypeAbbreviation(
+                      l10n,
+                      competition.genderCategory,
+                      competition.type,
+                    )
+                  : display_strings.competitionGenderAndType(
+                      l10n,
+                      competition.genderCategory,
+                      competition.type,
+                    ),
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
       ),
     );
   }

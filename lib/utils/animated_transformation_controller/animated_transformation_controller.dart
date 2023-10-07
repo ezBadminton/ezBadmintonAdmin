@@ -126,10 +126,14 @@ class AnimatedTransformationController extends TransformationController {
     Matrix4 scaled = currentTransform.clone()..scale(clampedScale);
     currentTransform = scaled;
 
-    Offset correctedFocus = correctForBoundary(
+    Offset? correctedFocus = correctForBoundary(
       currentFocus,
       clampedTotalScale,
-    )!;
+    );
+
+    if (correctedFocus == null) {
+      return;
+    }
 
     Offset scaledFocus = toScene(viewConstraints!.biggest.center(Offset.zero));
 

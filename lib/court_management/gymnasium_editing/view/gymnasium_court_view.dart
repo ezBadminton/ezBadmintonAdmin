@@ -12,6 +12,7 @@ import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/utils/
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/view/gymnasium_editing_page.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
 import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
+import 'package:ez_badminton_admin_app/widgets/transformation_zoom_buttons/transformation_zoom_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -166,7 +167,10 @@ class _ViewControlBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _ZoomButtons(viewController: viewController),
+              ZoomButtons(
+                viewController: viewController,
+                maxScale: gym_court_utils.maxZoomScale,
+              ),
               ConstrainedBox(
                 constraints: const BoxConstraints(
                   minWidth: 170,
@@ -291,51 +295,6 @@ class _GymnasiumOptions extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _ZoomButtons extends StatelessWidget {
-  const _ZoomButtons({
-    required this.viewController,
-  });
-
-  final GymnasiumCourtViewController viewController;
-
-  @override
-  Widget build(BuildContext context) {
-    var l10n = AppLocalizations.of(context)!;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Tooltip(
-          message: l10n.zoom,
-          waitDuration: const Duration(milliseconds: 500),
-          child: TextButton(
-            onPressed: () => viewController.zoom(1 / 1.15),
-            child: const Icon(Icons.zoom_out),
-          ),
-        ),
-        Tooltip(
-          message: l10n.resetView,
-          waitDuration: const Duration(milliseconds: 500),
-          child: TextButton(
-            onPressed: viewController.fitToScreen,
-            child: const Icon(Icons.fit_screen_rounded),
-          ),
-        ),
-        Tooltip(
-          message: l10n.zoom,
-          waitDuration: const Duration(milliseconds: 500),
-          child: TextButton(
-            onPressed: () => viewController.zoom(
-              1.15,
-              maxScale: gym_court_utils.maxZoomScale,
-            ),
-            child: const Icon(Icons.zoom_in),
-          ),
-        ),
-      ],
     );
   }
 }

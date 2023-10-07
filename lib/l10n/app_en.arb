@@ -188,5 +188,10 @@
   "groupQualification": "{place}. Place, Group {group}",
   "roundOfN": "{participants, select, 2{Final} 4{Semi-Final} 8{Quarter-Final} other{Round of {participants}}}",
   "collapse": "Collapse",
-  "expand": "Expand"
+  "expand": "Expand",
+  "undoManualDraw": "Reset manual changes",
+  "redraw": "Redraw",
+  "undoManualDrawWarning": "Really reset the manual changes to the draw?\nThis will update entries who's attendance status changed since the last draw.",
+  "redrawWarning": "Really redo the draw?\nThis will update entries who's attendance status changed since the last draw.",
+  "deleteDrawWarning": "Really delete the draw?\nAfterwards the tournament mode and seed list will be editable again."
 }

@@ -2,6 +2,7 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/view/tournament_mode_assignment_page.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/competition_draw_selection_cubit.dart';
+import 'package:ez_badminton_admin_app/draw_management/cubit/draw_deletion_cubit.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/draw_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/drawing_cubit.dart';
 import 'package:ez_badminton_admin_app/draw_management/widgets/tournament_mode_card.dart';
@@ -43,17 +44,48 @@ class DrawEditor extends StatelessWidget {
 
           Competition selectedCompetition = state.selectedCompetition.value!;
 
+          Widget drawView;
+
           if (selectedCompetition.tournamentModeSettings == null) {
-            return _TournamentModeAssignmentMenu(
+            drawView = _TournamentModeAssignmentMenu(
               selectedCompetition: selectedCompetition,
             );
+          } else if (selectedCompetition.draw.isNotEmpty) {
+            drawView = _InteractiveDraw(competition: selectedCompetition);
+          } else {
+            drawView = _DrawMenu(selectedCompetition: selectedCompetition);
           }
 
-          if (selectedCompetition.draw.isNotEmpty) {
-            return _InteractiveDraw(competition: selectedCompetition);
-          }
-
-          return _DrawMenu(selectedCompetition: selectedCompetition);
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                key: ValueKey('DrawingCubit-${selectedCompetition.id}'),
+                create: (context) => DrawingCubit(
+                  competition: selectedCompetition,
+                  competitionRepository:
+                      context.read<CollectionRepository<Competition>>(),
+                ),
+              ),
+              BlocProvider(
+                key: ValueKey('DrawDeletionCubit-${selectedCompetition.id}'),
+                create: (context) => DrawDeletionCubit(
+                  competition: selectedCompetition,
+                  competitionRepository:
+                      context.read<CollectionRepository<Competition>>(),
+                ),
+              ),
+              BlocProvider(
+                key: ValueKey<String>(
+                    'DrawEditingCubit${selectedCompetition.id}'),
+                create: (context) => DrawEditingCubit(
+                  competition: selectedCompetition,
+                  competitionRepository:
+                      context.read<CollectionRepository<Competition>>(),
+                ),
+              ),
+            ],
+            child: drawView,
+          );
         },
       ),
     );
@@ -97,21 +129,13 @@ class _InteractiveDraw extends StatelessWidget {
       _ => const Text('No View implemented yet'),
     };
 
-    return BlocProvider(
-      key: ValueKey<String>('DrawEditingCubit${competition.id}'),
-      create: (context) => DrawEditingCubit(
+    return LocalHeroScope(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOutQuad,
+      onlyAnimateRemount: true,
+      child: TournamentBracketExplorer(
         competition: competition,
-        competitionRepository:
-            context.read<CollectionRepository<Competition>>(),
-      ),
-      child: LocalHeroScope(
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOutQuad,
-        onlyAnimateRemount: true,
-        child: TournamentBracketExplorer(
-          competition: competition,
-          tournamentBracket: drawView,
-        ),
+        tournamentBracket: drawView,
       ),
     );
   }
@@ -128,42 +152,35 @@ class _DrawMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
-    return BlocProvider(
-      create: (context) => DrawingCubit(
-        competition: selectedCompetition,
-        competitionRepository:
-            context.read<CollectionRepository<Competition>>(),
-      ),
-      child: Builder(builder: (context) {
-        var cubit = context.read<DrawingCubit>();
-        return Center(
-          child: TournamentModeCard(
-            modeSettings: selectedCompetition.tournamentModeSettings!,
-            child: Column(
-              children: [
-                ElevatedButton(
-                  onPressed: cubit.makeDraw,
-                  style: const ButtonStyle(
-                    shape: MaterialStatePropertyAll(StadiumBorder()),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Text(
-                      l10n.makeDraw,
-                      style: const TextStyle(fontSize: 17),
-                    ),
+    return Builder(builder: (context) {
+      var cubit = context.read<DrawingCubit>();
+      return Center(
+        child: TournamentModeCard(
+          modeSettings: selectedCompetition.tournamentModeSettings!,
+          child: Column(
+            children: [
+              ElevatedButton(
+                onPressed: cubit.makeDraw,
+                style: const ButtonStyle(
+                  shape: MaterialStatePropertyAll(StadiumBorder()),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Text(
+                    l10n.makeDraw,
+                    style: const TextStyle(fontSize: 17),
                   ),
                 ),
-                const SizedBox(height: 15),
-                _TournamentModeAssignmentButton(
-                  selectedCompetition: selectedCompetition,
-                )
-              ],
-            ),
+              ),
+              const SizedBox(height: 15),
+              _TournamentModeAssignmentButton(
+                selectedCompetition: selectedCompetition,
+              )
+            ],
           ),
-        );
-      }),
-    );
+        ),
+      );
+    });
   }
 }
 

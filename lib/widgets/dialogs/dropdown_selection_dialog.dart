@@ -1,5 +1,5 @@
+import 'package:ez_badminton_admin_app/utils/simple_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/clearable_dropdown_button.dart';
-import 'package:ez_badminton_admin_app/widgets/dialogs/cubit/selection_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -27,7 +27,7 @@ class DropdownSelectionDialog<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SelectionCubit(options.first),
+      create: (context) => SimpleCubit(options.first),
       child: _DialogBody<T>(
         options: options,
         displayStringFunction: displayStringFunction,
@@ -62,8 +62,8 @@ class _DialogBody<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    var cubit = context.read<SelectionCubit<T>>();
-    return BlocBuilder<SelectionCubit<T>, T>(
+    var cubit = context.read<SimpleCubit<T>>();
+    return BlocBuilder<SimpleCubit<T>, T>(
       builder: (context, selection) {
         return AlertDialog(
           title: title,
@@ -76,7 +76,7 @@ class _DialogBody<T> extends StatelessWidget {
               ],
               ClearableDropdownButton<T>(
                 value: selection,
-                onChanged: (value) => cubit.selectionChanged(value as T),
+                onChanged: (value) => cubit.changeState(value as T),
                 items: options
                     .map(
                       (option) => DropdownMenuItem<T>(
