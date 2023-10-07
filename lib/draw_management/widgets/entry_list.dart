@@ -3,6 +3,7 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/assets/badminton_icons_icons.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/seeding_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/player_sorter/comparators/team_comparator.dart';
+import 'package:ez_badminton_admin_app/widgets/cross_fade_drawer/cross_fade_drawer_controller.dart';
 import 'package:ez_badminton_admin_app/widgets/implicit_animated_list/reorderable_implicit_animated_list.dart';
 import 'package:ez_badminton_admin_app/widgets/implicit_animated_list/reorderable_item_gap.dart';
 import 'package:flutter/material.dart';
@@ -16,9 +17,11 @@ class EntryList extends StatelessWidget {
   const EntryList({
     super.key,
     required this.competition,
+    required this.drawerController,
   });
 
   final Competition competition;
+  final CrossFadeDrawerController drawerController;
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +35,7 @@ class EntryList extends StatelessWidget {
       child: BlocBuilder<SeedingCubit, SeedingState>(
         builder: (context, state) {
           return _EntryList(
+            drawerController: drawerController,
             entries: [
               ...state.competition.seeds,
               ..._getUnseededEntries(state.competition),
@@ -63,16 +67,20 @@ class _EntryList extends StatelessWidget {
     required this.entries,
     required this.numSeeds,
     required this.seedingMode,
+    this.drawerController,
   });
 
   final List<Team> entries;
   final int numSeeds;
   final SeedingMode? seedingMode;
 
+  final CrossFadeDrawerController? drawerController;
+
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
     var cubit = context.read<SeedingCubit>();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -80,15 +88,38 @@ class _EntryList extends StatelessWidget {
           color: Theme.of(context).primaryColor.withOpacity(.45),
           child: Padding(
             padding: const EdgeInsets.symmetric(
-              vertical: 18.0,
+              vertical: 16.0,
               horizontal: 12.0,
             ),
-            child: Text(
-              l10n.entryList,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    l10n.entryList,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                if (drawerController != null)
+                  Tooltip(
+                    message: l10n.collapse,
+                    preferBelow: false,
+                    child: InkResponse(
+                      onTap: drawerController!.collapse,
+                      radius: 21,
+                      child: Icon(
+                        Icons.keyboard_double_arrow_left,
+                        size: 28,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(.5),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         ),

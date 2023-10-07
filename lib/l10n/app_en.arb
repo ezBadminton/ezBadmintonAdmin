@@ -186,5 +186,7 @@
   "participant": "{count, plural, =1{Participant} other{Participants}}",
   "groupNumber": "Group {number}",
   "groupQualification": "{place}. Place, Group {group}",
-  "roundOfN": "{participants, select, 2{Final} 4{Semi-Final} 8{Quarter-Final} other{Round of {participants}}}"
+  "roundOfN": "{participants, select, 2{Final} 4{Semi-Final} 8{Quarter-Final} other{Round of {participants}}}",
+  "collapse": "Collapse",
+  "expand": "Expand"
 }

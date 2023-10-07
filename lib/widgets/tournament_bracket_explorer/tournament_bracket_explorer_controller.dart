@@ -5,6 +5,10 @@ import 'package:ez_badminton_admin_app/utils/aspect_ratios.dart'
     as aspect_ratios;
 import 'package:flutter/material.dart';
 
+// The controller uses this size when the tournament bracket has not been
+// rendered and its size is not yet known
+const Size _fallbackSceneSize = Size(1, 1);
+
 class TournamentBracketExplorerController
     extends AnimatedTransformationController {
   TournamentBracketExplorerController(this.bracketViewKey);
@@ -14,7 +18,7 @@ class TournamentBracketExplorerController
   @override
   Size get sceneSize =>
       (bracketViewKey.currentContext?.findRenderObject() as RenderBox?)?.size ??
-      const Size(10, 10);
+      _fallbackSceneSize;
 
   @override
   EdgeInsets get boundaryMargin {
@@ -35,6 +39,20 @@ class TournamentBracketExplorerController
       horizontal: (boundarySize.width - scene.width) * 0.5,
       vertical: (boundarySize.height - scene.height) * 0.5,
     );
+  }
+
+  BoxConstraints? _viewConstraints;
+  @override
+  BoxConstraints? get viewConstraints => _viewConstraints;
+  @override
+  set viewConstraints(BoxConstraints? newConstraints) {
+    if (newConstraints == _viewConstraints) {
+      return;
+    }
+    _viewConstraints = newConstraints;
+    if (sceneSize != _fallbackSceneSize) {
+      fitToScreen();
+    }
   }
 
   void focusHorizontal(double horizontalOffset) {

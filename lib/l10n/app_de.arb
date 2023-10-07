@@ -186,5 +186,7 @@
   "participant": "{count, plural, other{Teilnehmer}}",
   "groupNumber": "Gruppe {number}",
   "groupQualification": "{place}. Platz, Gruppe {group}",
-  "roundOfN": "{participants, select, 2{Finale} 4{Halbfinale} 8{Viertelfinale} 16{Achtelfinale} other{{participants}er Runde}}"
+  "roundOfN": "{participants, select, 2{Finale} 4{Halbfinale} 8{Viertelfinale} 16{Achtelfinale} other{{participants}er Runde}}",
+  "collapse": "Einklappen",
+  "expand": "Ausklappen"
 }
