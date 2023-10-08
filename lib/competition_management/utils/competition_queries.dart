@@ -104,7 +104,8 @@ abstract mixin class RemovedCategoryCompetitionManagement<
     List<CompetitionMerge> merges = mergeGroups.map(
       (mergeGroup) {
         Competition? primaryMerge = mergeGroup.firstWhereOrNull(
-            (c) => _isCompetitionInCategory(c, replacementCategory));
+          (c) => _isCompetitionInCategory(c, replacementCategory),
+        );
 
         return CompetitionMerge(
           competitions: mergeGroup,

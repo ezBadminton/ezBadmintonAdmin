@@ -1,6 +1,7 @@
 import 'package:collection_repository/collection_repository.dart';
 
-// Updates the cached competitions when their PlayingLevel is updated
+// Updates the cached competitions when their PlayingLevel is updated or
+// when
 List<Competition> onCompetitionRelationUpdate(
   List<Competition> competitions,
   CollectionUpdateEvent updateEvent,
@@ -15,9 +16,13 @@ List<Competition> onCompetitionRelationUpdate(
         .toList();
   }
 
-  if (updateEvent.model is Team &&
-      updateEvent.updateType == UpdateType.update) {
+  if (updateEvent.model is Team) {
     Team updatedTeam = updateEvent.model as Team;
+
+    Team? replacement = switch (updateEvent.updateType) {
+      UpdateType.delete => null,
+      _ => updatedTeam,
+    };
 
     List<Competition> containingCompetitions = competitions
         .where((c) => c.registrations.contains(updatedTeam))
@@ -30,9 +35,9 @@ List<Competition> onCompetitionRelationUpdate(
       List<Team> seeds = List.of(competition.seeds);
       List<Team> draw = List.of(competition.draw);
 
-      _replaceInList(registrations, updatedTeam.id, updatedTeam);
-      _replaceInList(seeds, updatedTeam.id, updatedTeam);
-      _replaceInList(draw, updatedTeam.id, updatedTeam);
+      _replaceInList(registrations, updatedTeam.id, replacement);
+      _replaceInList(seeds, updatedTeam.id, replacement);
+      _replaceInList(draw, updatedTeam.id, replacement);
 
       updatedCompetitions.add(
         competition.copyWith(
@@ -53,9 +58,13 @@ List<Team> onTeamRelationUpdate(
   List<Team> teams,
   CollectionUpdateEvent updateEvent,
 ) {
-  if (updateEvent.model is Player &&
-      updateEvent.updateType == UpdateType.update) {
+  if (updateEvent.model is Player) {
     Player updatedPlayer = updateEvent.model as Player;
+
+    Player? replacement = switch (updateEvent.updateType) {
+      UpdateType.delete => null,
+      _ => updatedPlayer,
+    };
 
     List<Team> containingTeams =
         teams.where((t) => t.players.contains(updatedPlayer)).toList();
@@ -63,7 +72,7 @@ List<Team> onTeamRelationUpdate(
     List<Team> updatedTeams = [];
     for (Team team in containingTeams) {
       List<Player> players = List.of(team.players);
-      _replaceInList(players, updatedPlayer.id, updatedPlayer);
+      _replaceInList(players, updatedPlayer.id, replacement);
 
       updatedTeams.add(team.copyWith(players: players));
     }
@@ -76,10 +85,15 @@ List<Team> onTeamRelationUpdate(
 
 /// In the [list], replaces the [Model] with the [id] with the [replacement].
 ///
+/// When [replacement] is null, it just removes the [Model] with [id].
 /// Does nothing if the [list] does not contain a model with the [id].
-void _replaceInList(List<Model> list, String id, Model replacement) {
+void _replaceInList(List<Model> list, String id, Model? replacement) {
   int index = list.indexWhere((m) => m.id == id);
   if (index >= 0) {
-    list[index] = replacement;
+    if (replacement == null) {
+      list.removeAt(index);
+    } else {
+      list[index] = replacement;
+    }
   }
 }

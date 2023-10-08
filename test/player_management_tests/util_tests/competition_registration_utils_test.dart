@@ -403,17 +403,10 @@ void main() {
 
       expect(updatedCompetition, isNotNull);
       expect(updatedCompetition!.registrations, hasLength(1));
-      expect(updatedCompetition.registrations[0], HasPlayers([partner]));
 
       verify(
         () => querier.updateModel<Team>(
           any(that: HasPlayers([partner])),
-          expand: any(named: 'expand'),
-        ),
-      ).called(1);
-      verify(
-        () => querier.updateModel<Competition>(
-          any(that: HasRegistrations(hasLength(1))),
           expand: any(named: 'expand'),
         ),
       ).called(1);

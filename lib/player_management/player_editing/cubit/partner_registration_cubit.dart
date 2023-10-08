@@ -9,12 +9,13 @@ import 'package:formz/formz.dart';
 class PartnerRegistrationCubit
     extends CollectionFetcherCubit<PartnerRegistrationState> {
   PartnerRegistrationCubit({
-    required this.registration,
+    required CompetitionRegistration registration,
     required CollectionRepository<Player> playerRepository,
     required CollectionRepository<Team> teamRepository,
     required CollectionRepository<Competition> competitionRepository,
   }) : super(
           PartnerRegistrationState(
+            registration: registration,
             partner: SelectionInput.pure(value: registration.partner),
           ),
           collectionRepositories: [
@@ -28,11 +29,19 @@ class PartnerRegistrationCubit
       'There is no space for registering a partner Player on this team',
     );
     loadPlayerData();
-    subscribeToCollectionUpdates(teamRepository, _onTeamCollectionUpdate);
-    subscribeToCollectionUpdates(playerRepository, _onPlayerCollectionUpdate);
+    subscribeToCollectionUpdates(
+      teamRepository,
+      _onTeamCollectionUpdate,
+    );
+    subscribeToCollectionUpdates(
+      playerRepository,
+      _onPlayerCollectionUpdate,
+    );
+    subscribeToCollectionUpdates(
+      competitionRepository,
+      _onCompetitionCollectionUpdate,
+    );
   }
-
-  final CompetitionRegistration registration;
 
   void loadPlayerData() {
     if (state.loadingStatus != LoadingStatus.loading) {
@@ -68,14 +77,13 @@ class PartnerRegistrationCubit
     emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
     Player partner = state.partner.value!;
-    List<Player> teamMembers = List.of(registration.team.players)..add(partner);
-    Team teamWithPartner = registration.team.copyWith(players: teamMembers);
+    List<Player> teamMembers = List.of(state.registration.team.players)
+      ..add(partner);
+    Team teamWithPartner =
+        state.registration.team.copyWith(players: teamMembers);
 
-    CompetitionRegistration registrationWithPartner = CompetitionRegistration(
-      player: registration.player,
-      competition: registration.competition,
-      team: teamWithPartner,
-    );
+    CompetitionRegistration registrationWithPartner =
+        state.registration.copyWith(team: teamWithPartner);
 
     // Check if partner is already on a solo team
     Team? existingPartnerTeam = registrationWithPartner.getPartnerTeam();
@@ -95,26 +103,6 @@ class PartnerRegistrationCubit
       return;
     }
 
-    // Remove/add the affected Teams from the Competition's registration List
-    List<Team> registrationsWithPartner =
-        List.of(registration.competition.registrations)
-          ..remove(registration.team)
-          ..add(updatedTeam!);
-    if (existingPartnerTeam != null) {
-      registrationsWithPartner.remove(existingPartnerTeam);
-    }
-    Competition competitionWithPartner = registration.competition.copyWith(
-      registrations: registrationsWithPartner,
-    );
-
-    Competition? updatedCompetition =
-        await querier.updateModel(competitionWithPartner);
-
-    if (updatedCompetition == null && !isClosed) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-      return;
-    }
-
     // The cubit might already be closed at this point because the
     // collection update events triggered widget tree updates
     if (!isClosed) {
@@ -124,16 +112,16 @@ class PartnerRegistrationCubit
 
   // If the currently selected partner is registered to another team
   // remove the selection to avoid double registrations
-  void _onTeamCollectionUpdate(CollectionUpdateEvent event) {
-    Team updatedTeam = event.model as Team;
+  void _onTeamCollectionUpdate(CollectionUpdateEvent<Team> event) {
+    Team updatedTeam = event.model;
     if (state.partner.value != null &&
         updatedTeam.players.contains(state.partner.value)) {
       partnerChanged(null);
     }
   }
 
-  void _onPlayerCollectionUpdate(CollectionUpdateEvent event) {
-    Player updatedPlayer = event.model as Player;
+  void _onPlayerCollectionUpdate(CollectionUpdateEvent<Player> event) {
+    Player updatedPlayer = event.model;
     switch (event.updateType) {
       case UpdateType.create:
       case UpdateType.delete:
@@ -144,6 +132,16 @@ class PartnerRegistrationCubit
         break;
       default:
         break;
+    }
+  }
+
+  void _onCompetitionCollectionUpdate(
+      CollectionUpdateEvent<Competition> event) {
+    if (event.model.id == state.registration.competition.id) {
+      CompetitionRegistration newRegistration =
+          state.registration.copyWith(competition: event.model);
+
+      emit(state.copyWith(registration: newRegistration));
     }
   }
 }

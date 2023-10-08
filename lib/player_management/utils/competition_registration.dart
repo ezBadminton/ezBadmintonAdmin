@@ -121,7 +121,9 @@ Future<Competition?> deregisterCompetition(
   );
   Competition competition = registration.competition;
   List<Team> updatedCompetitionRegistrations =
-      List.of(competition.registrations)..remove(team);
+      List.of(competition.registrations);
+  List<Team> updatedCompetitionSeeds = List.of(competition.seeds);
+  List<Team> updatedCompetitionDraw = List.of(competition.draw);
 
   if (team.players.length == 1) {
     // remove team
@@ -129,6 +131,9 @@ Future<Competition?> deregisterCompetition(
     if (!teamDeleted) {
       return null;
     }
+    updatedCompetitionRegistrations.remove(team);
+    updatedCompetitionSeeds.remove(team);
+    updatedCompetitionDraw.remove(team);
   } else {
     // update team
     List<Player> teamMembers = List.of(team.players)..remove(player);
@@ -137,11 +142,12 @@ Future<Competition?> deregisterCompetition(
     if (updatedTeam == null) {
       return null;
     }
-    updatedCompetitionRegistrations.add(updatedTeam);
   }
 
   Competition competitionWithUpdatedTeam = competition.copyWith(
     registrations: updatedCompetitionRegistrations,
+    seeds: updatedCompetitionSeeds,
+    draw: updatedCompetitionDraw,
   );
   Competition? updatedCompetition =
       await querier.updateModel(competitionWithUpdatedTeam);

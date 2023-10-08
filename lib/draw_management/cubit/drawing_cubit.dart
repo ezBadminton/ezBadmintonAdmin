@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
+import 'package:ez_badminton_admin_app/draw_management/utils/team_status.dart';
 import 'package:ez_badminton_admin_app/utils/powers_of_two.dart';
 import 'package:formz/formz.dart';
 
@@ -113,11 +114,7 @@ class DrawingCubit extends CollectionQuerierCubit<DrawingState> {
 
   List<Team> _filterAttendingTeams(List<Team> teams) {
     return teams
-        .whereNot(
-          (t) => t.players
-              .map((p) => p.status == PlayerStatus.attending)
-              .contains(false),
-        )
+        .where((t) => teamStatus(t) == PlayerStatus.attending)
         .where((t) => t.players.length == state.competition.teamSize)
         .toList();
   }

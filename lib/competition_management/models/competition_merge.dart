@@ -44,9 +44,14 @@ class CompetitionMerge {
   /// Adopt the registrations from the [competitions] by marking them
   /// as directly adopted, newly created or deleted.
   void _adoptRegistrations() {
-    List<Team> allTeams = competitions
-        .map((c) => c.registrations)
-        .expand((registrations) => registrations)
+    List<Competition> competitionsWithPrimaryFirst = List.of(competitions);
+    if (primaryCompetition != null) {
+      competitionsWithPrimaryFirst.remove(primaryCompetition);
+      competitionsWithPrimaryFirst.insert(0, primaryCompetition!);
+    }
+
+    List<Team> allTeams = competitionsWithPrimaryFirst
+        .expand((competition) => competition.registrations)
         .toList();
 
     Set<Player> allPlayers = allTeams.expand((team) => team.players).toSet();

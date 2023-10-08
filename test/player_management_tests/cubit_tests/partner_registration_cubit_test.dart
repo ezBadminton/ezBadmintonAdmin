@@ -50,6 +50,8 @@ void main() {
   late Team team;
   late StreamController<CollectionUpdateEvent<Team>> teamUpdateController;
   late StreamController<CollectionUpdateEvent<Player>> playerUpdateController;
+  late StreamController<CollectionUpdateEvent<Competition>>
+      competitionUpdateController;
 
   PartnerRegistrationCubit createSut() {
     return PartnerRegistrationCubit(
@@ -73,6 +75,10 @@ void main() {
     playerUpdateController = StreamController.broadcast();
     when(() => playerRepository.updateStream)
         .thenAnswer((invocation) => playerUpdateController.stream);
+
+    competitionUpdateController = StreamController.broadcast();
+    when(() => competitionRepository.updateStream)
+        .thenAnswer((invocation) => competitionUpdateController.stream);
   }
 
   void arrangePlayerRepositoryThrows() {
@@ -113,14 +119,6 @@ void main() {
   void arrangeTeamRepositoryUpdateThrows() {
     when(
       () => teamRepository.update(any(), expand: any(named: 'expand')),
-    ).thenAnswer(
-      (invocation) async => throw CollectionQueryException('errorCode'),
-    );
-  }
-
-  void arrangeCompetitionRepositoryUpdateThrows() {
-    when(
-      () => competitionRepository.update(any(), expand: any(named: 'expand')),
     ).thenAnswer(
       (invocation) async => throw CollectionQueryException('errorCode'),
     );
@@ -335,16 +333,6 @@ void main() {
             expand: any(named: 'expand'),
           ),
         ).called(1);
-        verify(
-          () => competitionRepository.update(
-            any(
-              that: HasRegistrations([
-                HasPlayers(containsAll([player, partner]))
-              ]),
-            ),
-            expand: any(named: 'expand'),
-          ),
-        ).called(1);
         verifyNever(() => teamRepository.delete(any()));
       },
     );
@@ -375,16 +363,6 @@ void main() {
           ),
         ).called(1);
         verify(
-          () => competitionRepository.update(
-            any(
-              that: HasRegistrations([
-                HasPlayers(containsAll([player, partner]))
-              ]),
-            ),
-            expand: any(named: 'expand'),
-          ),
-        ).called(1);
-        verify(
           () => teamRepository.delete(any(that: HasPlayers([partner]))),
         ).called(1);
       },
@@ -410,15 +388,9 @@ void main() {
         arrangeTeamRepositoryUpdateThrows();
         cubit.partnerSubmitted();
         await Future.delayed(Duration.zero);
-
-        arrangeRepositoriesUpdateAndDelete();
-        arrangeCompetitionRepositoryUpdateThrows();
-        cubit.partnerSubmitted();
       },
       expect: () => [
         HasPartner(partner),
-        HasFormStatus(FormzSubmissionStatus.inProgress),
-        HasFormStatus(FormzSubmissionStatus.failure),
         HasFormStatus(FormzSubmissionStatus.inProgress),
         HasFormStatus(FormzSubmissionStatus.failure),
         HasFormStatus(FormzSubmissionStatus.inProgress),

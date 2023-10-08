@@ -1,7 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/assets/badminton_icons_icons.dart';
+import 'package:ez_badminton_admin_app/constants.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/seeding_cubit.dart';
+import 'package:ez_badminton_admin_app/draw_management/utils/team_status.dart';
 import 'package:ez_badminton_admin_app/player_management/player_sorter/comparators/team_comparator.dart';
 import 'package:ez_badminton_admin_app/widgets/cross_fade_drawer/cross_fade_drawer_controller.dart';
 import 'package:ez_badminton_admin_app/widgets/implicit_animated_list/reorderable_implicit_animated_list.dart';
@@ -39,6 +41,7 @@ class EntryList extends StatelessWidget {
         builder: (context, state) {
           return _EntryList(
             drawerController: drawerController,
+            competition: state.competition,
             entries: [
               ...state.competition.seeds,
               ..._getUnseededEntries(state.competition),
@@ -68,12 +71,15 @@ class EntryList extends StatelessWidget {
 
 class _EntryList extends StatelessWidget {
   const _EntryList({
+    required this.competition,
     required this.entries,
     required this.numSeeds,
     required this.seedingMode,
     required this.seedsEditable,
     this.drawerController,
   });
+
+  final Competition competition;
 
   final List<Team> entries;
   final int numSeeds;
@@ -88,6 +94,12 @@ class _EntryList extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
     var cubit = context.read<SeedingCubit>();
 
+    int numEntries = entries.length;
+    int numReady = entries
+        .where((team) => teamStatus(team) == PlayerStatus.attending)
+        .where((team) => team.players.length == competition.teamSize)
+        .length;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -95,18 +107,27 @@ class _EntryList extends StatelessWidget {
           color: Theme.of(context).primaryColor.withOpacity(.45),
           child: Padding(
             padding: const EdgeInsets.symmetric(
-              vertical: 16.0,
+              vertical: 10.0,
               horizontal: 12.0,
             ),
             child: Row(
               children: [
                 Expanded(
-                  child: Text(
-                    l10n.entryList,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.entryList,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        l10n.teamsReady(numReady, numEntries),
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                    ],
                   ),
                 ),
                 if (drawerController != null)
@@ -154,6 +175,7 @@ class _EntryList extends StatelessWidget {
     bool hasSameMembers =
         element1 == element2 && element1.players.equals(element2.players);
     bool areMembersRenamed = false;
+    bool hasSameStatus = teamStatus(element1) == teamStatus(element2);
 
     if (hasSameMembers) {
       for (int i = 0; i < element1.players.length; i += 1) {
@@ -165,7 +187,7 @@ class _EntryList extends StatelessWidget {
       }
     }
 
-    return hasSameMembers && !areMembersRenamed;
+    return hasSameMembers && !areMembersRenamed && hasSameStatus;
   }
 
   Widget _itemBuilder(
@@ -193,6 +215,7 @@ class _EntryList extends StatelessWidget {
 
     Widget teamItem = _Entry(
       team: team,
+      competition: competition,
       seed: seed,
       index: index,
       hoveringIndex: hoveringIndex,
@@ -267,6 +290,7 @@ class _EntryList extends StatelessWidget {
 
     Widget teamItem = _Entry(
       team: team,
+      competition: competition,
       seed: seed,
       index: index,
       hoveringIndex: hoveringIndex,
@@ -283,6 +307,7 @@ class _EntryList extends StatelessWidget {
 class _Entry extends StatelessWidget {
   const _Entry({
     required this.team,
+    required this.competition,
     required this.index,
     this.hoveringIndex,
     this.seed,
@@ -293,6 +318,7 @@ class _Entry extends StatelessWidget {
   });
 
   final Team team;
+  final Competition competition;
 
   final int index;
   final int? hoveringIndex;
@@ -309,6 +335,7 @@ class _Entry extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget teamCard = _TeamCard(
       team: team,
+      competition: competition,
       seed: seed,
       seedingMode: seedingMode,
       seedEditable: seedEditable,
@@ -356,6 +383,7 @@ class _Entry extends StatelessWidget {
 class _TeamCard extends StatelessWidget {
   const _TeamCard({
     required this.team,
+    required this.competition,
     required this.seed,
     this.seedingMode,
     this.draggable,
@@ -364,6 +392,7 @@ class _TeamCard extends StatelessWidget {
   });
 
   final Team team;
+  final Competition competition;
 
   final int? seed;
   final SeedingMode? seedingMode;
@@ -378,6 +407,8 @@ class _TeamCard extends StatelessWidget {
     var cubit = context.read<SeedingCubit>();
     var l10n = AppLocalizations.of(context)!;
 
+    Widget? teamStatusIcon = _teamStatusIcon(l10n);
+
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
@@ -391,23 +422,26 @@ class _TeamCard extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Row(
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  for (Player player in team.players) ...[
-                    Text(
-                      display_strings.playerWithClub(player),
-                      overflow: TextOverflow.ellipsis,
-                      style: textStyle,
-                    ),
-                    if (team.players.length == 2 &&
-                        player == team.players.first)
-                      const SizedBox(height: 7),
-                  ],
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (Player player in team.players) ...[
+                  Text(
+                    display_strings.playerWithClub(player),
+                    overflow: TextOverflow.ellipsis,
+                    style: textStyle,
+                  ),
+                  if (team.players.length == 2 && player == team.players.first)
+                    const SizedBox(height: 7),
                 ],
-              ),
+              ],
             ),
+            if (teamStatusIcon != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                child: teamStatusIcon,
+              ),
+            const Expanded(child: SizedBox()),
             if (seed != null)
               _SeedLabel(
                 seed: seed!,
@@ -435,6 +469,30 @@ class _TeamCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget? _teamStatusIcon(AppLocalizations l10n) {
+    if (team.players.length != competition.teamSize) {
+      return LongTooltip(
+        message: l10n.teamNotComplete,
+        child: const Icon(
+          partnerMissingIcon,
+          size: 21,
+        ),
+      );
+    }
+
+    if (teamStatus(team) != PlayerStatus.attending) {
+      return LongTooltip(
+        message: l10n.teamNotAttending(competition.teamSize),
+        child: Icon(
+          playerStatusIcons[PlayerStatus.notAttending],
+          size: 21,
+        ),
+      );
+    }
+
+    return null;
   }
 }
 
