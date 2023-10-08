@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_merge.dart';
@@ -100,17 +101,21 @@ abstract mixin class RemovedCategoryCompetitionManagement<
       ignorePlayingLevels: removedCategory is PlayingLevel,
     );
 
-    List<CompetitionMerge> merges = mergeGroups
-        .map(
-          (mergeGroup) => CompetitionMerge(
-            competitions: mergeGroup,
-            mergedCategory: _getMergedPlayingCategory(
-              mergeGroup,
-              replacementCategory,
-            ),
+    List<CompetitionMerge> merges = mergeGroups.map(
+      (mergeGroup) {
+        Competition? primaryMerge = mergeGroup.firstWhereOrNull(
+            (c) => _isCompetitionInCategory(c, replacementCategory));
+
+        return CompetitionMerge(
+          competitions: mergeGroup,
+          mergedCategory: _getMergedPlayingCategory(
+            mergeGroup,
+            replacementCategory,
           ),
-        )
-        .toList();
+          primaryCompetition: primaryMerge,
+        );
+      },
+    ).toList();
 
     return submitMerges(merges);
   }
@@ -191,13 +196,16 @@ abstract mixin class RemovedCategoryCompetitionManagement<
     Competition mergedCompetition = merge.mergedCompetition.copyWith(
       registrations: mergedRegistrations,
     );
+
     Competition? createdCompetition =
-        await querier.createModel(mergedCompetition);
+        await querier.updateOrCreateModel(mergedCompetition);
     if (createdCompetition == null) {
       return false;
     }
 
-    bool competitionsDeleted = await querier.deleteModels(merge.competitions);
+    List<Competition> mergedCompetitions = List.of(merge.competitions)
+      ..remove(merge.primaryCompetition);
+    bool competitionsDeleted = await querier.deleteModels(mergedCompetitions);
     if (!competitionsDeleted) {
       return false;
     }

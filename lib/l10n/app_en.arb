@@ -112,7 +112,7 @@
   "createCategories": "Create {category}, to be able to add competitions!",
   "defaultPlayingLevel": "Placeholder playing level",
   "disableCategorization": "Stop using {categorization}?",
-  "mergeRegistrationsWarning": "There are registrations in multiple {categorization}. By deactivating {categorization} the competitions and their registration lists are merged.\n\nThis can't be undone. Continue?",
+  "mergeRegistrationsWarning": "There are registrations in multiple {categorization}. By deactivating {categorization} the competitions and their registration lists are merged.\n\nAny existing seedings and draws cannot be combined and will be lost.\n\nThis can't be undone. Continue?",
   "deleteCategoryWarning": "By deleting the {category} {categoryName} the corresponding competitions are also deleted.\n\nContinue?",
   "selection": "Selection",
   "noSelection": "No selection",
