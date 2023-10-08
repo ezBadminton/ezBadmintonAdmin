@@ -6,6 +6,7 @@ import 'package:ez_badminton_admin_app/player_management/player_sorter/comparato
 import 'package:ez_badminton_admin_app/widgets/cross_fade_drawer/cross_fade_drawer_controller.dart';
 import 'package:ez_badminton_admin_app/widgets/implicit_animated_list/reorderable_implicit_animated_list.dart';
 import 'package:ez_badminton_admin_app/widgets/implicit_animated_list/reorderable_item_gap.dart';
+import 'package:ez_badminton_admin_app/widgets/long_tooltip/long_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
     as display_strings;
@@ -25,6 +26,8 @@ class EntryList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool seedsEditable = competition.draw.isEmpty;
+
     return BlocProvider(
       key: ValueKey('EntryListSeedingCubit-${competition.id}'),
       create: (context) => SeedingCubit(
@@ -42,6 +45,7 @@ class EntryList extends StatelessWidget {
             ],
             numSeeds: state.competition.seeds.length,
             seedingMode: state.competition.tournamentModeSettings?.seedingMode,
+            seedsEditable: seedsEditable,
           );
         },
       ),
@@ -67,12 +71,15 @@ class _EntryList extends StatelessWidget {
     required this.entries,
     required this.numSeeds,
     required this.seedingMode,
+    required this.seedsEditable,
     this.drawerController,
   });
 
   final List<Team> entries;
   final int numSeeds;
   final SeedingMode? seedingMode;
+
+  final bool seedsEditable;
 
   final CrossFadeDrawerController? drawerController;
 
@@ -190,6 +197,7 @@ class _EntryList extends StatelessWidget {
       index: index,
       hoveringIndex: hoveringIndex,
       seedingMode: seedingMode,
+      seedEditable: seedsEditable,
       draggable: seed == null ? null : dragIndicator,
     );
 
@@ -263,6 +271,7 @@ class _EntryList extends StatelessWidget {
       index: index,
       hoveringIndex: hoveringIndex,
       seedingMode: seedingMode,
+      seedEditable: seedsEditable,
       draggable: seed == null ? null : dragIndicator,
       textStyle: TextStyle(color: Theme.of(context).disabledColor),
     );
@@ -278,6 +287,7 @@ class _Entry extends StatelessWidget {
     this.hoveringIndex,
     this.seed,
     this.seedingMode,
+    required this.seedEditable,
     this.draggable,
     this.textStyle,
   });
@@ -289,6 +299,7 @@ class _Entry extends StatelessWidget {
 
   final int? seed;
   final SeedingMode? seedingMode;
+  final bool seedEditable;
 
   final Widget? draggable;
 
@@ -300,11 +311,12 @@ class _Entry extends StatelessWidget {
       team: team,
       seed: seed,
       seedingMode: seedingMode,
+      seedEditable: seedEditable,
       draggable: draggable,
       textStyle: textStyle,
     );
 
-    if (seed == null) {
+    if (seed == null || !seedEditable) {
       teamCard = _wrapWithNormalGaps(teamCard);
     } else {
       teamCard = _wrapWithReorderingGaps(teamCard);
@@ -347,6 +359,7 @@ class _TeamCard extends StatelessWidget {
     required this.seed,
     this.seedingMode,
     this.draggable,
+    required this.seedEditable,
     this.textStyle,
   });
 
@@ -356,6 +369,7 @@ class _TeamCard extends StatelessWidget {
   final SeedingMode? seedingMode;
 
   final Widget? draggable;
+  final bool seedEditable;
 
   final TextStyle? textStyle;
 
@@ -399,11 +413,16 @@ class _TeamCard extends StatelessWidget {
                 seed: seed!,
                 seedingMode: seedingMode,
               ),
-            if (draggable != null) draggable!,
-            Tooltip(
-              message: seed == null ? l10n.addToSeeds : l10n.removeFromSeeds,
+            if (draggable != null && seedEditable) draggable!,
+            LongTooltip(
+              message: seedEditable
+                  ? (seed == null ? l10n.addToSeeds : l10n.removeFromSeeds)
+                  : l10n.seedsNotEditable,
+              waitDuration:
+                  seedEditable ? null : const Duration(milliseconds: 500),
               child: IconButton(
-                onPressed: () => cubit.seedingToggled(team),
+                onPressed:
+                    seedEditable ? () => cubit.seedingToggled(team) : null,
                 splashRadius: 26,
                 icon: Icon(
                   seed == null

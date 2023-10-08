@@ -9,15 +9,19 @@ class LongTooltip extends StatelessWidget {
     this.maxWidth = 250,
     required this.message,
     required this.child,
+    this.waitDuration,
   });
 
   final double maxWidth;
   final String message;
+  final Duration? waitDuration;
+
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     return Tooltip(
+      waitDuration: waitDuration,
       richMessage: WidgetSpan(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: maxWidth),

@@ -193,5 +193,6 @@
   "redraw": "Neu auslosen",
   "undoManualDrawWarning": "Sollen die manuellen Änderungen an der Auslosung wirklich zurückgesetzt werden?\nTeilnehmer, deren Anwesenheitsstatus sich seit der letzten Auslosung geändert hat, werden entsprechend berücksichtigt.",
   "redrawWarning": "Soll die Auslosung wirklich neu gemacht werden?\nTeilnehmer, deren Anwesenheitsstatus sich seit der letzten Auslosung geändert hat, werden entsprechend berücksichtigt.",
-  "deleteDrawWarning": "Soll die Auslosung wirklich gelöscht werden?\nHierdurch können Turniermodus und Setzliste wieder bearbeitet werden."
+  "deleteDrawWarning": "Soll die Auslosung wirklich gelöscht werden?\nHierdurch kann die Setzliste wieder bearbeitet werden.",
+  "seedsNotEditable": "Es besteht bereits eine Auslosung, daher kann die Setzliste nicht bearbeitet werden. Lösche die Auslosung, um die Setzplätze ändern zu können."
 }

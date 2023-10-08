@@ -193,5 +193,6 @@
   "redraw": "Redraw",
   "undoManualDrawWarning": "Really reset the manual changes to the draw?\nThis will update entries who's attendance status changed since the last draw.",
   "redrawWarning": "Really redo the draw?\nThis will update entries who's attendance status changed since the last draw.",
-  "deleteDrawWarning": "Really delete the draw?\nAfterwards the tournament mode and seed list will be editable again."
+  "deleteDrawWarning": "Really delete the draw?\nAfterwards the tournament mode and seed list will be editable again.",
+  "seedsNotEditable": "The seeds can't be edited because a draw already exists. Delete the draw to be able to edit the seeds."
 }
