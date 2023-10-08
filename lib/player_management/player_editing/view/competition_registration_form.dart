@@ -24,6 +24,8 @@ class CompetitionRegistrationForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var cubit = context.read<PlayerEditingCubit>();
+    var l10n = AppLocalizations.of(context)!;
+
     return BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
       buildWhen: (previous, current) =>
           previous.registrationFormShown != current.registrationFormShown ||
@@ -51,6 +53,14 @@ class CompetitionRegistrationForm extends StatelessWidget {
                     state.registrations.value.length &&
                 !state.registrationFormShown)
               const _RegistrationAddButton(),
+            if (state.getCollection<Competition>().isEmpty)
+              Text(
+                l10n.noCompetitionsRegistrationHint,
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Theme.of(context).disabledColor,
+                ),
+              ),
           ],
         );
       },

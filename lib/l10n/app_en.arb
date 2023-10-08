@@ -201,5 +201,7 @@
   "notEnoughDrawParticipants": "Not enough teams",
   "notEnoughDrawParticipantsInfo": "At least {count} teams need to be ready to make a draw for the given tournament mode.\nRegister more teams or change the tournament mode.\n\nHint: Players need to have the 'attending' status to be considered ready.",
   "drawsWillBeOverridden": "Existing draws",
-  "drawsWillBeOverriddenInfo": "By changing the tournament mode existing draws will be removed.\n\nContinue?"
+  "drawsWillBeOverriddenInfo": "By changing the tournament mode existing draws will be removed.\n\nContinue?",
+  "noCompetitionsRegistrationHint": "Add a competition to become able to make registrations",
+  "noCompetitionsDrawHint": "No competitions.\n\nAdd a competition and register participants to make a draw."
 }
