@@ -197,5 +197,9 @@
   "seedsNotEditable": "Es besteht bereits eine Auslosung, daher kann die Setzliste nicht bearbeitet werden. Lösche die Auslosung, um die Setzplätze ändern zu können.",
   "teamNotAttending": "{count, plural, =1{Der Spieler hat noch nicht den Status 'Anwesend'. Er wird bei der Auslosung nicht in den Spielplan aufgenommen.} other{Min. ein Spieler dieses Teams hat noch nicht den Status 'Anwesend'. Das Team wird bei der Auslosung nicht in den Spielplan aufgenommen.}}",
   "teamNotComplete": "Dieses Team hat nicht genug Spieler. Das Team wird bei der Auslosung nicht in den Spielplan aufgenommen.",
-  "teamsReady": "{ready, plural, =1{{ready} Team bereit (von {total})} other{{ready} Teams bereit (von {total})}}"
+  "teamsReady": "{ready, plural, =1{{ready} Team bereit (von {total})} other{{ready} Teams bereit (von {total})}}",
+  "notEnoughDrawParticipants": "Nicht genug Teams",
+  "notEnoughDrawParticipantsInfo": "Es braucht mindestens {count} bereite Teams, um die Auslosung für den gegebenen Turniermodus zu machen.\nMelde mehr Teams oder ändere den Turniermodus.\n\nHinweis: Spieler müssen den Status 'Anwesend' haben, um als bereit gezählt zu werden.",
+  "drawsWillBeOverridden": "Bestehende Auslosungen",
+  "drawsWillBeOverriddenInfo": "Durch das Ändern des Turniermodus werden bestehende Auslosungen gelöscht.\n\nFortfahren?"
 }

@@ -35,9 +35,9 @@ List<Competition> onCompetitionRelationUpdate(
       List<Team> seeds = List.of(competition.seeds);
       List<Team> draw = List.of(competition.draw);
 
-      _replaceInList(registrations, updatedTeam.id, replacement);
-      _replaceInList(seeds, updatedTeam.id, replacement);
-      _replaceInList(draw, updatedTeam.id, replacement);
+      replaceInList(registrations, updatedTeam.id, replacement);
+      replaceInList(seeds, updatedTeam.id, replacement);
+      replaceInList(draw, updatedTeam.id, replacement);
 
       updatedCompetitions.add(
         competition.copyWith(
@@ -72,7 +72,7 @@ List<Team> onTeamRelationUpdate(
     List<Team> updatedTeams = [];
     for (Team team in containingTeams) {
       List<Player> players = List.of(team.players);
-      _replaceInList(players, updatedPlayer.id, replacement);
+      replaceInList(players, updatedPlayer.id, replacement);
 
       updatedTeams.add(team.copyWith(players: players));
     }
@@ -87,7 +87,7 @@ List<Team> onTeamRelationUpdate(
 ///
 /// When [replacement] is null, it just removes the [Model] with [id].
 /// Does nothing if the [list] does not contain a model with the [id].
-void _replaceInList(List<Model> list, String id, Model? replacement) {
+void replaceInList(List<Model> list, String id, Model? replacement) {
   int index = list.indexWhere((m) => m.id == id);
   if (index >= 0) {
     if (replacement == null) {

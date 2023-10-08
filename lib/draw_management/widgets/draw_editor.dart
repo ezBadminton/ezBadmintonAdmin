@@ -6,6 +6,7 @@ import 'package:ez_badminton_admin_app/draw_management/cubit/draw_deletion_cubit
 import 'package:ez_badminton_admin_app/draw_management/cubit/draw_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/drawing_cubit.dart';
 import 'package:ez_badminton_admin_app/draw_management/widgets/tournament_mode_card.dart';
+import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/tournament_bracket_explorer_controller_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/tournament_bracket_explorer.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/group_knockout_plan.dart';
@@ -148,29 +149,42 @@ class _DrawMenu extends StatelessWidget {
 
     return Builder(builder: (context) {
       var cubit = context.read<DrawingCubit>();
-      return Center(
-        child: TournamentModeCard(
-          modeSettings: selectedCompetition.tournamentModeSettings!,
-          child: Column(
-            children: [
-              ElevatedButton(
-                onPressed: cubit.makeDraw,
-                style: const ButtonStyle(
-                  shape: MaterialStatePropertyAll(StadiumBorder()),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Text(
-                    l10n.makeDraw,
-                    style: const TextStyle(fontSize: 17),
+      return DialogListener<DrawingCubit, DrawingState, void>(
+        barrierDismissable: true,
+        builder: (context, state, minParticipants) => AlertDialog(
+          title: Text(l10n.notEnoughDrawParticipants),
+          content: Text(l10n.notEnoughDrawParticipantsInfo(minParticipants)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(l10n.confirm),
+            ),
+          ],
+        ),
+        child: Center(
+          child: TournamentModeCard(
+            modeSettings: selectedCompetition.tournamentModeSettings!,
+            child: Column(
+              children: [
+                ElevatedButton(
+                  onPressed: cubit.makeDraw,
+                  style: const ButtonStyle(
+                    shape: MaterialStatePropertyAll(StadiumBorder()),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Text(
+                      l10n.makeDraw,
+                      style: const TextStyle(fontSize: 17),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 15),
-              _TournamentModeAssignmentButton(
-                selectedCompetition: selectedCompetition,
-              )
-            ],
+                const SizedBox(height: 15),
+                _TournamentModeAssignmentButton(
+                  selectedCompetition: selectedCompetition,
+                )
+              ],
+            ),
           ),
         ),
       );

@@ -4,12 +4,15 @@ import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/draw_management/utils/team_status.dart';
+import 'package:ez_badminton_admin_app/draw_management/utils/tournament_draws.dart';
 import 'package:ez_badminton_admin_app/utils/powers_of_two.dart';
+import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
 import 'package:formz/formz.dart';
 
 part 'drawing_state.dart';
 
-class DrawingCubit extends CollectionQuerierCubit<DrawingState> {
+class DrawingCubit extends CollectionQuerierCubit<DrawingState>
+    with DialogCubit {
   DrawingCubit({
     required Competition competition,
     required CollectionRepository<Competition> competitionRepository,
@@ -61,11 +64,13 @@ class DrawingCubit extends CollectionQuerierCubit<DrawingState> {
 
     List<List<Team>> seededTiers = _getSeededTiers();
 
-    List<Player> attendingPlayers = seededTiers
-        .expand((tier) => tier.expand((team) => team.players))
-        .toList();
+    List<Team> attendingTeams = seededTiers.expand((tier) => tier).toList();
 
-    if (attendingPlayers.length < 2) {
+    int minParticipants =
+        minDrawParticipants(competition.tournamentModeSettings!);
+
+    if (attendingTeams.length < minParticipants) {
+      requestDialogChoice<void>(reason: minParticipants);
       return FormzSubmissionStatus.failure;
     }
 
@@ -86,9 +91,9 @@ class DrawingCubit extends CollectionQuerierCubit<DrawingState> {
     return FormzSubmissionStatus.success;
   }
 
-  /// Returns all registered players sorted into seeded tiers.
+  /// Returns all registered teams sorted into seeded tiers.
   ///
-  /// The unseeded players are in the last tier.
+  /// The unseeded teams are in the last tier.
   ///
   /// Teams with players that are not attending or do not have a partner are
   /// filtered.
