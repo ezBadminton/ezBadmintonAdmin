@@ -11,6 +11,7 @@ import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/brack
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/bracket_section_navigator_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/interactive_view_blocker_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/tournament_bracket_explorer_controller_cubit.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/edge_panning_area.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/tournament_bracket_explorer_controller.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/section_labels.dart';
 import 'package:ez_badminton_admin_app/widgets/transformation_zoom_buttons/transformation_zoom_buttons.dart';
@@ -101,18 +102,18 @@ class _TournamentBracketExplorerState extends State<TournamentBracketExplorer>
             },
           );
 
-          return Stack(
-            children: [
-              BlocBuilder<SimpleCubit<EdgeInsets>, EdgeInsets>(
-                builder: (context, boundaryMargin) {
-                  return BlocBuilder<InteractiveViewBlockerCubit,
-                      InteractiveViewBlockerState>(
-                    builder: (context, blockerState) {
+          return BlocBuilder<InteractiveViewBlockerCubit,
+              InteractiveViewBlockerState>(
+            builder: (context, blockerState) {
+              return Stack(
+                children: [
+                  BlocBuilder<SimpleCubit<EdgeInsets>, EdgeInsets>(
+                    builder: (context, boundaryMargin) {
                       return InteractiveViewer(
                         constrained: false,
                         minScale: .01,
                         maxScale: 1.33,
-                        scaleEnabled: !blockerState.isBlocked,
+                        scaleEnabled: !blockerState.isZoomBlocked,
                         boundaryMargin: boundaryMargin,
                         scaleFactor: 1500,
                         transformationController: _viewController,
@@ -127,22 +128,33 @@ class _TournamentBracketExplorerState extends State<TournamentBracketExplorer>
                         ),
                       );
                     },
-                  );
-                },
-              ),
-              Column(
-                children: [
-                  if (widget.tournamentBracket is SectionLabels)
-                    BracketSectionNavigator(
-                      constraints: constraints,
-                      sectionLabels: (widget.tournamentBracket as SectionLabels)
-                          .getSectionLabels(l10n),
-                      viewController: _viewController!,
+                  ),
+                  Column(
+                    children: [
+                      if (widget.tournamentBracket is SectionLabels)
+                        BracketSectionNavigator(
+                          constraints: constraints,
+                          sectionLabels:
+                              (widget.tournamentBracket as SectionLabels)
+                                  .getSectionLabels(l10n),
+                          viewController: _viewController!,
+                        ),
+                      _ViewControlBar(competition: widget.competition),
+                    ],
+                  ),
+                  Positioned.fill(
+                    child: EdgePanningArea(
+                      transformationController: _viewController!,
+                      enabled: !blockerState.isEdgePanBlocked,
+                      panEdges: const EdgeInsets.all(50),
+                      panScaleCurve: Curves.easeInCirc,
+                      panSpeed: 6.0,
+                      child: const SizedBox.expand(),
                     ),
-                  _ViewControlBar(competition: widget.competition),
+                  ),
                 ],
-              )
-            ],
+              );
+            },
           );
         },
       ),

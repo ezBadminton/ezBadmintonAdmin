@@ -185,10 +185,10 @@ class _RoundRobinMatchListState extends State<_RoundRobinMatchList> {
             onEnter: (_) {
               /// Prevent zooming and scrolling at the same time
               if (_isScrollable()) {
-                interactionBlockerCubit.addBlock();
+                interactionBlockerCubit.addZoomingBlock();
               }
             },
-            onExit: (_) => interactionBlockerCubit.removeBlock(),
+            onExit: (_) => interactionBlockerCubit.removeZoomingBlock(),
             child: SingleChildScrollView(
               controller: _scrollController,
               child: Column(

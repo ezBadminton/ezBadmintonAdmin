@@ -1,8 +1,10 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/draw_editing_cubit.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/interactive_view_blocker_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:local_hero/local_hero.dart';
+import 'package:provider/provider.dart';
 import 'package:tournament_mode/tournament_mode.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
@@ -204,6 +206,10 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
     Team team = participant.resolvePlayer()!;
+    InteractiveViewBlockerCubit? blockerCubit;
+    try {
+      blockerCubit = context.read<InteractiveViewBlockerCubit>();
+    } finally {}
 
     Widget dragIndicator = const Padding(
       padding: EdgeInsets.only(right: 8.0),
@@ -244,6 +250,8 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
           cubit.swapDrawMembers(team, droppedTeam);
         },
         builder: (context, candidateData, rejectedData) => Draggable<Team>(
+          onDragStarted: blockerCubit?.removeEdgePanningBlock,
+          onDragEnd: (_) => blockerCubit?.addEdgePanningBlock(),
           data: team,
           feedback: _teamNames(team),
           maxSimultaneousDrags: 1,

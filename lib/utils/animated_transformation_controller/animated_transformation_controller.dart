@@ -144,6 +144,27 @@ class AnimatedTransformationController extends TransformationController {
     currentTransform = scaled;
   }
 
+  /// Pan the current transform by the given [offset].
+  void pan(Offset offset) {
+    if (viewConstraints == null) {
+      return;
+    }
+
+    Offset currentFocus = toScene(viewConstraints!.biggest.center(Offset.zero));
+    double currentScale = currentTransform.getMaxScaleOnAxis();
+
+    Offset newFocus = currentFocus + offset;
+
+    Offset? correctedPoint = correctForBoundary(newFocus, currentScale);
+    if (correctedPoint == null) {
+      return;
+    }
+
+    Matrix4 panned = _focusAndScale(correctedPoint, currentScale);
+
+    currentTransform = panned;
+  }
+
   /// Returns a copy of [point] but if focusing that point at [scale] would move
   /// the view over the [boundarySize], the point is moved inwards until the
   /// view can safely focus there.
