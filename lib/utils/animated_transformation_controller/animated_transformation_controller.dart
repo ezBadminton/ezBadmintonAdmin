@@ -150,6 +150,8 @@ class AnimatedTransformationController extends TransformationController {
       return;
     }
 
+    stopAnimation();
+
     Offset currentFocus = toScene(viewConstraints!.biggest.center(Offset.zero));
     double currentScale = currentTransform.getMaxScaleOnAxis();
 

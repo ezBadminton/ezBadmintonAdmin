@@ -77,21 +77,13 @@ class _EdgePanningAreaState extends State<EdgePanningArea> {
   }
 
   void _doPan() {
-    if (_panScales.right > 0) {
-      widget.transformationController
-          .pan(Offset(widget.panSpeed * _panScales.right, 0));
-    }
-    if (_panScales.left > 0) {
-      widget.transformationController
-          .pan(Offset(-widget.panSpeed * _panScales.left, 0));
-    }
-    if (_panScales.bottom > 0) {
-      widget.transformationController
-          .pan(Offset(0, widget.panSpeed * _panScales.bottom));
-    }
-    if (_panScales.top > 0) {
-      widget.transformationController
-          .pan(Offset(0, -widget.panSpeed * _panScales.top));
+    Offset panOffset = Offset(
+      widget.panSpeed * (_panScales.right - _panScales.left),
+      widget.panSpeed * (_panScales.bottom - _panScales.top),
+    );
+
+    if (panOffset != Offset.zero) {
+      widget.transformationController.pan(panOffset);
     }
   }
 
