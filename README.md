@@ -30,7 +30,7 @@ Everyone is welcome to fork and/or make pull requests!
 
 ezBadminton uses [Pocketbase](https://pocketbase.io) as its backend. It bundles database, data storage, authentication and REST-API.
 
-- Download the newest prebuilt archive for your platform from https://pocketbase.io/docs (0.17.6 as of writing).
+- Download the newest prebuilt archive for your platform from https://pocketbase.io/docs (0.18.10 as of writing).
 - Create a directory called `pocketbase` in your working directory and unpack the archive's contents there.
 - Start the service
     ```console
@@ -60,7 +60,7 @@ ezBadminton uses [Pocketbase](https://pocketbase.io) as its backend. It bundles 
 
 The ezBadminton Admin App is a desktop app built with [Flutter](flutter.dev).
 
-- [Install](https://docs.flutter.dev/get-started/install) the Flutter development tools on your system (Flutter 3.13.0 as of writing)
+- [Install](https://docs.flutter.dev/get-started/install) the Flutter development tools on your system (Flutter 3.13.7 as of writing)
 	- Note on Windows: Make sure to complete [this step](https://docs.flutter.dev/get-started/install/windows#additional-windows-requirements) to be able to build the flutter app for Windows
 	- You can ignore Android and web related setup steps as this is not a mobile/web app
 
