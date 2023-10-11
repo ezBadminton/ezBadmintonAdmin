@@ -42,72 +42,119 @@ class _DrawManagementPageScaffold extends StatelessWidget {
         ),
         child: BlocBuilder<CompetitionDrawSelectionCubit,
             CompetitionDrawSelectionState>(
-          builder: (context, state) {
-            CrossFadeDrawerController drawerController =
-                context.read<SimpleCubit<CrossFadeDrawerController>>().state;
+          buildWhen: (previous, current) =>
+              previous.loadingStatus != current.loadingStatus,
+          builder: (context, state) => LoadingScreen(
+            loadingStatus: state.loadingStatus,
+            builder: (context) => const _DrawManagementPanels(),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
-            return LoadingScreen(
-              loadingStatus: state.loadingStatus,
-              builder: (context) {
-                return Row(
-                  children: [
-                    CrossFadeDrawer(
-                      controller: drawerController,
-                      collapsed: InkWell(
-                        onTap: drawerController.expand,
-                        child: Center(
-                          child: Tooltip(
-                            message: l10n.expand,
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 4.0),
-                              child: Icon(
-                                Icons.keyboard_double_arrow_right,
-                                size: 28,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      expanded: Row(
-                        children: [
-                          const SizedBox(
-                            width: 260,
-                            child: Align(
-                              alignment: Alignment.topCenter,
-                              child: CompetitionDrawSelectionList(),
-                            ),
-                          ),
-                          const VerticalDivider(
-                            thickness: 1,
-                            width: 1,
-                            color: Colors.black26,
-                          ),
-                          if (state.selectedCompetition.value != null)
-                            SizedBox(
-                              width: 400,
-                              child: EntryList(
-                                drawerController: drawerController,
-                                competition: state.selectedCompetition.value!,
-                              ),
-                            )
-                          else
-                            const SizedBox(width: 400),
-                        ],
-                      ),
-                    ),
-                    const VerticalDivider(
-                      thickness: 1,
-                      width: 1,
-                      color: Colors.black26,
-                    ),
-                    const Expanded(
-                      child: DrawEditor(),
-                    ),
-                  ],
-                );
-              },
-            );
-          },
+/// The [_DrawSelectionPanels] and the [DrawEditor] showing the selected
+/// competition's draw. The [_DrawSelectionPanels] can be collapsed to give more
+/// space to the [DrawEditor].
+class _DrawManagementPanels extends StatelessWidget {
+  const _DrawManagementPanels();
+
+  @override
+  Widget build(BuildContext context) {
+    CrossFadeDrawerController drawerController =
+        context.read<SimpleCubit<CrossFadeDrawerController>>().state;
+
+    return Row(
+      children: [
+        CrossFadeDrawer(
+          controller: drawerController,
+          collapsed: _CollapsedDrawSelectionPanels(
+            drawerController: drawerController,
+          ),
+          expanded: _DrawSelectionPanels(drawerController: drawerController),
+        ),
+        const VerticalDivider(
+          thickness: 1,
+          width: 1,
+          color: Colors.black26,
+        ),
+        const Expanded(
+          child: DrawEditor(),
+        ),
+      ],
+    );
+  }
+}
+
+/// Two panels containing a selection list for the competition to make the draw
+/// for and the selected competition's [EntryList].
+class _DrawSelectionPanels extends StatelessWidget {
+  const _DrawSelectionPanels({
+    required this.drawerController,
+  });
+
+  final CrossFadeDrawerController drawerController;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<CompetitionDrawSelectionCubit,
+        CompetitionDrawSelectionState>(
+      builder: (context, state) {
+        return Row(
+          children: [
+            const SizedBox(
+              width: 260,
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: CompetitionDrawSelectionList(),
+              ),
+            ),
+            const VerticalDivider(
+              thickness: 1,
+              width: 1,
+              color: Colors.black26,
+            ),
+            if (state.selectedCompetition.value != null)
+              SizedBox(
+                width: 400,
+                child: EntryList(
+                  drawerController: drawerController,
+                  competition: state.selectedCompetition.value!,
+                ),
+              )
+            else
+              const SizedBox(width: 400),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _CollapsedDrawSelectionPanels extends StatelessWidget {
+  const _CollapsedDrawSelectionPanels({
+    required this.drawerController,
+  });
+
+  final CrossFadeDrawerController drawerController;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+
+    return InkWell(
+      onTap: drawerController.expand,
+      child: Center(
+        child: Tooltip(
+          message: l10n.expand,
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 4.0),
+            child: Icon(
+              Icons.keyboard_double_arrow_right,
+              size: 28,
+            ),
+          ),
         ),
       ),
     );
