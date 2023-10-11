@@ -65,6 +65,7 @@ dependencies:
     git:
       url: https://github.com/Snonky/local_hero.git
       ref: feature/only-remount
+  flutter_scroll_shadow: ^1.2.3
 
 dev_dependencies:
   flutter_test:

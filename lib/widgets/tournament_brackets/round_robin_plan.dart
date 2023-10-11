@@ -5,6 +5,7 @@ import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_label.d
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_scroll_shadow/flutter_scroll_shadow.dart';
 import 'package:tournament_mode/tournament_mode.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'bracket_widths.dart' as bracket_widths;
@@ -164,21 +165,21 @@ class _RoundRobinMatchListState extends State<_RoundRobinMatchList> {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
     var interactionBlockerCubit = context.read<InteractiveViewBlockerCubit>();
+    double width = bracket_widths.roundRobinTableWidth;
 
-    return Card(
-      elevation: 0,
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.onSurface.withOpacity(.2),
-          width: 1,
+    return SizedBox(
+      width: width,
+      child: Card(
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          side: BorderSide(
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(.2),
+            width: 1,
+          ),
         ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 5.0,
-        ),
+        clipBehavior: Clip.antiAlias,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxHeight: 550),
           child: MouseRegion(
@@ -189,29 +190,45 @@ class _RoundRobinMatchListState extends State<_RoundRobinMatchList> {
               }
             },
             onExit: (_) => interactionBlockerCubit.removeZoomingBlock(),
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              child: Column(
-                children: [
-                  for (RoundRobinRound<Team, List<MatchSet>> round
-                      in widget.rounds) ...[
-                    if (widget.rounds.first == round)
-                      const SizedBox(height: 15),
-                    Text(
-                      l10n.encounterNumber(round.roundNumber + 1),
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    for (BadmintonMatch match in round.cast<BadmintonMatch>())
-                      MatchLabel(match: match, competition: widget.competition),
-                    if (widget.rounds.last != round) const SizedBox(height: 10),
-                    if (widget.rounds.last == round) const SizedBox(height: 15),
-                  ],
-                ],
+            child: ScrollShadow(
+              size: 20,
+              color: Colors.black.withOpacity(.16),
+              child: ListView.builder(
+                controller: _scrollController,
+                itemCount: widget.rounds.length,
+                prototypeItem: _buildRound(widget.rounds.first, l10n),
+                shrinkWrap: true,
+                itemBuilder: (context, index) => _buildRound(
+                  widget.rounds[index],
+                  l10n,
+                ),
               ),
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildRound(
+    RoundRobinRound<Team, List<MatchSet>> round,
+    AppLocalizations l10n,
+  ) {
+    return Column(
+      children: [
+        if (widget.rounds.first == round) const SizedBox(height: 15),
+        Text(
+          l10n.encounterNumber(round.roundNumber + 1),
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
+        for (BadmintonMatch match in round.cast<BadmintonMatch>())
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5.0),
+            child: MatchLabel(match: match, competition: widget.competition),
+          ),
+        if (widget.rounds.last != round) const SizedBox(height: 10),
+        if (widget.rounds.last == round) const SizedBox(height: 15),
+      ],
     );
   }
 }
