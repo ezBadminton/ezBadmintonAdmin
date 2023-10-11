@@ -24,7 +24,6 @@ class Match extends Model with _$Match {
     required String id,
     required DateTime created,
     required DateTime updated,
-    required Competition competition,
     required Team team1,
     required Team team2,
     required Court court,
@@ -37,17 +36,15 @@ class Match extends Model with _$Match {
       _$MatchFromJson(json..cleanUpExpansions(expandedFields));
 
   static const List<ExpandedField> expandedFields = [
-    ExpandedField(
-      model: Competition,
-      key: 'competition',
-      isRequired: true,
-      isSingle: true,
-    ),
     ExpandedField(model: Team, key: 'team1', isRequired: true, isSingle: true),
     ExpandedField(model: Team, key: 'team2', isRequired: true, isSingle: true),
     ExpandedField(model: Court, key: 'court', isRequired: true, isSingle: true),
     ExpandedField(
-        model: Team, key: 'winner', isRequired: false, isSingle: true),
+      model: Team,
+      key: 'winner',
+      isRequired: false,
+      isSingle: true,
+    ),
   ];
 
   @override

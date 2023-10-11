@@ -32,10 +32,6 @@ void main() {
     id: 'match',
     created: DateTime.now(),
     updated: DateTime.now(),
-    competition: Competition.newCompetition(
-      teamSize: 1,
-      genderCategory: GenderCategory.any,
-    ),
     team1: Team.newTeam(),
     team2: Team.newTeam(),
     court: Court.newCourt(
