@@ -5,6 +5,7 @@ import 'package:ez_badminton_admin_app/draw_management/view/draw_management_page
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_state.dart';
 import 'package:ez_badminton_admin_app/home/widgets/navigation_tab.dart';
+import 'package:ez_badminton_admin_app/match_management/view/match_management_page.dart';
 import 'package:ez_badminton_admin_app/player_management/view/player_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -88,8 +89,8 @@ class _HomePageState extends State<HomePage>
         ),
         NavigationTab(
           index: 4,
-          label: l10n.matches,
-          root: const Placeholder(),
+          label: l10n.match(2),
+          root: const MatchManagementPage(),
           unselectedIcon: BadmintonIcons.badminton_shuttlecock_outline,
           selectedIcon: BadmintonIcons.badminton_shuttlecock,
         ),

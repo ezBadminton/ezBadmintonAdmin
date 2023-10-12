@@ -23,7 +23,7 @@
   "baseCompetition": "{count, plural, =1{Base competition} other{Base competitions}}",
   "court": "{count, plural, =1{Court} other{Courts}}",
   "draw": "{count, plural, =1{Draw} other{Draws}}",
-  "matches": "Matches",
+  "match": "{count, plural, =1{Match} other{Matches}}",
   "women": "women",
   "men": "men",
   "womenAbbreviated": "W",
@@ -203,5 +203,6 @@
   "drawsWillBeOverridden": "Existing draws",
   "drawsWillBeOverriddenInfo": "By changing the tournament mode existing draws will be removed.\n\nContinue?",
   "noCompetitionsRegistrationHint": "Add a competition to become able to make registrations",
-  "noCompetitionsDrawHint": "No competitions.\n\nAdd a competition and register participants to make a draw."
+  "noCompetitionsDrawHint": "No competitions.\n\nAdd a competition and register participants to make a draw.",
+  "matchOperations": "Match operations"
 }

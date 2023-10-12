@@ -23,7 +23,7 @@
   "baseCompetition": "{count, plural, =1{Basisdisziplin} other{Basisdisziplinen}}",
   "court": "{count, plural, =1{Feld} other{Felder}}",
   "draw": "{count, plural, =1{Auslosung} other{Auslosungen}}",
-  "matches": "Spiele",
+  "match": "{count, plural, =1{Spiel} other{Spiele}}",
   "women": "Damen",
   "men": "Herren",
   "womenAbbreviated": "D",
@@ -203,5 +203,6 @@
   "drawsWillBeOverridden": "Bestehende Auslosungen",
   "drawsWillBeOverriddenInfo": "Durch das Ändern des Turniermodus werden bestehende Auslosungen gelöscht.\n\nFortfahren?",
   "noCompetitionsRegistrationHint": "Erstelle eine Disziplin, um Meldungen machen zu können",
-  "noCompetitionsDrawHint": "Keine Disziplinen.\n\nErstelle eine Disziplin und melde Teilnehmer, um eine Auslosung machen zu können."
+  "noCompetitionsDrawHint": "Keine Disziplinen.\n\nErstelle eine Disziplin und melde Teilnehmer, um eine Auslosung machen zu können.",
+  "matchOperations": "Spielbetrieb"
 }

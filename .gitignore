@@ -53,3 +53,6 @@ app.*.map.json
 *.freezed.dart
 *.g.dart
 
+# Scribbling files
+packages/tournament_mode/lib/src/badminton_test_tournament.dart
+
