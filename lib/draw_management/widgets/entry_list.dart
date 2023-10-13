@@ -422,26 +422,35 @@ class _TeamCard extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Row(
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (Player player in team.players) ...[
-                  Text(
-                    display_strings.playerWithClub(player),
-                    overflow: TextOverflow.ellipsis,
-                    style: textStyle,
+            Expanded(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        for (Player player in team.players) ...[
+                          Text(
+                            display_strings.playerWithClub(player),
+                            overflow: TextOverflow.ellipsis,
+                            style: textStyle,
+                          ),
+                          if (team.players.length == 2 &&
+                              player == team.players.first)
+                            const SizedBox(height: 7),
+                        ],
+                      ],
+                    ),
                   ),
-                  if (team.players.length == 2 && player == team.players.first)
-                    const SizedBox(height: 7),
+                  if (teamStatusIcon != null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                      child: teamStatusIcon,
+                    ),
                 ],
-              ],
-            ),
-            if (teamStatusIcon != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                child: teamStatusIcon,
               ),
-            const Expanded(child: SizedBox()),
+            ),
             if (seed != null)
               _SeedLabel(
                 seed: seed!,

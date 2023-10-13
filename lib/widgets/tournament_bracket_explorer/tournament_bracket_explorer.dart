@@ -177,57 +177,70 @@ class _ViewControlBar extends StatelessWidget {
     AnimatedTransformationController viewController =
         controllerCubit.getViewController(competition);
 
-    return Align(
-      alignment: Alignment.topCenter,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).primaryColorLight.withOpacity(.9),
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.zero,
-            bottom: Radius.circular(15),
+    return LayoutBuilder(builder: (context, constraints) {
+      bool compact = constraints.maxWidth < 560;
+      bool tiny = constraints.maxWidth < 400;
+
+      return Center(
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).primaryColorLight.withOpacity(.9),
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.zero,
+              bottom: Radius.circular(15),
+            ),
           ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 9.0),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              ZoomButtons(
-                viewController: viewController,
-                maxScale: 1.33,
-              ),
-              ConstrainedBox(
-                constraints: const BoxConstraints(
-                  maxWidth: 230,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 15.0,
+              vertical: 9.0,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                ZoomButtons(
+                  viewController: viewController,
+                  maxScale: 1.33,
                 ),
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  widthFactor: 1,
-                  heightFactor: 1,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                    child: CompetitionLabel(
-                      competition: competition,
-                      abbreviated: true,
-                      textStyle: const TextStyle(fontSize: 17),
-                      playingLevelMaxWidth: 100,
+                if (!tiny)
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: 230,
+                      minWidth: compact ? 170 : 185,
+                    ),
+                    child: Align(
+                      alignment: Alignment.topCenter,
+                      widthFactor: 1,
+                      heightFactor: 1,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: CompetitionLabel(
+                          competition: competition,
+                          abbreviated: true,
+                          textStyle: TextStyle(fontSize: compact ? 14 : 16),
+                          playingLevelMaxWidth: 100,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-              const _DrawOptions(),
-            ],
+                _DrawOptions(compact: compact),
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 }
 
 class _DrawOptions extends StatelessWidget {
-  const _DrawOptions();
+  const _DrawOptions({
+    required this.compact,
+  });
+
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -262,44 +275,84 @@ class _DrawOptions extends StatelessWidget {
         child: Builder(builder: (context) {
           var confirmationCubit = context.read<ConfirmationCubit>();
 
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Tooltip(
-                message: l10n.undoManualDraw,
-                waitDuration: const Duration(milliseconds: 500),
-                child: TextButton(
-                  onPressed: () => confirmationCubit.executeWithConfirmation(
-                    drawingCubit.makeDraw,
-                    reason: _ConfirmReason.undoManualDraw,
-                  ),
-                  child: const Icon(Icons.restore),
+          undoManualDraw() => confirmationCubit.executeWithConfirmation(
+                drawingCubit.makeDraw,
+                reason: _ConfirmReason.undoManualDraw,
+              );
+
+          redraw() => confirmationCubit.executeWithConfirmation(
+                drawingCubit.redraw,
+                reason: _ConfirmReason.redraw,
+              );
+
+          deleteDraw() => confirmationCubit.executeWithConfirmation(
+                drawDeletionCubit.deleteDraw,
+                reason: _ConfirmReason.deleteDraw,
+              );
+
+          if (compact) {
+            return PopupMenuButton<VoidCallback>(
+              onSelected: (callback) => callback(),
+              tooltip: '',
+              splashRadius: 19,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: Icon(
+                  Icons.more_vert,
+                  color: Theme.of(context).primaryColor,
                 ),
               ),
-              Tooltip(
-                message: l10n.redraw,
-                waitDuration: const Duration(milliseconds: 500),
-                child: TextButton(
-                  onPressed: () => confirmationCubit.executeWithConfirmation(
-                    drawingCubit.redraw,
-                    reason: _ConfirmReason.redraw,
-                  ),
-                  child: const Icon(Icons.casino_outlined),
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: undoManualDraw,
+                  child: Text(l10n.undoManualDraw),
                 ),
-              ),
-              Tooltip(
-                message: l10n.deleteSubject(l10n.draw(1)),
-                waitDuration: const Duration(milliseconds: 500),
-                child: TextButton(
-                  onPressed: () => confirmationCubit.executeWithConfirmation(
-                    drawDeletionCubit.deleteDraw,
-                    reason: _ConfirmReason.deleteDraw,
-                  ),
-                  child: const Icon(Icons.delete),
+                PopupMenuItem(
+                  value: redraw,
+                  child: Text(l10n.redraw),
                 ),
-              ),
-            ],
-          );
+                PopupMenuItem(
+                  value: deleteDraw,
+                  child: Text(
+                    l10n.deleteSubject(l10n.draw(1)),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          } else {
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Tooltip(
+                  message: l10n.undoManualDraw,
+                  waitDuration: const Duration(milliseconds: 500),
+                  child: TextButton(
+                    onPressed: undoManualDraw,
+                    child: const Icon(Icons.restore),
+                  ),
+                ),
+                Tooltip(
+                  message: l10n.redraw,
+                  waitDuration: const Duration(milliseconds: 500),
+                  child: TextButton(
+                    onPressed: redraw,
+                    child: const Icon(Icons.casino_outlined),
+                  ),
+                ),
+                Tooltip(
+                  message: l10n.deleteSubject(l10n.draw(1)),
+                  waitDuration: const Duration(milliseconds: 500),
+                  child: TextButton(
+                    onPressed: deleteDraw,
+                    child: const Icon(Icons.delete),
+                  ),
+                ),
+              ],
+            );
+          }
         }),
       ),
     );

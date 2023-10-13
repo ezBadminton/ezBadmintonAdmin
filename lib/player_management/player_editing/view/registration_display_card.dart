@@ -53,7 +53,7 @@ class RegistrationDisplayCard extends StatelessWidget {
           children: [
             Column(
               children: [
-                CompetitionLabel(competition: competition),
+                Center(child: CompetitionLabel(competition: competition)),
                 if (competition.teamSize == 2) ...[
                   const Divider(
                     height: 6,

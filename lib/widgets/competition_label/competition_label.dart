@@ -38,7 +38,7 @@ class CompetitionLabel extends StatelessWidget {
       child: DefaultTextStyle.merge(
         style: textStyle,
         child: Row(
-          mainAxisSize: MainAxisSize.max,
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
