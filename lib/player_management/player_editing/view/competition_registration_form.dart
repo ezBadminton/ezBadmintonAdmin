@@ -56,6 +56,7 @@ class CompetitionRegistrationForm extends StatelessWidget {
             if (state.getCollection<Competition>().isEmpty)
               Text(
                 l10n.noCompetitionsRegistrationHint,
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 18,
                   color: Theme.of(context).disabledColor,

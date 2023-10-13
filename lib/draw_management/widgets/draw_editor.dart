@@ -33,6 +33,7 @@ class DrawEditor extends StatelessWidget {
             return Center(
               child: Text(
                 l10n.noDrawCompetitionSelected,
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   color:
                       Theme.of(context).colorScheme.onSurface.withOpacity(.25),
@@ -209,6 +210,7 @@ class _TournamentModeAssignmentMenu extends StatelessWidget {
         children: [
           Text(
             l10n.noTournamentMode,
+            textAlign: TextAlign.center,
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface.withOpacity(.25),
               fontSize: 25,

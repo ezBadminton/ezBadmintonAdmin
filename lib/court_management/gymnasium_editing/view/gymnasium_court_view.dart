@@ -344,6 +344,7 @@ class _SelectionHint extends StatelessWidget {
     return Center(
       child: Text(
         gymsExist ? l10n.noGymnasiumSelected : l10n.addFirstGymnasium,
+        textAlign: TextAlign.center,
         style: TextStyle(
           color: Theme.of(context).colorScheme.onSurface.withOpacity(.25),
           fontSize: 25,

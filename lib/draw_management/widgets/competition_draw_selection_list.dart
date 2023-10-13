@@ -27,6 +27,7 @@ class CompetitionDrawSelectionList extends StatelessWidget {
             ),
             child: Text(
               l10n.noCompetitionsDrawHint,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 17,
                 color: Theme.of(context).disabledColor,
