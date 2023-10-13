@@ -5,9 +5,9 @@ import 'package:tournament_mode/src/tournament_mode.dart';
 import 'package:tournament_mode/src/tournament_round.dart';
 
 /// Builds a [TournamentMode] from a [Ranking] containing the entries.
-typedef TournamentModeBuilder<P, S> = TournamentMode<P, S> Function(
-  Ranking<P> entries,
-);
+typedef TournamentModeBuilder<P, S, M extends TournamentMatch<P, S>,
+        T extends TournamentMode<P, S, M>>
+    = T Function(Ranking<P> entries);
 
 typedef RankingTransition<P> = RankingDecorator<P> Function(
   Ranking<P> finalRanking,
@@ -15,7 +15,12 @@ typedef RankingTransition<P> = RankingDecorator<P> Function(
 
 /// A chain of two tournament modes where the final ranking of the first
 /// gets forwarded into the entry list of the second tournament mode.
-class ChainedTournamentMode<P, S> extends TournamentMode<P, S> {
+class ChainedTournamentMode<
+    P,
+    S,
+    M extends TournamentMatch<P, S>,
+    T1 extends TournamentMode<P, S, M>,
+    T2 extends TournamentMode<P, S, M>> extends TournamentMode<P, S, M> {
   /// Chains the tournament mode of [firstBuilder] to that
   /// of [secondBuilder].
   ///
@@ -27,8 +32,8 @@ class ChainedTournamentMode<P, S> extends TournamentMode<P, S> {
   /// mode (which is the final ranking of the first) is transitioned first.
   ChainedTournamentMode({
     required this.entries,
-    required TournamentModeBuilder<P, S> firstBuilder,
-    required TournamentModeBuilder<P, S> secondBuilder,
+    required TournamentModeBuilder<P, S, M, T1> firstBuilder,
+    required TournamentModeBuilder<P, S, M, T2> secondBuilder,
     RankingTransition<P>? rankingTransition,
   }) {
     first = firstBuilder(entries);
@@ -42,18 +47,17 @@ class ChainedTournamentMode<P, S> extends TournamentMode<P, S> {
   @override
   final Ranking<P> entries;
 
-  late final TournamentMode<P, S> first;
-  late final TournamentMode<P, S> second;
+  late final T1 first;
+  late final T2 second;
 
   @override
   Ranking<P> get finalRanking => second.finalRanking;
 
   @override
-  List<TournamentMatch<P, S>> get matches =>
-      rounds.expand((round) => round).toList();
+  List<M> get matches => rounds.expand((round) => round.matches).toList();
 
   @override
-  List<TournamentRound<P, S>> get rounds => [
+  List<TournamentRound<M>> get rounds => [
         ...first.rounds,
         ...second.rounds,
       ];

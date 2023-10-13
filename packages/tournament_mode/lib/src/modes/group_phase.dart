@@ -4,19 +4,18 @@ import 'package:tournament_mode/src/modes/round_robin.dart';
 import 'package:tournament_mode/src/ranking.dart';
 import 'package:tournament_mode/src/rankings/draw_seeds.dart';
 import 'package:tournament_mode/src/rankings/group_phase_ranking.dart';
-import 'package:tournament_mode/src/rankings/match_ranking.dart';
 import 'package:tournament_mode/src/round_types/group_phase_round.dart';
 import 'package:tournament_mode/src/tournament_match.dart';
 import 'package:tournament_mode/src/tournament_mode.dart';
 
 /// A group phase where each group plays through one round robin.
-class GroupPhase<P, S> extends TournamentMode<P, S> {
+class GroupPhase<P, S, M extends TournamentMatch<P, S>,
+    R extends RoundRobin<P, S, M>> extends TournamentMode<P, S, M> {
   /// Creates a [GroupPhase] with [numGroups]
   GroupPhase({
     required this.entries,
     required this.numGroups,
-    required this.rankingBuilder,
-    required this.matcher,
+    required this.roundRobinBuilder,
   }) {
     _createMatches();
     _finalRanking = GroupPhaseRanking(groupRoundRobins);
@@ -34,30 +33,23 @@ class GroupPhase<P, S> extends TournamentMode<P, S> {
   /// group(s) will have one less member.
   final int numGroups;
 
-  /// The group ranking to use. When the group [RoundRobin]s are created
-  /// this [rankingBuilder] supplies their rankings.
-  final TieableMatchRanking<P, S> Function() rankingBuilder;
+  /// A function turning a ranking of entries into a specific [RoundRobin].
+  final R Function(Ranking<P> entries) roundRobinBuilder;
 
-  /// A function turning two participants into a specific [TournamentMatch].
-  final TournamentMatch<P, S> Function(
-    MatchParticipant<P> a,
-    MatchParticipant<P> b,
-  ) matcher;
-
-  /// Each group is a realized as a [RoundRobin] tournament.
-  late final List<RoundRobin<P, S>> groupRoundRobins;
+  /// Each group is a realized as a [RoundRobin] ([R]) tournament.
+  late final List<R> groupRoundRobins;
 
   @override
-  List<TournamentMatch<P, S>> get matches =>
-      [for (GroupPhaseRound<P, S> round in rounds) ...round];
+  List<M> get matches =>
+      [for (GroupPhaseRound<M> round in rounds) ...round.matches];
 
-  late List<GroupPhaseRound<P, S>> _rounds;
+  late List<GroupPhaseRound<M>> _rounds;
   @override
-  List<GroupPhaseRound<P, S>> get rounds => _rounds;
+  List<GroupPhaseRound<M>> get rounds => _rounds;
 
-  late final GroupPhaseRanking<P, S> _finalRanking;
+  late final GroupPhaseRanking<P, S, M> _finalRanking;
   @override
-  GroupPhaseRanking<P, S> get finalRanking => _finalRanking;
+  GroupPhaseRanking<P, S, M> get finalRanking => _finalRanking;
 
   void _createMatches() {
     List<MatchParticipant<P>> participants = entries.rank();
@@ -67,11 +59,7 @@ class GroupPhase<P, S> extends TournamentMode<P, S> {
 
     groupRoundRobins = groups
         .map(
-          (group) => RoundRobin<P, S>(
-            entries: DrawSeeds.fromParticipants(group),
-            finalRanking: rankingBuilder(),
-            matcher: matcher,
-          ),
+          (group) => roundRobinBuilder(DrawSeeds.fromParticipants(group)),
         )
         .toList();
 
@@ -127,11 +115,11 @@ class GroupPhase<P, S> extends TournamentMode<P, S> {
     return groups;
   }
 
-  List<GroupPhaseRound<P, S>> _getGroupPhaseRounds() {
+  List<GroupPhaseRound<M>> _getGroupPhaseRounds() {
     int maxRounds =
         groupRoundRobins.map((roundRobin) => roundRobin.rounds.length).max;
 
-    List<GroupPhaseRound<P, S>> rounds = List.generate(
+    List<GroupPhaseRound<M>> rounds = List.generate(
       maxRounds,
       (round) => GroupPhaseRound(
         groupRoundRobins: groupRoundRobins,

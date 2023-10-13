@@ -18,7 +18,7 @@ class SingleEliminationTree extends StatelessWidget implements SectionLabels {
     this.placeholderLabels = const {},
   });
 
-  final List<EliminationRound<Team, List<MatchSet>>> rounds;
+  final List<EliminationRound<BadmintonMatch>> rounds;
   final Competition competition;
 
   final bool isEditable;
@@ -29,16 +29,16 @@ class SingleEliminationTree extends StatelessWidget implements SectionLabels {
   Widget build(BuildContext context) {
     List<List<Widget>> roundNodes = [];
 
-    for (EliminationRound<Team, List<MatchSet>> round in rounds) {
+    for (EliminationRound<BadmintonMatch> round in rounds) {
       bool isFirst = rounds.first == round;
       bool isLast = rounds.last == round;
 
       roundNodes.add(
         List.generate(
-          round.length,
+          round.matches.length,
           (index) => Expanded(
             child: SingleEliminationMatchNode(
-              match: round[index] as BadmintonMatch,
+              match: round.matches[index],
               teamSize: competition.teamSize,
               matchIndex: index,
               isFirstRound: isFirst,

@@ -9,14 +9,15 @@ import 'package:tournament_mode/src/tournament_match.dart';
 ///
 /// The ranks 1-2 are the only definite placements as the result of the final.
 /// 3-4 are both losers of the semi-finals and thus have the same rank, etc...
-class EliminationRanking<P, S> extends MatchRanking<P, S> {
+class EliminationRanking<P, S, M extends TournamentMatch<P, S>>
+    extends MatchRanking<P, S, M> {
   List<List<WinnerRanking<P, S>>> get _roundResults =>
       rounds!.map(_getRoundResults).toList();
 
   List<MatchParticipant<P>>? _ranks;
 
   @override
-  void initRounds(List<List<TournamentMatch<P, S>>> rounds) {
+  void initRounds(List<List<M>> rounds) {
     super.initRounds(rounds);
     _ranks = [
       for (List<WinnerRanking<P, S>> roundResult in _roundResults.reversed) ...[
@@ -27,7 +28,7 @@ class EliminationRanking<P, S> extends MatchRanking<P, S> {
           ),
         // Losers of round
         for (WinnerRanking<P, S> result in roundResult)
-          if (!result.match.isBye())
+          if (!result.match.isBye)
             MatchParticipant.fromPlacement(
               Placement(ranking: result, place: 1),
             ),

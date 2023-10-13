@@ -67,24 +67,19 @@ abstract class TournamentMatch<P, S> {
   /// Returns whether this match is playable according to the tournament's
   /// progress.
   ///
-  /// This is `true` when both participants are resolvable
-  /// (read: both opponents are determined).
-  bool isPlayable() {
-    return a.readyToPlay() && b.readyToPlay();
-  }
+  /// This is `true` when both participants are [MatchParticipant.readyToPlay]
+  bool get isPlayable => a.readyToPlay && b.readyToPlay;
 
   /// Returns whether this match is a bye and thus only has one real
   /// participant.
   ///
   /// Byes should be specially treated in [Ranking]s.
-  bool isBye() {
-    return a.isBye || b.isBye;
-  }
+  bool get isBye => a.isBye || b.isBye;
 
   /// Sets the start time of this match. If [startTime] is `null` it uses
   /// [DateTime.now].
   void beginMatch([DateTime? startTime]) {
-    assert(isPlayable());
+    assert(isPlayable);
     DateTime time = startTime ?? DateTime.now();
     _startTime = time;
   }

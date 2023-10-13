@@ -4,13 +4,13 @@ import 'package:tournament_mode/src/tournament_match.dart';
 import 'package:collection/collection.dart';
 
 /// A ranking based on match results.
-abstract class MatchRanking<P, S> implements Ranking<P> {
-  List<List<TournamentMatch<P, S>>>? _rounds;
-  List<List<TournamentMatch<P, S>>>? get rounds => _rounds;
-  Iterable<TournamentMatch<P, S>>? get matches =>
-      _rounds?.expand((round) => round);
+abstract class MatchRanking<P, S, M extends TournamentMatch<P, S>>
+    implements Ranking<P> {
+  List<List<M>>? _rounds;
+  List<List<M>>? get rounds => _rounds;
+  Iterable<M>? get matches => _rounds?.expand((round) => round);
 
-  void initRounds(List<List<TournamentMatch<P, S>>> rounds) {
+  void initRounds(List<List<M>> rounds) {
     _rounds = rounds;
   }
 
@@ -20,11 +20,11 @@ abstract class MatchRanking<P, S> implements Ranking<P> {
     }
 
     return matches!
-            .where((match) => !match.isBye())
+            .where((match) => !match.isBye)
             .firstWhereOrNull((match) => !match.isCompleted) ==
         null;
   }
 }
 
-abstract class TieableMatchRanking<P, S> extends MatchRanking<P, S>
-    with TieableRanking<P> {}
+abstract class TieableMatchRanking<P, S, M extends TournamentMatch<P, S>>
+    extends MatchRanking<P, S, M> with TieableRanking<P> {}

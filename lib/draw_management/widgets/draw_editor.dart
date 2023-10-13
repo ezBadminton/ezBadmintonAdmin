@@ -6,6 +6,7 @@ import 'package:ez_badminton_admin_app/draw_management/cubit/draw_deletion_cubit
 import 'package:ez_badminton_admin_app/draw_management/cubit/draw_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/drawing_cubit.dart';
 import 'package:ez_badminton_admin_app/draw_management/widgets/tournament_mode_card.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/tournament_mode_hydration.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/tournament_bracket_explorer_controller_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/tournament_bracket_explorer.dart';
@@ -102,16 +103,10 @@ class _InteractiveDraw extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    DrawSeeds<Team> entries = DrawSeeds(competition.draw);
-
-    TournamentMode tournament = switch (competition.tournamentModeSettings!) {
-      SingleEliminationSettings _ =>
-        BadmintonSingleElimination(seededEntries: entries),
-      RoundRobinSettings settings =>
-        BadmintonRoundRobin(entries: entries, settings: settings),
-      GroupKnockoutSettings settings =>
-        BadmintonGroupKnockout(entries: entries, settings: settings),
-    };
+    TournamentMode tournament = createTournamentMode(
+      competition.tournamentModeSettings!,
+      competition.draw,
+    );
 
     Widget drawView = switch (tournament) {
       BadmintonSingleElimination tournament => SingleEliminationTree(

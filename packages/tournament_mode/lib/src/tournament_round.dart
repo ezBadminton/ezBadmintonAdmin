@@ -14,16 +14,21 @@ import 'package:tournament_mode/src/tournament_mode.dart';
 /// * [RoundRobinRound] is a [TournamentRound] with round numbering information.
 /// * [EliminationRound] is used to represent one round in an elemination
 /// tournament tree.
-class TournamentRound<P, S> extends DelegatingList<TournamentMatch<P, S>> {
+class TournamentRound<M extends TournamentMatch> {
   /// Creates a [TournamentRound] containing the [roundMatches].
   TournamentRound({
-    required List<TournamentMatch<P, S>> roundMatches,
+    required this.matches,
     this.nestedRounds = const [],
-  }) : super(roundMatches);
+  });
+
+  /// The matches that this round consists of
+  final List<M> matches;
 
   /// Other rounds that this round is composed of
   /// (e.g. a round of a group phase stems from multiple round robin rounds)
   ///
   /// Is empty when no underlying rounds exist
-  final List<TournamentRound<P, S>> nestedRounds;
+  final List<TournamentRound<M>> nestedRounds;
+
+  int get length => matches.length;
 }

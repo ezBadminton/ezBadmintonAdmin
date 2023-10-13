@@ -11,7 +11,7 @@ class WinnerRanking<P, S> implements Ranking<P> {
 
   @override
   List<MatchParticipant<P>> rank() {
-    if (match.isBye()) {
+    if (match.isBye) {
       MatchParticipant<P> winner = match.a.isBye ? match.b : match.a;
       return [winner];
     } else if (match.isCompleted) {

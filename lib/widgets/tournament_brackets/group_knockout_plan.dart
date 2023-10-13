@@ -23,7 +23,7 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionLabels {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
-    List<RoundRobin<Team, List<MatchSet>>> groupRoundRobins =
+    List<BadmintonRoundRobin> groupRoundRobins =
         tournament.groupPhase.groupRoundRobins;
 
     List<RoundRobinPlan> groupPlans = groupRoundRobins

@@ -25,7 +25,7 @@ class GroupQualificationRanking<P> extends RankingDecorator<P> {
   /// The [numGroups] and [qualificationsPerGroup] under which the
   /// [targetRanking] was played out need to be provided.
   GroupQualificationRanking(
-    GroupPhaseRanking<P, dynamic> targetRanking, {
+    GroupPhaseRanking<P, dynamic, dynamic> targetRanking, {
     required this.numGroups,
     required this.qualificationsPerGroup,
   }) : super(targetRanking) {
@@ -33,8 +33,8 @@ class GroupQualificationRanking<P> extends RankingDecorator<P> {
   }
 
   @override
-  GroupPhaseRanking<P, dynamic> get targetRanking =>
-      super.targetRanking as GroupPhaseRanking<P, dynamic>;
+  GroupPhaseRanking<P, dynamic, dynamic> get targetRanking =>
+      super.targetRanking as GroupPhaseRanking<P, dynamic, dynamic>;
 
   final int numGroups;
   final int qualificationsPerGroup;

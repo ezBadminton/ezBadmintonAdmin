@@ -3,6 +3,7 @@ import 'package:tournament_mode/src/match_participant.dart';
 import 'package:tournament_mode/src/modes/group_phase.dart';
 import 'package:tournament_mode/src/modes/round_robin.dart';
 import 'package:tournament_mode/src/ranking.dart';
+import 'package:tournament_mode/src/tournament_match.dart';
 
 /// The ranking of a [GroupPhase].
 ///
@@ -11,13 +12,14 @@ import 'package:tournament_mode/src/ranking.dart';
 ///
 /// If `m` groups have less members then the last place is a block of
 /// only `n-m` participants.
-class GroupPhaseRanking<P, S> implements Ranking<P> {
+class GroupPhaseRanking<P, S, M extends TournamentMatch<P, S>>
+    implements Ranking<P> {
   /// Creates a [GroupPhaseRanking] for the [groups].
   GroupPhaseRanking(this.groups) {
     _createRanks();
   }
 
-  final List<RoundRobin<P, S>> groups;
+  final List<RoundRobin<P, S, M>> groups;
 
   List<MatchParticipant<P>>? _ranks;
 
@@ -38,7 +40,7 @@ class GroupPhaseRanking<P, S> implements Ranking<P> {
     ];
   }
 
-  List<MatchParticipant<P>> _getGroupRanking(RoundRobin<P, S> group) {
+  List<MatchParticipant<P>> _getGroupRanking(RoundRobin<P, S, M> group) {
     int groupSize = group.participants.where((p) => !p.isBye).length;
     return List.generate(
       groupSize,

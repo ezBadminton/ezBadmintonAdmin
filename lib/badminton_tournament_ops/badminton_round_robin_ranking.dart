@@ -4,16 +4,14 @@ import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.
 import 'package:tournament_mode/tournament_mode.dart';
 
 class BadmintonRoundRobinRanking
-    extends TieableMatchRanking<Team, List<MatchSet>> {
+    extends TieableMatchRanking<Team, List<MatchSet>, BadmintonMatch> {
   @override
   List<List<MatchParticipant<Team>>> tiedRank() {
     if (!ranksAvailable()) {
       return [];
     }
-    List<BadmintonMatch> finishedMatches = matches!
-        .cast<BadmintonMatch>()
-        .where((match) => !match.isBye())
-        .toList();
+    List<BadmintonMatch> finishedMatches =
+        matches!.where((match) => !match.isBye).toList();
 
     Map<Team, RoundRobinStats> stats = _createStats(finishedMatches);
 

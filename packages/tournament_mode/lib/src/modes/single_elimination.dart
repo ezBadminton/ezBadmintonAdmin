@@ -11,7 +11,8 @@ import 'package:tournament_mode/src/tournament_mode.dart';
 
 /// Single elimination mode. All players are entered into a tournament
 /// tree where each winner progresses to the next round until the finals.
-class SingleElimination<P, S> extends TournamentMode<P, S> {
+class SingleElimination<P, S, M extends TournamentMatch<P, S>>
+    extends TournamentMode<P, S, M> {
   /// Creates a [SingleElimination] tournament with the given [seededEntries].
   ///
   /// If no seeding is needed a random ranking can be used aswell.
@@ -28,14 +29,14 @@ class SingleElimination<P, S> extends TournamentMode<P, S> {
   })  : entries = _BinaryRanking(seededEntries),
         finalRanking = EliminationRanking() {
     _createMatches();
-    finalRanking.initRounds(rounds);
+    finalRanking.initRounds(roundMatches.toList());
   }
 
   @override
   final Ranking<P> entries;
 
   /// A function turning two participants into a specific [TournamentMatch].
-  final TournamentMatch<P, S> Function(
+  final M Function(
     MatchParticipant<P> a,
     MatchParticipant<P> b,
   ) matcher;
@@ -43,15 +44,15 @@ class SingleElimination<P, S> extends TournamentMode<P, S> {
   late final List<MatchParticipant<P>> _participants;
 
   @override
-  List<TournamentMatch<P, S>> get matches =>
-      [for (EliminationRound<P, S> round in rounds) ...round];
+  List<M> get matches =>
+      [for (EliminationRound<M> round in rounds) ...round.matches];
 
-  late List<EliminationRound<P, S>> _rounds;
+  late List<EliminationRound<M>> _rounds;
   @override
-  List<EliminationRound<P, S>> get rounds => _rounds;
+  List<EliminationRound<M>> get rounds => _rounds;
 
   @override
-  final MatchRanking<P, S> finalRanking;
+  final MatchRanking<P, S, M> finalRanking;
 
   void _createMatches() {
     _participants = entries.rank();
@@ -60,10 +61,10 @@ class SingleElimination<P, S> extends TournamentMode<P, S> {
 
     int rounds = _getNumRounds(_participants.length);
 
-    List<List<TournamentMatch<P, S>>> eliminationMatches = [];
+    List<List<M>> eliminationMatches = [];
     List<MatchParticipant<P>> roundParticipants = _participants;
     for (int round = 0; round < rounds; round += 1) {
-      List<TournamentMatch<P, S>> roundMatches;
+      List<M> roundMatches;
       if (round == 0) {
         roundMatches = _createSeededEliminationRound(roundParticipants);
       } else {
@@ -78,7 +79,7 @@ class SingleElimination<P, S> extends TournamentMode<P, S> {
     _rounds = List.generate(
       eliminationMatches.length,
       (index) => EliminationRound(
-        roundMatches: eliminationMatches[index],
+        matches: eliminationMatches[index],
         roundSize: pow(2, eliminationMatches.length - index) as int,
       ),
     );
@@ -86,10 +87,10 @@ class SingleElimination<P, S> extends TournamentMode<P, S> {
 
   /// Takes a list of [roundParticipants] and matches them pair-wise in the
   /// list's order (1st vs 2nd, 3rd vs 4th, ...).
-  List<TournamentMatch<P, S>> _createEliminationRound(
+  List<M> _createEliminationRound(
     List<MatchParticipant<P>> roundParticipants,
   ) {
-    List<TournamentMatch<P, S>> roundMatches = [];
+    List<M> roundMatches = [];
     for (int i = 0; i < roundParticipants.length; i += 2) {
       MatchParticipant<P> a = roundParticipants[i];
       MatchParticipant<P> b = roundParticipants[i + 1];
@@ -111,13 +112,13 @@ class SingleElimination<P, S> extends TournamentMode<P, S> {
   ///
   /// 1st and 2nd seed are in opposite branches of the tournament tree.
   /// Opponents are matched by mirrored seed.
-  List<TournamentMatch<P, S>> _createSeededEliminationRound(
+  List<M> _createSeededEliminationRound(
     List<MatchParticipant<P>> roundParticipants,
   ) {
     int rounds = _getNumRounds(roundParticipants.length);
     List<(int, int)> seedMatchups = _createSeedMatchups(rounds);
 
-    List<TournamentMatch<P, S>> roundMatches = seedMatchups
+    List<M> roundMatches = seedMatchups
         .map(
           (matchup) => matcher(
             roundParticipants[matchup.$1],

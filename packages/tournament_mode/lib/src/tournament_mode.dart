@@ -12,7 +12,7 @@ import 'package:tournament_mode/src/tournament_round.dart';
 ///
 /// The [finalRanking] can then be used as the [entries] for another mode,
 /// effectively chaining them (e.g. [GroupPhase] => [SingleElimination]).
-abstract class TournamentMode<P, S> {
+abstract class TournamentMode<P, S, M extends TournamentMatch<P, S>> {
   /// The participants of this tournament mode in a ranked entry list.
   ///
   /// The [entries] ranking can be interpreted as a seeded list, as the result
@@ -21,7 +21,7 @@ abstract class TournamentMode<P, S> {
   abstract final Ranking<P> entries;
 
   /// All matches that are played in this mode.
-  List<TournamentMatch<P, S>> get matches;
+  List<M> get matches;
 
   /// The [matches] grouped into rounds.
   /// Every match is part of exactly one round.
@@ -29,7 +29,9 @@ abstract class TournamentMode<P, S> {
   /// A round is a set of matches that can be played in parallel
   /// given the previous round has completed. The list's order reflects the
   /// order of the rounds.
-  List<TournamentRound<P, S>> get rounds;
+  List<TournamentRound<M>> get rounds;
+
+  Iterable<List<M>> get roundMatches => rounds.map((r) => r.matches);
 
   /// The final ranks of the players after all matches are finished.
   Ranking<P> get finalRanking;
@@ -39,8 +41,9 @@ abstract class TournamentMode<P, S> {
   /// Returns `-1` if all matches are completed.
   int ongoingRound() {
     for (int i = 0; i < rounds.length; i += 1) {
-      bool ongoing = rounds[i]
-              .where((match) => !match.isBye())
+      bool ongoing = roundMatches
+              .elementAt(i)
+              .where((match) => !match.isBye)
               .firstWhereOrNull((match) => !match.isCompleted) !=
           null;
       if (ongoing) {
@@ -57,8 +60,9 @@ abstract class TournamentMode<P, S> {
   /// Returns `0` if no matches have been started.
   int latestOngoingRound() {
     for (int i = rounds.length - 1; i >= 0; i -= 1) {
-      bool inProgress = rounds[i]
-              .where((match) => !match.isBye())
+      bool inProgress = roundMatches
+              .elementAt(i)
+              .where((match) => !match.isBye)
               .firstWhereOrNull((match) => match.startTime != null) !=
           null;
       if (inProgress) {
@@ -83,7 +87,7 @@ abstract class TournamentMode<P, S> {
   /// Returns whether all [matches] are completed.
   bool isCompleted() {
     return matches
-            .where((match) => !match.isBye())
+            .where((match) => !match.isBye)
             .firstWhereOrNull((match) => !match.isCompleted) ==
         null;
   }

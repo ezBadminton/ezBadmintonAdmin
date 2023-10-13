@@ -42,6 +42,9 @@ class MatchParticipant<P> {
 
   final bool isBye;
 
+  /// Returns whether this participant is ready to start a match.
+  bool get readyToPlay => !isBye && resolvePlayer() != null;
+
   /// Resolves to a player [P] who is actually going to fill this participant's
   /// role.
   ///
@@ -57,14 +60,5 @@ class MatchParticipant<P> {
     }
 
     return placement!.getPlacement()?.resolvePlayer();
-  }
-
-  /// Returns whether this participant is ready to start a match.
-  bool readyToPlay() {
-    if (isBye) {
-      return true;
-    }
-
-    return resolvePlayer() != null;
   }
 }

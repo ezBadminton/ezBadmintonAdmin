@@ -1,8 +1,9 @@
+import 'package:tournament_mode/src/tournament_match.dart';
 import 'package:tournament_mode/src/tournament_round.dart';
 
-class EliminationRound<P, S> extends TournamentRound<P, S> {
+class EliminationRound<M extends TournamentMatch> extends TournamentRound<M> {
   EliminationRound({
-    required super.roundMatches,
+    required super.matches,
     required this.roundSize,
     this.roundDepth = 0,
   });

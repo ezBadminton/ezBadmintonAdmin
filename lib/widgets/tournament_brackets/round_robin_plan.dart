@@ -1,5 +1,6 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/interactive_view_blocker_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_label.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';
@@ -19,7 +20,7 @@ class RoundRobinPlan extends StatelessWidget {
     this.title,
   });
 
-  final RoundRobin<Team, List<MatchSet>> tournament;
+  final BadmintonRoundRobin tournament;
   final Competition competition;
 
   final bool isEditable;
@@ -137,7 +138,7 @@ class _RoundRobinMatchList extends StatefulWidget {
     required this.competition,
   });
 
-  final List<RoundRobinRound<Team, List<MatchSet>>> rounds;
+  final List<RoundRobinRound<BadmintonMatch>> rounds;
   final Competition competition;
 
   @override
@@ -211,7 +212,7 @@ class _RoundRobinMatchListState extends State<_RoundRobinMatchList> {
   }
 
   Widget _buildRound(
-    RoundRobinRound<Team, List<MatchSet>> round,
+    RoundRobinRound<BadmintonMatch> round,
     AppLocalizations l10n,
   ) {
     return Column(
@@ -221,7 +222,7 @@ class _RoundRobinMatchListState extends State<_RoundRobinMatchList> {
           l10n.encounterNumber(round.roundNumber + 1),
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
-        for (BadmintonMatch match in round.cast<BadmintonMatch>())
+        for (BadmintonMatch match in round.matches)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5.0),
             child: MatchLabel(match: match, competition: widget.competition),

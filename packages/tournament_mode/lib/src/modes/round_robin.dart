@@ -6,7 +6,8 @@ import 'package:tournament_mode/src/tournament_match.dart';
 import 'package:tournament_mode/src/tournament_mode.dart';
 
 /// Arguably the simplest tournament mode. Every player plays everyone else.
-class RoundRobin<P, S> extends TournamentMode<P, S> {
+class RoundRobin<P, S, M extends TournamentMatch<P, S>>
+    extends TournamentMode<P, S, M> {
   /// Creates a [RoundRobin] tournament.
   RoundRobin({
     required this.entries,
@@ -15,7 +16,7 @@ class RoundRobin<P, S> extends TournamentMode<P, S> {
     this.passes = 1,
   }) {
     _createMatches();
-    finalRanking.initRounds(rounds);
+    finalRanking.initRounds(roundMatches.toList());
   }
 
   /// The competing players. The ranking order is unimportant for the matches
@@ -27,10 +28,10 @@ class RoundRobin<P, S> extends TournamentMode<P, S> {
   /// blocking ties are broken the [TieableMatchRanking.rank] method should
   /// return the ranked player list.
   @override
-  final TieableMatchRanking<P, S> finalRanking;
+  final TieableMatchRanking<P, S, M> finalRanking;
 
   /// A function turning two participants into a specific [TournamentMatch].
-  final TournamentMatch<P, S> Function(
+  final M Function(
     MatchParticipant<P> a,
     MatchParticipant<P> b,
   ) matcher;
@@ -44,12 +45,12 @@ class RoundRobin<P, S> extends TournamentMode<P, S> {
   late final List<MatchParticipant<P>> participants;
 
   @override
-  List<TournamentMatch<P, S>> get matches =>
-      [for (RoundRobinRound<P, S> round in rounds) ...round];
+  List<M> get matches =>
+      [for (RoundRobinRound<M> round in rounds) ...round.matches];
 
-  late List<RoundRobinRound<P, S>> _rounds;
+  late List<RoundRobinRound<M>> _rounds;
   @override
-  List<RoundRobinRound<P, S>> get rounds => _rounds;
+  List<RoundRobinRound<M>> get rounds => _rounds;
 
   /// This method uses
   /// https://en.wikipedia.org/wiki/Round-robin_tournament#Circle_method
@@ -66,12 +67,12 @@ class RoundRobin<P, S> extends TournamentMode<P, S> {
 
     List<MatchParticipant<P>> matchingCircle = List.of(participants);
 
-    List<List<TournamentMatch<P, S>>> roundRobinMatches = [];
+    List<List<M>> roundRobinMatches = [];
     for (int pass = 0; pass < passes; pass += 1) {
       for (int roundNum = 0; roundNum < roundsPerPass; roundNum += 1) {
         roundRobinMatches.add([]);
         for (int matchNum = 0; matchNum < matchesPerRound; matchNum += 1) {
-          TournamentMatch<P, S> match = _matchParticipants(
+          M match = _matchParticipants(
             pass,
             roundNum,
             matchNum,
@@ -89,7 +90,7 @@ class RoundRobin<P, S> extends TournamentMode<P, S> {
     _rounds = List.generate(
       roundRobinMatches.length,
       (index) => RoundRobinRound(
-        roundMatches: roundRobinMatches[index],
+        matches: roundRobinMatches[index],
         roundNumber: index,
         totalRounds: roundsPerPass * passes,
       ),
@@ -108,7 +109,7 @@ class RoundRobin<P, S> extends TournamentMode<P, S> {
   /// This makes it so that each participant gets the same amount of
   /// first named matchups. If [passes] is not even, some participants will
   /// unavoidably have one more or one less first named match.
-  TournamentMatch<P, S> _matchParticipants(
+  M _matchParticipants(
     int pass,
     int round,
     int match,
