@@ -1,6 +1,7 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_deletion_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_selection_cubit.dart';
+import 'package:ez_badminton_admin_app/competition_management/cubit/competition_starting_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/view/tournament_mode_assignment_page.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
 import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
@@ -15,16 +16,30 @@ class CompetitionSelectionOptions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    return BlocProvider(
-      create: (context) => CompetitionDeletionCubit(
-        competitionRepository:
-            context.read<CollectionRepository<Competition>>(),
-        teamRepository: context.read<CollectionRepository<Team>>(),
-      ),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => CompetitionDeletionCubit(
+            competitionRepository:
+                context.read<CollectionRepository<Competition>>(),
+            teamRepository: context.read<CollectionRepository<Team>>(),
+          ),
+        ),
+        BlocProvider(
+          create: (context) => CompetitionStartingCubit(
+            competitionRepository:
+                context.read<CollectionRepository<Competition>>(),
+            matchRepository: context.read<CollectionRepository<Match>>(),
+          ),
+        ),
+      ],
       child: BlocConsumer<CompetitionSelectionCubit, CompetitionSelectionState>(
         listener: (context, state) {
           var deletionCubit = context.read<CompetitionDeletionCubit>();
+          var startingCubit = context.read<CompetitionStartingCubit>();
+
           deletionCubit.selectedCompetitionsChanged(state.selectedCompetitions);
+          startingCubit.selectedCompetitionsChanged(state.selectedCompetitions);
         },
         builder: (context, state) {
           int numSelected = state.selectedCompetitions.length;
@@ -84,6 +99,8 @@ class _CompetitionSelectionOptionButtons extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                const _CompetitionStartButton(),
+                const SizedBox(width: 20),
                 _AssignTournamentModeButton(
                   selectedCompetitions: state.selectedCompetitions,
                 ),
@@ -94,6 +111,54 @@ class _CompetitionSelectionOptionButtons extends StatelessWidget {
               ],
             ));
       },
+    );
+  }
+}
+
+class _CompetitionStartButton extends StatelessWidget {
+  const _CompetitionStartButton();
+
+  @override
+  Widget build(BuildContext context) {
+    var startingCubit = context.read<CompetitionStartingCubit>();
+    var l10n = AppLocalizations.of(context)!;
+
+    return DialogListener<CompetitionStartingCubit, CompetitionStartingState,
+        bool>(
+      builder: (context, state, reason) {
+        return ConfirmDialog(
+          title: Text(l10n.startTournament),
+          content: Text(l10n.startTournamentInfo),
+          confirmButtonLabel: l10n.confirm,
+          cancelButtonLabel: l10n.cancel,
+        );
+      },
+      child: DialogListener<CompetitionStartingCubit, CompetitionStartingState,
+          Exception>(
+        builder: (context, state, _) {
+          return AlertDialog(
+            title: Text(l10n.somethingWentWrong),
+            content: Text(l10n.tournamentCouldNotStart),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(l10n.confirm),
+              ),
+            ],
+          );
+        },
+        child: BlocBuilder<CompetitionStartingCubit, CompetitionStartingState>(
+          builder: (context, state) {
+            return ElevatedButton(
+              onPressed: state.selectedCompetitions.isEmpty ||
+                      !state.selectionIsStartable
+                  ? null
+                  : startingCubit.startCompetitions,
+              child: Text(l10n.startTournament),
+            );
+          },
+        ),
+      ),
     );
   }
 }

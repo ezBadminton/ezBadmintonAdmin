@@ -25,6 +25,8 @@ class _AppState extends State<App> {
   late final CollectionRepository<PlayingLevel> _playingLevelRepository;
   late final CollectionRepository<AgeGroup> _ageGroupRepository;
   late final CollectionRepository<Player> _playerRepository;
+  late final CollectionRepository<MatchSet> _matchSetRepository;
+  late final CollectionRepository<Match> _matchRepository;
   late final CollectionRepository<Competition> _competitionRepository;
   late final CollectionRepository<Team> _teamRepository;
   late final CollectionRepository<Club> _clubRepository;
@@ -77,6 +79,18 @@ class _AppState extends State<App> {
         pocketBaseProvider: _pocketBaseProvider,
       ),
     );
+    _matchSetRepository = CachedCollectionRepository(
+      PocketbaseCollectionRepository(
+        modelConstructor: MatchSet.fromJson,
+        pocketBaseProvider: _pocketBaseProvider,
+      ),
+    );
+    _matchRepository = CachedCollectionRepository(
+      PocketbaseCollectionRepository(
+        modelConstructor: Match.fromJson,
+        pocketBaseProvider: _pocketBaseProvider,
+      ),
+    );
     _competitionRepository = CachedCollectionRepository(
       relationRepositories: [
         _playingLevelRepository,
@@ -122,6 +136,8 @@ class _AppState extends State<App> {
     _ageGroupRepository.dispose();
     _playerRepository.dispose();
     _teamRepository.dispose();
+    _matchSetRepository.dispose();
+    _matchRepository.dispose();
     _competitionRepository.dispose();
     _clubRepository.dispose();
     _courtRepository.dispose();
@@ -140,6 +156,8 @@ class _AppState extends State<App> {
         RepositoryProvider.value(value: _ageGroupRepository),
         RepositoryProvider.value(value: _playerRepository),
         RepositoryProvider.value(value: _teamRepository),
+        RepositoryProvider.value(value: _matchSetRepository),
+        RepositoryProvider.value(value: _matchRepository),
         RepositoryProvider.value(value: _competitionRepository),
         RepositoryProvider.value(value: _clubRepository),
         RepositoryProvider.value(value: _courtRepository),

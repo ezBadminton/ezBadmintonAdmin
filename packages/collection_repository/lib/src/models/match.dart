@@ -42,6 +42,14 @@ class Match extends Model with _$Match {
   factory Match.fromJson(Map<String, dynamic> json) =>
       _$MatchFromJson(json..cleanUpExpansions(expandedFields));
 
+  factory Match.newMatch() => Match(
+        id: '',
+        created: DateTime.now(),
+        updated: DateTime.now(),
+        sets: const [],
+        status: MatchStatus.planned,
+      );
+
   static const List<ExpandedField> expandedFields = [
     ExpandedField(
       model: MatchSet,

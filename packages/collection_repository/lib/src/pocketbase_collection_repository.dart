@@ -5,7 +5,6 @@ import 'package:collection_repository/src/utils/model_converter.dart'
     as model_converter;
 import 'package:pocketbase/pocketbase.dart';
 import 'package:pocketbase_provider/pocketbase_provider.dart';
-import 'package:recase/recase.dart';
 
 class PocketbaseCollectionRepository<M extends Model>
     implements CollectionRepository<M> {
@@ -25,9 +24,7 @@ class PocketbaseCollectionRepository<M extends Model>
     required PocketBaseProvider pocketBaseProvider,
   })  : _modelConstructor = modelConstructor,
         _pocketBase = pocketBaseProvider.pocketBase,
-        // All model classes have a corresponding plural collection name
-        _collectionName =
-            '${M.toString().snakeCase}${M.toString().endsWith('s') ? '' : 's'}';
+        _collectionName = _collectionNames[M]!;
 
   // The pocketbase SDK abstracts all the DB querying
   final PocketBase _pocketBase;
@@ -160,3 +157,18 @@ class PocketbaseCollectionRepository<M extends Model>
     return updateStreamController.close();
   }
 }
+
+const Map<Type, String> _collectionNames = {
+  AgeGroup: 'age_groups',
+  Club: 'clubs',
+  Competition: 'competitions',
+  Court: 'courts',
+  Gymnasium: 'gymnasiums',
+  MatchSet: 'match_sets',
+  Match: 'matches',
+  Player: 'players',
+  PlayingLevel: 'playing_levels',
+  Team: 'teams',
+  TournamentModeSettings: 'tournament_mode_settings',
+  Tournament: 'tournaments',
+};

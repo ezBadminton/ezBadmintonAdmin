@@ -9,6 +9,8 @@ BadmintonMatch _matcher(MatchParticipant<Team> a, MatchParticipant<Team> b) =>
 typedef BadmintonTournamentMode
     = TournamentMode<Team, List<MatchSet>, BadmintonMatch>;
 
+typedef BadmintonTournamentRound = TournamentRound<BadmintonMatch>;
+
 class BadmintonSingleElimination
     extends SingleElimination<Team, List<MatchSet>, BadmintonMatch> {
   BadmintonSingleElimination({

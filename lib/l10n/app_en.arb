@@ -204,5 +204,12 @@
   "drawsWillBeOverriddenInfo": "By changing the tournament mode existing draws will be removed.\n\nContinue?",
   "noCompetitionsRegistrationHint": "Add a competition to become able to make registrations",
   "noCompetitionsDrawHint": "No competitions.\n\nAdd a competition and register participants to make a draw.",
-  "matchOperations": "Match operations"
+  "matchOperations": "Match operations",
+  "startTournament": "Start tournament",
+  "startTournamentInfo": "You are about to start the tournament for the selected competitions.\nThe matches will appear on the 'Matches' tab and the tournament operations can commence!",
+  "somethingWentWrong": "Something went wrong",
+  "tournamentCouldNotStart": "The tournament could not be started",
+  "matchQueue": "Match queue",
+  "readyForCallout": "Ready for call out",
+  "runningMatches": "Running matches"
 }
