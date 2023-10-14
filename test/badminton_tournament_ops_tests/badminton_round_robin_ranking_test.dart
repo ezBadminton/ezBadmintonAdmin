@@ -28,21 +28,6 @@ void main() {
     (index) => Player.newPlayer().copyWith(id: 'player-$index'),
   );
 
-  Match dummyMatch = Match(
-    id: 'match',
-    created: DateTime.now(),
-    updated: DateTime.now(),
-    team1: Team.newTeam(),
-    team2: Team.newTeam(),
-    court: Court.newCourt(
-      name: 'court',
-      gymnasium: Gymnasium.newGymnasium(),
-      x: 0,
-      y: 0,
-    ),
-    status: MatchStatus.planned,
-  );
-
   List<Team> createTeams(List<Player> players) => players
       .map(
         (player) =>
@@ -70,8 +55,6 @@ void main() {
       id: 'matchset-${random.nextInt(999999999)}',
       created: DateTime.now(),
       updated: DateTime.now(),
-      match: dummyMatch,
-      index: 0,
       team1Points: score.$1,
       team2Points: score.$2,
     );

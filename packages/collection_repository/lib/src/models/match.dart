@@ -12,23 +12,30 @@ part 'generated/match.g.dart';
 class Match extends Model with _$Match {
   const Match._();
 
-  /// A badminton match between [team1] and [team2].
+  /// A badminton match in a [Competition].
   ///
-  /// The match is being played in a [competition] on a [court]. The [status] of
-  /// the Match dictates the administrative stage it is in. Eventually
-  /// the [winner] will be saved to the Match object. If one of the players
-  /// decides to upload a photo of the handwritten [resultCard] via the app its
-  /// filepath is also included here. This would save a walk to the
-  /// tournament admin desk.
+  /// The match is assigned to a [court]. The [status] of the Match dictates the
+  /// administrative stage it is in. The [sets] of the match is stored as a List
+  /// of [MatchSet]s. If one of the players decides to upload a photo of the
+  /// handwritten [resultCard] via the app its filepath is included here.
+  /// This would save a walk to the tournament admin desk.
+  ///
+  /// The [Match] class can exist without explicitly naming the opponent [Team]s
+  /// because those are functionally dependent on the [Competition]s draw
+  /// (which is just a List of [Team]s), its tournament mode settings
+  /// and on the match results. Since those three inputs are stored they can
+  /// always be used to reconstruct who is playing in a particular [Match].
+  /// This reconstruction can also be referred to as "hydrating" the tournament
+  /// mode. This way a match can also be assigned to a court before the
+  /// opponents are even determined. For example the final can be put on
+  /// center court while the semi-finals are still ongoing.
   const factory Match({
     required String id,
     required DateTime created,
     required DateTime updated,
-    required Team team1,
-    required Team team2,
-    required Court court,
+    required List<MatchSet> sets,
+    Court? court,
     required MatchStatus status,
-    Team? winner,
     String? resultCard,
   }) = _Match;
 
@@ -36,12 +43,15 @@ class Match extends Model with _$Match {
       _$MatchFromJson(json..cleanUpExpansions(expandedFields));
 
   static const List<ExpandedField> expandedFields = [
-    ExpandedField(model: Team, key: 'team1', isRequired: true, isSingle: true),
-    ExpandedField(model: Team, key: 'team2', isRequired: true, isSingle: true),
-    ExpandedField(model: Court, key: 'court', isRequired: true, isSingle: true),
     ExpandedField(
-      model: Team,
-      key: 'winner',
+      model: MatchSet,
+      key: 'sets',
+      isRequired: true,
+      isSingle: false,
+    ),
+    ExpandedField(
+      model: Court,
+      key: 'court',
       isRequired: false,
       isSingle: true,
     ),
