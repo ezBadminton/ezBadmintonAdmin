@@ -11,7 +11,8 @@ part 'generated/match_set.g.dart';
 class MatchSet extends Model with _$MatchSet {
   const MatchSet._();
 
-  /// One set in a badminton [Match]
+  /// One set in a badminton match. Once the set results are entered, the
+  /// match's [MatchData.sets] list is filled with the [MatchSet]s.
   ///
   /// A badminton match usually consists of 2-3 sets with the winning team
   /// reaching 21 points (2 points clear) first.

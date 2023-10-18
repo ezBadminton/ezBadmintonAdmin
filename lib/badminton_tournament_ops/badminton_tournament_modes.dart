@@ -29,11 +29,10 @@ class BadmintonRoundRobin
         );
 
   BadmintonRoundRobin.fromSettings({
-    required super.entries,
+    required Ranking<Team> entries,
     required RoundRobinSettings settings,
-  }) : super(
-          matcher: _matcher,
-          finalRanking: BadmintonRoundRobinRanking(),
+  }) : this(
+          entries: entries,
           passes: settings.passes,
         );
 }
@@ -74,18 +73,11 @@ class BadmintonGroupKnockout extends GroupKnockout<
         );
 
   BadmintonGroupKnockout.fromSettings({
-    required super.entries,
+    required Ranking<Team> entries,
     required GroupKnockoutSettings settings,
-  }) : super(
+  }) : this(
+          entries: entries,
           numGroups: settings.numGroups,
           qualificationsPerGroup: settings.qualificationsPerGroup,
-          groupPhaseBuilder: (entries, numGroups) => BadmintonGroupPhase(
-            entries: entries,
-            numGroups: numGroups,
-          ),
-          singleEliminationBuilder: (seededEntries) =>
-              BadmintonSingleElimination(
-            seededEntries: seededEntries,
-          ),
         );
 }

@@ -45,11 +45,13 @@ class PocketbaseCollectionRepository<M extends Model>
     Competition: ExpansionTree(Competition.expandedFields)
       ..expandWith(Team, Team.expandedFields)
       ..expandWith(Player, Player.expandedFields)
-      ..expandWith(Match, Match.expandedFields),
+      ..expandWith(MatchData, MatchData.expandedFields)
+      ..expandWith(Court, Court.expandedFields),
     Team: ExpansionTree(Team.expandedFields)
       ..expandWith(Player, Player.expandedFields),
     Court: ExpansionTree(Court.expandedFields),
-    Match: ExpansionTree(Match.expandedFields),
+    MatchData: ExpansionTree(MatchData.expandedFields)
+      ..expandWith(Court, Court.expandedFields),
   };
 
   @override
@@ -165,7 +167,7 @@ const Map<Type, String> _collectionNames = {
   Court: 'courts',
   Gymnasium: 'gymnasiums',
   MatchSet: 'match_sets',
-  Match: 'matches',
+  MatchData: 'match_data',
   Player: 'players',
   PlayingLevel: 'playing_levels',
   Team: 'teams',

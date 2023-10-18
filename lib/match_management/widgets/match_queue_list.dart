@@ -5,14 +5,16 @@ class MatchQueueList extends StatelessWidget {
     super.key,
     required this.width,
     required this.title,
-    required this.sublists,
-  });
+    this.list,
+    this.sublists,
+  }) : assert((list == null) != (sublists == null));
 
   final double width;
 
   final String title;
 
-  final Map<String, List<Widget>> sublists;
+  final List<Widget>? list;
+  final Map<String, List<Widget>>? sublists;
 
   @override
   Widget build(BuildContext context) {
@@ -45,9 +47,47 @@ class MatchQueueList extends StatelessWidget {
                 ),
               ),
             ),
+            Expanded(
+              child: CustomScrollView(
+                slivers: [
+                  SliverList(
+                    delegate: SliverChildListDelegate(
+                      _buildList(),
+                    ),
+                  )
+                ],
+              ),
+            )
           ],
         ),
       ),
     );
+  }
+
+  List<Widget> _buildList() {
+    if (list != null) {
+      return _buildSublist(null, list!);
+    } else {
+      return [
+        for (String title in sublists!.keys)
+          ..._buildSublist(title, sublists![title]!),
+      ];
+    }
+  }
+
+  List<Widget> _buildSublist(String? title, List<Widget> sublist) {
+    return [
+      if (title != null && sublist.isNotEmpty) ...[
+        const Divider(height: 1),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6.0),
+          child: Center(
+            child: Text(title),
+          ),
+        ),
+        const Divider(height: 1),
+      ],
+      ...sublist,
+    ];
   }
 }

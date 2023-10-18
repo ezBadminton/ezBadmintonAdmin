@@ -13,11 +13,11 @@ class CompetitionStartingCubit
     extends CollectionQuerierCubit<CompetitionStartingState> with DialogCubit {
   CompetitionStartingCubit({
     required CollectionRepository<Competition> competitionRepository,
-    required CollectionRepository<Match> matchRepository,
+    required CollectionRepository<MatchData> matchDataRepository,
   }) : super(
           collectionRepositories: [
             competitionRepository,
-            matchRepository,
+            matchDataRepository,
           ],
           CompetitionStartingState(),
         );
@@ -61,20 +61,17 @@ class CompetitionStartingCubit
       return FormzSubmissionStatus.failure;
     }
 
-    BadmintonTournamentMode tournamentMode = createTournamentMode(
-      competition.tournamentModeSettings!,
-      competition.draw,
-    );
+    BadmintonTournamentMode tournamentMode = createTournamentMode(competition);
 
-    List<Match> matches = createMatchesFromTournament(tournamentMode);
+    List<MatchData> matches = createMatchesFromTournament(tournamentMode);
 
-    List<Match?> createdMatches = await querier.createModels(matches);
+    List<MatchData?> createdMatches = await querier.createModels(matches);
     if (createdMatches.contains(null)) {
       return FormzSubmissionStatus.failure;
     }
 
     Competition competitionWithMatches = competition.copyWith(
-      matches: createdMatches.whereType<Match>().toList(),
+      matches: createdMatches.whereType<MatchData>().toList(),
     );
 
     Competition? updatedCompetition =

@@ -103,10 +103,7 @@ class _InteractiveDraw extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TournamentMode tournament = createTournamentMode(
-      competition.tournamentModeSettings!,
-      competition.draw,
-    );
+    TournamentMode tournament = createTournamentMode(competition);
 
     Widget drawView = switch (tournament) {
       BadmintonSingleElimination tournament => SingleEliminationTree(

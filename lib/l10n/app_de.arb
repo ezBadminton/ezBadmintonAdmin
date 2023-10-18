@@ -211,5 +211,10 @@
   "tournamentCouldNotStart": "Das Turnier konnte nicht gerstartet werden",
   "matchQueue": "Warteschlange",
   "readyForCallout": "Bereit zum Ausrufen",
-  "runningMatches": "Laufende Spiele"
+  "runningMatches": "Laufende Spiele",
+  "matchWaitingStatus": "{status, select, waitingForCourt{Warten auf Feld} waitingForPlayerRest{Warten auf Spielerpause} waitingForProgress{Warten auf Turnierfortschritt} other{OTHER}}",
+  "versus": "vs",
+  "qualificationPending": "Qualifikation ausstehend",
+  "playMatchHere": "Match hier Spielen",
+  "assignCourt": "Feld zuweisen"
 }

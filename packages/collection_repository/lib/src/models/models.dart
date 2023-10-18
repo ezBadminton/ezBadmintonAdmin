@@ -7,7 +7,7 @@ export 'team.dart';
 export 'competition.dart';
 export 'gymnasium.dart';
 export 'court.dart';
-export 'match.dart';
+export 'match_data.dart';
 export 'match_set.dart';
 export 'age_group.dart';
 export 'tournament_mode_settings.dart';

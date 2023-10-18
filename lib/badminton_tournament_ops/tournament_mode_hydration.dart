@@ -6,16 +6,16 @@ import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
 import 'package:tournament_mode/tournament_mode.dart';
 
-/// Create the [TournamentMode] according to the [settings]' type and with the
-/// given [draw].
+/// Create the [TournamentMode] from the [competition].
 ///
-/// The two arguments usually come from [Competition.tournamentModeSettings] and
-/// [Competition.draw] to create the tournament mode for a given [Competition].
-BadmintonTournamentMode createTournamentMode(
-  TournamentModeSettings settings,
-  List<Team> draw,
-) {
-  DrawSeeds<Team> entries = DrawSeeds(draw);
+/// The  [Competition.tournamentModeSettings] and [Competition.draw] are used to
+/// create the tournament mode.
+BadmintonTournamentMode createTournamentMode(Competition competition) {
+  assert(competition.tournamentModeSettings != null);
+  assert(competition.draw.isNotEmpty);
+
+  TournamentModeSettings settings = competition.tournamentModeSettings!;
+  DrawSeeds<Team> entries = DrawSeeds(competition.draw);
 
   BadmintonTournamentMode tournament = switch (settings) {
     SingleEliminationSettings _ =>
@@ -29,13 +29,27 @@ BadmintonTournamentMode createTournamentMode(
   return tournament;
 }
 
-/// Creates a [Match] (the DB data model) object for each [BadmintonMatch]
-/// (the tournament library match object) in the [tournamentMode].
-List<Match> createMatchesFromTournament(
+/// Creates a new [MatchData] object for each [BadmintonMatch] in the
+/// [tournamentMode].
+List<MatchData> createMatchesFromTournament(
   BadmintonTournamentMode tournamentMode,
 ) {
   return tournamentMode.matches
       .where((match) => !match.isBye)
-      .map((_) => Match.newMatch())
+      .map((_) => MatchData.newMatch())
       .toList();
+}
+
+/// Hydrate the [tournamentMode]'s matches with the [matchDataList].
+void hydrateTournament(
+  BadmintonTournamentMode tournamentMode,
+  List<MatchData> matchDataList,
+) {
+  List<BadmintonMatch> matches =
+      tournamentMode.matches.where((match) => !match.isBye).toList();
+  assert(matchDataList.length == matches.length);
+
+  for (int i = 0; i < matchDataList.length; i += 1) {
+    matches[i].hydrateMatch(matchDataList[i]);
+  }
 }

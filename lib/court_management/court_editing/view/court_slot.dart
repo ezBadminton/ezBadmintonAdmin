@@ -1,11 +1,15 @@
 import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/assets/badminton_icons_icons.dart';
 import 'package:ez_badminton_admin_app/constants.dart';
 import 'package:ez_badminton_admin_app/court_management/court_editing/cubit/court_deletion_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/court_editing/cubit/court_adding_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/court_editing/cubit/court_renaming_cubit.dart';
+import 'package:ez_badminton_admin_app/court_management/court_editing/cubit/match_assignment_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_court_view_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_selection_cubit.dart';
+import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
+import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_state.dart';
 import 'package:ez_badminton_admin_app/widgets/badminton_court/badminton_court.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -80,7 +84,7 @@ class _FilledCourtSlot extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            _CourtNameCard(courtInSlot: courtInSlot),
+            _CourtLabel(courtInSlot: courtInSlot),
             _CourtOptions(courtInSlot: courtInSlot),
           ],
         ),
@@ -190,6 +194,38 @@ class _RenameButton extends StatelessWidget {
   }
 }
 
+class _CourtLabel extends StatelessWidget {
+  const _CourtLabel({
+    required this.courtInSlot,
+  });
+
+  final Court courtInSlot;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<TabNavigationCubit, TabNavigationState>(
+      buildWhen: (previous, current) => current.selectedIndex == 2,
+      builder: (context, state) {
+        return Positioned.fill(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _CourtNameCard(courtInSlot: courtInSlot),
+                if (state.tabChangeReason is MatchData)
+                  _MatchAssignmentButton(
+                    matchData: state.tabChangeReason as MatchData,
+                    court: courtInSlot,
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
 class _CourtNameCard extends StatelessWidget {
   const _CourtNameCard({
     required this.courtInSlot,
@@ -199,38 +235,34 @@ class _CourtNameCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Positioned.fill(
-      child: Center(
-        child: Card(
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-            side: const BorderSide(
-              color: Colors.black54,
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 4.0,
-              horizontal: 19.0,
-            ),
-            child: BlocBuilder<CourtRenamingCubit, CourtRenamingState>(
-              buildWhen: (previous, current) =>
-                  previous.isFormOpen != current.isFormOpen,
-              builder: (context, state) {
-                if (state.isFormOpen) {
-                  return _RenamingForm(initialValue: state.name.value);
-                } else {
-                  return Text(
-                    courtInSlot.name,
-                    style: const TextStyle(
-                      fontSize: 34,
-                    ),
-                  );
-                }
-              },
-            ),
-          ),
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: const BorderSide(
+          color: Colors.black54,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: 4.0,
+          horizontal: 19.0,
+        ),
+        child: BlocBuilder<CourtRenamingCubit, CourtRenamingState>(
+          buildWhen: (previous, current) =>
+              previous.isFormOpen != current.isFormOpen,
+          builder: (context, state) {
+            if (state.isFormOpen) {
+              return _RenamingForm(initialValue: state.name.value);
+            } else {
+              return Text(
+                courtInSlot.name,
+                style: const TextStyle(
+                  fontSize: 34,
+                ),
+              );
+            }
+          },
         ),
       ),
     );
@@ -288,6 +320,61 @@ class _RenamingForm extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+class _MatchAssignmentButton extends StatelessWidget {
+  const _MatchAssignmentButton({
+    required this.matchData,
+    required this.court,
+  });
+
+  final MatchData matchData;
+  final Court court;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+
+    return BlocProvider(
+      create: (context) => MatchAssignmentCubit(
+        court: court,
+        courtRepository: context.read<CollectionRepository<Court>>(),
+        matchDataRepository: context.read<CollectionRepository<MatchData>>(),
+      ),
+      child: BlocConsumer<MatchAssignmentCubit, MatchAssignmentState>(
+        listenWhen: (previous, current) =>
+            previous.formStatus != FormzSubmissionStatus.success &&
+            current.formStatus == FormzSubmissionStatus.success,
+        listener: (context, state) {
+          var cubit = context.read<TabNavigationCubit>();
+
+          // Go back to match page
+          cubit.tabChanged(4);
+        },
+        builder: (context, state) {
+          var cubit = context.read<MatchAssignmentCubit>();
+
+          return ElevatedButton(
+            onPressed: () => cubit.assignMatch(matchData),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(BadmintonIcons.badminton_shuttlecock),
+                  const SizedBox(width: 10),
+                  Text(
+                    l10n.playMatchHere,
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }

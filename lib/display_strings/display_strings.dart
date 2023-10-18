@@ -26,6 +26,12 @@ String playerWithClub(Player player) {
   return name + club;
 }
 
+String playerLastNameWithClub(Player player) {
+  String name = player.lastName;
+  String club = player.club == null ? '' : ' (${player.club!.name})';
+  return name + club;
+}
+
 String competitionGenderAndType(
   AppLocalizations l10n,
   GenderCategory genderCategory,

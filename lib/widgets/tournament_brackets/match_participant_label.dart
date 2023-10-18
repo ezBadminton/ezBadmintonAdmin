@@ -18,6 +18,7 @@ class MatchParticipantLabel extends StatelessWidget {
     required this.isEditable,
     required this.width,
     this.showClub = false,
+    this.useFullName = true,
     this.placeholderLabel,
     this.alignment = CrossAxisAlignment.start,
     this.byeLabel,
@@ -32,17 +33,23 @@ class MatchParticipantLabel extends StatelessWidget {
 
   final bool showClub;
 
-  final String? placeholderLabel;
+  final bool useFullName;
+
+  final Widget? placeholderLabel;
 
   final CrossAxisAlignment alignment;
 
-  final String? byeLabel;
+  final Widget? byeLabel;
 
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
     Team? team = participant.resolvePlayer();
-    String byeLabel = this.byeLabel ?? l10n.bye;
+    Widget byeLabel = this.byeLabel ??
+        Text(
+          l10n.bye,
+          style: TextStyle(color: Theme.of(context).disabledColor),
+        );
 
     if (isEditable && team != null) {
       return _EditableMatchParticipantLabel(
@@ -61,6 +68,7 @@ class MatchParticipantLabel extends StatelessWidget {
         leadingWidget:
             isEditable ? SizedBox(width: iconSize + 8, height: iconSize) : null,
         showClub: showClub,
+        useFullName: useFullName,
         placeholderLabel: placeholderLabel,
         alignment: alignment,
         byeLabel: byeLabel,
@@ -77,6 +85,7 @@ class _MatchParticipantLabel extends StatelessWidget {
     this.textColor,
     required this.width,
     required this.showClub,
+    required this.useFullName,
     this.leadingWidget,
     // ignore: unused_element
     this.trailingWidget,
@@ -95,14 +104,16 @@ class _MatchParticipantLabel extends StatelessWidget {
 
   final bool showClub;
 
+  final bool useFullName;
+
   final Widget? leadingWidget;
   final Widget? trailingWidget;
 
-  final String? placeholderLabel;
+  final Widget? placeholderLabel;
 
   final CrossAxisAlignment alignment;
 
-  final String byeLabel;
+  final Widget byeLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -140,20 +151,13 @@ class _MatchParticipantLabel extends StatelessWidget {
     );
   }
 
-  List<Text> _createParticipantLabel(
+  List<Widget> _createParticipantLabel(
     BuildContext context,
     MatchParticipant<Team> participant,
   ) {
-    TextStyle placeholderStyle = TextStyle(
-      color: Theme.of(context).disabledColor,
-    );
-
     if (participant.isBye) {
       return [
-        Text(
-          byeLabel,
-          style: placeholderStyle,
-        ),
+        byeLabel,
         ...List.generate(teamSize - 1, (index) => const Text('')),
       ];
     }
@@ -163,24 +167,35 @@ class _MatchParticipantLabel extends StatelessWidget {
     if (team == null) {
       return List.generate(
         teamSize,
-        (index) => Text(
-          (index == 0 && placeholderLabel != null) ? placeholderLabel! : '',
-        ),
+        (index) => (index == 0 && placeholderLabel != null)
+            ? placeholderLabel!
+            : const Text(''),
       );
     }
 
     return [
       for (Player player in team.players)
         Text(
-          showClub
-              ? display_strings.playerWithClub(player)
-              : display_strings.playerName(player),
+          _getPlayerName(player),
           style: TextStyle(
             color: textColor,
           ),
           overflow: TextOverflow.ellipsis,
         ),
     ];
+  }
+
+  String _getPlayerName(Player player) {
+    return switch (showClub) {
+      true => switch (useFullName) {
+          true => display_strings.playerWithClub(player),
+          false => display_strings.playerLastNameWithClub(player),
+        },
+      false => switch (useFullName) {
+          true => display_strings.playerName(player),
+          false => player.lastName,
+        },
+    };
   }
 }
 
@@ -200,7 +215,7 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
 
   final CrossAxisAlignment alignment;
 
-  final String byeLabel;
+  final Widget byeLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -238,6 +253,7 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
         leadingWidget: dragIndicator,
         width: width,
         showClub: true,
+        useFullName: true,
         alignment: alignment,
         byeLabel: byeLabel,
       ),
@@ -264,6 +280,7 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
             textColor: Theme.of(context).disabledColor,
             width: width,
             showClub: true,
+            useFullName: true,
             alignment: alignment,
             byeLabel: byeLabel,
           ),
@@ -281,6 +298,7 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
             ),
             width: width,
             showClub: true,
+            useFullName: true,
             alignment: alignment,
             byeLabel: byeLabel,
           ),

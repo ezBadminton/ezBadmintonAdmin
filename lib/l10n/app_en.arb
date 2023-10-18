@@ -211,5 +211,10 @@
   "tournamentCouldNotStart": "The tournament could not be started",
   "matchQueue": "Match queue",
   "readyForCallout": "Ready for call out",
-  "runningMatches": "Running matches"
+  "runningMatches": "Running matches",
+  "matchWaitingStatus": "{status, select, waitingForCourt{Waiting for court} waitingForPlayerRest{Waiting for player rest} waitingForProgress{Waiting for tournament progress} other{OTHER}}",
+  "versus": "vs",
+  "qualificationPending": "Qualification pending",
+  "playMatchHere": "Play match here",
+  "assignCourt": "Assign court"
 }

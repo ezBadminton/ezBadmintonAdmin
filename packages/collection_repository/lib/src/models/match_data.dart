@@ -5,49 +5,52 @@ import 'package:collection_repository/collection_repository.dart';
 // ignore: unused_import
 import 'package:flutter/foundation.dart';
 
-part 'generated/match.freezed.dart';
-part 'generated/match.g.dart';
+part 'generated/match_data.freezed.dart';
+part 'generated/match_data.g.dart';
 
 @freezed
-class Match extends Model with _$Match {
-  const Match._();
+class MatchData extends Model with _$MatchData {
+  const MatchData._();
 
-  /// A badminton match in a [Competition].
+  /// A badminton match's data in a [Competition].
   ///
-  /// The match is assigned to a [court]. The [status] of the Match dictates the
-  /// administrative stage it is in. The [sets] of the match is stored as a List
-  /// of [MatchSet]s. If one of the players decides to upload a photo of the
-  /// handwritten [resultCard] via the app its filepath is included here.
-  /// This would save a walk to the tournament admin desk.
+  /// The match is assigned to a [court]. The [status] of the Match signals if
+  /// the match was a walkover. The [sets] of the match are stored as a List
+  /// of [MatchSet]s. When it is in progress the [startTime] is set and when it
+  /// conculded the [endTime] is set. If one of the players decides to upload a
+  /// photo of the handwritten [resultCard] via the app its filepath is included
+  /// here. This would save a walk to the tournament admin desk.
   ///
-  /// The [Match] class can exist without explicitly naming the opponent [Team]s
-  /// because those are functionally dependent on the [Competition]s draw
-  /// (which is just a List of [Team]s), its tournament mode settings
+  /// The [MatchData] class can exist without explicitly naming the opponent
+  /// [Team]s because those are functionally dependent on the [Competition]s
+  /// draw  (which is just a List of [Team]s), its tournament mode settings
   /// and on the match results. Since those three inputs are stored they can
-  /// always be used to reconstruct who is playing in a particular [Match].
+  /// always be used to reconstruct who is playing in a particular [MatchData].
   /// This reconstruction can also be referred to as "hydrating" the tournament
   /// mode. This way a match can also be assigned to a court before the
   /// opponents are even determined. For example the final can be put on
   /// center court while the semi-finals are still ongoing.
-  const factory Match({
+  const factory MatchData({
     required String id,
     required DateTime created,
     required DateTime updated,
     required List<MatchSet> sets,
     Court? court,
     required MatchStatus status,
+    DateTime? startTime,
+    DateTime? endTime,
     String? resultCard,
   }) = _Match;
 
-  factory Match.fromJson(Map<String, dynamic> json) =>
-      _$MatchFromJson(json..cleanUpExpansions(expandedFields));
+  factory MatchData.fromJson(Map<String, dynamic> json) =>
+      _$MatchDataFromJson(json..cleanUpExpansions(expandedFields));
 
-  factory Match.newMatch() => Match(
+  factory MatchData.newMatch() => MatchData(
         id: '',
         created: DateTime.now(),
         updated: DateTime.now(),
         sets: const [],
-        status: MatchStatus.planned,
+        status: MatchStatus.normal,
       );
 
   static const List<ExpandedField> expandedFields = [
@@ -73,10 +76,9 @@ class Match extends Model with _$Match {
 }
 
 enum MatchStatus {
-  planned,
-  calledOut,
-  inProgress,
-  cancelled,
-  finished,
-  walkover,
+  normal,
+  // Walkover in favor of opponent 1
+  walkover1,
+  // Walkover in favor of opponent 2
+  walkover2,
 }

@@ -11,6 +11,8 @@ class CompetitionLabel extends StatelessWidget {
     this.abbreviated = false,
     this.playingLevelMaxWidth = 240,
     this.textStyle,
+    this.dividerPadding = 10,
+    this.dividerSize = 7,
   });
 
   final Competition competition;
@@ -19,15 +21,18 @@ class CompetitionLabel extends StatelessWidget {
 
   final TextStyle? textStyle;
 
+  final double dividerPadding;
+  final double dividerSize;
+
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
     var divider = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: EdgeInsets.symmetric(horizontal: dividerPadding),
       child: Icon(
         Icons.circle,
-        size: 7,
+        size: dividerSize,
         color: Theme.of(context).colorScheme.onSurface.withOpacity(.5),
       ),
     );

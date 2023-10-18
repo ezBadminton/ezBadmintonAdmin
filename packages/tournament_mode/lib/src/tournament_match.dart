@@ -12,19 +12,6 @@ abstract class TournamentMatch<P, S> {
 
   S? get score => _score;
 
-  /// The score is set when the match result becomes known
-  ///
-  /// Setting the score also sets the [endTime] of the match.
-  set score(S? score) {
-    if (score == null) {
-      endTime = null;
-    } else {
-      endTime = DateTime.now();
-    }
-
-    _score = score;
-  }
-
   S? _score;
 
   DateTime? _startTime;
@@ -33,15 +20,21 @@ abstract class TournamentMatch<P, S> {
   /// Usually set when players are called out.
   DateTime? get startTime => _startTime;
 
+  DateTime? _endTime;
+
   /// The time this match ended.
-  /// This is automatically set by the [score] setter.
-  DateTime? endTime;
+  /// This is automatically set by the [setScore] method.
+  DateTime? get endTime => _endTime;
 
   /// Is `true` while this match is ongoing.
   bool get inProgress => _startTime != null && score == null;
 
   /// Is `true` when the match has a score recorded.
   bool get isCompleted => score != null;
+
+  /// Is set when one of the opponents withdrew for some reason. The other
+  /// opponent is the [walkoverWinner].
+  MatchParticipant<P>? walkoverWinner;
 
   /// Returns the winner of the match, [a] or [b].
   ///
@@ -82,5 +75,19 @@ abstract class TournamentMatch<P, S> {
     assert(isPlayable);
     DateTime time = startTime ?? DateTime.now();
     _startTime = time;
+  }
+
+  /// The score is set when the match result becomes known
+  ///
+  /// Setting the score also sets the [TournamentMatch.endTime] of the match to
+  /// the current time or alternatively to the given [endTime].
+  void setScore(S? score, {DateTime? endTime}) {
+    if (score == null) {
+      _endTime = null;
+    } else {
+      _endTime = endTime ?? DateTime.now();
+    }
+
+    _score = score;
   }
 }

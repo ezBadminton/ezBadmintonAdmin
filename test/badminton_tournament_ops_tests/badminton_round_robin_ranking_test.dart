@@ -97,7 +97,7 @@ void main() {
       }
     }
 
-    match.score = createSets(score1, score2, score3);
+    match.setScore(createSets(score1, score2, score3));
   }
 
   test('inital ranking is empty', () {

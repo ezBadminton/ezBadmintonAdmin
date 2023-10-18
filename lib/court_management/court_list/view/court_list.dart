@@ -3,6 +3,8 @@ import 'package:ez_badminton_admin_app/court_management/court_list/cubit/court_l
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_court_view_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/view/gymnasium_editing_page.dart';
+import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
+import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_state.dart';
 import 'package:ez_badminton_admin_app/widgets/choice_chip_tab/choice_chip_tab.dart';
 import 'package:ez_badminton_admin_app/widgets/map_listview/map_listview.dart';
 import 'package:ez_badminton_admin_app/widgets/sticky_scrollable_follower/sticky_scrollable_follower.dart';
@@ -19,44 +21,57 @@ class CourtList extends StatelessWidget {
     double listBottomPadding = 200;
     ScrollController controller = ScrollController();
 
-    return BlocBuilder<CourtListCubit, CourtListState>(
-      buildWhen: (previous, current) => previous.courtMap != current.courtMap,
-      builder: (context, state) {
-        Map<Widget, List<Widget>> courtListWidgets =
-            _buildCourtMapItems(context, state.courtMap);
-        return StickyScrollableFollower(
-          scrollController: controller,
-          followerMargin: 30,
-          followerOffset:
-              courtListWidgets.isEmpty ? 40 : -listBottomPadding + 15,
-          scrollable: MapListView(
-            itemMap: courtListWidgets,
-            topPadding: 25,
-            bottomPadding: listBottomPadding,
-            controller: controller,
-          ),
-          follower: ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).push(GymnasiumEditingPage.route());
-            },
-            style: const ButtonStyle(
-              shape: MaterialStatePropertyAll(StadiumBorder()),
+    return BlocListener<TabNavigationCubit, TabNavigationState>(
+      listenWhen: (previous, current) =>
+          current.selectedIndex == 2 && current.tabChangeReason is MatchData,
+      listener: (context, state) {
+        var selectionCubit = context.read<GymnasiumSelectionCubit>();
+        var listCubit = context.read<CourtListCubit>();
+        List<Gymnasium> gyms = listCubit.state.getCollection<Gymnasium>();
+
+        if (selectionCubit.state.gymnasium.value == null && gyms.isNotEmpty) {
+          selectionCubit.gymnasiumToggled(gyms.first);
+        }
+      },
+      child: BlocBuilder<CourtListCubit, CourtListState>(
+        buildWhen: (previous, current) => previous.courtMap != current.courtMap,
+        builder: (context, state) {
+          Map<Widget, List<Widget>> courtListWidgets =
+              _buildCourtMapItems(context, state.courtMap);
+          return StickyScrollableFollower(
+            scrollController: controller,
+            followerMargin: 30,
+            followerOffset:
+                courtListWidgets.isEmpty ? 40 : -listBottomPadding + 15,
+            scrollable: MapListView(
+              itemMap: courtListWidgets,
+              topPadding: 25,
+              bottomPadding: listBottomPadding,
+              controller: controller,
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.add),
-                  const SizedBox(width: 3),
-                  Text(l10n.gym(1)),
-                  const SizedBox(width: 6),
-                ],
+            follower: ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).push(GymnasiumEditingPage.route());
+              },
+              style: const ButtonStyle(
+                shape: MaterialStatePropertyAll(StadiumBorder()),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.add),
+                    const SizedBox(width: 3),
+                    Text(l10n.gym(1)),
+                    const SizedBox(width: 6),
+                  ],
+                ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 

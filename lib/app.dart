@@ -26,7 +26,7 @@ class _AppState extends State<App> {
   late final CollectionRepository<AgeGroup> _ageGroupRepository;
   late final CollectionRepository<Player> _playerRepository;
   late final CollectionRepository<MatchSet> _matchSetRepository;
-  late final CollectionRepository<Match> _matchRepository;
+  late final CollectionRepository<MatchData> _matchDataRepository;
   late final CollectionRepository<Competition> _competitionRepository;
   late final CollectionRepository<Team> _teamRepository;
   late final CollectionRepository<Club> _clubRepository;
@@ -85,9 +85,9 @@ class _AppState extends State<App> {
         pocketBaseProvider: _pocketBaseProvider,
       ),
     );
-    _matchRepository = CachedCollectionRepository(
+    _matchDataRepository = CachedCollectionRepository(
       PocketbaseCollectionRepository(
-        modelConstructor: Match.fromJson,
+        modelConstructor: MatchData.fromJson,
         pocketBaseProvider: _pocketBaseProvider,
       ),
     );
@@ -95,6 +95,7 @@ class _AppState extends State<App> {
       relationRepositories: [
         _playingLevelRepository,
         _teamRepository,
+        _matchDataRepository,
       ],
       relationUpdateHandler: onCompetitionRelationUpdate,
       PocketbaseCollectionRepository(
@@ -137,7 +138,7 @@ class _AppState extends State<App> {
     _playerRepository.dispose();
     _teamRepository.dispose();
     _matchSetRepository.dispose();
-    _matchRepository.dispose();
+    _matchDataRepository.dispose();
     _competitionRepository.dispose();
     _clubRepository.dispose();
     _courtRepository.dispose();
@@ -157,7 +158,7 @@ class _AppState extends State<App> {
         RepositoryProvider.value(value: _playerRepository),
         RepositoryProvider.value(value: _teamRepository),
         RepositoryProvider.value(value: _matchSetRepository),
-        RepositoryProvider.value(value: _matchRepository),
+        RepositoryProvider.value(value: _matchDataRepository),
         RepositoryProvider.value(value: _competitionRepository),
         RepositoryProvider.value(value: _clubRepository),
         RepositoryProvider.value(value: _courtRepository),

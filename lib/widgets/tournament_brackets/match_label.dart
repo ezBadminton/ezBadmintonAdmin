@@ -26,7 +26,10 @@ class MatchLabel extends StatelessWidget {
           isEditable: false,
           width: 200,
           alignment: CrossAxisAlignment.end,
-          byeLabel: l10n.freeOfPlay,
+          byeLabel: Text(
+            l10n.freeOfPlay,
+            style: TextStyle(color: Theme.of(context).disabledColor),
+          ),
         ),
         const SizedBox(width: 12),
         const Text(
@@ -39,7 +42,10 @@ class MatchLabel extends StatelessWidget {
           teamSize: competition.teamSize,
           isEditable: false,
           width: 200,
-          byeLabel: l10n.freeOfPlay,
+          byeLabel: Text(
+            l10n.freeOfPlay,
+            style: TextStyle(color: Theme.of(context).disabledColor),
+          ),
         ),
       ],
     );

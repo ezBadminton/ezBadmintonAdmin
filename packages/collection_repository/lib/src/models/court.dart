@@ -18,7 +18,7 @@ class Court extends Model with _$Court {
   /// The [positionX], [positionY] are for saving the court's
   /// position in the rows and columns of courts in the gymnasium.
   ///
-  /// When the court [isActive], [Match]es can be scheduled on it.
+  /// When the court [isActive], matches can be scheduled on it.
   const factory Court({
     required String id,
     required DateTime created,

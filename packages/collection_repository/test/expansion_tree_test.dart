@@ -52,7 +52,7 @@ void main() {
 
   List<ExpandedField> ageGroupExpansions = [
     const ExpandedField(
-      model: Match,
+      model: MatchData,
       key: 'match',
       isRequired: false,
       isSingle: true,

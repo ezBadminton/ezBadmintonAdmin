@@ -4,8 +4,49 @@ import 'package:tournament_mode/tournament_mode.dart';
 class BadmintonMatch extends TournamentMatch<Team, List<MatchSet>> {
   BadmintonMatch(super.a, super.b);
 
+  /// The court that this match is/was played on.
+  Court? get court => matchData?.court;
+
+  /// This match's [MatchData] object. This is only set when the
+  /// [BadmintonMatch.hydrateMatch] method was called.
+  MatchData? matchData;
+
+  /// The [Competition] that this match is a part of. The class itself does not
+  /// use the value it only has to be set when the competition reference is
+  /// needed for reading.
+  late final Competition competition;
+
+  /// Hydrate this match with [matchData].
+  ///
+  /// The [MatchData] contains administrative values about the match like
+  /// [MatchData.court], [MatchData.sets] and more.
+  ///
+  /// The method can be called multiple times to update the [matchData].
+  void hydrateMatch(MatchData matchData) {
+    this.matchData = matchData;
+
+    if (matchData.startTime != null) {
+      beginMatch(matchData.startTime);
+    }
+
+    if (matchData.sets.isNotEmpty) {
+      assert(matchData.endTime != null);
+      setScore(matchData.sets, endTime: matchData.endTime);
+    }
+
+    walkoverWinner = switch (matchData.status) {
+      MatchStatus.normal => null,
+      MatchStatus.walkover1 => a,
+      MatchStatus.walkover2 => b,
+    };
+  }
+
   @override
   MatchParticipant<Team>? getWinner() {
+    if (walkoverWinner != null) {
+      return walkoverWinner;
+    }
+
     int aWins = 0;
     int bWins = 0;
 
@@ -17,10 +58,10 @@ class BadmintonMatch extends TournamentMatch<Team, List<MatchSet>> {
       }
     }
 
-    if (aWins == 2) {
+    if (aWins > bWins) {
       return a;
     }
-    if (bWins == 2) {
+    if (bWins > aWins) {
       return b;
     }
 

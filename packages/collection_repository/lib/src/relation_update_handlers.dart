@@ -51,6 +51,26 @@ List<Competition> onCompetitionRelationUpdate(
     return updatedCompetitions;
   }
 
+  if (updateEvent.model is MatchData) {
+    MatchData updatedMatchData = updateEvent.model as MatchData;
+
+    List<Competition> containingCompetitions = competitions
+        .where((c) => c.matches.contains(updatedMatchData))
+        .toList();
+
+    List<Competition> updatedCompetitions = [];
+
+    for (Competition competition in containingCompetitions) {
+      List<MatchData> matches = List.of(competition.matches);
+
+      replaceInList(matches, updatedMatchData.id, updatedMatchData);
+
+      updatedCompetitions.add(competition.copyWith(matches: matches));
+    }
+
+    return updatedCompetitions;
+  }
+
   return [];
 }
 

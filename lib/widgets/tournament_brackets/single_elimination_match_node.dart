@@ -54,7 +54,9 @@ class SingleEliminationMatchNode extends StatelessWidget {
             teamSize: teamSize,
             isEditable: isEditable && isFirstRound,
             width: width,
-            placeholderLabel: placeholderLabels[match.a],
+            placeholderLabel: placeholderLabels.containsKey(match.a)
+                ? Text(placeholderLabels[match.a]!)
+                : null,
           ),
           SizedBox(
             width: width,
@@ -65,7 +67,9 @@ class SingleEliminationMatchNode extends StatelessWidget {
             teamSize: teamSize,
             isEditable: isEditable && isFirstRound,
             width: width,
-            placeholderLabel: placeholderLabels[match.b],
+            placeholderLabel: placeholderLabels.containsKey(match.a)
+                ? Text(placeholderLabels[match.a]!)
+                : null,
           ),
         ],
       ),

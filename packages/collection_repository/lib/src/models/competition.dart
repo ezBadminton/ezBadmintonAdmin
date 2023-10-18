@@ -29,7 +29,7 @@ class Competition extends Model with _$Competition {
     TournamentModeSettings? tournamentModeSettings,
     required List<Team> seeds,
     required List<Team> draw,
-    required List<Match> matches,
+    required List<MatchData> matches,
     required int rngSeed,
   }) = _Competition;
 
@@ -112,7 +112,7 @@ class Competition extends Model with _$Competition {
       isSingle: false,
     ),
     ExpandedField(
-      model: Match,
+      model: MatchData,
       key: 'matches',
       isRequired: true,
       isSingle: false,

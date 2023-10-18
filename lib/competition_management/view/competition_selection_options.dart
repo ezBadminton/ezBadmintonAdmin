@@ -29,7 +29,8 @@ class CompetitionSelectionOptions extends StatelessWidget {
           create: (context) => CompetitionStartingCubit(
             competitionRepository:
                 context.read<CollectionRepository<Competition>>(),
-            matchRepository: context.read<CollectionRepository<Match>>(),
+            matchDataRepository:
+                context.read<CollectionRepository<MatchData>>(),
           ),
         ),
       ],
