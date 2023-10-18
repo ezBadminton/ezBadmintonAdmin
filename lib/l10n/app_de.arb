@@ -218,5 +218,7 @@
   "playMatchHere": "Match hier Spielen",
   "assignCourt": "Feld zuweisen",
   "roundRobinMatchN": "Jeder gegen Jeden\nRunde {number}",
-  "groupNMatchN": "Gruppe {group}\nRunde {match}"
+  "groupNMatchN": "Gruppe {group}\nRunde {match}",
+  "callOutMatch": "Spiel ausrufen",
+  "backToWaitList": "Zurück in die Warteliste"
 }

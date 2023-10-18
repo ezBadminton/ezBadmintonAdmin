@@ -10,8 +10,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:tournament_mode/tournament_mode.dart';
 
-class QueuedMatch extends StatelessWidget {
-  const QueuedMatch({
+class WaitingMatch extends StatelessWidget {
+  const WaitingMatch({
     super.key,
     required this.match,
   });
@@ -20,9 +20,87 @@ class QueuedMatch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var l10n = AppLocalizations.of(context)!;
-    String? roundName = _getMatchRoundName(match, l10n);
+    return _QueuedMatchCard(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: _MatchInfo(match: match),
+          ),
+          _MatchLabel(match: match),
+          if (match.isPlayable && match.court == null)
+            Expanded(
+              child: Align(
+                alignment: AlignmentDirectional.center,
+                child: _CourtAssignmentButton(matchData: match.matchData!),
+              ),
+            )
+          else
+            const Expanded(child: Placeholder(fallbackHeight: 70)),
+        ],
+      ),
+    );
+  }
+}
 
+class ReadyForCallOutMatch extends StatelessWidget {
+  const ReadyForCallOutMatch({
+    super.key,
+    required this.match,
+  });
+
+  final BadmintonMatch match;
+
+  @override
+  Widget build(BuildContext context) {
+    return _QueuedMatchCard(
+      child: Stack(
+        children: [
+          Center(
+            child: Tooltip(
+              waitDuration: const Duration(milliseconds: 500),
+              richMessage: WidgetSpan(
+                child: DefaultTextStyle.merge(
+                  style: const TextStyle(color: Colors.white),
+                  child: _MatchInfo(
+                    match: match,
+                    dividerColor: Colors.white54,
+                  ),
+                ),
+              ),
+              child: _MatchLabel(match: match),
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            top: 0,
+            right: 6,
+            child: Align(
+              child: _CallOutButton(matchData: match.matchData!),
+            ),
+          ),
+          const Positioned(
+            bottom: 0,
+            top: 0,
+            child: Align(
+              child: _BackToWaitlistButton(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QueuedMatchCard extends StatelessWidget {
+  const _QueuedMatchCard({
+    required this.child,
+  });
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -34,45 +112,51 @@ class QueuedMatch extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CompetitionLabel(
-                    competition: match.competition,
-                    abbreviated: true,
-                    playingLevelMaxWidth: 50,
-                    textStyle: const TextStyle(fontSize: 12),
-                    dividerPadding: 3,
-                    dividerSize: 5,
-                  ),
-                  if (roundName != null) ...[
-                    const SizedBox(height: 7),
-                    Text(
-                      roundName,
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            _MatchLabel(match: match),
-            if (match.isPlayable && match.court == null)
-              Expanded(
-                child: _CourtAssignmentButton(matchData: match.matchData!),
-              )
-            else
-              const Expanded(child: Placeholder(fallbackHeight: 70)),
-          ],
-        ),
+        child: child,
       ),
     );
   }
+}
 
-  String? _getMatchRoundName(BadmintonMatch match, AppLocalizations l10n) {
+class _MatchInfo extends StatelessWidget {
+  const _MatchInfo({
+    required this.match,
+    this.dividerColor,
+  });
+
+  final BadmintonMatch match;
+
+  final Color? dividerColor;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+    String? roundName = _getMatchRoundName(l10n);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CompetitionLabel(
+          competition: match.competition,
+          abbreviated: true,
+          playingLevelMaxWidth: 50,
+          textStyle: const TextStyle(fontSize: 12),
+          dividerPadding: 3,
+          dividerSize: 5,
+          dividerColor: dividerColor,
+        ),
+        if (roundName != null) ...[
+          const SizedBox(height: 7),
+          Text(
+            roundName,
+            style: const TextStyle(fontSize: 12),
+          ),
+        ],
+      ],
+    );
+  }
+
+  String? _getMatchRoundName(AppLocalizations l10n) {
     return switch (match.round) {
       GroupPhaseRound<BadmintonMatch> round =>
         round.getGroupRoundName(l10n, match),
@@ -147,18 +231,76 @@ class _CourtAssignmentButton extends StatelessWidget {
 
     return Tooltip(
       message: l10n.assignCourt,
-      child: ElevatedButton(
-        onPressed: () => navigationCubit.tabChanged(
-          2,
-          reason: matchData,
-        ),
-        style:
-            const ButtonStyle(shape: MaterialStatePropertyAll(CircleBorder())),
-        child: const Padding(
-          padding: EdgeInsets.all(10.0),
-          child: Icon(
+      child: SizedBox.square(
+        dimension: 45,
+        child: ElevatedButton(
+          onPressed: () => navigationCubit.tabChanged(
+            2,
+            reason: matchData,
+          ),
+          style: const ButtonStyle(
+            shape: MaterialStatePropertyAll(CircleBorder()),
+            padding: MaterialStatePropertyAll(EdgeInsets.zero),
+          ),
+          child: const Icon(
             BadmintonIcons.badminton_court_outline,
             size: 28,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CallOutButton extends StatelessWidget {
+  const _CallOutButton({
+    required this.matchData,
+  });
+
+  final MatchData matchData;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+
+    return Tooltip(
+      message: l10n.callOutMatch,
+      child: SizedBox.square(
+        dimension: 35,
+        child: ElevatedButton(
+          onPressed: () => {},
+          style: const ButtonStyle(
+            shape: MaterialStatePropertyAll(CircleBorder()),
+            padding: MaterialStatePropertyAll(EdgeInsets.zero),
+          ),
+          child: const Icon(Icons.campaign),
+        ),
+      ),
+    );
+  }
+}
+
+class _BackToWaitlistButton extends StatelessWidget {
+  const _BackToWaitlistButton();
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+
+    return SizedBox.square(
+      dimension: 35,
+      child: Tooltip(
+        message: l10n.backToWaitList,
+        child: IconButton(
+          onPressed: () => {},
+          style: const ButtonStyle(
+            shape: MaterialStatePropertyAll(CircleBorder()),
+            padding: MaterialStatePropertyAll(EdgeInsets.zero),
+          ),
+          splashRadius: 20,
+          icon: const Icon(
+            Icons.arrow_back,
+            size: 18,
           ),
         ),
       ),

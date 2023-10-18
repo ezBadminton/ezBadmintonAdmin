@@ -41,17 +41,27 @@ class _MatchQueueLists extends StatelessWidget {
             MatchQueueList(
               width: 420,
               title: l10n.matchQueue,
-              sublists: _buildWaitList(state.waitList, l10n),
+              sublists: _buildWaitList(
+                state.waitList,
+                l10n,
+                (match) => WaitingMatch(match: match),
+              ),
             ),
             MatchQueueList(
               width: 250,
               title: l10n.readyForCallout,
-              list: _buildMatchList(state.calloutWaitList),
+              list: _buildMatchList(
+                state.calloutWaitList,
+                (match) => ReadyForCallOutMatch(match: match),
+              ),
             ),
             MatchQueueList(
               width: 420,
               title: l10n.runningMatches,
-              list: _buildMatchList(state.inProgressList),
+              list: _buildMatchList(
+                state.inProgressList,
+                (match) => ReadyForCallOutMatch(match: match),
+              ),
             ),
           ],
         );
@@ -62,16 +72,20 @@ class _MatchQueueLists extends StatelessWidget {
   Map<String, List<Widget>> _buildWaitList(
     Map<MatchWaitingStatus, List<BadmintonMatch>> waitList,
     AppLocalizations l10n,
+    Widget Function(BadmintonMatch match) matchItemBuilder,
   ) {
     return waitList.map<String, List<Widget>>(
       (waitStatus, matches) => MapEntry(
         l10n.matchWaitingStatus(waitStatus.toString()),
-        matches.map((match) => QueuedMatch(match: match)).toList(),
+        matches.map((match) => matchItemBuilder(match)).toList(),
       ),
     );
   }
 
-  List<Widget> _buildMatchList(List<BadmintonMatch> matches) {
-    return matches.map((match) => QueuedMatch(match: match)).toList();
+  List<Widget> _buildMatchList(
+    List<BadmintonMatch> matches,
+    Widget Function(BadmintonMatch match) matchItemBuilder,
+  ) {
+    return matches.map((match) => matchItemBuilder(match)).toList();
   }
 }

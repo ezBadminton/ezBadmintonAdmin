@@ -218,5 +218,7 @@
   "playMatchHere": "Play match here",
   "assignCourt": "Assign court",
   "roundRobinMatchN": "Round robin\nRound {number}",
-  "groupNMatchN": "Group {group}\nRound {match}"
+  "groupNMatchN": "Group {group}\nRound {match}",
+  "callOutMatch": "Call out match",
+  "backToWaitList": "Back to wait list"
 }

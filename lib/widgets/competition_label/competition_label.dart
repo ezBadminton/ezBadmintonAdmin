@@ -13,6 +13,7 @@ class CompetitionLabel extends StatelessWidget {
     this.textStyle,
     this.dividerPadding = 10,
     this.dividerSize = 7,
+    this.dividerColor,
   });
 
   final Competition competition;
@@ -23,6 +24,7 @@ class CompetitionLabel extends StatelessWidget {
 
   final double dividerPadding;
   final double dividerSize;
+  final Color? dividerColor;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +35,8 @@ class CompetitionLabel extends StatelessWidget {
       child: Icon(
         Icons.circle,
         size: dividerSize,
-        color: Theme.of(context).colorScheme.onSurface.withOpacity(.5),
+        color: dividerColor ??
+            Theme.of(context).colorScheme.onSurface.withOpacity(.5),
       ),
     );
 
