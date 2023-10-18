@@ -80,8 +80,9 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
       eliminationMatches.length,
       (index) => EliminationRound(
         matches: eliminationMatches[index],
+        tournament: this,
         roundSize: pow(2, eliminationMatches.length - index) as int,
-      ),
+      )..initMatches(),
     );
   }
 

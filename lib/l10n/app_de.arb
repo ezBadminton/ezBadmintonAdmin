@@ -216,5 +216,7 @@
   "versus": "vs",
   "qualificationPending": "Qualifikation ausstehend",
   "playMatchHere": "Match hier Spielen",
-  "assignCourt": "Feld zuweisen"
+  "assignCourt": "Feld zuweisen",
+  "roundRobinMatchN": "Jeder gegen Jeden\nRunde {number}",
+  "groupNMatchN": "Gruppe {group}\nRunde {match}"
 }

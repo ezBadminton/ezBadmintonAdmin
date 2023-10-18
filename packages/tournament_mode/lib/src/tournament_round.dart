@@ -18,8 +18,11 @@ class TournamentRound<M extends TournamentMatch> {
   /// Creates a [TournamentRound] containing the [roundMatches].
   TournamentRound({
     required this.matches,
+    required this.tournament,
     this.nestedRounds = const [],
   });
+
+  final TournamentMode<dynamic, dynamic, M> tournament;
 
   /// The matches that this round consists of
   final List<M> matches;
@@ -31,4 +34,12 @@ class TournamentRound<M extends TournamentMatch> {
   final List<TournamentRound<M>> nestedRounds;
 
   int get length => matches.length;
+
+  /// Set the [TournamentMatch.round] to `this` round for every match in
+  /// [matches].
+  void initMatches() {
+    for (TournamentMatch match in matches) {
+      match.round = this;
+    }
+  }
 }

@@ -123,9 +123,10 @@ class GroupPhase<P, S, M extends TournamentMatch<P, S>,
       maxRounds,
       (round) => GroupPhaseRound(
         groupRoundRobins: groupRoundRobins,
+        tournament: this,
         roundNumber: round,
         totalRounds: maxRounds,
-      ),
+      )..initMatches(),
     );
 
     return rounds;

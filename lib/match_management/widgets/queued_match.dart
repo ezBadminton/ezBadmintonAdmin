@@ -1,12 +1,14 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/assets/badminton_icons_icons.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/tournament_round_names.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:tournament_mode/tournament_mode.dart';
 
 class QueuedMatch extends StatelessWidget {
   const QueuedMatch({
@@ -18,6 +20,9 @@ class QueuedMatch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+    String? roundName = _getMatchRoundName(match, l10n);
+
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -33,13 +38,25 @@ class QueuedMatch extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
-              child: CompetitionLabel(
-                competition: match.competition,
-                abbreviated: true,
-                playingLevelMaxWidth: 50,
-                textStyle: const TextStyle(fontSize: 12),
-                dividerPadding: 3,
-                dividerSize: 5,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CompetitionLabel(
+                    competition: match.competition,
+                    abbreviated: true,
+                    playingLevelMaxWidth: 50,
+                    textStyle: const TextStyle(fontSize: 12),
+                    dividerPadding: 3,
+                    dividerSize: 5,
+                  ),
+                  if (roundName != null) ...[
+                    const SizedBox(height: 7),
+                    Text(
+                      roundName,
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                  ],
+                ],
               ),
             ),
             _MatchLabel(match: match),
@@ -53,6 +70,16 @@ class QueuedMatch extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String? _getMatchRoundName(BadmintonMatch match, AppLocalizations l10n) {
+    return switch (match.round) {
+      GroupPhaseRound<BadmintonMatch> round =>
+        round.getGroupRoundName(l10n, match),
+      RoundRobinRound round => round.getRoundRobinRoundName(l10n),
+      EliminationRound round => round.getEliminationRoundName(l10n),
+      _ => null,
+    };
   }
 }
 

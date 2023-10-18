@@ -91,9 +91,10 @@ class RoundRobin<P, S, M extends TournamentMatch<P, S>>
       roundRobinMatches.length,
       (index) => RoundRobinRound(
         matches: roundRobinMatches[index],
+        tournament: this,
         roundNumber: index,
         totalRounds: roundsPerPass * passes,
-      ),
+      )..initMatches(),
     );
   }
 

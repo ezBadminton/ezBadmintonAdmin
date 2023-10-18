@@ -1,5 +1,6 @@
 import 'package:tournament_mode/src/match_participant.dart';
 import 'package:tournament_mode/src/ranking.dart';
+import 'package:tournament_mode/src/tournament_round.dart';
 
 /// A match between two [MatchParticipant]s. The result of the match
 /// is recorded in a score object of generic type [S]
@@ -9,6 +10,8 @@ abstract class TournamentMatch<P, S> {
 
   final MatchParticipant<P> a;
   final MatchParticipant<P> b;
+
+  TournamentRound<TournamentMatch<P, S>>? round;
 
   S? get score => _score;
 

@@ -6,6 +6,7 @@ import 'package:tournament_mode/src/tournament_match.dart';
 class GroupPhaseRound<M extends TournamentMatch> extends RoundRobinRound<M> {
   GroupPhaseRound({
     required List<RoundRobin<dynamic, dynamic, M>> groupRoundRobins,
+    required super.tournament,
     required super.roundNumber,
     required super.totalRounds,
   }) : super(

@@ -216,5 +216,7 @@
   "versus": "vs",
   "qualificationPending": "Qualification pending",
   "playMatchHere": "Play match here",
-  "assignCourt": "Assign court"
+  "assignCourt": "Assign court",
+  "roundRobinMatchN": "Round robin\nRound {number}",
+  "groupNMatchN": "Group {group}\nRound {match}"
 }
