@@ -41,8 +41,8 @@ class Court extends Model with _$Court {
   }) =>
       Court(
         id: '',
-        created: DateTime.now(),
-        updated: DateTime.now(),
+        created: DateTime.now().toUtc(),
+        updated: DateTime.now().toUtc(),
         gymnasium: gymnasium,
         name: name,
         positionX: x,

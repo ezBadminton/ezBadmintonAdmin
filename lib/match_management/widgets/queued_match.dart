@@ -1,14 +1,17 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/assets/badminton_icons_icons.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
-import 'package:ez_badminton_admin_app/badminton_tournament_ops/tournament_round_names.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
+import 'package:ez_badminton_admin_app/match_management/cubit/call_out_cubit.dart';
+import 'package:ez_badminton_admin_app/match_management/widgets/call_out_script.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
+import 'package:ez_badminton_admin_app/widgets/minutes_timer/minutes_timer.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:tournament_mode/tournament_mode.dart';
+import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
+    as display_strings;
 
 class WaitingMatch extends StatelessWidget {
   const WaitingMatch({
@@ -76,16 +79,53 @@ class ReadyForCallOutMatch extends StatelessWidget {
             top: 0,
             right: 6,
             child: Align(
-              child: _CallOutButton(matchData: match.matchData!),
+              child: _CallOutButton(match: match),
             ),
           ),
-          const Positioned(
+          Positioned(
             bottom: 0,
             top: 0,
             child: Align(
-              child: _BackToWaitlistButton(),
+              child: _BackToWaitlistButton(matchData: match.matchData!),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class RunningMatch extends StatelessWidget {
+  const RunningMatch({
+    super.key,
+    required this.match,
+  });
+
+  final BadmintonMatch match;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+
+    return _QueuedMatchCard(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: _MatchInfo(match: match),
+          ),
+          _MatchLabel(match: match),
+          Expanded(
+            child: Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: Column(
+                children: [
+                  Text(l10n.playingTime),
+                  MinutesTimer(timestamp: match.startTime!),
+                ],
+              ),
+            ),
+          )
         ],
       ),
     );
@@ -131,7 +171,7 @@ class _MatchInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    String? roundName = _getMatchRoundName(l10n);
+    String? roundName = display_strings.matchRoundName(l10n, match);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,16 +194,6 @@ class _MatchInfo extends StatelessWidget {
         ],
       ],
     );
-  }
-
-  String? _getMatchRoundName(AppLocalizations l10n) {
-    return switch (match.round) {
-      GroupPhaseRound<BadmintonMatch> round =>
-        round.getGroupRoundName(l10n, match),
-      RoundRobinRound round => round.getRoundRobinRoundName(l10n),
-      EliminationRound round => round.getEliminationRoundName(l10n),
-      _ => null,
-    };
   }
 }
 
@@ -194,7 +224,7 @@ class _MatchLabel extends StatelessWidget {
           useFullName: false,
         ),
         Text(
-          '- ${l10n.versus} -',
+          '- ${l10n.versusAbbreviated} -',
           style: TextStyle(
             fontSize: 12,
             color: Theme.of(context).disabledColor,
@@ -254,10 +284,10 @@ class _CourtAssignmentButton extends StatelessWidget {
 
 class _CallOutButton extends StatelessWidget {
   const _CallOutButton({
-    required this.matchData,
+    required this.match,
   });
 
-  final MatchData matchData;
+  final BadmintonMatch match;
 
   @override
   Widget build(BuildContext context) {
@@ -268,7 +298,15 @@ class _CallOutButton extends StatelessWidget {
       child: SizedBox.square(
         dimension: 35,
         child: ElevatedButton(
-          onPressed: () => {},
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (_) => CallOutScript(
+                callOuts: [match],
+                callOutCubit: context.read<CallOutCubit>(),
+              ),
+            );
+          },
           style: const ButtonStyle(
             shape: MaterialStatePropertyAll(CircleBorder()),
             padding: MaterialStatePropertyAll(EdgeInsets.zero),
@@ -281,23 +319,28 @@ class _CallOutButton extends StatelessWidget {
 }
 
 class _BackToWaitlistButton extends StatelessWidget {
-  const _BackToWaitlistButton();
+  const _BackToWaitlistButton({
+    required this.matchData,
+  });
+
+  final MatchData matchData;
 
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
+    var cancelingCubit = context.read<CallOutCubit>();
 
     return SizedBox.square(
       dimension: 35,
       child: Tooltip(
         message: l10n.backToWaitList,
         child: IconButton(
-          onPressed: () => {},
+          onPressed: () => cancelingCubit.callOutCanceled(matchData),
           style: const ButtonStyle(
             shape: MaterialStatePropertyAll(CircleBorder()),
             padding: MaterialStatePropertyAll(EdgeInsets.zero),
           ),
-          splashRadius: 20,
+          splashRadius: 18,
           icon: const Icon(
             Icons.arrow_back,
             size: 18,

@@ -213,12 +213,19 @@
   "readyForCallout": "Ready for call out",
   "runningMatches": "Running matches",
   "matchWaitingStatus": "{status, select, waitingForCourt{Waiting for court} waitingForPlayerRest{Waiting for player rest} waitingForProgress{Waiting for tournament progress} other{OTHER}}",
-  "versus": "vs",
+  "versusAbbreviated": "vs",
+  "versus": "versus",
   "qualificationPending": "Qualification pending",
   "playMatchHere": "Play match here",
   "assignCourt": "Assign court",
   "roundRobinMatchN": "Round robin\nRound {number}",
   "groupNMatchN": "Group {group}\nRound {match}",
   "callOutMatch": "Call out match",
-  "backToWaitList": "Back to wait list"
+  "backToWaitList": "Back to wait list",
+  "on": "on",
+  "matchCalledOut": "Match called out",
+  "matchCallOut": "Match call",
+  "callOutAll": "Call out all",
+  "nMinutes": "{minutes, plural, =1{1 minute} other{{minutes} minutes}}",
+  "playingTime": "Playing time"
 }

@@ -34,8 +34,8 @@ class Player extends Model with _$Player {
   // This object is used as the original whenever a new player is added.
   factory Player.newPlayer() => Player(
         id: '',
-        created: DateTime.now(),
-        updated: DateTime.now(),
+        created: DateTime.now().toUtc(),
+        updated: DateTime.now().toUtc(),
         firstName: '',
         lastName: '',
         status: PlayerStatus.notAttending,

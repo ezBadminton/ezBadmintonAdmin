@@ -26,8 +26,8 @@ class AgeGroup extends Model with _$AgeGroup {
   }) =>
       AgeGroup(
         id: '',
-        created: DateTime.now(),
-        updated: DateTime.now(),
+        created: DateTime.now().toUtc(),
+        updated: DateTime.now().toUtc(),
         age: age,
         type: type,
       );

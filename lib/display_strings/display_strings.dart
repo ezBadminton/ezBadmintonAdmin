@@ -1,8 +1,11 @@
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/tournament_round_names.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate_producers.dart';
 import 'package:ez_badminton_admin_app/utils/powers_of_two.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:tournament_mode/tournament_mode.dart';
 
 String ageGroup(AppLocalizations l10n, AgeGroup ageGroup) {
   return '${l10n.ageGroupAbbreviated(ageGroup.type.name)}${ageGroup.age}';
@@ -266,4 +269,14 @@ String seedLabel(int seed, SeedingMode seedingMode) {
   int prevPowOf2 = previousPowerOfTwo(rank);
 
   return '${prevPowOf2 + 1}/$nextPowOf2';
+}
+
+String? matchRoundName(AppLocalizations l10n, BadmintonMatch match) {
+  return switch (match.round) {
+    GroupPhaseRound<BadmintonMatch> round =>
+      round.getGroupRoundName(l10n, match),
+    RoundRobinRound round => round.getRoundRobinRoundName(l10n),
+    EliminationRound round => round.getEliminationRoundName(l10n),
+    _ => null,
+  };
 }

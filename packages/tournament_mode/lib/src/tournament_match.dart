@@ -76,7 +76,7 @@ abstract class TournamentMatch<P, S> {
   /// [DateTime.now].
   void beginMatch([DateTime? startTime]) {
     assert(isPlayable);
-    DateTime time = startTime ?? DateTime.now();
+    DateTime time = startTime ?? DateTime.now().toUtc();
     _startTime = time;
   }
 
@@ -88,7 +88,7 @@ abstract class TournamentMatch<P, S> {
     if (score == null) {
       _endTime = null;
     } else {
-      _endTime = endTime ?? DateTime.now();
+      _endTime = endTime ?? DateTime.now().toUtc();
     }
 
     _score = score;

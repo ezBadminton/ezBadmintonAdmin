@@ -11,7 +11,7 @@ class MatchQueueList extends StatelessWidget {
 
   final double width;
 
-  final String title;
+  final Widget title;
 
   final List<Widget>? list;
   final Map<String, List<Widget>>? sublists;
@@ -33,18 +33,12 @@ class MatchQueueList extends StatelessWidget {
         ),
         child: Column(
           children: [
-            SizedBox(
-              height: 45,
-              child: Container(
-                alignment: Alignment.center,
-                color: Theme.of(context).primaryColor.withOpacity(.45),
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
-                ),
+            Container(
+              alignment: Alignment.center,
+              color: Theme.of(context).primaryColor.withOpacity(.45),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: title,
               ),
             ),
             Expanded(

@@ -28,8 +28,8 @@ class Team extends Model with _$Team {
   factory Team.newTeam({List<Player> players = const []}) {
     return Team(
       id: '',
-      created: DateTime.now(),
-      updated: DateTime.now(),
+      created: DateTime.now().toUtc(),
+      updated: DateTime.now().toUtc(),
       players: players,
       resigned: false,
     );

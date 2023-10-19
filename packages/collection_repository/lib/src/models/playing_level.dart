@@ -31,8 +31,8 @@ class PlayingLevel extends Model with _$PlayingLevel {
   ) =>
       PlayingLevel(
         id: '',
-        created: DateTime.now(),
-        updated: DateTime.now(),
+        created: DateTime.now().toUtc(),
+        updated: DateTime.now().toUtc(),
         name: name,
         index: index,
       );

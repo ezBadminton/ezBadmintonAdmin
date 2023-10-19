@@ -22,8 +22,8 @@ class Club extends Model with _$Club {
 
   factory Club.newClub({required String name}) => Club(
         id: '',
-        created: DateTime.now(),
-        updated: DateTime.now(),
+        created: DateTime.now().toUtc(),
+        updated: DateTime.now().toUtc(),
         name: name,
       );
 

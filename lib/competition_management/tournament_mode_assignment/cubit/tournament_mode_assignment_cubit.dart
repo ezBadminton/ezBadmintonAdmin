@@ -131,23 +131,23 @@ class TournamentModeAssignmentCubit
       case RoundRobinSettings:
         return RoundRobinSettings(
           id: '',
-          created: DateTime.now(),
-          updated: DateTime.now(),
+          created: DateTime.now().toUtc(),
+          updated: DateTime.now().toUtc(),
           seedingMode: SeedingMode.random,
           passes: 1,
         );
       case SingleEliminationSettings:
         return SingleEliminationSettings(
           id: '',
-          created: DateTime.now(),
-          updated: DateTime.now(),
+          created: DateTime.now().toUtc(),
+          updated: DateTime.now().toUtc(),
           seedingMode: SeedingMode.tiered,
         );
       case GroupKnockoutSettings:
         return GroupKnockoutSettings(
           id: '',
-          created: DateTime.now(),
-          updated: DateTime.now(),
+          created: DateTime.now().toUtc(),
+          updated: DateTime.now().toUtc(),
           seedingMode: SeedingMode.tiered,
           numGroups: 4,
           qualificationsPerGroup: 2,

@@ -45,8 +45,8 @@ class Competition extends Model with _$Competition {
   }) {
     return Competition(
       id: '',
-      created: DateTime.now(),
-      updated: DateTime.now(),
+      created: DateTime.now().toUtc(),
+      updated: DateTime.now().toUtc(),
       teamSize: teamSize,
       genderCategory: genderCategory,
       ageGroup: ageGroup,

@@ -29,8 +29,8 @@ class Gymnasium extends Model with _$Gymnasium {
 
   factory Gymnasium.newGymnasium() => Gymnasium(
         id: '',
-        created: DateTime.now(),
-        updated: DateTime.now(),
+        created: DateTime.now().toUtc(),
+        updated: DateTime.now().toUtc(),
         name: '',
         directions: '',
         rows: defaultGridSize,

@@ -1,6 +1,8 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
+import 'package:ez_badminton_admin_app/match_management/cubit/call_out_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/match_queue_cubit.dart';
+import 'package:ez_badminton_admin_app/match_management/widgets/call_out_script.dart';
 import 'package:ez_badminton_admin_app/match_management/widgets/match_queue_list.dart';
 import 'package:ez_badminton_admin_app/match_management/widgets/queued_match.dart';
 import 'package:flutter/material.dart';
@@ -13,11 +15,21 @@ class MatchManagementPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    return BlocProvider(
-      create: (context) => MatchQueueCubit(
-        competitionRepository:
-            context.read<CollectionRepository<Competition>>(),
-      ),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => MatchQueueCubit(
+            competitionRepository:
+                context.read<CollectionRepository<Competition>>(),
+          ),
+        ),
+        BlocProvider(
+          create: (context) => CallOutCubit(
+            matchDataRepository:
+                context.read<CollectionRepository<MatchData>>(),
+          ),
+        ),
+      ],
       child: Scaffold(
         appBar: AppBar(title: Text(l10n.matchOperations)),
         body: const _MatchQueueLists(),
@@ -32,6 +44,10 @@ class _MatchQueueLists extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
+    TextStyle queueTitleStyle = const TextStyle(
+      fontWeight: FontWeight.w600,
+      fontSize: 16,
+    );
 
     return BlocBuilder<MatchQueueCubit, MatchQueueState>(
       builder: (context, state) {
@@ -40,7 +56,10 @@ class _MatchQueueLists extends StatelessWidget {
           children: [
             MatchQueueList(
               width: 420,
-              title: l10n.matchQueue,
+              title: Text(
+                l10n.matchQueue,
+                style: queueTitleStyle,
+              ),
               sublists: _buildWaitList(
                 state.waitList,
                 l10n,
@@ -49,7 +68,37 @@ class _MatchQueueLists extends StatelessWidget {
             ),
             MatchQueueList(
               width: 250,
-              title: l10n.readyForCallout,
+              title: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    l10n.readyForCallout,
+                    style: queueTitleStyle,
+                  ),
+                  const SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: state.calloutWaitList.isEmpty
+                        ? null
+                        : () {
+                            showDialog(
+                              context: context,
+                              builder: (_) => CallOutScript(
+                                callOuts: state.calloutWaitList,
+                                callOutCubit: context.read<CallOutCubit>(),
+                              ),
+                            );
+                          },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.campaign),
+                        const SizedBox(width: 7),
+                        Text(l10n.callOutAll),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
               list: _buildMatchList(
                 state.calloutWaitList,
                 (match) => ReadyForCallOutMatch(match: match),
@@ -57,10 +106,13 @@ class _MatchQueueLists extends StatelessWidget {
             ),
             MatchQueueList(
               width: 420,
-              title: l10n.runningMatches,
+              title: Text(
+                l10n.runningMatches,
+                style: queueTitleStyle,
+              ),
               list: _buildMatchList(
                 state.inProgressList,
-                (match) => ReadyForCallOutMatch(match: match),
+                (match) => RunningMatch(match: match),
               ),
             ),
           ],

@@ -47,8 +47,8 @@ class MatchData extends Model with _$MatchData {
 
   factory MatchData.newMatch() => MatchData(
         id: '',
-        created: DateTime.now(),
-        updated: DateTime.now(),
+        created: DateTime.now().toUtc(),
+        updated: DateTime.now().toUtc(),
         sets: const [],
         status: MatchStatus.normal,
       );
