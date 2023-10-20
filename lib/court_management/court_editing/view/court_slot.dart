@@ -13,11 +13,16 @@ import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_state.dart';
 import 'package:ez_badminton_admin_app/widgets/badminton_court/badminton_court.dart';
+import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
+import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
+import 'package:ez_badminton_admin_app/widgets/minutes_timer/minutes_timer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:formz/formz.dart';
+import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
+    as display_strings;
 
 class CourtSlot extends StatelessWidget {
   const CourtSlot({
@@ -209,6 +214,8 @@ class _CourtLabel extends StatelessWidget {
       builder: (context, progressState) {
         BadmintonMatch? matchOnCourt =
             progressState.occupiedCourts[courtInSlot];
+        bool hasMatch = matchOnCourt != null;
+
         return BlocBuilder<TabNavigationCubit, TabNavigationState>(
           buildWhen: (previous, current) => current.selectedIndex == 2,
           builder: (context, state) {
@@ -217,9 +224,15 @@ class _CourtLabel extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _CourtNameCard(courtInSlot: courtInSlot),
-                    if (state.tabChangeReason is MatchData &&
-                        matchOnCourt == null)
+                    _CourtNameCard(
+                      courtInSlot: courtInSlot,
+                      fontSize: hasMatch ? 28 : 34,
+                      alignment: hasMatch
+                          ? AlignmentDirectional.topStart
+                          : AlignmentDirectional.center,
+                    ),
+                    if (hasMatch) _MatchOnCourtCard(match: matchOnCourt),
+                    if (state.tabChangeReason is MatchData && !hasMatch)
                       _MatchAssignmentButton(
                         matchData: state.tabChangeReason as MatchData,
                         court: courtInSlot,
@@ -238,40 +251,46 @@ class _CourtLabel extends StatelessWidget {
 class _CourtNameCard extends StatelessWidget {
   const _CourtNameCard({
     required this.courtInSlot,
+    this.fontSize = 34,
+    this.alignment = AlignmentDirectional.center,
   });
 
   final Court courtInSlot;
 
+  final double fontSize;
+  final AlignmentGeometry alignment;
+
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: const BorderSide(
-          color: Colors.black54,
+    return Align(
+      alignment: alignment,
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+          side: const BorderSide(
+            color: Colors.black54,
+          ),
         ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: 4.0,
-          horizontal: 19.0,
-        ),
-        child: BlocBuilder<CourtRenamingCubit, CourtRenamingState>(
-          buildWhen: (previous, current) =>
-              previous.isFormOpen != current.isFormOpen,
-          builder: (context, state) {
-            if (state.isFormOpen) {
-              return _RenamingForm(initialValue: state.name.value);
-            } else {
-              return Text(
-                courtInSlot.name,
-                style: const TextStyle(
-                  fontSize: 34,
-                ),
-              );
-            }
-          },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: 4.0,
+            horizontal: 19.0,
+          ),
+          child: BlocBuilder<CourtRenamingCubit, CourtRenamingState>(
+            buildWhen: (previous, current) =>
+                previous.isFormOpen != current.isFormOpen,
+            builder: (context, state) {
+              if (state.isFormOpen) {
+                return _RenamingForm(initialValue: state.name.value);
+              } else {
+                return Text(
+                  courtInSlot.name,
+                  style: TextStyle(fontSize: fontSize),
+                );
+              }
+            },
+          ),
         ),
       ),
     );
@@ -383,6 +402,103 @@ class _MatchAssignmentButton extends StatelessWidget {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _MatchOnCourtCard extends StatelessWidget {
+  const _MatchOnCourtCard({
+    required this.match,
+  });
+
+  final BadmintonMatch match;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: const BorderSide(
+          color: Colors.black38,
+        ),
+      ),
+      color: Theme.of(context).colorScheme.surface.withOpacity(.7),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Column(
+          children: [
+            CompetitionLabel(
+              competition: match.competition,
+              textStyle: const TextStyle(fontSize: 12),
+              dividerPadding: 7,
+            ),
+            const SizedBox(height: 2),
+            _MatchInfo(match: match),
+            MatchLabel(
+              match: match,
+              orientation: Axis.horizontal,
+              participantWidth: 183,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MatchInfo extends StatelessWidget {
+  const _MatchInfo({
+    required this.match,
+  });
+
+  final BadmintonMatch match;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+    String? roundName = display_strings.matchRoundName(l10n, match);
+
+    return IntrinsicHeight(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (roundName != null) ...[
+            Expanded(
+              child: Text(
+                roundName,
+                style: const TextStyle(fontSize: 12),
+                textAlign: TextAlign.end,
+              ),
+            ),
+            const VerticalDivider(
+              color: Colors.black54,
+              indent: 3,
+              endIndent: 3,
+            ),
+          ],
+          Expanded(
+            child: match.startTime != null
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.playingTime,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      MinutesTimer(
+                        timestamp: match.startTime!,
+                        textStyle: const TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  )
+                : Text(
+                    l10n.matchPlanned,
+                    style: const TextStyle(fontSize: 12),
+                  ),
+          ),
+        ],
       ),
     );
   }

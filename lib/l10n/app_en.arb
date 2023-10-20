@@ -227,5 +227,6 @@
   "matchCallOut": "Match call",
   "callOutAll": "Call out all",
   "nMinutes": "{minutes, plural, =1{1 minute} other{{minutes} minutes}}",
-  "playingTime": "Playing time"
+  "playingTime": "Playing time",
+  "matchPlanned": "Match planned"
 }

@@ -4,8 +4,8 @@ import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_partici
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class MatchLabel extends StatelessWidget {
-  const MatchLabel({
+class BracketMatchLabel extends StatelessWidget {
+  const BracketMatchLabel({
     super.key,
     required this.match,
     required this.competition,

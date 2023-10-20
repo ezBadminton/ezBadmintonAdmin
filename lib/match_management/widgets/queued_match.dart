@@ -5,8 +5,8 @@ import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/call_out_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/widgets/call_out_script.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
+import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
 import 'package:ez_badminton_admin_app/widgets/minutes_timer/minutes_timer.dart';
-import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -29,7 +29,7 @@ class WaitingMatch extends StatelessWidget {
           Expanded(
             child: _MatchInfo(match: match),
           ),
-          _MatchLabel(match: match),
+          MatchLabel(match: match),
           if (match.isPlayable && match.court == null)
             Expanded(
               child: Align(
@@ -69,7 +69,7 @@ class ReadyForCallOutMatch extends StatelessWidget {
                   ),
                 ),
               ),
-              child: _MatchLabel(match: match),
+              child: MatchLabel(match: match),
             ),
           ),
           Positioned(
@@ -111,7 +111,7 @@ class RunningMatch extends StatelessWidget {
           Expanded(
             child: _MatchInfo(match: match),
           ),
-          _MatchLabel(match: match),
+          MatchLabel(match: match),
           Expanded(
             child: Align(
               alignment: AlignmentDirectional.centerEnd,
@@ -189,56 +189,6 @@ class _MatchInfo extends StatelessWidget {
             style: const TextStyle(fontSize: 12),
           ),
         ],
-      ],
-    );
-  }
-}
-
-class _MatchLabel extends StatelessWidget {
-  const _MatchLabel({
-    required this.match,
-  });
-
-  final BadmintonMatch match;
-
-  @override
-  Widget build(BuildContext context) {
-    var l10n = AppLocalizations.of(context)!;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        MatchParticipantLabel(
-          match.a,
-          teamSize: match.competition.teamSize,
-          isEditable: false,
-          width: 185,
-          alignment: CrossAxisAlignment.center,
-          placeholderLabel: Text(
-            l10n.qualificationPending,
-            style: TextStyle(color: Theme.of(context).disabledColor),
-          ),
-          useFullName: false,
-        ),
-        Text(
-          '- ${l10n.versusAbbreviated} -',
-          style: TextStyle(
-            fontSize: 12,
-            color: Theme.of(context).disabledColor,
-          ),
-        ),
-        MatchParticipantLabel(
-          match.b,
-          teamSize: match.competition.teamSize,
-          isEditable: false,
-          width: 185,
-          alignment: CrossAxisAlignment.center,
-          placeholderLabel: Text(
-            l10n.qualificationPending,
-            style: TextStyle(color: Theme.of(context).disabledColor),
-          ),
-          useFullName: false,
-        ),
       ],
     );
   }

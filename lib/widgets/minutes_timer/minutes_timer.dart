@@ -7,9 +7,12 @@ class MinutesTimer extends StatelessWidget {
   const MinutesTimer({
     super.key,
     required this.timestamp,
+    this.textStyle,
   });
 
   final DateTime timestamp;
+
+  final TextStyle? textStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +23,10 @@ class MinutesTimer extends StatelessWidget {
       child: BlocBuilder<TimerCubit, TimerState>(
         buildWhen: (previous, current) => previous.minutes != current.minutes,
         builder: (context, state) {
-          return Text(l10n.nMinutes(state.minutes));
+          return Text(
+            l10n.nMinutes(state.minutes),
+            style: textStyle,
+          );
         },
       ),
     );

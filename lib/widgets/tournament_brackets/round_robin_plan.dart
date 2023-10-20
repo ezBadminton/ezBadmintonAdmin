@@ -2,7 +2,7 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/interactive_view_blocker_cubit.dart';
-import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_label.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/bracket_match_label.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -225,7 +225,8 @@ class _RoundRobinMatchListState extends State<_RoundRobinMatchList> {
         for (BadmintonMatch match in round.matches)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5.0),
-            child: MatchLabel(match: match, competition: widget.competition),
+            child: BracketMatchLabel(
+                match: match, competition: widget.competition),
           ),
         if (widget.rounds.last != round) const SizedBox(height: 10),
         if (widget.rounds.last == round) const SizedBox(height: 15),
