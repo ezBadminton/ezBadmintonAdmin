@@ -1,7 +1,8 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 
-// Updates the cached competitions when their PlayingLevel is updated or
-// when
+/// Updates the cached competitions when their [PlayingLevel] or a [Team] that
+/// is registered or the [MatchData] of a match is updated.
 List<Competition> onCompetitionRelationUpdate(
   List<Competition> competitions,
   CollectionUpdateEvent updateEvent,
@@ -19,10 +20,7 @@ List<Competition> onCompetitionRelationUpdate(
   if (updateEvent.model is Team) {
     Team updatedTeam = updateEvent.model as Team;
 
-    Team? replacement = switch (updateEvent.updateType) {
-      UpdateType.delete => null,
-      _ => updatedTeam,
-    };
+    Team? replacement = _getReplacement(updatedTeam, updateEvent);
 
     List<Competition> containingCompetitions = competitions
         .where((c) => c.registrations.contains(updatedTeam))
@@ -54,6 +52,8 @@ List<Competition> onCompetitionRelationUpdate(
   if (updateEvent.model is MatchData) {
     MatchData updatedMatchData = updateEvent.model as MatchData;
 
+    MatchData? replacement = _getReplacement(updatedMatchData, updateEvent);
+
     List<Competition> containingCompetitions = competitions
         .where((c) => c.matches.contains(updatedMatchData))
         .toList();
@@ -63,7 +63,7 @@ List<Competition> onCompetitionRelationUpdate(
     for (Competition competition in containingCompetitions) {
       List<MatchData> matches = List.of(competition.matches);
 
-      replaceInList(matches, updatedMatchData.id, updatedMatchData);
+      replaceInList(matches, updatedMatchData.id, replacement);
 
       updatedCompetitions.add(competition.copyWith(matches: matches));
     }
@@ -81,10 +81,7 @@ List<Team> onTeamRelationUpdate(
   if (updateEvent.model is Player) {
     Player updatedPlayer = updateEvent.model as Player;
 
-    Player? replacement = switch (updateEvent.updateType) {
-      UpdateType.delete => null,
-      _ => updatedPlayer,
-    };
+    Player? replacement = _getReplacement(updatedPlayer, updateEvent);
 
     List<Team> containingTeams =
         teams.where((t) => t.players.contains(updatedPlayer)).toList();
@@ -103,6 +100,65 @@ List<Team> onTeamRelationUpdate(
   return [];
 }
 
+List<MatchData> onMatchDataRelationUpdate(
+  List<MatchData> matchData,
+  CollectionUpdateEvent updateEvent,
+) {
+  if (updateEvent.model is Court) {
+    Court updatedCourt = updateEvent.model as Court;
+
+    Court? replacement = _getReplacement(updatedCourt, updateEvent);
+
+    List<MatchData> containingMatchData =
+        matchData.where((m) => m.court == updatedCourt).toList();
+
+    List<MatchData> updatedMatchData =
+        containingMatchData.map((m) => m.copyWith(court: replacement)).toList();
+
+    return updatedMatchData;
+  }
+
+  if (updateEvent.model is MatchSet) {
+    MatchSet updatedSet = updateEvent.model as MatchSet;
+
+    MatchSet? replacement = _getReplacement(updatedSet, updateEvent);
+
+    MatchData? containingMatchData =
+        matchData.firstWhereOrNull((m) => m.sets.contains(updatedSet));
+
+    if (containingMatchData != null) {
+      List<MatchSet> sets = List.of(containingMatchData.sets);
+
+      replaceInList(sets, updatedSet.id, replacement);
+
+      return [containingMatchData.copyWith(sets: sets)];
+    }
+  }
+
+  return [];
+}
+
+List<Court> onCourtRelationUpdate(
+  List<Court> courts,
+  CollectionUpdateEvent updateEvent,
+) {
+  if (updateEvent.model is Gymnasium &&
+      updateEvent.updateType == UpdateType.update) {
+    Gymnasium updatedGymnasium = updateEvent.model as Gymnasium;
+
+    List<Court> containingCourts =
+        courts.where((c) => c.gymnasium == updatedGymnasium).toList();
+
+    List<Court> updatedCourts = containingCourts
+        .map((c) => c.copyWith(gymnasium: updatedGymnasium))
+        .toList();
+
+    return updatedCourts;
+  }
+
+  return [];
+}
+
 /// In the [list], replaces the [Model] with the [id] with the [replacement].
 ///
 /// When [replacement] is null, it just removes the [Model] with [id].
@@ -116,4 +172,11 @@ void replaceInList(List<Model> list, String id, Model? replacement) {
       list[index] = replacement;
     }
   }
+}
+
+T? _getReplacement<T>(T original, CollectionUpdateEvent updateEvent) {
+  return switch (updateEvent.updateType) {
+    UpdateType.delete => null,
+    _ => original,
+  };
 }

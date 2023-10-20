@@ -25,13 +25,13 @@ class _AppState extends State<App> {
   late final CollectionRepository<PlayingLevel> _playingLevelRepository;
   late final CollectionRepository<AgeGroup> _ageGroupRepository;
   late final CollectionRepository<Player> _playerRepository;
+  late final CollectionRepository<Gymnasium> _gymnasiumRepository;
+  late final CollectionRepository<Court> _courtRepository;
   late final CollectionRepository<MatchSet> _matchSetRepository;
   late final CollectionRepository<MatchData> _matchDataRepository;
   late final CollectionRepository<Competition> _competitionRepository;
   late final CollectionRepository<Team> _teamRepository;
   late final CollectionRepository<Club> _clubRepository;
-  late final CollectionRepository<Court> _courtRepository;
-  late final CollectionRepository<Gymnasium> _gymnasiumRepository;
   late final CollectionRepository<TournamentModeSettings>
       _tournamentModeSettingsRepository;
 
@@ -79,6 +79,22 @@ class _AppState extends State<App> {
         pocketBaseProvider: _pocketBaseProvider,
       ),
     );
+    _gymnasiumRepository = CachedCollectionRepository(
+      PocketbaseCollectionRepository(
+        modelConstructor: Gymnasium.fromJson,
+        pocketBaseProvider: _pocketBaseProvider,
+      ),
+    );
+    _courtRepository = CachedCollectionRepository(
+      relationRepositories: [
+        _gymnasiumRepository,
+      ],
+      relationUpdateHandler: onCourtRelationUpdate,
+      PocketbaseCollectionRepository(
+        modelConstructor: Court.fromJson,
+        pocketBaseProvider: _pocketBaseProvider,
+      ),
+    );
     _matchSetRepository = CachedCollectionRepository(
       PocketbaseCollectionRepository(
         modelConstructor: MatchSet.fromJson,
@@ -86,6 +102,11 @@ class _AppState extends State<App> {
       ),
     );
     _matchDataRepository = CachedCollectionRepository(
+      relationRepositories: [
+        _courtRepository,
+        _matchSetRepository,
+      ],
+      relationUpdateHandler: onMatchDataRelationUpdate,
       PocketbaseCollectionRepository(
         modelConstructor: MatchData.fromJson,
         pocketBaseProvider: _pocketBaseProvider,
@@ -109,18 +130,6 @@ class _AppState extends State<App> {
         pocketBaseProvider: _pocketBaseProvider,
       ),
     );
-    _courtRepository = CachedCollectionRepository(
-      PocketbaseCollectionRepository(
-        modelConstructor: Court.fromJson,
-        pocketBaseProvider: _pocketBaseProvider,
-      ),
-    );
-    _gymnasiumRepository = CachedCollectionRepository(
-      PocketbaseCollectionRepository(
-        modelConstructor: Gymnasium.fromJson,
-        pocketBaseProvider: _pocketBaseProvider,
-      ),
-    );
     _tournamentModeSettingsRepository = CachedCollectionRepository(
       PocketbaseCollectionRepository(
         modelConstructor: TournamentModeSettings.fromJson,
@@ -137,12 +146,12 @@ class _AppState extends State<App> {
     _ageGroupRepository.dispose();
     _playerRepository.dispose();
     _teamRepository.dispose();
+    _gymnasiumRepository.dispose();
+    _courtRepository.dispose();
     _matchSetRepository.dispose();
     _matchDataRepository.dispose();
     _competitionRepository.dispose();
     _clubRepository.dispose();
-    _courtRepository.dispose();
-    _gymnasiumRepository.dispose();
     _tournamentModeSettingsRepository.dispose();
     super.dispose();
   }
@@ -157,12 +166,12 @@ class _AppState extends State<App> {
         RepositoryProvider.value(value: _ageGroupRepository),
         RepositoryProvider.value(value: _playerRepository),
         RepositoryProvider.value(value: _teamRepository),
+        RepositoryProvider.value(value: _gymnasiumRepository),
+        RepositoryProvider.value(value: _courtRepository),
         RepositoryProvider.value(value: _matchSetRepository),
         RepositoryProvider.value(value: _matchDataRepository),
         RepositoryProvider.value(value: _competitionRepository),
         RepositoryProvider.value(value: _clubRepository),
-        RepositoryProvider.value(value: _courtRepository),
-        RepositoryProvider.value(value: _gymnasiumRepository),
         RepositoryProvider.value(value: _tournamentModeSettingsRepository),
       ],
       child: BlocProvider(

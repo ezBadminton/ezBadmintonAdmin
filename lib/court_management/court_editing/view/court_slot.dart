@@ -1,6 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/assets/badminton_icons_icons.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
 import 'package:ez_badminton_admin_app/constants.dart';
 import 'package:ez_badminton_admin_app/court_management/court_editing/cubit/court_deletion_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/court_editing/cubit/court_adding_cubit.dart';
@@ -203,23 +205,30 @@ class _CourtLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TabNavigationCubit, TabNavigationState>(
-      buildWhen: (previous, current) => current.selectedIndex == 2,
-      builder: (context, state) {
-        return Positioned.fill(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _CourtNameCard(courtInSlot: courtInSlot),
-                if (state.tabChangeReason is MatchData)
-                  _MatchAssignmentButton(
-                    matchData: state.tabChangeReason as MatchData,
-                    court: courtInSlot,
-                  ),
-              ],
-            ),
-          ),
+    return BlocBuilder<TournamentProgressCubit, TournamentProgressState>(
+      builder: (context, progressState) {
+        BadmintonMatch? matchOnCourt =
+            progressState.occupiedCourts[courtInSlot];
+        return BlocBuilder<TabNavigationCubit, TabNavigationState>(
+          buildWhen: (previous, current) => current.selectedIndex == 2,
+          builder: (context, state) {
+            return Positioned.fill(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _CourtNameCard(courtInSlot: courtInSlot),
+                    if (state.tabChangeReason is MatchData &&
+                        matchOnCourt == null)
+                      _MatchAssignmentButton(
+                        matchData: state.tabChangeReason as MatchData,
+                        court: courtInSlot,
+                      ),
+                  ],
+                ),
+              ),
+            );
+          },
         );
       },
     );

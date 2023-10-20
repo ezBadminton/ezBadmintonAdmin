@@ -1,5 +1,6 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/call_out_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/match_queue_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/widgets/call_out_script.dart';
@@ -18,10 +19,7 @@ class MatchManagementPage extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => MatchQueueCubit(
-            competitionRepository:
-                context.read<CollectionRepository<Competition>>(),
-          ),
+          create: (context) => MatchQueueCubit(),
         ),
         BlocProvider(
           create: (context) => CallOutCubit(
@@ -30,9 +28,14 @@ class MatchManagementPage extends StatelessWidget {
           ),
         ),
       ],
-      child: Scaffold(
-        appBar: AppBar(title: Text(l10n.matchOperations)),
-        body: const _MatchQueueLists(),
+      child: BlocListener<TournamentProgressCubit, TournamentProgressState>(
+        listener: (context, state) {
+          context.read<MatchQueueCubit>().tournamentChanged(state);
+        },
+        child: Scaffold(
+          appBar: AppBar(title: Text(l10n.matchOperations)),
+          body: const _MatchQueueLists(),
+        ),
       ),
     );
   }

@@ -14,10 +14,9 @@ import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
     as display_strings;
 
 class WaitingMatch extends StatelessWidget {
-  const WaitingMatch({
-    super.key,
+  WaitingMatch({
     required this.match,
-  });
+  }) : super(key: ValueKey('WaitingMatch-${match.matchData!.id}'));
 
   final BadmintonMatch match;
 
@@ -47,10 +46,9 @@ class WaitingMatch extends StatelessWidget {
 }
 
 class ReadyForCallOutMatch extends StatelessWidget {
-  const ReadyForCallOutMatch({
-    super.key,
+  ReadyForCallOutMatch({
     required this.match,
-  });
+  }) : super(key: ValueKey('ReadyForCallOutMatch-${match.matchData!.id}'));
 
   final BadmintonMatch match;
 
@@ -96,10 +94,9 @@ class ReadyForCallOutMatch extends StatelessWidget {
 }
 
 class RunningMatch extends StatelessWidget {
-  const RunningMatch({
-    super.key,
+  RunningMatch({
     required this.match,
-  });
+  }) : super(key: ValueKey('RunningMatch-${match.matchData!.id}'));
 
   final BadmintonMatch match;
 

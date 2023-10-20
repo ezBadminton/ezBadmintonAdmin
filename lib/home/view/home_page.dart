@@ -1,4 +1,6 @@
+import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/assets/badminton_icons_icons.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/view/competition_list_page.dart';
 import 'package:ez_badminton_admin_app/court_management/view/court_list_page.dart';
 import 'package:ez_badminton_admin_app/draw_management/view/draw_management_page.dart';
@@ -131,8 +133,18 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => TabNavigationCubit(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => TabNavigationCubit(),
+        ),
+        BlocProvider(
+          create: (context) => TournamentProgressCubit(
+            competitionRepository:
+                context.read<CollectionRepository<Competition>>(),
+          ),
+        ),
+      ],
       child: BlocBuilder<TabNavigationCubit, TabNavigationState>(
         builder: (context, tabNavigationState) {
           return Row(
