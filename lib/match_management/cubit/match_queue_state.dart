@@ -26,6 +26,6 @@ class MatchQueueState {
 
 enum MatchWaitingStatus {
   waitingForCourt,
-  waitingForPlayerRest,
+  waitingForPlayer,
   waitingForProgress,
 }

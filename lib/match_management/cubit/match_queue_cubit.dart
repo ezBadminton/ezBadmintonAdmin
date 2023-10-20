@@ -1,3 +1,4 @@
+import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,9 +14,23 @@ class MatchQueueCubit extends Cubit<MatchQueueState> {
         .where((match) => !match.isBye)
         .toList();
 
+    Set<Player> playingPlayers = progressState.playingPlayers.keys.toSet();
+
+    List<BadmintonMatch> playableMatches =
+        matches.where((m) => m.isPlayable && m.court == null).toList();
+
+    Map<BadmintonMatch, Set<Player>> matchPlayerConflicts = {
+      for (BadmintonMatch match in playableMatches)
+        match: playingPlayers.intersection(_playersOfMatch(match)),
+    };
+
     Map<MatchWaitingStatus, List<BadmintonMatch>> waitList = {
-      MatchWaitingStatus.waitingForCourt:
-          matches.where((m) => m.isPlayable && m.court == null).toList(),
+      MatchWaitingStatus.waitingForCourt: playableMatches
+          .where((m) => matchPlayerConflicts[m]!.isEmpty)
+          .toList(),
+      MatchWaitingStatus.waitingForPlayer: playableMatches
+          .where((m) => matchPlayerConflicts[m]!.isNotEmpty)
+          .toList(),
       MatchWaitingStatus.waitingForProgress:
           matches.where((m) => !m.isPlayable).toList(),
     };
@@ -31,5 +46,11 @@ class MatchQueueCubit extends Cubit<MatchQueueState> {
       calloutWaitList: calloutWaitList,
       inProgressList: inProgressList,
     ));
+  }
+
+  Set<Player> _playersOfMatch(BadmintonMatch match) {
+    return [match.a.resolvePlayer()!, match.b.resolvePlayer()!]
+        .expand((team) => team.players)
+        .toSet();
   }
 }

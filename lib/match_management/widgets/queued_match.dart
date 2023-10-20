@@ -3,6 +3,7 @@ import 'package:ez_badminton_admin_app/assets/badminton_icons_icons.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/call_out_cubit.dart';
+import 'package:ez_badminton_admin_app/match_management/cubit/match_queue_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/widgets/call_out_script.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
 import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
@@ -16,9 +17,11 @@ import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
 class WaitingMatch extends StatelessWidget {
   WaitingMatch({
     required this.match,
+    required this.waitingStatus,
   }) : super(key: ValueKey('WaitingMatch-${match.matchData!.id}'));
 
   final BadmintonMatch match;
+  final MatchWaitingStatus waitingStatus;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +33,7 @@ class WaitingMatch extends StatelessWidget {
             child: _MatchInfo(match: match),
           ),
           MatchLabel(match: match),
-          if (match.isPlayable && match.court == null)
+          if (waitingStatus == MatchWaitingStatus.waitingForCourt)
             Expanded(
               child: Align(
                 alignment: AlignmentDirectional.center,

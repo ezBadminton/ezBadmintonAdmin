@@ -66,7 +66,10 @@ class _MatchQueueLists extends StatelessWidget {
               sublists: _buildWaitList(
                 state.waitList,
                 l10n,
-                (match) => WaitingMatch(match: match),
+                (match, waitingStatus) => WaitingMatch(
+                  match: match,
+                  waitingStatus: waitingStatus,
+                ),
               ),
             ),
             MatchQueueList(
@@ -127,12 +130,13 @@ class _MatchQueueLists extends StatelessWidget {
   Map<String, List<Widget>> _buildWaitList(
     Map<MatchWaitingStatus, List<BadmintonMatch>> waitList,
     AppLocalizations l10n,
-    Widget Function(BadmintonMatch match) matchItemBuilder,
+    Widget Function(BadmintonMatch match, MatchWaitingStatus waitingStatus)
+        matchItemBuilder,
   ) {
     return waitList.map<String, List<Widget>>(
       (waitStatus, matches) => MapEntry(
         l10n.matchWaitingStatus(waitStatus.toString()),
-        matches.map((match) => matchItemBuilder(match)).toList(),
+        matches.map((match) => matchItemBuilder(match, waitStatus)).toList(),
       ),
     );
   }
