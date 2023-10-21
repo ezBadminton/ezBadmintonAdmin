@@ -15,14 +15,12 @@ import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_state.dart';
 import 'package:ez_badminton_admin_app/widgets/badminton_court/badminton_court.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
 import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
-import 'package:ez_badminton_admin_app/widgets/minutes_timer/minutes_timer.dart';
+import 'package:ez_badminton_admin_app/widgets/running_match_info/running_match_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:formz/formz.dart';
-import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
-    as display_strings;
 
 class CourtSlot extends StatelessWidget {
   const CourtSlot({
@@ -435,7 +433,7 @@ class _MatchOnCourtCard extends StatelessWidget {
               dividerPadding: 7,
             ),
             const SizedBox(height: 2),
-            _MatchInfo(match: match),
+            RunningMatchInfo(match: match),
             MatchLabel(
               match: match,
               orientation: Axis.horizontal,
@@ -443,62 +441,6 @@ class _MatchOnCourtCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _MatchInfo extends StatelessWidget {
-  const _MatchInfo({
-    required this.match,
-  });
-
-  final BadmintonMatch match;
-
-  @override
-  Widget build(BuildContext context) {
-    var l10n = AppLocalizations.of(context)!;
-    String? roundName = display_strings.matchRoundName(l10n, match);
-
-    return IntrinsicHeight(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (roundName != null) ...[
-            Expanded(
-              child: Text(
-                roundName,
-                style: const TextStyle(fontSize: 12),
-                textAlign: TextAlign.end,
-              ),
-            ),
-            const VerticalDivider(
-              color: Colors.black54,
-              indent: 3,
-              endIndent: 3,
-            ),
-          ],
-          Expanded(
-            child: match.startTime != null
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.playingTime,
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                      MinutesTimer(
-                        timestamp: match.startTime!,
-                        textStyle: const TextStyle(fontSize: 12),
-                      ),
-                    ],
-                  )
-                : Text(
-                    l10n.matchPlanned,
-                    style: const TextStyle(fontSize: 12),
-                  ),
-          ),
-        ],
       ),
     );
   }

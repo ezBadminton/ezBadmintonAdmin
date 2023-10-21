@@ -228,5 +228,6 @@
   "callOutAll": "Alle aufrufen",
   "nMinutes": "{minutes, plural, =1{1 Minute} other{{minutes} Minuten}}",
   "playingTime": "Spieldauer",
-  "matchPlanned": "Spiel geplant"
+  "matchPlanned": "Spiel geplant",
+  "enterResult": "Ergebnis eintragen"
 }

@@ -16,7 +16,7 @@ class MatchParticipantLabel extends StatelessWidget {
     super.key,
     required this.teamSize,
     required this.isEditable,
-    required this.width,
+    this.width,
     this.showClub = false,
     this.useFullName = true,
     this.placeholderLabel,
@@ -29,7 +29,7 @@ class MatchParticipantLabel extends StatelessWidget {
 
   final bool isEditable;
 
-  final double width;
+  final double? width;
 
   final bool showClub;
 
@@ -100,7 +100,7 @@ class _MatchParticipantLabel extends StatelessWidget {
   final Color? backgroundColor;
   final Color? textColor;
 
-  final double width;
+  final double? width;
 
   final bool showClub;
 
@@ -120,6 +120,7 @@ class _MatchParticipantLabel extends StatelessWidget {
     Widget label;
     if (leadingWidget == null && trailingWidget == null) {
       label = Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: alignment,
         children: _createParticipantLabel(context, participant),
       );
@@ -130,6 +131,7 @@ class _MatchParticipantLabel extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: alignment,
+              mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: _createParticipantLabel(context, participant),
             ),
@@ -211,7 +213,7 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
   final MatchParticipant<Team> participant;
   final int teamSize;
 
-  final double width;
+  final double? width;
 
   final CrossAxisAlignment alignment;
 

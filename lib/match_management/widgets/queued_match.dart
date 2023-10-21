@@ -4,6 +4,7 @@ import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/call_out_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/match_queue_cubit.dart';
+import 'package:ez_badminton_admin_app/match_management/result_entering/view/result_input_dialog.dart';
 import 'package:ez_badminton_admin_app/match_management/widgets/call_out_script.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
 import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
@@ -122,6 +123,8 @@ class RunningMatch extends StatelessWidget {
                 children: [
                   Text(l10n.playingTime),
                   MinutesTimer(timestamp: match.startTime!),
+                  const SizedBox(height: 10),
+                  _EnterResultButton(match: match),
                 ],
               ),
             ),
@@ -294,6 +297,43 @@ class _BackToWaitlistButton extends StatelessWidget {
           icon: const Icon(
             Icons.arrow_back,
             size: 18,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _EnterResultButton extends StatelessWidget {
+  const _EnterResultButton({
+    required this.match,
+  });
+
+  final BadmintonMatch match;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+
+    return Tooltip(
+      message: l10n.enterResult,
+      child: SizedBox.square(
+        dimension: 45,
+        child: ElevatedButton(
+          onPressed: () {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => ResultInputDialog(match: match),
+            );
+          },
+          style: const ButtonStyle(
+            shape: MaterialStatePropertyAll(CircleBorder()),
+            padding: MaterialStatePropertyAll(EdgeInsets.zero),
+          ),
+          child: const Icon(
+            Icons.scoreboard_outlined,
+            size: 32,
           ),
         ),
       ),

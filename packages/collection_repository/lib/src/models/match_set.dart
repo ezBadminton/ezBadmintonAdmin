@@ -27,6 +27,18 @@ class MatchSet extends Model with _$MatchSet {
   factory MatchSet.fromJson(Map<String, dynamic> json) =>
       _$MatchSetFromJson(json);
 
+  factory MatchSet.newMatchSet({
+    required int team1Points,
+    required int team2Points,
+  }) =>
+      MatchSet(
+        id: '',
+        created: DateTime.now().toUtc(),
+        updated: DateTime.now().toUtc(),
+        team1Points: team1Points,
+        team2Points: team2Points,
+      );
+
   @override
   Map<String, dynamic> toCollapsedJson() {
     return toJson();
