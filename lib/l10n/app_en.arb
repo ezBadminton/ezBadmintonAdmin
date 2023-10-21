@@ -229,5 +229,7 @@
   "nMinutes": "{minutes, plural, =1{1 minute} other{{minutes} minutes}}",
   "playingTime": "Playing time",
   "matchPlanned": "Match planned",
-  "enterResult": "Enter result"
+  "enterResult": "Enter result",
+  "callOutHelp": "Tell the match participants, who and where they play. The match is then considered to be running.",
+  "resultEnteringHelp": "When a match is finished enter the result here.\n\nTip: For each game, just enter the loser's points and press ENTER to autocomplete the game score!"
 }

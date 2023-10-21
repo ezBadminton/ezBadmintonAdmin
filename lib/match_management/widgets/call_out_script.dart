@@ -2,6 +2,7 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/call_out_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
+import 'package:ez_badminton_admin_app/widgets/help_tooltip_icon/help_tooltip_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
@@ -25,7 +26,13 @@ class CallOutScript extends StatelessWidget {
 
     return AlertDialog(
       contentPadding: const EdgeInsets.symmetric(vertical: 20),
-      title: Text(l10n.matchCallOut),
+      title: Row(
+        children: [
+          Text(l10n.matchCallOut),
+          const SizedBox(width: 7),
+          HelpTooltipIcon(helpText: l10n.callOutHelp),
+        ],
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

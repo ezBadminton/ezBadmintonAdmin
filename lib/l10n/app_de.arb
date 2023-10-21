@@ -229,5 +229,7 @@
   "nMinutes": "{minutes, plural, =1{1 Minute} other{{minutes} Minuten}}",
   "playingTime": "Spieldauer",
   "matchPlanned": "Spiel geplant",
-  "enterResult": "Ergebnis eintragen"
+  "enterResult": "Ergebnis eintragen",
+  "callOutHelp": "Teile den Spielteilnehmern mit, gegen wen und wo sie spielen. Das Spiel gilt daraufhin als gestartet.",
+  "resultEnteringHelp": "Wenn ein Spiel beendet ist, gib hier das Ergebnis ein.\n\nTipp: Gib bei jedem Satz nur die Punktzahl des Verlierers ein und drücke ENTER, um das Satzergebnis automatisch zu vervollständigen!"
 }

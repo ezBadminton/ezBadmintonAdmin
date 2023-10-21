@@ -4,6 +4,7 @@ import 'package:ez_badminton_admin_app/match_management/result_entering/cubit/re
 import 'package:ez_badminton_admin_app/match_management/result_entering/input_validation/score_input_controller.dart';
 import 'package:ez_badminton_admin_app/match_management/result_entering/input_validation/score_input_formatter.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
+import 'package:ez_badminton_admin_app/widgets/help_tooltip_icon/help_tooltip_icon.dart';
 import 'package:ez_badminton_admin_app/widgets/running_match_info/running_match_info.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';
 import 'package:flutter/material.dart';
@@ -42,7 +43,13 @@ class ResultInputDialog extends StatelessWidget {
 
           return AlertDialog(
             actionsPadding: const EdgeInsets.fromLTRB(0, 20, 25, 25),
-            title: Text(l10n.enterResult),
+            title: Row(
+              children: [
+                Text(l10n.enterResult),
+                const SizedBox(width: 7),
+                HelpTooltipIcon(helpText: l10n.resultEnteringHelp),
+              ],
+            ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
