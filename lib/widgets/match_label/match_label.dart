@@ -1,10 +1,48 @@
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
+import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
+import 'package:ez_badminton_admin_app/widgets/running_match_info/running_match_info.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MatchLabel extends StatelessWidget {
   const MatchLabel({
+    super.key,
+    required this.match,
+    this.infoStyle = const TextStyle(fontSize: 12),
+    this.opponentStyle = const TextStyle(fontSize: 16),
+  });
+
+  final BadmintonMatch match;
+
+  final TextStyle infoStyle;
+  final TextStyle opponentStyle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        CompetitionLabel(
+          competition: match.competition,
+          textStyle: infoStyle,
+          dividerPadding: 6,
+        ),
+        const SizedBox(height: 5),
+        RunningMatchInfo(match: match, textStyle: infoStyle),
+        const SizedBox(height: 5),
+        DefaultTextStyle.merge(
+          style: opponentStyle,
+          child: MatchupLabel(match: match, orientation: Axis.horizontal),
+        ),
+        const SizedBox(height: 5),
+        Text(match.court!.name, style: infoStyle),
+      ],
+    );
+  }
+}
+
+class MatchupLabel extends StatelessWidget {
+  const MatchupLabel({
     super.key,
     required this.match,
     this.orientation = Axis.vertical,

@@ -21,7 +21,7 @@ class MatchQueueCubit extends Cubit<MatchQueueState> {
 
     Map<BadmintonMatch, Set<Player>> matchPlayerConflicts = {
       for (BadmintonMatch match in playableMatches)
-        match: playingPlayers.intersection(_playersOfMatch(match)),
+        match: playingPlayers.intersection(match.getPlayersOfMatch().toSet()),
     };
 
     Map<MatchWaitingStatus, List<BadmintonMatch>> waitList = {
@@ -46,11 +46,5 @@ class MatchQueueCubit extends Cubit<MatchQueueState> {
       calloutWaitList: calloutWaitList,
       inProgressList: inProgressList,
     ));
-  }
-
-  Set<Player> _playersOfMatch(BadmintonMatch match) {
-    return [match.a.resolvePlayer()!, match.b.resolvePlayer()!]
-        .expand((team) => team.players)
-        .toSet();
   }
 }

@@ -83,27 +83,7 @@ class _MatchQueueLists extends StatelessWidget {
                     style: queueTitleStyle,
                   ),
                   const SizedBox(height: 10),
-                  ElevatedButton(
-                    onPressed: state.calloutWaitList.isEmpty
-                        ? null
-                        : () {
-                            showDialog(
-                              context: context,
-                              builder: (_) => CallOutScript(
-                                callOuts: state.calloutWaitList,
-                                callOutCubit: context.read<CallOutCubit>(),
-                              ),
-                            );
-                          },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.campaign),
-                        const SizedBox(width: 7),
-                        Text(l10n.callOutAll),
-                      ],
-                    ),
-                  ),
+                  const _CallOutAllButton(),
                 ],
               ),
               list: _buildMatchList(
@@ -148,5 +128,42 @@ class _MatchQueueLists extends StatelessWidget {
     Widget Function(BadmintonMatch match) matchItemBuilder,
   ) {
     return matches.map((match) => matchItemBuilder(match)).toList();
+  }
+}
+
+class _CallOutAllButton extends StatelessWidget {
+  const _CallOutAllButton();
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+
+    return BlocBuilder<MatchQueueCubit, MatchQueueState>(
+      buildWhen: (previous, current) =>
+          previous.calloutWaitList.isEmpty != current.calloutWaitList.isEmpty,
+      builder: (context, state) {
+        return ElevatedButton(
+          onPressed: state.calloutWaitList.isEmpty
+              ? null
+              : () {
+                  showDialog(
+                    context: context,
+                    builder: (_) => CallOutScript(
+                      callOuts: state.calloutWaitList,
+                      callOutCubit: context.read<CallOutCubit>(),
+                    ),
+                  );
+                },
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.campaign),
+              const SizedBox(width: 7),
+              Text(l10n.callOutAll),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

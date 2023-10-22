@@ -76,7 +76,7 @@ class TournamentProgressCubit
 
     Map<Player, BadmintonMatch> playingPlayers = {
       for (BadmintonMatch match in runningMatches)
-        for (Player player in _playersOfMatch(match)) player: match,
+        for (Player player in match.getPlayersOfMatch()) player: match,
     };
 
     return state.copyWith(
@@ -84,10 +84,5 @@ class TournamentProgressCubit
       occupiedCourts: occupiedCourts,
       playingPlayers: playingPlayers,
     );
-  }
-
-  Iterable<Player> _playersOfMatch(BadmintonMatch match) {
-    return [match.a.resolvePlayer()!, match.b.resolvePlayer()!]
-        .expand((team) => team.players);
   }
 }

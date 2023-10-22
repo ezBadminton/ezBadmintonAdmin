@@ -67,4 +67,12 @@ class BadmintonMatch extends TournamentMatch<Team, List<MatchSet>> {
 
     return null;
   }
+
+  /// Returns an [Iterable] of all [Player]s that compete in this match that are
+  /// already qualified.
+  Iterable<Player> getPlayersOfMatch() {
+    return [a.resolvePlayer(), b.resolvePlayer()]
+        .whereType<Team>()
+        .expand((team) => team.players);
+  }
 }

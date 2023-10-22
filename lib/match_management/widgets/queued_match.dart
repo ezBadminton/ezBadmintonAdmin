@@ -1,6 +1,7 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/assets/badminton_icons_icons.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/call_out_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/match_queue_cubit.dart';
@@ -33,19 +34,22 @@ class WaitingMatch extends StatelessWidget {
           Expanded(
             child: _MatchInfo(match: match),
           ),
-          MatchLabel(match: match),
-          if (waitingStatus == MatchWaitingStatus.waitingForCourt)
-            Expanded(
-              child: Align(
-                alignment: AlignmentDirectional.centerEnd,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 10.0),
-                  child: _CourtAssignmentButton(matchData: match.matchData!),
-                ),
+          MatchupLabel(match: match),
+          Expanded(
+            child: Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 10.0),
+                child: switch (waitingStatus) {
+                  MatchWaitingStatus.waitingForCourt =>
+                    _CourtAssignmentButton(matchData: match.matchData!),
+                  MatchWaitingStatus.waitingForPlayer =>
+                    _PlayerBlockingInfo(match: match),
+                  _ => const SizedBox(),
+                },
               ),
-            )
-          else
-            const Expanded(child: Placeholder(fallbackHeight: 70)),
+            ),
+          ),
         ],
       ),
     );
@@ -76,7 +80,7 @@ class ReadyForCallOutMatch extends StatelessWidget {
                   ),
                 ),
               ),
-              child: MatchLabel(match: match),
+              child: MatchupLabel(match: match),
             ),
           ),
           Positioned(
@@ -118,7 +122,7 @@ class RunningMatch extends StatelessWidget {
           Expanded(
             child: _MatchInfo(match: match),
           ),
-          MatchLabel(match: match),
+          MatchupLabel(match: match),
           Expanded(
             child: Align(
               alignment: AlignmentDirectional.centerEnd,
@@ -242,6 +246,100 @@ class _CourtAssignmentButton extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _PlayerBlockingInfo extends StatelessWidget {
+  const _PlayerBlockingInfo({
+    required this.match,
+  });
+
+  final BadmintonMatch match;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+
+    return BlocBuilder<TournamentProgressCubit, TournamentProgressState>(
+      builder: (context, state) {
+        List<Player> playersOfMatch = match.getPlayersOfMatch().toList();
+        Map<Player, BadmintonMatch> blockingPlayers = Map.fromEntries(
+          state.playingPlayers.entries
+              .where((entry) => playersOfMatch.contains(entry.key)),
+        );
+
+        Set<BadmintonMatch> blockingMatches = blockingPlayers.values.toSet();
+
+        return TextButton(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) => _PlayerBlockingDialog(
+                matches: blockingMatches,
+              ),
+            );
+          },
+          child: Text(
+            l10n.nBlockingPlayers(blockingPlayers.length),
+            textAlign: TextAlign.end,
+            style: const TextStyle(fontSize: 12),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _PlayerBlockingDialog extends StatelessWidget {
+  const _PlayerBlockingDialog({
+    required this.matches,
+  });
+
+  final Set<BadmintonMatch> matches;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+
+    return AlertDialog(
+      title: Text(l10n.blockingGames(matches.length)),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (BadmintonMatch match in matches) ...[
+              Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(7.0),
+                  side: BorderSide(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(.33),
+                    width: 1,
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: MatchLabel(
+                    match: match,
+                    opponentStyle: const TextStyle(fontSize: 19),
+                    infoStyle: const TextStyle(fontSize: 14),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.confirm),
+        ),
+      ],
     );
   }
 }

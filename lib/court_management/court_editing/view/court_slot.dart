@@ -435,7 +435,7 @@ class _MatchOnCourtCard extends StatelessWidget {
             const SizedBox(height: 2),
             RunningMatchInfo(match: match),
             const SizedBox(height: 10),
-            MatchLabel(
+            MatchupLabel(
               match: match,
               orientation: Axis.horizontal,
               participantWidth: 183,
