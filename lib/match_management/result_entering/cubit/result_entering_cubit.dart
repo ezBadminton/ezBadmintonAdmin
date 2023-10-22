@@ -192,19 +192,18 @@ class ResultEnteringCubit extends CollectionQuerierCubit<ResultEnteringState> {
 
     int scoreDifference = winnerScore - loserScore;
 
+    // Incomplete score (e.g. 20-18)
     if (winnerScore < winningPoints) {
       return null;
     }
 
-    if (winnerScore == maxPoints && scoreDifference != 1) {
-      return null;
-    }
-
-    if (scoreDifference < winningMargin && winnerScore != maxPoints) {
-      return null;
-    }
-
+    // Winning margin too large (e.g. 24-20)
     if (winnerScore > winningPoints && scoreDifference > winningMargin) {
+      return null;
+    }
+
+    // Winning margin too small (e.g. 21-20)
+    if (winnerScore != maxPoints && scoreDifference < winningMargin) {
       return null;
     }
 
@@ -215,6 +214,7 @@ class ResultEnteringCubit extends CollectionQuerierCubit<ResultEnteringState> {
       return 1;
     }
 
+    // Undecided score (e.g. 30-30)
     return null;
   }
 
