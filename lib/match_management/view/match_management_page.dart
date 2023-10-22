@@ -139,8 +139,6 @@ class _CallOutAllButton extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
 
     return BlocBuilder<MatchQueueCubit, MatchQueueState>(
-      buildWhen: (previous, current) =>
-          previous.calloutWaitList.isEmpty != current.calloutWaitList.isEmpty,
       builder: (context, state) {
         return ElevatedButton(
           onPressed: state.calloutWaitList.isEmpty
