@@ -3,6 +3,7 @@ import 'package:ez_badminton_admin_app/competition_management/competition_sorter
 import 'package:ez_badminton_admin_app/competition_management/competition_sorter/cubit/competition_sorting_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_list_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_selection_cubit.dart';
+import 'package:ez_badminton_admin_app/competition_management/cubit/competition_starting_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/view/tournament_mode_assignment_page.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
@@ -19,55 +20,50 @@ class CompetitionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => CompetitionSortingCubit(
-            ageGroupComparator: const CompetitionComparator<AgeGroup>(
-              criteria: [
-                AgeGroup,
-                PlayingLevel,
-                CompetitionDiscipline,
-                TournamentModeSettings,
-              ],
-            ),
-            playingLevelComparator: const CompetitionComparator<PlayingLevel>(
-              criteria: [
-                PlayingLevel,
-                AgeGroup,
-                CompetitionDiscipline,
-                TournamentModeSettings,
-              ],
-            ),
-            categoryComparator:
-                const CompetitionComparator<CompetitionDiscipline>(
-              criteria: [
-                CompetitionDiscipline,
-                AgeGroup,
-                PlayingLevel,
-                TournamentModeSettings,
-              ],
-            ),
-            registrationComparator: const CompetitionComparator<Team>(
-              criteria: [
-                Team,
-                AgeGroup,
-                PlayingLevel,
-                CompetitionDiscipline,
-                TournamentModeSettings,
-              ],
-            ),
-            modeComparator: const CompetitionComparator<TournamentModeSettings>(
-              criteria: [
-                TournamentModeSettings,
-                AgeGroup,
-                PlayingLevel,
-                CompetitionDiscipline,
-              ],
-            ),
-          ),
+    return BlocProvider(
+      create: (context) => CompetitionSortingCubit(
+        ageGroupComparator: const CompetitionComparator<AgeGroup>(
+          criteria: [
+            AgeGroup,
+            PlayingLevel,
+            CompetitionDiscipline,
+            TournamentModeSettings,
+          ],
         ),
-      ],
+        playingLevelComparator: const CompetitionComparator<PlayingLevel>(
+          criteria: [
+            PlayingLevel,
+            AgeGroup,
+            CompetitionDiscipline,
+            TournamentModeSettings,
+          ],
+        ),
+        categoryComparator: const CompetitionComparator<CompetitionDiscipline>(
+          criteria: [
+            CompetitionDiscipline,
+            AgeGroup,
+            PlayingLevel,
+            TournamentModeSettings,
+          ],
+        ),
+        registrationComparator: const CompetitionComparator<Team>(
+          criteria: [
+            Team,
+            AgeGroup,
+            PlayingLevel,
+            CompetitionDiscipline,
+            TournamentModeSettings,
+          ],
+        ),
+        modeComparator: const CompetitionComparator<TournamentModeSettings>(
+          criteria: [
+            TournamentModeSettings,
+            AgeGroup,
+            PlayingLevel,
+            CompetitionDiscipline,
+          ],
+        ),
+      ),
       child: const _CompetitionList(),
     );
   }
@@ -169,7 +165,7 @@ class _CompetitionListHeader extends StatelessWidget {
                         ),
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 150),
-                          width: usePlayingLevels ? 300 : 0,
+                          width: usePlayingLevels ? 200 : 0,
                           child: _SortableColumnHeader<
                               CompetitionComparator<PlayingLevel>>(
                             width: 0,
@@ -186,7 +182,7 @@ class _CompetitionListHeader extends StatelessWidget {
                           child: Container(),
                         ),
                         _SortableColumnHeader<CompetitionComparator<Team>>(
-                          width: 150,
+                          width: 110,
                           title: l10n.registrations,
                         ),
                         Expanded(
@@ -199,9 +195,11 @@ class _CompetitionListHeader extends StatelessWidget {
                           title: l10n.tournamentMode,
                         ),
                         Expanded(
-                          flex: 5,
+                          flex: 4,
                           child: Container(),
                         ),
+                        const SizedBox(width: 34),
+                        const SizedBox(width: 15),
                       ],
                     ),
                   ),
@@ -301,7 +299,7 @@ class _CompetitionListItem extends StatelessWidget {
                 ),
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
-                  width: usePlayingLevels ? 300 : 0,
+                  width: usePlayingLevels ? 200 : 0,
                   child: Text(
                     competition.playingLevel?.name ?? '',
                     overflow: TextOverflow.clip,
@@ -322,7 +320,7 @@ class _CompetitionListItem extends StatelessWidget {
                   child: Container(),
                 ),
                 SizedBox(
-                  width: 150,
+                  width: 110,
                   child: _RegistrationCount(competition: competition),
                 ),
                 Expanded(
@@ -334,14 +332,59 @@ class _CompetitionListItem extends StatelessWidget {
                   child: _TournamentModeLabel(competition: competition),
                 ),
                 Expanded(
-                  flex: 5,
+                  flex: 4,
                   child: Container(),
                 ),
+                SizedBox(
+                  width: 34,
+                  child: _CompetitionStartButton(competition: competition),
+                ),
+                const SizedBox(width: 15),
               ],
             ),
           ),
         );
       },
+    );
+  }
+}
+
+class _CompetitionStartButton extends StatelessWidget {
+  const _CompetitionStartButton({
+    required this.competition,
+  });
+
+  final Competition competition;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+    var startingCubit = context.read<CompetitionStartingCubit>();
+
+    bool hasDraw = competition.draw.isNotEmpty;
+    bool alreadyStarted = competition.matches.isNotEmpty;
+
+    return Tooltip(
+      message: competition.matches.isEmpty
+          ? l10n.startTournament
+          : l10n.tournamentIsStarted,
+      child: ElevatedButton(
+        onPressed: hasDraw && !alreadyStarted
+            ? () => startingCubit.startCompetitions([competition])
+            : null,
+        style: ButtonStyle(
+          shape: MaterialStatePropertyAll(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+          ),
+          padding: const MaterialStatePropertyAll(EdgeInsets.zero),
+        ),
+        child: Icon(
+          alreadyStarted ? Icons.check : Icons.play_arrow,
+          size: 30,
+        ),
+      ),
     );
   }
 }

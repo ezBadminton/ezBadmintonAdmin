@@ -16,24 +16,12 @@ class CompetitionSelectionOptions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => CompetitionDeletionCubit(
-            competitionRepository:
-                context.read<CollectionRepository<Competition>>(),
-            teamRepository: context.read<CollectionRepository<Team>>(),
-          ),
-        ),
-        BlocProvider(
-          create: (context) => CompetitionStartingCubit(
-            competitionRepository:
-                context.read<CollectionRepository<Competition>>(),
-            matchDataRepository:
-                context.read<CollectionRepository<MatchData>>(),
-          ),
-        ),
-      ],
+    return BlocProvider(
+      create: (context) => CompetitionDeletionCubit(
+        competitionRepository:
+            context.read<CollectionRepository<Competition>>(),
+        teamRepository: context.read<CollectionRepository<Team>>(),
+      ),
       child: BlocConsumer<CompetitionSelectionCubit, CompetitionSelectionState>(
         listener: (context, state) {
           var deletionCubit = context.read<CompetitionDeletionCubit>();
@@ -134,31 +122,16 @@ class _CompetitionStartButton extends StatelessWidget {
           cancelButtonLabel: l10n.cancel,
         );
       },
-      child: DialogListener<CompetitionStartingCubit, CompetitionStartingState,
-          Exception>(
-        builder: (context, state, _) {
-          return AlertDialog(
-            title: Text(l10n.somethingWentWrong),
-            content: Text(l10n.tournamentCouldNotStart),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(l10n.confirm),
-              ),
-            ],
+      child: BlocBuilder<CompetitionStartingCubit, CompetitionStartingState>(
+        builder: (context, state) {
+          return ElevatedButton(
+            onPressed: state.selectedCompetitions.isEmpty ||
+                    !state.selectionIsStartable
+                ? null
+                : startingCubit.startCompetitions,
+            child: Text(l10n.startTournament),
           );
         },
-        child: BlocBuilder<CompetitionStartingCubit, CompetitionStartingState>(
-          builder: (context, state) {
-            return ElevatedButton(
-              onPressed: state.selectedCompetitions.isEmpty ||
-                      !state.selectionIsStartable
-                  ? null
-                  : startingCubit.startCompetitions,
-              child: Text(l10n.startTournament),
-            );
-          },
-        ),
       ),
     );
   }

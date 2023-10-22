@@ -233,5 +233,6 @@
   "callOutHelp": "Tell the match participants, who and where they play. The match is then considered to be running.",
   "resultEnteringHelp": "When a match is finished enter the result here.\n\nTip: For each game, just enter the loser's points and press ENTER to autocomplete the game score!",
   "nBlockingPlayers": "{count, plural, =1{1 player\nis in another match} other{{count} players\nare in another match}}",
-  "blockingGames": "{count, plural, =1{Blocking match} other{Blocking matches}}"
+  "blockingGames": "{count, plural, =1{Blocking match} other{Blocking matches}}",
+  "tournamentIsStarted": "Tournament has been started"
 }

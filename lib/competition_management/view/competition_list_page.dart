@@ -4,6 +4,7 @@ import 'package:ez_badminton_admin_app/competition_management/competition_filter
 import 'package:ez_badminton_admin_app/competition_management/competition_filter/view/competition_filter.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_list_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_selection_cubit.dart';
+import 'package:ez_badminton_admin_app/competition_management/cubit/competition_starting_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/view/competition_list.dart';
 import 'package:ez_badminton_admin_app/competition_management/view/competition_selection_options.dart';
 import 'package:ez_badminton_admin_app/competition_management/view/tournament_categorization_options.dart';
@@ -70,6 +71,14 @@ class CompetitionListPage extends StatelessWidget {
           create: (context) => CompetitionSelectionCubit(
             competitionRepository:
                 context.read<CollectionRepository<Competition>>(),
+          ),
+        ),
+        BlocProvider(
+          create: (context) => CompetitionStartingCubit(
+            competitionRepository:
+                context.read<CollectionRepository<Competition>>(),
+            matchDataRepository:
+                context.read<CollectionRepository<MatchData>>(),
           ),
         ),
       ],

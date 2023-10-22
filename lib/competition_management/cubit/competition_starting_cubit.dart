@@ -22,16 +22,13 @@ class CompetitionStartingCubit
           CompetitionStartingState(),
         );
 
-  void startCompetitions() async {
-    if (state.formStatus == FormzSubmissionStatus.inProgress) {
+  void startCompetitions([List<Competition>? competitions]) async {
+    competitions = competitions ?? state.selectedCompetitions;
+
+    if (state.formStatus == FormzSubmissionStatus.inProgress ||
+        !_areCompetitionsStartable(competitions)) {
       return;
     }
-
-    if (!state.selectionIsStartable) {
-      requestDialogChoice<Exception>(reason: false);
-      return;
-    }
-
     emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
     bool userConfirmation = (await requestDialogChoice<bool>())!;
@@ -41,7 +38,7 @@ class CompetitionStartingCubit
     }
 
     Iterable<Future<FormzSubmissionStatus>> competitionStarts =
-        state.selectedCompetitions.map(_startCompetition);
+        competitions.map(_startCompetition);
     List<FormzSubmissionStatus> starts = await Future.wait(competitionStarts);
     if (starts.contains(FormzSubmissionStatus.failure)) {
       emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
@@ -86,12 +83,12 @@ class CompetitionStartingCubit
   void selectedCompetitionsChanged(List<Competition> selection) {
     emit(state.copyWith(
       selectedCompetitions: selection,
-      selectionIsStartable: _isSelectionStartable(selection),
+      selectionIsStartable: _areCompetitionsStartable(selection),
     ));
   }
 
-  static bool _isSelectionStartable(List<Competition> selection) {
-    return selection.firstWhereOrNull(
+  static bool _areCompetitionsStartable(List<Competition> competitions) {
+    return competitions.firstWhereOrNull(
           (c) => c.draw.isEmpty || c.matches.isNotEmpty,
         ) ==
         null;
