@@ -37,8 +37,11 @@ class WaitingMatch extends StatelessWidget {
           if (waitingStatus == MatchWaitingStatus.waitingForCourt)
             Expanded(
               child: Align(
-                alignment: AlignmentDirectional.center,
-                child: _CourtAssignmentButton(matchData: match.matchData!),
+                alignment: AlignmentDirectional.centerEnd,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 10.0),
+                  child: _CourtAssignmentButton(matchData: match.matchData!),
+                ),
               ),
             )
           else
@@ -120,11 +123,15 @@ class RunningMatch extends StatelessWidget {
             child: Align(
               alignment: AlignmentDirectional.centerEnd,
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(l10n.playingTime),
                   MinutesTimer(timestamp: match.startTime!),
                   const SizedBox(height: 10),
-                  _EnterResultButton(match: match),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 12.0),
+                    child: _EnterResultButton(match: match),
+                  ),
                 ],
               ),
             ),
@@ -154,7 +161,7 @@ class _QueuedMatchCard extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4.0),
+        padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
         child: child,
       ),
     );
@@ -221,13 +228,17 @@ class _CourtAssignmentButton extends StatelessWidget {
             2,
             reason: matchData,
           ),
-          style: const ButtonStyle(
-            shape: MaterialStatePropertyAll(CircleBorder()),
-            padding: MaterialStatePropertyAll(EdgeInsets.zero),
+          style: ButtonStyle(
+            shape: MaterialStatePropertyAll(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14.0),
+              ),
+            ),
+            padding: const MaterialStatePropertyAll(EdgeInsets.zero),
           ),
           child: const Icon(
             BadmintonIcons.badminton_court_outline,
-            size: 28,
+            size: 30,
           ),
         ),
       ),
@@ -327,9 +338,13 @@ class _EnterResultButton extends StatelessWidget {
               builder: (context) => ResultInputDialog(match: match),
             );
           },
-          style: const ButtonStyle(
-            shape: MaterialStatePropertyAll(CircleBorder()),
-            padding: MaterialStatePropertyAll(EdgeInsets.zero),
+          style: ButtonStyle(
+            shape: MaterialStatePropertyAll(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14.0),
+              ),
+            ),
+            padding: const MaterialStatePropertyAll(EdgeInsets.zero),
           ),
           child: const Icon(
             Icons.scoreboard_outlined,

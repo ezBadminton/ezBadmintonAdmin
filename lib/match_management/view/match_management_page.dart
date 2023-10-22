@@ -72,6 +72,7 @@ class _MatchQueueLists extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(width: 5),
             MatchQueueList(
               width: 250,
               title: Column(
@@ -110,6 +111,7 @@ class _MatchQueueLists extends StatelessWidget {
                 (match) => ReadyForCallOutMatch(match: match),
               ),
             ),
+            const SizedBox(width: 5),
             MatchQueueList(
               width: 420,
               title: Text(

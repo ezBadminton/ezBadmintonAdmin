@@ -21,6 +21,7 @@ class MatchParticipantLabel extends StatelessWidget {
     this.useFullName = true,
     this.placeholderLabel,
     this.alignment = CrossAxisAlignment.start,
+    this.padding = const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10),
     this.byeLabel,
   });
 
@@ -38,6 +39,8 @@ class MatchParticipantLabel extends StatelessWidget {
   final Widget? placeholderLabel;
 
   final CrossAxisAlignment alignment;
+
+  final EdgeInsets padding;
 
   final Widget? byeLabel;
 
@@ -57,6 +60,7 @@ class MatchParticipantLabel extends StatelessWidget {
         teamSize: teamSize,
         width: width,
         alignment: alignment,
+        padding: padding,
         byeLabel: byeLabel,
       );
     } else {
@@ -71,6 +75,7 @@ class MatchParticipantLabel extends StatelessWidget {
         useFullName: useFullName,
         placeholderLabel: placeholderLabel,
         alignment: alignment,
+        padding: padding,
         byeLabel: byeLabel,
       );
     }
@@ -91,6 +96,7 @@ class _MatchParticipantLabel extends StatelessWidget {
     this.trailingWidget,
     this.placeholderLabel,
     required this.alignment,
+    required this.padding,
     required this.byeLabel,
   });
 
@@ -112,6 +118,8 @@ class _MatchParticipantLabel extends StatelessWidget {
   final Widget? placeholderLabel;
 
   final CrossAxisAlignment alignment;
+
+  final EdgeInsets padding;
 
   final Widget byeLabel;
 
@@ -146,7 +154,7 @@ class _MatchParticipantLabel extends StatelessWidget {
       child: Container(
         color: backgroundColor,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+          padding: padding,
           child: label,
         ),
       ),
@@ -207,6 +215,7 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
     required this.teamSize,
     required this.width,
     required this.alignment,
+    required this.padding,
     required this.byeLabel,
   });
 
@@ -216,6 +225,7 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
   final double? width;
 
   final CrossAxisAlignment alignment;
+  final EdgeInsets padding;
 
   final Widget byeLabel;
 
@@ -257,6 +267,7 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
         showClub: true,
         useFullName: true,
         alignment: alignment,
+        padding: padding,
         byeLabel: byeLabel,
       ),
       child: DragTarget<Team>(
@@ -284,6 +295,7 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
             showClub: true,
             useFullName: true,
             alignment: alignment,
+            padding: padding,
             byeLabel: byeLabel,
           ),
           child: _MatchParticipantLabel(
@@ -302,6 +314,7 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
             showClub: true,
             useFullName: true,
             alignment: alignment,
+            padding: padding,
             byeLabel: byeLabel,
           ),
         ),

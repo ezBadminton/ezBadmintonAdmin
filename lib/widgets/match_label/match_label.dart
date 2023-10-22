@@ -30,6 +30,9 @@ class MatchLabel extends StatelessWidget {
         alignment: orientation == Axis.vertical
             ? CrossAxisAlignment.center
             : CrossAxisAlignment.end,
+        padding: orientation == Axis.vertical
+            ? const EdgeInsets.only(bottom: 8)
+            : const EdgeInsets.only(right: 8),
         placeholderLabel: Text(
           l10n.qualificationPending,
           style: TextStyle(color: Theme.of(context).disabledColor),
@@ -51,6 +54,9 @@ class MatchLabel extends StatelessWidget {
         alignment: orientation == Axis.vertical
             ? CrossAxisAlignment.center
             : CrossAxisAlignment.start,
+        padding: orientation == Axis.vertical
+            ? const EdgeInsets.only(top: 8)
+            : const EdgeInsets.only(left: 8),
         placeholderLabel: Text(
           l10n.qualificationPending,
           style: TextStyle(color: Theme.of(context).disabledColor),
@@ -61,6 +67,7 @@ class MatchLabel extends StatelessWidget {
 
     if (orientation == Axis.vertical) {
       return Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: widgets,
       );
