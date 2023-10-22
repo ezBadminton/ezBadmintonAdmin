@@ -15,6 +15,7 @@ import 'package:ez_badminton_admin_app/player_management/player_editing/view/pla
 import 'package:ez_badminton_admin_app/player_management/player_filter/view/player_filter.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate_producers.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
+import 'package:ez_badminton_admin_app/widgets/tab_navigation_back_button/tab_navigation_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -86,27 +87,32 @@ class _PlayerListPageScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     AppLocalizations l10n = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.playerManagement)),
-      body: const Align(
-        alignment: Alignment.topCenter,
-        child: Padding(
-          padding: EdgeInsets.only(top: 8.0),
-          child: _PlayerListWithFilter(),
+    return TabNavigationBackButtonBuilder(
+      builder: (context, backButton) => Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.playerManagement),
+          leading: backButton,
         ),
-      ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(right: 80, bottom: 40),
-        child: FloatingActionButton.extended(
-          onPressed: () {
-            var listCubit = context.read<PlayerListCubit>();
-            if (listCubit.state.loadingStatus == LoadingStatus.done) {
-              Navigator.of(context).push(PlayerEditingPage.route());
-            }
-          },
-          icon: const Icon(Icons.person_add_alt_1),
-          label: Text(l10n.add),
-          heroTag: 'player_add_button',
+        body: const Align(
+          alignment: Alignment.topCenter,
+          child: Padding(
+            padding: EdgeInsets.only(top: 8.0),
+            child: _PlayerListWithFilter(),
+          ),
+        ),
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.only(right: 80, bottom: 40),
+          child: FloatingActionButton.extended(
+            onPressed: () {
+              var listCubit = context.read<PlayerListCubit>();
+              if (listCubit.state.loadingStatus == LoadingStatus.done) {
+                Navigator.of(context).push(PlayerEditingPage.route());
+              }
+            },
+            icon: const Icon(Icons.person_add_alt_1),
+            label: Text(l10n.add),
+            heroTag: 'player_add_button',
+          ),
         ),
       ),
     );

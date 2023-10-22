@@ -238,6 +238,7 @@ class _CourtAssignmentButton extends StatelessWidget {
           onPressed: () => navigationCubit.tabChanged(
             2,
             reason: matchData,
+            fromIndex: 4,
           ),
           style: ButtonStyle(
             shape: MaterialStatePropertyAll(

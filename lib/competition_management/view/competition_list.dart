@@ -406,7 +406,11 @@ class _RegistrationCount extends StatelessWidget {
       child: TextButton(
         onPressed: registrationCount == 0
             ? null
-            : () => navigationCubit.tabChanged(0, reason: competition),
+            : () => navigationCubit.tabChanged(
+                  0,
+                  reason: competition,
+                  fromIndex: 1,
+                ),
         child: Align(
           alignment: AlignmentDirectional.centerStart,
           child: Text('$registrationCount'),

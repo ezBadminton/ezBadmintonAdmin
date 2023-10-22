@@ -6,6 +6,7 @@ import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/view/gymnasium_court_view.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
+import 'package:ez_badminton_admin_app/widgets/tab_navigation_back_button/tab_navigation_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -60,45 +61,52 @@ class _CourtListPageScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.courtManagement)),
-      body: BlocBuilder<CourtListCubit, CourtListState>(
-        buildWhen: (previous, current) =>
-            previous.loadingStatus != current.loadingStatus,
-        builder: (context, listState) {
-          return BlocBuilder<GymnasiumSelectionCubit, GymnasiumSelectionState>(
-            builder: (context, selectionState) {
-              return LoadingScreen(
-                loadingStatus: loadingStatusConjunction([
-                  listState.loadingStatus,
-                  selectionState.loadingStatus,
-                ]),
-                retryButtonLabel: l10n.retry,
-                onRetry: () {
-                  context.read<CourtListCubit>().loadCollections();
-                  context.read<GymnasiumSelectionCubit>().loadCollections();
-                },
-                builder: (context) => const Row(
-                  children: [
-                    SizedBox(
-                      width: 220,
-                      child: Align(
-                        alignment: AlignmentDirectional.topCenter,
-                        child: CourtList(),
+
+    return TabNavigationBackButtonBuilder(
+      builder: (context, backButton) => Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.courtManagement),
+          leading: backButton,
+        ),
+        body: BlocBuilder<CourtListCubit, CourtListState>(
+          buildWhen: (previous, current) =>
+              previous.loadingStatus != current.loadingStatus,
+          builder: (context, listState) {
+            return BlocBuilder<GymnasiumSelectionCubit,
+                GymnasiumSelectionState>(
+              builder: (context, selectionState) {
+                return LoadingScreen(
+                  loadingStatus: loadingStatusConjunction([
+                    listState.loadingStatus,
+                    selectionState.loadingStatus,
+                  ]),
+                  retryButtonLabel: l10n.retry,
+                  onRetry: () {
+                    context.read<CourtListCubit>().loadCollections();
+                    context.read<GymnasiumSelectionCubit>().loadCollections();
+                  },
+                  builder: (context) => const Row(
+                    children: [
+                      SizedBox(
+                        width: 220,
+                        child: Align(
+                          alignment: AlignmentDirectional.topCenter,
+                          child: CourtList(),
+                        ),
                       ),
-                    ),
-                    VerticalDivider(
-                      thickness: 1,
-                      width: 1,
-                      color: Colors.black26,
-                    ),
-                    Expanded(child: GymnasiumCourtView()),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+                      VerticalDivider(
+                        thickness: 1,
+                        width: 1,
+                        color: Colors.black26,
+                      ),
+                      Expanded(child: GymnasiumCourtView()),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }
