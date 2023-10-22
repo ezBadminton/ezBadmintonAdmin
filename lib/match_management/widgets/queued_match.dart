@@ -206,6 +206,13 @@ class _MatchInfo extends StatelessWidget {
             style: const TextStyle(fontSize: 12),
           ),
         ],
+        if (match.court != null) ...[
+          const SizedBox(height: 7),
+          Text(
+            match.court!.name,
+            style: const TextStyle(fontSize: 12),
+          ),
+        ],
       ],
     );
   }
