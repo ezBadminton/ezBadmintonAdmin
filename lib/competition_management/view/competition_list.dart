@@ -337,7 +337,7 @@ class _CompetitionListItem extends StatelessWidget {
                 ),
                 SizedBox(
                   width: 34,
-                  child: _CompetitionStartButton(competition: competition),
+                  child: _CompetitionActionButton(competition: competition),
                 ),
                 const SizedBox(width: 15),
               ],
@@ -349,8 +349,8 @@ class _CompetitionListItem extends StatelessWidget {
   }
 }
 
-class _CompetitionStartButton extends StatelessWidget {
-  const _CompetitionStartButton({
+class _CompetitionActionButton extends StatelessWidget {
+  const _CompetitionActionButton({
     required this.competition,
   });
 
@@ -359,19 +359,17 @@ class _CompetitionStartButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    var startingCubit = context.read<CompetitionStartingCubit>();
 
-    bool hasDraw = competition.draw.isNotEmpty;
-    bool alreadyStarted = competition.matches.isNotEmpty;
+    bool hasTournamentMode = competition.tournamentModeSettings != null;
+
+    if (!hasTournamentMode) {
+      return const SizedBox();
+    }
 
     return Tooltip(
-      message: competition.matches.isEmpty
-          ? l10n.startTournament
-          : l10n.tournamentIsStarted,
+      message: _getTooltip(l10n),
       child: ElevatedButton(
-        onPressed: hasDraw && !alreadyStarted
-            ? () => startingCubit.startCompetitions([competition])
-            : null,
+        onPressed: _getOnPressed(context),
         style: ButtonStyle(
           shape: MaterialStatePropertyAll(
             RoundedRectangleBorder(
@@ -381,11 +379,55 @@ class _CompetitionStartButton extends StatelessWidget {
           padding: const MaterialStatePropertyAll(EdgeInsets.zero),
         ),
         child: Icon(
-          alreadyStarted ? Icons.check : Icons.play_arrow,
+          _getIcon(),
           size: 30,
         ),
       ),
     );
+  }
+
+  VoidCallback? _getOnPressed(BuildContext context) {
+    if (competition.matches.isNotEmpty) {
+      return null;
+    }
+
+    if (competition.draw.isNotEmpty) {
+      var startingCubit = context.read<CompetitionStartingCubit>();
+
+      return () => startingCubit.startCompetitions([competition]);
+    }
+
+    var navigationCubit = context.read<TabNavigationCubit>();
+
+    return () => navigationCubit.tabChanged(
+          3,
+          reason: competition,
+          fromIndex: 1,
+        );
+  }
+
+  String _getTooltip(AppLocalizations l10n) {
+    if (competition.matches.isNotEmpty) {
+      return l10n.tournamentIsStarted;
+    }
+
+    if (competition.draw.isNotEmpty) {
+      return l10n.startTournament;
+    }
+
+    return l10n.makeDraw;
+  }
+
+  IconData _getIcon() {
+    if (competition.matches.isNotEmpty) {
+      return Icons.check;
+    }
+
+    if (competition.draw.isNotEmpty) {
+      return Icons.play_arrow;
+    }
+
+    return Icons.casino_outlined;
   }
 }
 

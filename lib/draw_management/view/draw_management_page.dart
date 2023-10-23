@@ -3,10 +3,13 @@ import 'package:ez_badminton_admin_app/draw_management/cubit/competition_draw_se
 import 'package:ez_badminton_admin_app/draw_management/widgets/competition_draw_selection_list.dart';
 import 'package:ez_badminton_admin_app/draw_management/widgets/draw_editor.dart';
 import 'package:ez_badminton_admin_app/draw_management/widgets/entry_list.dart';
+import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
+import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_state.dart';
 import 'package:ez_badminton_admin_app/utils/simple_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/cross_fade_drawer/cross_fade_drawer.dart';
 import 'package:ez_badminton_admin_app/widgets/cross_fade_drawer/cross_fade_drawer_controller.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
+import 'package:ez_badminton_admin_app/widgets/tab_navigation_back_button/tab_navigation_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -34,19 +37,36 @@ class _DrawManagementPageScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.drawManagement)),
-      body: BlocProvider(
-        create: (context) => SimpleCubit<CrossFadeDrawerController>(
-          CrossFadeDrawerController(),
+    return TabNavigationBackButtonBuilder(
+      builder: (context, backButton) => Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.drawManagement),
+          leading: backButton,
         ),
-        child: BlocBuilder<CompetitionDrawSelectionCubit,
-            CompetitionDrawSelectionState>(
-          buildWhen: (previous, current) =>
-              previous.loadingStatus != current.loadingStatus,
-          builder: (context, state) => LoadingScreen(
-            loadingStatus: state.loadingStatus,
-            builder: (context) => const _DrawManagementPanels(),
+        body: BlocListener<TabNavigationCubit, TabNavigationState>(
+          listenWhen: (previous, current) =>
+              current.selectedIndex == 3 &&
+              current.tabChangeReason is Competition,
+          listener: (context, state) {
+            var cubit = context.read<CompetitionDrawSelectionCubit>();
+            if (cubit.state.selectedCompetition.value !=
+                state.tabChangeReason) {
+              cubit.competitionToggled(state.tabChangeReason as Competition);
+            }
+          },
+          child: BlocProvider(
+            create: (context) => SimpleCubit<CrossFadeDrawerController>(
+              CrossFadeDrawerController(),
+            ),
+            child: BlocBuilder<CompetitionDrawSelectionCubit,
+                CompetitionDrawSelectionState>(
+              buildWhen: (previous, current) =>
+                  previous.loadingStatus != current.loadingStatus,
+              builder: (context, state) => LoadingScreen(
+                loadingStatus: state.loadingStatus,
+                builder: (context) => const _DrawManagementPanels(),
+              ),
+            ),
           ),
         ),
       ),
