@@ -25,11 +25,19 @@ class ResultInputDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
+
+    TournamentModeSettings modeSettings =
+        match.competition.tournamentModeSettings!;
+
     return BlocProvider(
       create: (context) => ResultEnteringCubit(
         match: match,
         matchDataRepository: context.read<CollectionRepository<MatchData>>(),
         matchSetRepository: context.read<CollectionRepository<MatchSet>>(),
+        winningPoints: modeSettings.winningPoints,
+        winningSets: modeSettings.winningSets,
+        twoPointMargin: modeSettings.twoPointMargin,
+        maxPoints: modeSettings.maxPoints,
       ),
       child: BlocConsumer<ResultEnteringCubit, ResultEnteringState>(
         listenWhen: (previous, current) =>
@@ -151,6 +159,7 @@ class _ParticipantScoreInputs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var cubit = context.read<ResultEnteringCubit>();
+
     Color borderColor = Theme.of(context).colorScheme.onSurface.withOpacity(.6);
 
     double participantIndex = match.a == participant ? 0 : 1;
@@ -232,7 +241,7 @@ class _ScoreInputField extends StatelessWidget {
                 inputFormatters: [
                   LengthLimitingTextInputFormatter(2),
                   FilteringTextInputFormatter.digitsOnly,
-                  ScoreInputFormatter(),
+                  ScoreInputFormatter(maxPoints: cubit.maxPoints),
                 ],
               );
             },

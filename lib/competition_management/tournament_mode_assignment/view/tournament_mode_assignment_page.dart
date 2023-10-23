@@ -1,10 +1,7 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/cubit/tournament_mode_assignment_cubit.dart';
-import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/widgets/tournament_mode_selector.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/widgets/tournament_mode_settings_widget.dart';
 import 'package:ez_badminton_admin_app/layout/fab_location.dart';
-import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
-import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/progress_indicator_icon/progress_indicator_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -74,36 +71,7 @@ class _TournamentModeAssignmentPageScaffold extends StatelessWidget {
           floatingActionButtonLocation: state.isDirty
               ? FloatingActionButtonLocation.endFloat
               : const EndOffscreenFabLocation(),
-          body: DialogListener<TournamentModeAssignmentCubit,
-              TournamentModeAssignmentState, bool>(
-            builder: (context, state, reason) => ConfirmDialog(
-              title: Text(l10n.drawsWillBeOverridden),
-              content: Text(l10n.drawsWillBeOverriddenInfo),
-              confirmButtonLabel: l10n.confirm,
-              cancelButtonLabel: l10n.cancel,
-            ),
-            child: const Align(
-              alignment: Alignment.topCenter,
-              child: SizedBox(
-                width: 600,
-                child: Column(
-                  children: [
-                    SizedBox(height: 50),
-                    TournametModeSelector(),
-                    SizedBox(height: 20),
-                    Divider(
-                      height: 1,
-                      indent: 20,
-                      endIndent: 20,
-                      thickness: 0,
-                    ),
-                    SizedBox(height: 30),
-                    TournamentModeSettingsWidget(),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          body: const TournamentModeSettingsWidget(),
         );
       },
     );

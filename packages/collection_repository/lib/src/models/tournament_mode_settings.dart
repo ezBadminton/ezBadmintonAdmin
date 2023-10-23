@@ -19,6 +19,10 @@ sealed class TournamentModeSettings extends Model
     required DateTime updated,
     required SeedingMode seedingMode,
     required int passes,
+    required int winningPoints,
+    required int winningSets,
+    required int maxPoints,
+    required bool twoPointMargin,
   }) = RoundRobinSettings;
 
   @FreezedUnionValue('SingleElimination')
@@ -27,6 +31,10 @@ sealed class TournamentModeSettings extends Model
     required DateTime created,
     required DateTime updated,
     required SeedingMode seedingMode,
+    required int winningPoints,
+    required int winningSets,
+    required int maxPoints,
+    required bool twoPointMargin,
   }) = SingleEliminationSettings;
 
   @FreezedUnionValue('GroupKnockout')
@@ -37,6 +45,10 @@ sealed class TournamentModeSettings extends Model
     required SeedingMode seedingMode,
     required int numGroups,
     required int qualificationsPerGroup,
+    required int winningPoints,
+    required int winningSets,
+    required int maxPoints,
+    required bool twoPointMargin,
   }) = GroupKnockoutSettings;
 
   factory TournamentModeSettings.fromJson(Map<String, dynamic> json) =>

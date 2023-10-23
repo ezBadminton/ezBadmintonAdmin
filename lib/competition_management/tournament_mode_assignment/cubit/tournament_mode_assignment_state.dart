@@ -5,7 +5,7 @@ class TournamentModeAssignmentState with FormzMixin implements DialogState {
     required this.competitions,
     this.formStatus = FormzSubmissionStatus.initial,
     this.modeType = const SelectionInput.pure(value: null),
-    this.modeSettings = const SelectionInput.pure(value: null),
+    this.modeSettings = const TournamentModeSettingsInput.pure(),
     this.dialog = const CubitDialog(),
   });
 
@@ -14,7 +14,7 @@ class TournamentModeAssignmentState with FormzMixin implements DialogState {
   final FormzSubmissionStatus formStatus;
 
   final SelectionInput<Type> modeType;
-  final SelectionInput<TournamentModeSettings> modeSettings;
+  final TournamentModeSettingsInput modeSettings;
 
   @override
   final CubitDialog dialog;
@@ -23,7 +23,7 @@ class TournamentModeAssignmentState with FormzMixin implements DialogState {
     List<Competition>? competitions,
     FormzSubmissionStatus? formStatus,
     SelectionInput<Type>? modeType,
-    SelectionInput<TournamentModeSettings>? modeSettings,
+    TournamentModeSettingsInput? modeSettings,
     CubitDialog? dialog,
   }) {
     return TournamentModeAssignmentState(

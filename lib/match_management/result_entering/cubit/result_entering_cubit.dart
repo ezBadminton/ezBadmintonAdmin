@@ -14,14 +14,15 @@ part 'result_entering_state.dart';
 class ResultEnteringCubit extends CollectionQuerierCubit<ResultEnteringState> {
   ResultEnteringCubit({
     required this.match,
-    this.winningPoints = 21,
-    this.winningSets = 2,
-    this.maxPoints = 30,
-    this.twoPointMargin = true,
+    required this.winningPoints,
+    required this.winningSets,
+    required int maxPoints,
+    required this.twoPointMargin,
     required CollectionRepository<MatchData> matchDataRepository,
     required CollectionRepository<MatchSet> matchSetRepository,
   })  : controllers = _createScoreInputControllers(winningSets),
         submitButtonFocusNode = FocusNode(),
+        maxPoints = twoPointMargin ? maxPoints : winningPoints,
         super(
           collectionRepositories: [
             matchDataRepository,

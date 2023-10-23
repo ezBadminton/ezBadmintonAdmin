@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
+import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/input_models/tournament_mode_settings_input.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
 import 'package:formz/formz.dart';
@@ -36,12 +37,14 @@ class TournamentModeAssignmentCubit
     Type? tournamentMode, {
     TournamentModeSettings? initialSettings,
   }) {
-    initialSettings = initialSettings ?? _createDefaultSettings(tournamentMode);
+    initialSettings = initialSettings ??
+        _createDefaultSettings(
+          tournamentMode,
+          state.modeSettings.value,
+        );
     TournamentModeAssignmentState newState = state.copyWith(
       modeType: SelectionInput.dirty(value: tournamentMode),
-      modeSettings: SelectionInput.dirty(
-        value: initialSettings,
-      ),
+      modeSettings: TournamentModeSettingsInput.dirty(initialSettings),
     );
 
     emit(newState);
@@ -49,9 +52,7 @@ class TournamentModeAssignmentCubit
 
   void tournamentModeSettingsChanged(TournamentModeSettings settings) {
     TournamentModeAssignmentState newState = state.copyWith(
-      modeSettings: SelectionInput.dirty(
-        value: settings,
-      ),
+      modeSettings: TournamentModeSettingsInput.dirty(settings),
     );
 
     emit(newState);
@@ -63,6 +64,11 @@ class TournamentModeAssignmentCubit
       return;
     }
     emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
+
+    if (state.isNotValid) {
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      return;
+    }
 
     bool willDrawsBeOverridden =
         state.competitions.firstWhereOrNull((c) => c.draw.isNotEmpty) != null;
@@ -126,7 +132,13 @@ class TournamentModeAssignmentCubit
 
   static TournamentModeSettings? _createDefaultSettings(
     Type? tournamentMode,
+    TournamentModeSettings? previousSettings,
   ) {
+    int winningPoints = previousSettings?.winningPoints ?? 21;
+    int winningSets = previousSettings?.winningSets ?? 2;
+    int maxPoints = previousSettings?.maxPoints ?? 30;
+    bool twoPointMargin = previousSettings?.twoPointMargin ?? true;
+
     switch (tournamentMode) {
       case RoundRobinSettings:
         return RoundRobinSettings(
@@ -135,6 +147,10 @@ class TournamentModeAssignmentCubit
           updated: DateTime.now().toUtc(),
           seedingMode: SeedingMode.random,
           passes: 1,
+          winningPoints: winningPoints,
+          winningSets: winningSets,
+          maxPoints: maxPoints,
+          twoPointMargin: twoPointMargin,
         );
       case SingleEliminationSettings:
         return SingleEliminationSettings(
@@ -142,6 +158,10 @@ class TournamentModeAssignmentCubit
           created: DateTime.now().toUtc(),
           updated: DateTime.now().toUtc(),
           seedingMode: SeedingMode.tiered,
+          winningPoints: winningPoints,
+          winningSets: winningSets,
+          maxPoints: maxPoints,
+          twoPointMargin: twoPointMargin,
         );
       case GroupKnockoutSettings:
         return GroupKnockoutSettings(
@@ -151,6 +171,10 @@ class TournamentModeAssignmentCubit
           seedingMode: SeedingMode.tiered,
           numGroups: 4,
           qualificationsPerGroup: 2,
+          winningPoints: winningPoints,
+          winningSets: winningSets,
+          maxPoints: maxPoints,
+          twoPointMargin: twoPointMargin,
         );
       default:
         return null;

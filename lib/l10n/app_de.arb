@@ -234,5 +234,15 @@
   "resultEnteringHelp": "Wenn ein Spiel beendet ist, gib hier das Ergebnis ein.\n\nTipp: Gib bei jedem Satz nur die Punktzahl des Verlierers ein und drücke ENTER, um das Satzergebnis automatisch zu vervollständigen!",
   "nBlockingPlayers": "{count, plural, =1{1 Spieler\nist in einem anderen Spiel} other{{count} Spieler\nsind in einem anderen Spiel}}",
   "blockingGames": "{count, plural, =1{Blockierendes Spiel} other{Blockierende Spiele}}",
-  "tournamentIsStarted": "Turnier wurde gestartet"
+  "tournamentIsStarted": "Turnier wurde gestartet",
+  "playMode": "Spielmodus",
+  "winningPoints": "Gewinnpunkte",
+  "winningPointsHelp": "Anzahl der Punkte, mit denen ein Satz gewonnen wird.",
+  "winningSets": "Gewinnsätze",
+  "winningSetsHelp": "Anzahl der Sätze, mit denen ein Spiel gewonnen wird. Bei {count} Gewinnsätzen fällt die Entscheidung spätestens im {maxCount}. Satz.",
+  "twoPointMargin": "2 Punkte Vorsprung",
+  "twoPointMarginHelp": "Ob der Gewinner mindestens 2 Punkte Vorsprung braucht, um einen Satz zu gewinnen. Sollten die Gewinnpunkte ohne diesen Vorsprung erreicht werden, wird weiter gespielt bis ein Spieler den Abstand herstellen kann.",
+  "maxPoints": "Max. Punkte",
+  "maxPointsHelp": "Die maximale Punktzahl, die erreicht werden kann. Wenn kein Spieler den 2 Punkte Vorsprung herstellen kann, gewinnt der, der zuerst die maximalen Punkte erreicht.",
+  "maxPointsError": "Wert zu niedrig"
 }

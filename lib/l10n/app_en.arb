@@ -234,5 +234,15 @@
   "resultEnteringHelp": "When a match is finished enter the result here.\n\nTip: For each game, just enter the loser's points and press ENTER to autocomplete the game score!",
   "nBlockingPlayers": "{count, plural, =1{1 player\nis in another match} other{{count} players\nare in another match}}",
   "blockingGames": "{count, plural, =1{Blocking match} other{Blocking matches}}",
-  "tournamentIsStarted": "Tournament has been started"
+  "tournamentIsStarted": "Tournament has been started",
+  "playMode": "Play mode",
+  "winningPoints": "Winning points",
+  "winningPointsHelp": "Number of points required to win a game",
+  "winningSets": "Winning games",
+  "winningSetsHelp": "Number of games required to win a match. With {count} winning games, there will be {maxCount} games at most.",
+  "twoPointMargin": "2-point margin",
+  "twoPointMarginHelp": "Whether the winner needs a minimum 2-point margin to win a game. If the winning points are reached without this margin, play continues until a player can establish the lead.",
+  "maxPoints": "Max. points",
+  "maxPointsHelp": "The maximum number of points that can be reached. If no player can establish the 2-point margin, the one who reaches the maximum points first wins.",
+  "maxPointsError": "Value too low"
 }
