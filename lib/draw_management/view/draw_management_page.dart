@@ -49,10 +49,7 @@ class _DrawManagementPageScaffold extends StatelessWidget {
               current.tabChangeReason is Competition,
           listener: (context, state) {
             var cubit = context.read<CompetitionDrawSelectionCubit>();
-            if (cubit.state.selectedCompetition.value !=
-                state.tabChangeReason) {
-              cubit.competitionToggled(state.tabChangeReason as Competition);
-            }
+            cubit.competitionSelected(state.tabChangeReason as Competition);
           },
           child: BlocProvider(
             create: (context) => SimpleCubit<CrossFadeDrawerController>(

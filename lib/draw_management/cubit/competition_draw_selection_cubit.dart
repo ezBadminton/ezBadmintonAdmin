@@ -47,6 +47,10 @@ class CompetitionDrawSelectionCubit
       selectedCompetition = null;
     }
 
+    competitionSelected(selectedCompetition);
+  }
+
+  void competitionSelected(Competition? selectedCompetition) {
     emit(state.copyWith(
       selectedCompetition: SelectionInput.dirty(value: selectedCompetition),
     ));
