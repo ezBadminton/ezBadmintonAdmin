@@ -2,6 +2,7 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/cubit/tournament_mode_assignment_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/cubit/tournament_mode_settings_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/cubit/tournament_mode_settings_state.dart';
+import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/input_models/tournament_mode_settings_input.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/widgets/setting_card.dart';
 import 'package:ez_badminton_admin_app/widgets/integer_stepper/integer_stepper.dart';
 import 'package:flutter/material.dart';
@@ -21,68 +22,75 @@ class ScoringSettingsWidget<C extends TournamentModeSettingsCubit<S>,
     var settingsCubit = context.read<C>();
 
     return BlocBuilder<C, TournamentModeSettingsState<S>>(
-      builder: (context, state) => Column(
-        children: [
-          const SizedBox(height: 50),
-          Text(l10n.playMode, style: const TextStyle(fontSize: 20)),
-          const SizedBox(height: 20),
-          const Divider(
-            height: 1,
-            indent: 20,
-            endIndent: 20,
-            thickness: 0,
-          ),
-          const SizedBox(height: 20),
-          _ScoreSettingInput(
-            title: Text(l10n.winningPoints),
-            helpText: l10n.winningPointsHelp,
-            initalValue: state.settings.winningPoints,
-            onChanged: settingsCubit.winningPointsChanged,
-            maxLength: 2,
-          ),
-          SettingCard(
-            title: Text(l10n.winningSets),
-            helpText: l10n.winningSetsHelp(
-              state.settings.winningSets,
-              2 * state.settings.winningSets - 1,
-            ),
-            child: IntegerStepper(
-              initialValue: state.settings.winningSets,
-              onChanged: settingsCubit.winningSetsChanged,
-              minValue: 1,
-              maxValue: 9,
-            ),
-          ),
-          SettingCard(
-            title: Text(l10n.twoPointMargin),
-            helpText: l10n.twoPointMarginHelp,
-            child: Switch(
-              value: state.settings.twoPointMargin,
-              onChanged: settingsCubit.twoPointMarginChanged,
-            ),
-          ),
-          if (state.settings.twoPointMargin)
-            BlocBuilder<TournamentModeAssignmentCubit,
-                TournamentModeAssignmentState>(
-              builder: (context, assignmentState) {
-                String? errorText;
-                if (assignmentState.formStatus ==
-                        FormzSubmissionStatus.failure &&
-                    assignmentState.isNotValid) {
-                  errorText = l10n.maxPointsError;
-                }
+      builder: (context, settingsState) => BlocBuilder<
+          TournamentModeAssignmentCubit, TournamentModeAssignmentState>(
+        builder: (context, assignmentState) {
+          SettingsValidationError? validationError;
 
-                return _ScoreSettingInput(
+          if (assignmentState.formStatus == FormzSubmissionStatus.failure) {
+            validationError = assignmentState.modeSettings
+                .validator(assignmentState.modeSettings.value);
+          }
+
+          return Column(
+            children: [
+              const SizedBox(height: 50),
+              Text(l10n.playMode, style: const TextStyle(fontSize: 20)),
+              const SizedBox(height: 20),
+              const Divider(
+                height: 1,
+                indent: 20,
+                endIndent: 20,
+                thickness: 0,
+              ),
+              const SizedBox(height: 20),
+              _ScoreSettingInput(
+                title: Text(l10n.winningPoints),
+                helpText: l10n.winningPointsHelp,
+                initalValue: settingsState.settings.winningPoints,
+                onChanged: settingsCubit.winningPointsChanged,
+                maxLength: 2,
+                errorText: validationError ==
+                        SettingsValidationError.winningPointsEmpty
+                    ? l10n.pleaseFillIn
+                    : null,
+              ),
+              SettingCard(
+                title: Text(l10n.winningSets),
+                helpText: l10n.winningSetsHelp(
+                  settingsState.settings.winningSets,
+                  2 * settingsState.settings.winningSets - 1,
+                ),
+                child: IntegerStepper(
+                  initialValue: settingsState.settings.winningSets,
+                  onChanged: settingsCubit.winningSetsChanged,
+                  minValue: 1,
+                  maxValue: 9,
+                ),
+              ),
+              SettingCard(
+                title: Text(l10n.twoPointMargin),
+                helpText: l10n.twoPointMarginHelp,
+                child: Switch(
+                  value: settingsState.settings.twoPointMargin,
+                  onChanged: settingsCubit.twoPointMarginChanged,
+                ),
+              ),
+              if (settingsState.settings.twoPointMargin)
+                _ScoreSettingInput(
                   title: Text(l10n.maxPoints),
                   helpText: l10n.maxPointsHelp,
-                  errorText: errorText,
-                  initalValue: state.settings.maxPoints,
+                  initalValue: settingsState.settings.maxPoints,
                   onChanged: settingsCubit.maxPointsChanged,
                   maxLength: 2,
-                );
-              },
-            ),
-        ],
+                  errorText: validationError ==
+                          SettingsValidationError.maxPointsIncompatible
+                      ? l10n.maxPointsError
+                      : null,
+                ),
+            ],
+          );
+        },
       ),
     );
   }

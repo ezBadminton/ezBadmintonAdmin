@@ -4,6 +4,7 @@ import 'package:formz/formz.dart';
 enum SettingsValidationError {
   noSettings,
   maxPointsIncompatible,
+  winningPointsEmpty,
 }
 
 class TournamentModeSettingsInput
@@ -15,6 +16,10 @@ class TournamentModeSettingsInput
   SettingsValidationError? validator(TournamentModeSettings? value) {
     if (value == null) {
       return SettingsValidationError.noSettings;
+    }
+
+    if (value.winningPoints == 0) {
+      return SettingsValidationError.winningPointsEmpty;
     }
 
     if (value.twoPointMargin && value.winningPoints > value.maxPoints) {
