@@ -46,7 +46,7 @@ class MatchQueueList extends StatelessWidget {
                 slivers: [
                   SliverList(
                     delegate: SliverChildListDelegate(
-                      _buildList(),
+                      _buildList(context),
                     ),
                   )
                 ],
@@ -58,29 +58,38 @@ class MatchQueueList extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildList() {
+  List<Widget> _buildList(BuildContext context) {
     if (list != null) {
-      return _buildSublist(null, list!);
+      return _buildSublist(context, null, list!);
     } else {
       return [
         for (String title in sublists!.keys)
-          ..._buildSublist(title, sublists![title]!),
+          ..._buildSublist(context, title, sublists![title]!),
       ];
     }
   }
 
-  List<Widget> _buildSublist(String? title, List<Widget> sublist) {
+  List<Widget> _buildSublist(
+    BuildContext context,
+    String? title,
+    List<Widget> sublist,
+  ) {
     return [
-      if (title != null && sublist.isNotEmpty) ...[
-        const Divider(height: 1),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6.0),
-          child: Center(
-            child: Text(title),
+      if (title != null && sublist.isNotEmpty)
+        Container(
+          padding: const EdgeInsets.all(12.0),
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
           ),
         ),
-        const Divider(height: 1),
-      ],
       ...sublist,
     ];
   }
