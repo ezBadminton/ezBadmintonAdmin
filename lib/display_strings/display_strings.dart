@@ -276,7 +276,7 @@ String? matchRoundName(AppLocalizations l10n, BadmintonMatch match) {
     GroupPhaseRound<BadmintonMatch> round =>
       round.getGroupRoundName(l10n, match),
     RoundRobinRound round => round.getRoundRobinRoundName(l10n),
-    EliminationRound round => round.getEliminationRoundName(l10n),
+    EliminationRound round => round.getEliminationRoundName(l10n, match),
     _ => null,
   };
 }

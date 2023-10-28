@@ -3,8 +3,17 @@ import 'package:tournament_mode/tournament_mode.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 extension EliminationRoundNames on EliminationRound {
-  String getEliminationRoundName(AppLocalizations l10n) {
-    return l10n.roundOfN('$roundSize');
+  String getEliminationRoundName(AppLocalizations l10n, BadmintonMatch match) {
+    String roundName = l10n.roundOfN('$roundSize');
+
+    if (roundSize == 2) {
+      // Final needs no round number
+      return roundName;
+    }
+
+    int roundIndex = matches.indexOf(match);
+
+    return l10n.roundN(roundName, '${roundIndex + 1}');
   }
 }
 

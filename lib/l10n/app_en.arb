@@ -187,6 +187,7 @@
   "groupNumber": "Group {number}",
   "groupQualification": "{place}. Place, Group {group}",
   "roundOfN": "{participants, select, 2{Final} 4{Semi-Final} 8{Quarter-Final} other{Round of {participants}}}",
+  "roundN": "{roundName} {roundNumber}",
   "collapse": "Collapse",
   "expand": "Expand",
   "undoManualDraw": "Reset manual changes",
@@ -244,5 +245,17 @@
   "twoPointMarginHelp": "Whether the winner needs a minimum 2-point margin to win a game. If the winning points are reached without this margin, play continues until a player can establish the lead.",
   "maxPoints": "Max. points",
   "maxPointsHelp": "The maximum number of points that can be reached. If no player can establish the 2-point margin, the one who reaches the maximum points first wins.",
-  "maxPointsError": "Value too low"
+  "maxPointsError": "Value too low",
+  "gameSheetPrintingTitle": "Which game sheets should be printed?",
+  "gameSheetPrintingHelp": "The players can record their match results on the game sheets and return them to the tournament administration.\n\nOutside the manual selection, game sheets will only be printed once. Depending on the used print option, some game sheets need to be completed by hand.",
+  "gameSheetPrinting": "Game sheet printing",
+  "gameSheetPrintSelection": "{selection, select, readyForCallOut{Matches that are ready for call out} playersQualified{Matches where both opponents are determined} playersPartiallyQualified{Matches where at least one opponent is determined} allUnprinted{All unprinted game sheets} custom{Manual selection} other{OTHER}}",
+  "gameSheetPrintSelectionHelp": "{selection, select, readyForCallOut{On these game sheets, no handwritten entries need to be made, as the opponents and fields are already determined.} playersQualified{With this option, sheets are also printed that do not have a court assigned. Instead, a blank space is printed for handwritten completion.} playersPartiallyQualified{With this option, sheets are also printed that only have one opponent determined. When the other opponent qualifies, the sheet has to be completed with handwriting.} allUnprinted{With this option, sheets are printed for all upcoming matches that have not yet been printed. It doesn't matter whether the court and opponents have already been determined; for the missing data, blank spaces are printed for handwritten completion.} custom{This option allows making a selection for printing sheets from all matches of the currently running tournament. Can be used to reprint sheets.} other{OTHER}}",
+  "preview": "Vorschau",
+  "gameSheetPrintPreview": "Preview ({sheets} on {pages})",
+  "nSheets": "{count, plural, =1{1 sheet} other{{count} sheets}}",
+  "nPages": "{count, plural, =1{1 page} other{{count} pages}}",
+  "saveAndOpenPdf": "Save PDF and open",
+  "openSaveLocation": "Open save location",
+  "noSheetsToPrint": "The current selection icludes no game sheets that need printing."
 }

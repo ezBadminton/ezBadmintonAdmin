@@ -187,6 +187,7 @@
   "groupNumber": "Gruppe {number}",
   "groupQualification": "{place}. Platz, Gruppe {group}",
   "roundOfN": "{participants, select, 2{Finale} 4{Halbfinale} 8{Viertelfinale} 16{Achtelfinale} other{{participants}er Runde}}",
+  "roundN": "{roundName} {roundNumber}",
   "collapse": "Einklappen",
   "expand": "Ausklappen",
   "undoManualDraw": "Manuelle Änderungen zurücksetzen",
@@ -244,5 +245,17 @@
   "twoPointMarginHelp": "Ob der Gewinner mindestens 2 Punkte Vorsprung braucht, um einen Satz zu gewinnen. Sollten die Gewinnpunkte ohne diesen Vorsprung erreicht werden, wird weiter gespielt bis ein Spieler den Abstand herstellen kann.",
   "maxPoints": "Max. Punkte",
   "maxPointsHelp": "Die maximale Punktzahl, die erreicht werden kann. Wenn kein Spieler den 2 Punkte Vorsprung herstellen kann, gewinnt der, der zuerst die maximalen Punkte erreicht.",
-  "maxPointsError": "Wert zu niedrig"
+  "maxPointsError": "Wert zu niedrig",
+  "gameSheetPrintingTitle": "Welche Spielzettel sollen gedruckt werden?",
+  "gameSheetPrintingHelp": "Auf den Spielzetteln können die Spieler ihre Spielergebnisse aufschreiben und an die Turnierleitung zurückgeben.\n\nAußer bei der manuellen Auswahl, werden Spielzettel nicht mehrmals gedruckt. Je nach gewählter Option müssen die Spielzettel handschriftlich vervollständigt werden.",
+  "gameSheetPrinting": "Spielzettel drucken",
+  "gameSheetPrintSelection": "{selection, select, readyForCallOut{Spiele, die bereit zum Aufruf sind} playersQualified{Spiele, bei denen beide Gegner feststehen} playersPartiallyQualified{Spiele, bei denen min. ein Gegner feststeht} allUnprinted{Alle ungedruckten Spielzettel} custom{Manuelle Auswahl} other{OTHER}}",
+  "gameSheetPrintSelectionHelp": "{selection, select, readyForCallOut{Bei diesen Spielzetteln müssen keine handschriftlichen Eintragungen gemacht werden, da Gegner und Feld schon feststehen.} playersQualified{Bei dieser Auswahl werden auch Zettel gedruckt, die kein Feld zugewiesen haben. Stattdessen wird eine Lücke zur handschriftlichen Vervollständigung gedruckt.} playersPartiallyQualified{Bei dieser Auswahl werden auch Zettel gedruckt, bei denen erst einer der Gegner feststeht. Wenn der andere Gegner sich qualifiziert, muss der Zettel handschriftlich vervollständigt werden.} allUnprinted{Bei dieser Auswahl werden Zettel für alle anstehenden Spiele gedruckt, die noch nicht gedruckt wurden. Dabei ist es egal, ob Feld und Gegner schon feststehen, für die fehlenden Daten werden Lücken zur handschriftlichen Vervollständigung gedruckt.} custom{Diese Option erlaubt eine manuelle Auswahl der zu druckenden Zettel aus allen Spielen des laufenden Turniers. Kann genutzt werden, um Zettel erneut auszudrucken.} other{OTHER}}",
+  "preview": "Vorschau",
+  "gameSheetPrintPreview": "Vorschau ({sheets} auf {pages})",
+  "nSheets": "{count, plural, other{{count} Zettel}}",
+  "nPages": "{count, plural, =1{1 Seite} other{{count} Seiten}}",
+  "saveAndOpenPdf": "PDF speichern und öffnen",
+  "openSaveLocation": "Speicherort öffnen",
+  "noSheetsToPrint": "In der aktuellen Auswahl gibt es keine Spielzettel, die gedruckt werden müssen."
 }

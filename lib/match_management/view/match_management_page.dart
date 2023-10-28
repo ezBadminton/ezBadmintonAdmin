@@ -6,6 +6,7 @@ import 'package:ez_badminton_admin_app/match_management/cubit/match_queue_cubit.
 import 'package:ez_badminton_admin_app/match_management/widgets/call_out_script.dart';
 import 'package:ez_badminton_admin_app/match_management/widgets/match_queue_list.dart';
 import 'package:ez_badminton_admin_app/match_management/widgets/queued_match.dart';
+import 'package:ez_badminton_admin_app/match_management/game_sheet_printing/view/game_sheet_printing_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -34,6 +35,16 @@ class MatchManagementPage extends StatelessWidget {
         },
         child: Scaffold(
           appBar: AppBar(title: Text(l10n.matchOperations)),
+          floatingActionButton: Padding(
+            padding: const EdgeInsets.only(right: 80, bottom: 40),
+            child: FloatingActionButton(
+              onPressed: () {
+                Navigator.of(context).push(GameSheetPrintingPage.route());
+              },
+              heroTag: 'match_print_button',
+              child: const Icon(Icons.print),
+            ),
+          ),
           body: const _MatchQueueLists(),
         ),
       ),

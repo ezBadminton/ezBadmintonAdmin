@@ -40,6 +40,7 @@ class MatchData extends Model with _$MatchData {
     DateTime? startTime,
     DateTime? endTime,
     String? resultCard,
+    required bool gameSheetPrinted,
   }) = _Match;
 
   factory MatchData.fromJson(Map<String, dynamic> json) =>
@@ -51,6 +52,7 @@ class MatchData extends Model with _$MatchData {
         updated: DateTime.now().toUtc(),
         sets: const [],
         status: MatchStatus.normal,
+        gameSheetPrinted: false,
       );
 
   static const List<ExpandedField> expandedFields = [
