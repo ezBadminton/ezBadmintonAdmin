@@ -17,9 +17,9 @@ class PredicateFilterState implements Equatable {
   bool? get stringify => false;
 }
 
-// A private ListFilterState to hide the mutable predicate map
-class _ListFilterState extends PredicateFilterState {
-  _ListFilterState({
+// A private PredicateFilterState to hide the mutable predicate map
+class _PredicateFilterState extends PredicateFilterState {
+  _PredicateFilterState({
     super.filters = const {},
     super.filterPredicates = const {},
     predicates,

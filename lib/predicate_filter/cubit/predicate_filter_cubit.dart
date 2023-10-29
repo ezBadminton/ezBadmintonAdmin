@@ -12,7 +12,7 @@ class PredicateFilterCubit extends Cubit<PredicateFilterState> {
   ///
   /// This cubit combines multiple predicates into a filter for different types
   /// of objects.
-  PredicateFilterCubit() : super(_ListFilterState());
+  PredicateFilterCubit() : super(_PredicateFilterState());
 
   /// Update the filter with a given [predicate]
   ///
@@ -36,7 +36,7 @@ class PredicateFilterCubit extends Cubit<PredicateFilterState> {
   void _addPredicate(FilterPredicate predicate) {
     _removePredicate(predicate, emit: false);
 
-    var privateState = state as _ListFilterState;
+    var privateState = state as _PredicateFilterState;
     privateState.predicates.putIfAbsent(predicate.type, () => []);
     privateState.predicates[predicate.type]!.add(predicate);
     _emit();
@@ -46,7 +46,7 @@ class PredicateFilterCubit extends Cubit<PredicateFilterState> {
   /// [predicate]. If so, removes the existing one.
   void _removePredicate(FilterPredicate predicate, {bool emit = true}) {
     var domain = predicate.domain;
-    var privateState = state as _ListFilterState;
+    var privateState = state as _PredicateFilterState;
     if (privateState.predicates.containsKey(predicate.type)) {
       List<FilterPredicate> predicates =
           privateState.predicates[predicate.type]!;
@@ -63,11 +63,11 @@ class PredicateFilterCubit extends Cubit<PredicateFilterState> {
   }
 
   void _emit() {
-    var privateState = state as _ListFilterState;
+    var privateState = state as _PredicateFilterState;
     var typeFilters = _createTypeFilters(privateState.predicates);
     var typePredicates = _finalizePredicates(privateState.predicates);
 
-    var newState = _ListFilterState(
+    var newState = _PredicateFilterState(
       filters: typeFilters,
       filterPredicates: typePredicates,
       predicates: privateState.predicates,

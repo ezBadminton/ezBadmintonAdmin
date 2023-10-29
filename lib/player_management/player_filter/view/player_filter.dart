@@ -22,7 +22,7 @@ class PlayerFilter extends StatelessWidget {
       width: 1150,
       child: Column(
         children: [
-          _FilterMenus(),
+          PlayerFilterMenus(),
           SizedBox(height: 3),
           FilterChips<PlayerFilterCubit>(),
         ],
@@ -31,8 +31,23 @@ class PlayerFilter extends StatelessWidget {
   }
 }
 
-class _FilterMenus extends StatelessWidget {
-  const _FilterMenus();
+class PlayerFilterMenus extends StatelessWidget {
+  const PlayerFilterMenus({
+    super.key,
+    this.useAgeGroupFilter = true,
+    this.usePlayingLevelFilter = true,
+    this.useGenderCategoryFilter = true,
+    this.useCompetitionTypeFilter = true,
+    this.useStatusFilter = true,
+    this.useNameFilter = true,
+  });
+
+  final bool useAgeGroupFilter;
+  final bool usePlayingLevelFilter;
+  final bool useGenderCategoryFilter;
+  final bool useCompetitionTypeFilter;
+  final bool useStatusFilter;
+  final bool useNameFilter;
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +74,7 @@ class _FilterMenus extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              if (tournament.useAgeGroups) ...[
+              if (tournament.useAgeGroups && useAgeGroupFilter) ...[
                 FilterPopoverMenu(
                   filterMenu:
                       AgeGroupFilterForm<PlayerFilterCubit, PlayerFilterState>(
@@ -70,7 +85,7 @@ class _FilterMenus extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
               ],
-              if (tournament.usePlayingLevels) ...[
+              if (tournament.usePlayingLevels && usePlayingLevelFilter) ...[
                 FilterPopoverMenu(
                   filterMenu: PlayingLevelFilterForm<PlayerFilterCubit,
                       PlayerFilterState>(
@@ -81,28 +96,34 @@ class _FilterMenus extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
               ],
-              FilterPopoverMenu(
-                filterMenu: GenderCategoryFilterForm<PlayerFilterCubit,
-                    PlayerFilterState>(
-                  backgroundContext: context,
+              if (useGenderCategoryFilter) ...[
+                FilterPopoverMenu(
+                  filterMenu: GenderCategoryFilterForm<PlayerFilterCubit,
+                      PlayerFilterState>(
+                    backgroundContext: context,
+                  ),
+                  buttonText: l10n.category,
                 ),
-                buttonText: l10n.category,
-              ),
-              const SizedBox(width: 10),
-              FilterPopoverMenu(
-                filterMenu: CompetitionTypeFilterForm<PlayerFilterCubit,
-                    PlayerFilterState>(
-                  backgroudContext: context,
+                const SizedBox(width: 10),
+              ],
+              if (useCompetitionTypeFilter) ...[
+                FilterPopoverMenu(
+                  filterMenu: CompetitionTypeFilterForm<PlayerFilterCubit,
+                      PlayerFilterState>(
+                    backgroudContext: context,
+                  ),
+                  buttonText: l10n.competition(1),
                 ),
-                buttonText: l10n.competition(1),
-              ),
-              const SizedBox(width: 10),
-              FilterPopoverMenu(
-                filterMenu: _StatusFilterForm(backgroudContext: context),
-                buttonText: l10n.status,
-              ),
-              const SizedBox(width: 30),
-              Expanded(child: _SearchField()),
+                const SizedBox(width: 10),
+              ],
+              if (useStatusFilter) ...[
+                FilterPopoverMenu(
+                  filterMenu: _StatusFilterForm(backgroudContext: context),
+                  buttonText: l10n.status,
+                ),
+                const SizedBox(width: 30),
+              ],
+              if (useNameFilter) Expanded(child: _SearchField()),
             ],
           );
         },

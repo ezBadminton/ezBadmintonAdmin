@@ -11,7 +11,12 @@ import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
     as display_strings;
 
 class FilterChips<C extends PredicateConsumerCubit> extends StatelessWidget {
-  const FilterChips({super.key});
+  const FilterChips({
+    super.key,
+    this.expanded = true,
+  });
+
+  final bool expanded;
 
   @override
   Widget build(BuildContext context) {
@@ -48,33 +53,41 @@ class FilterChips<C extends PredicateConsumerCubit> extends StatelessWidget {
           filterGroups,
         );
 
+        Widget chipWrapBuilder() => Wrap(
+              children: [
+                for (MapEntry<FilterGroup, List<FilterPredicate>> filterGroup
+                    in filterGroups.entries)
+                  _FilterGroupChip<C>(
+                    filterGroupName: display_strings.filterChipGroup(
+                      l10n,
+                      filterGroup.key,
+                    ),
+                    namedFilters: {
+                      for (FilterPredicate filter in filterGroup.value)
+                        display_strings.filterChip(
+                          l10n,
+                          filter.disjunction ?? filter.domain,
+                          filter.name,
+                        ): filter,
+                    },
+                  ),
+              ],
+            );
+
+        Widget chipWrap;
+        if (expanded) {
+          chipWrap = Expanded(child: chipWrapBuilder());
+        } else {
+          chipWrap = chipWrapBuilder();
+        }
+
         return Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             _ClearFilterButton<C>(
               predicates: filterGroups.entries.expand((group) => group.value),
             ),
-            Expanded(
-              child: Wrap(
-                children: [
-                  for (MapEntry<FilterGroup, List<FilterPredicate>> filterGroup
-                      in filterGroups.entries)
-                    _FilterGroupChip<C>(
-                      filterGroupName: display_strings.filterChipGroup(
-                        l10n,
-                        filterGroup.key,
-                      ),
-                      namedFilters: {
-                        for (FilterPredicate filter in filterGroup.value)
-                          display_strings.filterChip(
-                            l10n,
-                            filter.disjunction ?? filter.domain,
-                            filter.name,
-                          ): filter,
-                      },
-                    ),
-                ],
-              ),
-            ),
+            chipWrap,
           ],
         );
       },

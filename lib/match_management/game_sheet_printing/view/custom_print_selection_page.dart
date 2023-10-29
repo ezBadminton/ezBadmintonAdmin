@@ -1,13 +1,22 @@
+import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
 import 'package:ez_badminton_admin_app/input_models/list_input.dart';
 import 'package:ez_badminton_admin_app/match_management/game_sheet_printing/cubit/custom_print_selection_cubit.dart';
+import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
+import 'package:ez_badminton_admin_app/player_management/player_filter/view/player_filter.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/common_predicate_producers/agegroup_predicate_producer.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/predicate_producers.dart';
+import 'package:ez_badminton_admin_app/widgets/filter_menu/filter_chips.dart';
+import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:ez_badminton_admin_app/widgets/match_info/match_info.dart';
 import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
 import 'package:ez_badminton_admin_app/widgets/unsaved_changes_warning/unsaved_changes_warning.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_scroll_shadow/flutter_scroll_shadow.dart';
 
 class CustomPrintSelectionPage extends StatelessWidget {
   const CustomPrintSelectionPage({
@@ -30,45 +39,120 @@ class CustomPrintSelectionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var progressCubit = context.read<TournamentProgressCubit>();
-    var l10n = AppLocalizations.of(context)!;
 
-    return BlocProvider(
-      create: (context) => CustomPrintSelectionCubit(
-        initalSelection: initialSelection,
-        progressState: progressCubit.state,
-      ),
-      child: Builder(
-        builder: (context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => CustomPrintSelectionCubit(
+            initalSelection: initialSelection,
+            progressState: progressCubit.state,
+          ),
+        ),
+        BlocProvider(create: (context) => PredicateFilterCubit()),
+        BlocProvider(
+          create: (_) => PlayerFilterCubit(
+            ageGroupPredicateProducer: AgeGroupPredicateProducer(),
+            genderPredicateProducer: GenderCategoryPredicateProducer(),
+            playingLevelPredicateProducer: PlayingLevelPredicateProducer(),
+            competitionTypePredicateProducer:
+                CompetitionTypePredicateProducer(),
+            statusPredicateProducer: StatusPredicateProducer(),
+            searchPredicateProducer: SearchPredicateProducer(),
+            playingLevelRepository:
+                context.read<CollectionRepository<PlayingLevel>>(),
+            ageGroupRepository: context.read<CollectionRepository<AgeGroup>>(),
+            tournamentRepository:
+                context.read<CollectionRepository<Tournament>>(),
+          ),
+        ),
+      ],
+      child: BlocListener<TournamentProgressCubit, TournamentProgressState>(
+        listener: (context, state) {
           var printSelectionCubit = context.read<CustomPrintSelectionCubit>();
 
-          return Scaffold(
-            appBar: AppBar(title: Text(l10n.selectGameSheetsToPrint)),
-            body: const Align(
+          printSelectionCubit.tournamentProgressChanged(state);
+        },
+        child: const _CustomPrintSelectionPageScaffold(),
+      ),
+    );
+  }
+}
+
+class _CustomPrintSelectionPageScaffold extends StatelessWidget {
+  const _CustomPrintSelectionPageScaffold();
+
+  @override
+  Widget build(BuildContext context) {
+    var printSelectionCubit = context.read<CustomPrintSelectionCubit>();
+    var l10n = AppLocalizations.of(context)!;
+
+    return Scaffold(
+      appBar: AppBar(title: Text(l10n.selectGameSheetsToPrint)),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(right: 80, bottom: 40),
+        child: FloatingActionButton.extended(
+          onPressed: () {
+            ListInput<BadmintonMatch> selectionInput =
+                printSelectionCubit.state.selectedMatches;
+            List<BadmintonMatch>? newSelection;
+            if (!selectionInput.isPure) {
+              newSelection = selectionInput.value;
+            }
+
+            Navigator.of(context).pop(newSelection);
+          },
+          icon: const Icon(Icons.check),
+          label: Text(l10n.apply),
+        ),
+      ),
+      body: BlocBuilder<PlayerFilterCubit, PlayerFilterState>(
+        builder: (context, state) {
+          return LoadingScreen(
+            loadingStatus: state.loadingStatus,
+            builder: (context) => const Align(
               alignment: AlignmentDirectional.topCenter,
               child: SizedBox(
-                width: 650,
-                child: _SelectionList(),
-              ),
-            ),
-            floatingActionButton: Padding(
-              padding: const EdgeInsets.only(right: 80, bottom: 40),
-              child: FloatingActionButton.extended(
-                onPressed: () {
-                  ListInput<BadmintonMatch> selectionInput =
-                      printSelectionCubit.state.selectedMatches;
-                  List<BadmintonMatch>? newSelection;
-                  if (!selectionInput.isPure) {
-                    newSelection = selectionInput.value;
-                  }
-
-                  Navigator.of(context).pop(newSelection);
-                },
-                icon: const Icon(Icons.check),
-                label: Text(l10n.apply),
+                width: 1000,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(height: 10),
+                    _SelectionFilter(),
+                    Expanded(
+                      child: SizedBox(
+                        width: 650,
+                        child: _SelectionList(),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _SelectionFilter extends StatelessWidget {
+  const _SelectionFilter();
+
+  @override
+  Widget build(BuildContext context) {
+    var cubit = context.read<CustomPrintSelectionCubit>();
+
+    return BlocListener<PredicateFilterCubit, PredicateFilterState>(
+      listener: (context, state) {
+        cubit.filterChanged(state.filters);
+      },
+      child: const Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          PlayerFilterMenus(useStatusFilter: false),
+          SizedBox(height: 3),
+          FilterChips<PlayerFilterCubit>(expanded: false),
+        ],
       ),
     );
   }
@@ -90,9 +174,11 @@ class _SelectionList extends StatelessWidget {
           builder: (context, state) {
             return UnsavedChangesWarning(
               formState: state,
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                children: selectionList,
+              child: ScrollShadow(
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(15, 0, 15, 200),
+                  children: selectionList,
+                ),
               ),
             );
           },

@@ -4,6 +4,8 @@ import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predica
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/predicate_producer.dart';
 import 'package:meta/meta.dart';
 
+/// A [PredicateConsumer] consumes the [FilterPredicate]s from a list of
+/// [PredicateProducer]s that emit the predicates via their stream.
 mixin PredicateConsumer {
   /// Intitializes this predicate consumer with a list of [producers]
   ///

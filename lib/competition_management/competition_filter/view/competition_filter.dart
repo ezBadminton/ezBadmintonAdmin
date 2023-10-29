@@ -12,22 +12,40 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CompetitionFilter extends StatelessWidget {
-  const CompetitionFilter({super.key});
+  const CompetitionFilter({
+    super.key,
+    this.expanded = true,
+  });
+
+  final bool expanded;
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       children: [
-        _FilterMenus(),
-        SizedBox(height: 3),
-        FilterChips<CompetitionFilterCubit>(),
+        const CompetitionFilterMenus(),
+        const SizedBox(height: 3),
+        FilterChips<CompetitionFilterCubit>(expanded: expanded),
       ],
     );
   }
 }
 
-class _FilterMenus extends StatelessWidget {
-  const _FilterMenus();
+class CompetitionFilterMenus extends StatelessWidget {
+  const CompetitionFilterMenus({
+    super.key,
+    this.useAgeGroupFilter = true,
+    this.usePlayingLevelFilter = true,
+    this.useGenderCategoryFilter = true,
+    this.useCompetitionTypeFilter = true,
+    this.useRegistrationCountFilter = true,
+  });
+
+  final bool useAgeGroupFilter;
+  final bool usePlayingLevelFilter;
+  final bool useGenderCategoryFilter;
+  final bool useCompetitionTypeFilter;
+  final bool useRegistrationCountFilter;
 
   @override
   Widget build(BuildContext context) {
@@ -46,9 +64,10 @@ class _FilterMenus extends StatelessWidget {
         bool showPlayingLevelFilter = tournament.usePlayingLevels;
         return Row(
           mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            if (showAgeGroupFilter) ...[
+            if (showAgeGroupFilter && useAgeGroupFilter) ...[
               FilterPopoverMenu(
                 filterMenu: AgeGroupFilterForm<CompetitionFilterCubit,
                     CompetitionFilterState>(
@@ -59,7 +78,7 @@ class _FilterMenus extends StatelessWidget {
               ),
               const SizedBox(width: 10),
             ],
-            if (showPlayingLevelFilter) ...[
+            if (showPlayingLevelFilter && usePlayingLevelFilter) ...[
               FilterPopoverMenu(
                 filterMenu: PlayingLevelFilterForm<CompetitionFilterCubit,
                     CompetitionFilterState>(
@@ -70,28 +89,33 @@ class _FilterMenus extends StatelessWidget {
               ),
               const SizedBox(width: 10),
             ],
-            FilterPopoverMenu(
-              filterMenu: GenderCategoryFilterForm<CompetitionFilterCubit,
-                  CompetitionFilterState>(
-                backgroundContext: context,
+            if (useGenderCategoryFilter) ...[
+              FilterPopoverMenu(
+                filterMenu: GenderCategoryFilterForm<CompetitionFilterCubit,
+                    CompetitionFilterState>(
+                  backgroundContext: context,
+                ),
+                buttonText: l10n.category,
               ),
-              buttonText: l10n.category,
-            ),
-            const SizedBox(width: 10),
-            FilterPopoverMenu(
-              filterMenu: CompetitionTypeFilterForm<CompetitionFilterCubit,
-                  CompetitionFilterState>(
-                backgroudContext: context,
+              const SizedBox(width: 10),
+            ],
+            if (useCompetitionTypeFilter) ...[
+              FilterPopoverMenu(
+                filterMenu: CompetitionTypeFilterForm<CompetitionFilterCubit,
+                    CompetitionFilterState>(
+                  backgroudContext: context,
+                ),
+                buttonText: l10n.competition(1),
               ),
-              buttonText: l10n.competition(1),
-            ),
-            const SizedBox(width: 10),
-            FilterPopoverMenu(
-              filterMenu: _RegistrationCountFilterForm(
-                backgroundContext: context,
+              const SizedBox(width: 10),
+            ],
+            if (useRegistrationCountFilter)
+              FilterPopoverMenu(
+                filterMenu: _RegistrationCountFilterForm(
+                  backgroundContext: context,
+                ),
+                buttonText: l10n.registrations,
               ),
-              buttonText: l10n.registrations,
-            ),
           ],
         );
       },
