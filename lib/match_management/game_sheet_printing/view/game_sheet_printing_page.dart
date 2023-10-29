@@ -47,7 +47,7 @@ class _GameSheetPrintingPageScaffold extends StatelessWidget {
 
     return BlocListener<TournamentProgressCubit, TournamentProgressState>(
       listener: (context, state) {
-        cubit.tournamentProgressStateChanged(state);
+        cubit.tournamentProgressChanged(state);
       },
       child: Scaffold(
         appBar: AppBar(title: Text(l10n.gameSheetPrinting)),

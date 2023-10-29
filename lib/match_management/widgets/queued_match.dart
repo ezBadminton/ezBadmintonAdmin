@@ -7,14 +7,12 @@ import 'package:ez_badminton_admin_app/match_management/cubit/call_out_cubit.dar
 import 'package:ez_badminton_admin_app/match_management/cubit/match_queue_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/result_entering/view/result_input_dialog.dart';
 import 'package:ez_badminton_admin_app/match_management/widgets/call_out_script.dart';
-import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
+import 'package:ez_badminton_admin_app/widgets/match_info/match_info.dart';
 import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
 import 'package:ez_badminton_admin_app/widgets/minutes_timer/minutes_timer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
-    as display_strings;
 
 class WaitingMatch extends StatelessWidget {
   WaitingMatch({
@@ -32,7 +30,7 @@ class WaitingMatch extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: _MatchInfo(match: match),
+            child: MatchInfo(match: match),
           ),
           MatchupLabel(match: match),
           Expanded(
@@ -74,7 +72,7 @@ class ReadyForCallOutMatch extends StatelessWidget {
               richMessage: WidgetSpan(
                 child: DefaultTextStyle.merge(
                   style: const TextStyle(color: Colors.white),
-                  child: _MatchInfo(
+                  child: MatchInfo(
                     match: match,
                     dividerColor: Colors.white54,
                   ),
@@ -120,7 +118,7 @@ class RunningMatch extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: _MatchInfo(match: match),
+            child: MatchInfo(match: match),
           ),
           MatchupLabel(match: match),
           Expanded(
@@ -168,52 +166,6 @@ class _QueuedMatchCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
         child: child,
       ),
-    );
-  }
-}
-
-class _MatchInfo extends StatelessWidget {
-  const _MatchInfo({
-    required this.match,
-    this.dividerColor,
-  });
-
-  final BadmintonMatch match;
-
-  final Color? dividerColor;
-
-  @override
-  Widget build(BuildContext context) {
-    var l10n = AppLocalizations.of(context)!;
-    String? roundName = display_strings.matchRoundName(l10n, match);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        CompetitionLabel(
-          competition: match.competition,
-          abbreviated: true,
-          playingLevelMaxWidth: 50,
-          textStyle: const TextStyle(fontSize: 12),
-          dividerPadding: 3,
-          dividerSize: 5,
-          dividerColor: dividerColor,
-        ),
-        if (roundName != null) ...[
-          const SizedBox(height: 7),
-          Text(
-            roundName,
-            style: const TextStyle(fontSize: 12),
-          ),
-        ],
-        if (match.court != null) ...[
-          const SizedBox(height: 7),
-          Text(
-            match.court!.name,
-            style: const TextStyle(fontSize: 12),
-          ),
-        ],
-      ],
     );
   }
 }

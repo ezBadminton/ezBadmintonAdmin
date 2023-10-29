@@ -5,7 +5,7 @@ import 'package:ez_badminton_admin_app/match_management/result_entering/input_va
 import 'package:ez_badminton_admin_app/match_management/result_entering/input_validation/score_input_formatter.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
 import 'package:ez_badminton_admin_app/widgets/help_tooltip_icon/help_tooltip_icon.dart';
-import 'package:ez_badminton_admin_app/widgets/running_match_info/running_match_info.dart';
+import 'package:ez_badminton_admin_app/widgets/match_info/match_info.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

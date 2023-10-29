@@ -257,5 +257,10 @@
   "nPages": "{count, plural, =1{1 page} other{{count} pages}}",
   "saveAndOpenPdf": "Save PDF and open",
   "openSaveLocation": "Open save location",
-  "noSheetsToPrint": "The current selection icludes no game sheets that need printing."
+  "noSheetsToPrint": "The current selection icludes no game sheets that need printing.",
+  "changeSelection": "Change selection",
+  "selectGameSheetsToPrint": "Select matches for printing",
+  "apply": "Apply",
+  "sheetCreated": "Game sheet for this match already created",
+  "sheetNotCreated": "Game sheet not created yet"
 }

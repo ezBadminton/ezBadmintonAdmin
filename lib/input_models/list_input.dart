@@ -10,10 +10,16 @@ class ListInput<T> extends FormzInput<List<T>, Object> {
 
   final List<T> _pureList;
 
+  /// Returns a dirty [ListInput] with the [list] as its value.
+  ///
+  /// The pure base list stays the same.
   ListInput<T> copyWith(List<T> list) {
     return ListInput._dirty(list, _pureList);
   }
 
+  /// Returns a [ListInput] with [value] replaced by [replaceWith].
+  /// This also replaces the value in the pure list. So pure lists stay pure
+  /// and dirty lists get a new pure base.
   ListInput<T> copyWithReplacedValue(T value, T replaceWith) {
     List<T> newList = this.value;
     if (newList.contains(value)) {
@@ -34,6 +40,7 @@ class ListInput<T> extends FormzInput<List<T>, Object> {
     }
   }
 
+  /// Returns a dirty [ListInput] with [value] added.
   ListInput<T> copyWithAddedValue(T value) {
     return ListInput._dirty(
       List.of(this.value)..add(value),
@@ -41,11 +48,23 @@ class ListInput<T> extends FormzInput<List<T>, Object> {
     );
   }
 
+  /// Returns a dirty [ListInput] with [value] removed. If the list did not
+  /// contain the [value], the returned [ListInput] is still dirty.
   ListInput<T> copyWithRemovedValue(T value) {
     return ListInput._dirty(
       List.of(this.value)..remove(value),
       _pureList,
     );
+  }
+
+  /// Returns a pure version of this list input with all dirty changes undone.
+  ListInput<T> copyWithReset() {
+    return ListInput.pure(_pureList);
+  }
+
+  /// Returns a pure version of this list input with the dirty changes applied.
+  ListInput<T> copyAsPure() {
+    return ListInput.pure(value);
   }
 
   /// Returns the values that have been added to the list since it was pure

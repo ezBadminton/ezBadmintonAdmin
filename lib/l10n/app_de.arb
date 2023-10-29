@@ -257,5 +257,10 @@
   "nPages": "{count, plural, =1{1 Seite} other{{count} Seiten}}",
   "saveAndOpenPdf": "PDF speichern und öffnen",
   "openSaveLocation": "Speicherort öffnen",
-  "noSheetsToPrint": "In der aktuellen Auswahl gibt es keine Spielzettel, die gedruckt werden müssen."
+  "noSheetsToPrint": "In der aktuellen Auswahl gibt es keine Spielzettel, die gedruckt werden müssen.",
+  "changeSelection": "Auswahl ändern",
+  "selectGameSheetsToPrint": "Spiele zum Drucken auswählen",
+  "apply": "Übernehmen",
+  "sheetCreated": "Zettel für dieses Spiel schon mal erstellt",
+  "sheetNotCreated": "Spielzettel noch nicht erstellt"
 }

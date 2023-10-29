@@ -16,7 +16,6 @@ class MatchManagementPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var l10n = AppLocalizations.of(context)!;
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -33,21 +32,38 @@ class MatchManagementPage extends StatelessWidget {
         listener: (context, state) {
           context.read<MatchQueueCubit>().tournamentChanged(state);
         },
-        child: Scaffold(
-          appBar: AppBar(title: Text(l10n.matchOperations)),
-          floatingActionButton: Padding(
-            padding: const EdgeInsets.only(right: 80, bottom: 40),
-            child: FloatingActionButton(
-              onPressed: () {
-                Navigator.of(context).push(GameSheetPrintingPage.route());
-              },
-              heroTag: 'match_print_button',
-              child: const Icon(Icons.print),
-            ),
+        // Use a nested Navigator get access to the MatchQueueCubit in the routes
+        child: Navigator(
+          key: const ValueKey('nested-match-management-navigator'),
+          onGenerateRoute: (settings) => MaterialPageRoute(
+            builder: (context) => const _MatchManagementPageScaffold(),
           ),
-          body: const _MatchQueueLists(),
         ),
       ),
+    );
+  }
+}
+
+class _MatchManagementPageScaffold extends StatelessWidget {
+  const _MatchManagementPageScaffold();
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+
+    return Scaffold(
+      appBar: AppBar(title: Text(l10n.matchOperations)),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(right: 80, bottom: 40),
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.of(context).push(GameSheetPrintingPage.route());
+          },
+          heroTag: 'match_print_button',
+          child: const Icon(Icons.print),
+        ),
+      ),
+      body: const _MatchQueueLists(),
     );
   }
 }

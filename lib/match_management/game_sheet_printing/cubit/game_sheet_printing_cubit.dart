@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:collection/collection.dart';
 import 'package:ez_badminton_admin_app/constants.dart';
 import 'package:path/path.dart' as p;
 import 'package:collection_repository/collection_repository.dart';
@@ -36,26 +37,6 @@ class GameSheetPrintingCubit
 
   final AppLocalizations l10n;
 
-  void sheetPrinted() async {
-    if (state.formStatus == FormzSubmissionStatus.inProgress) {
-      return;
-    }
-
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
-
-    final Uint8List? pdfBytes = (await _generateSheetsAndMarkAsPrinted()).$2;
-
-    if (pdfBytes == null) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-      return;
-    }
-
-    emit(state.copyWith(
-      formStatus: FormzSubmissionStatus.success,
-      printedFile: SelectionInput.dirty(value: pdfBytes),
-    ));
-  }
-
   void pdfOpened() async {
     if (state.formStatus == FormzSubmissionStatus.inProgress) {
       return;
@@ -90,11 +71,22 @@ class GameSheetPrintingCubit
     );
   }
 
-  void tournamentProgressStateChanged(TournamentProgressState progressState) {
-    GameSheetPrintingState newState =
-        state.copyWith(tournamentProgressState: progressState);
+  void tournamentProgressChanged(TournamentProgressState progressState) {
+    GameSheetPrintingState newState = state.copyWith(
+      tournamentProgressState: progressState,
+      customSelection: _updateCustomPrintSelection(progressState),
+    );
 
     _emitStateWithPdf(newState);
+  }
+
+  /// Changes the [customSelection] to be printed.
+  ///
+  /// Used for [PrintSelection.custom].
+  void customSelectionChanged(List<BadmintonMatch> customSelection) {
+    _emitStateWithPdf(
+      state.copyWith(customSelection: customSelection),
+    );
   }
 
   Future<(File?, Uint8List?)> _generateSheetsAndMarkAsPrinted() async {
@@ -129,13 +121,17 @@ class GameSheetPrintingCubit
   void _emitStateWithPdf(
     GameSheetPrintingState state,
   ) async {
-    List<BadmintonMatch> matches = state
-        .tournamentProgressState.runningTournaments.values
-        .expand((t) => t.matches)
-        .toList();
+    List<BadmintonMatch> matches = switch (state.printSelection) {
+      PrintSelection.custom => state.customSelection,
+      _ => state.tournamentProgressState.runningTournaments.values
+          .expand((t) => t.matches)
+          .toList(),
+    };
 
-    List<BadmintonMatch> matchPrintSelection =
-        _getMatchPrintSelection(state.printSelection, matches);
+    List<BadmintonMatch> matchPrintSelection = switch (state.printSelection) {
+      PrintSelection.custom => matches,
+      _ => _getMatchPrintSelection(state.printSelection, matches),
+    };
 
     pw.Document pdf = await _createPdf(matchPrintSelection);
 
@@ -206,6 +202,7 @@ class GameSheetPrintingCubit
       PrintSelection.readyForCallOut => unprintedMatches.where(
           (m) => m.isPlayable && m.court != null,
         ),
+      PrintSelection.custom => [],
     };
 
     return selectedMatches.toList();
@@ -238,6 +235,25 @@ class GameSheetPrintingCubit
     await file.writeAsBytes(pdfBytes);
 
     return (file, pdfBytes);
+  }
+
+  List<BadmintonMatch> _updateCustomPrintSelection(
+    TournamentProgressState progressState,
+  ) {
+    List<BadmintonMatch> matches = progressState.runningTournaments.values
+        .expand((t) => t.matches)
+        .where((m) => !m.isBye)
+        .toList();
+
+    List<BadmintonMatch> updatedSelection = state.customSelection
+        .map(
+          (match) =>
+              matches.firstWhereOrNull((m) => match.matchData == m.matchData),
+        )
+        .whereType<BadmintonMatch>()
+        .toList();
+
+    return updatedSelection;
   }
 
   Future<Directory> _getGameSheetDirectory() async {
