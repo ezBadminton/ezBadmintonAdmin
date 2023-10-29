@@ -1,6 +1,6 @@
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
 import 'package:ez_badminton_admin_app/input_models/list_input.dart';
-import 'package:ez_badminton_admin_app/match_management/cubit/match_queue_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/game_sheet_printing/cubit/custom_print_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/match_info/match_info.dart';
 import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
@@ -29,11 +29,13 @@ class CustomPrintSelectionPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var progressCubit = context.read<TournamentProgressCubit>();
     var l10n = AppLocalizations.of(context)!;
 
     return BlocProvider(
       create: (context) => CustomPrintSelectionCubit(
         initalSelection: initialSelection,
+        progressState: progressCubit.state,
       ),
       child: Builder(
         builder: (context) {
@@ -44,7 +46,7 @@ class CustomPrintSelectionPage extends StatelessWidget {
             body: const Align(
               alignment: AlignmentDirectional.topCenter,
               child: SizedBox(
-                width: 600,
+                width: 650,
                 child: _SelectionList(),
               ),
             ),
@@ -79,16 +81,19 @@ class _SelectionList extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
-    return BlocBuilder<MatchQueueCubit, MatchQueueState>(
+    return BlocBuilder<CustomPrintSelectionCubit, CustomPrintSelectionState>(
       builder: (context, state) {
-        List<Widget> selectionList = _createSelectionList(state, l10n);
+        List<Widget> selectionList = _createSelectionList(state.matches, l10n);
 
         return BlocBuilder<CustomPrintSelectionCubit,
             CustomPrintSelectionState>(
           builder: (context, state) {
             return UnsavedChangesWarning(
               formState: state,
-              child: ListView(children: selectionList),
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                children: selectionList,
+              ),
             );
           },
         );
@@ -97,15 +102,14 @@ class _SelectionList extends StatelessWidget {
   }
 
   List<Widget> _createSelectionList(
-    MatchQueueState state,
+    Map<PrintCategory, List<BadmintonMatch>> matches,
     AppLocalizations l10n,
   ) {
     Map<Widget, List<Widget>> sublists = {
-      Text(l10n.readyForCallout): _mapMatches(state.calloutWaitList),
-      for (MapEntry<MatchWaitingStatus, List<BadmintonMatch>> waitList
-          in state.waitList.entries)
-        Text(l10n.matchWaitingStatus(waitList.key.toString())):
-            _mapMatches(waitList.value),
+      for (MapEntry<PrintCategory, List<BadmintonMatch>> matchList
+          in matches.entries)
+        _PrintCategoryHeader(category: matchList.key):
+            _mapMatches(matchList.value),
     };
 
     List<Widget> selectionList = [
@@ -240,6 +244,61 @@ class _MatchPrintStatus extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PrintCategoryHeader extends StatelessWidget {
+  const _PrintCategoryHeader({
+    required this.category,
+  });
+
+  final PrintCategory category;
+
+  @override
+  Widget build(BuildContext context) {
+    var cubit = context.read<CustomPrintSelectionCubit>();
+    var l10n = AppLocalizations.of(context)!;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: InkWell(
+        onTap: () => cubit.printCategoryToggled(category),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).highlightColor,
+            borderRadius: BorderRadius.circular(5),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Row(
+              children: [
+                BlocBuilder<CustomPrintSelectionCubit,
+                    CustomPrintSelectionState>(
+                  builder: (context, state) {
+                    return Transform.scale(
+                      scale: 1.2,
+                      child: Checkbox(
+                        value: state.printCategorySelectionTristates[category],
+                        onChanged: (_) => cubit.printCategoryToggled(category),
+                        tristate: true,
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(width: 15),
+                Text(
+                  l10n.printingCategory(category.toString()),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

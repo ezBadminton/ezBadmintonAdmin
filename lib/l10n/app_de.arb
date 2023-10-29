@@ -261,6 +261,7 @@
   "changeSelection": "Auswahl ändern",
   "selectGameSheetsToPrint": "Spiele zum Drucken auswählen",
   "apply": "Übernehmen",
-  "sheetCreated": "Zettel für dieses Spiel schon mal erstellt",
-  "sheetNotCreated": "Spielzettel noch nicht erstellt"
+  "sheetCreated": "Spielzettel bereits einmal erstellt",
+  "sheetNotCreated": "Spielzettel noch nicht erstellt",
+  "printingCategory": "{status, select, readyForCallOut{Bereit zum Aufrufen} noCourt{Ohne zugewiesenes Feld} waitingForQualification{Warten auf Qualifikation} alreadyRunning{Laufende Spiele} other{OTHER}}"
 }
