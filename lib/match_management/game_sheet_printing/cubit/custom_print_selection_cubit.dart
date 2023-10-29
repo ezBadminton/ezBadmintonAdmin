@@ -4,6 +4,7 @@ import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
 import 'package:ez_badminton_admin_app/input_models/list_input.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
 
@@ -104,21 +105,29 @@ class CustomPrintSelectionCubit extends Cubit<CustomPrintSelectionState> {
 
     List<BadmintonMatch> selectableMatches =
         newMatches.values.expand((e) => e).toList();
-    Iterable<BadmintonMatch> filteredSelection = state.selectedMatches.value
+    Set<BadmintonMatch> filteredSelection = state.selectedMatches.value
         .map(
           (match) => selectableMatches
               .firstWhereOrNull((m) => match.matchData == m.matchData),
         )
-        .whereType<BadmintonMatch>();
+        .whereType<BadmintonMatch>()
+        .toSet();
 
-    ListInput<BadmintonMatch> newSelection =
-        state.selectedMatches.copyWith(filteredSelection.toList());
+    Set<BadmintonMatch> currentSelection =
+        this.state.selectedMatches.value.toSet();
+
+    ListInput<BadmintonMatch> newSelection;
+    if (setEquals(currentSelection, filteredSelection)) {
+      newSelection = this.state.selectedMatches;
+    } else {
+      newSelection = state.selectedMatches.copyWith(filteredSelection.toList());
+    }
 
     Map<PrintCategory, bool?> printCategorySelectionTristates = {
       for (PrintCategory category in PrintCategory.values)
         category: _getCategorySelectionTristate(
           newMatches,
-          filteredSelection.toSet(),
+          filteredSelection,
           category,
         ),
     };
