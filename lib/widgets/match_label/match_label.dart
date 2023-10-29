@@ -47,6 +47,8 @@ class MatchupLabel extends StatelessWidget {
     required this.match,
     this.orientation = Axis.vertical,
     this.participantWidth = 185,
+    this.useFullName = false,
+    this.boldLastName = false,
   });
 
   final BadmintonMatch match;
@@ -54,6 +56,10 @@ class MatchupLabel extends StatelessWidget {
   final Axis orientation;
 
   final double participantWidth;
+
+  final bool useFullName;
+
+  final bool boldLastName;
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +81,8 @@ class MatchupLabel extends StatelessWidget {
           l10n.qualificationPending,
           style: TextStyle(color: Theme.of(context).disabledColor),
         ),
-        useFullName: false,
+        useFullName: useFullName,
+        boldLastName: boldLastName,
       ),
       Text(
         '- ${l10n.versusAbbreviated} -',
@@ -99,7 +106,8 @@ class MatchupLabel extends StatelessWidget {
           l10n.qualificationPending,
           style: TextStyle(color: Theme.of(context).disabledColor),
         ),
-        useFullName: false,
+        useFullName: useFullName,
+        boldLastName: boldLastName,
       ),
     ];
 

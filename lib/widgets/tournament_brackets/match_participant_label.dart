@@ -19,6 +19,7 @@ class MatchParticipantLabel extends StatelessWidget {
     this.width,
     this.showClub = false,
     this.useFullName = true,
+    this.boldLastName = false,
     this.placeholderLabel,
     this.alignment = CrossAxisAlignment.start,
     this.padding = const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10),
@@ -35,6 +36,8 @@ class MatchParticipantLabel extends StatelessWidget {
   final bool showClub;
 
   final bool useFullName;
+
+  final bool boldLastName;
 
   final Widget? placeholderLabel;
 
@@ -73,6 +76,7 @@ class MatchParticipantLabel extends StatelessWidget {
             isEditable ? SizedBox(width: iconSize + 8, height: iconSize) : null,
         showClub: showClub,
         useFullName: useFullName,
+        boldLastName: boldLastName,
         placeholderLabel: placeholderLabel,
         alignment: alignment,
         padding: padding,
@@ -91,6 +95,7 @@ class _MatchParticipantLabel extends StatelessWidget {
     required this.width,
     required this.showClub,
     required this.useFullName,
+    required this.boldLastName,
     this.leadingWidget,
     // ignore: unused_element
     this.trailingWidget,
@@ -111,6 +116,7 @@ class _MatchParticipantLabel extends StatelessWidget {
   final bool showClub;
 
   final bool useFullName;
+  final bool boldLastName;
 
   final Widget? leadingWidget;
   final Widget? trailingWidget;
@@ -183,29 +189,34 @@ class _MatchParticipantLabel extends StatelessWidget {
       );
     }
 
-    return [
-      for (Player player in team.players)
-        Text(
-          _getPlayerName(player),
-          style: TextStyle(
-            color: textColor,
+    return team.players
+        .map(
+          (p) => _getPlayerName(
+            p,
+            textColor ?? Theme.of(context).colorScheme.onSurface,
           ),
-          overflow: TextOverflow.ellipsis,
-        ),
-    ];
+        )
+        .toList();
   }
 
-  String _getPlayerName(Player player) {
-    return switch (showClub) {
-      true => switch (useFullName) {
-          true => display_strings.playerWithClub(player),
-          false => display_strings.playerLastNameWithClub(player),
-        },
-      false => switch (useFullName) {
-          true => display_strings.playerName(player),
-          false => player.lastName,
-        },
-    };
+  RichText _getPlayerName(Player player, Color textColor) {
+    return RichText(
+      overflow: TextOverflow.ellipsis,
+      text: TextSpan(
+        style: TextStyle(color: textColor),
+        children: [
+          if (useFullName) TextSpan(text: '${player.firstName} '),
+          TextSpan(
+            text: player.lastName,
+            style: boldLastName
+                ? const TextStyle(fontWeight: FontWeight.bold)
+                : null,
+          ),
+          if (showClub && player.club != null)
+            TextSpan(text: ' (${player.club!.name})'),
+        ],
+      ),
+    );
   }
 }
 
@@ -266,6 +277,7 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
         width: width,
         showClub: true,
         useFullName: true,
+        boldLastName: false,
         alignment: alignment,
         padding: padding,
         byeLabel: byeLabel,
@@ -294,6 +306,7 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
             width: width,
             showClub: true,
             useFullName: true,
+            boldLastName: false,
             alignment: alignment,
             padding: padding,
             byeLabel: byeLabel,
@@ -313,6 +326,7 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
             width: width,
             showClub: true,
             useFullName: true,
+            boldLastName: false,
             alignment: alignment,
             padding: padding,
             byeLabel: byeLabel,

@@ -120,7 +120,7 @@ class _CustomPrintSelectionPageScaffold extends StatelessWidget {
                     _SelectionFilter(),
                     Expanded(
                       child: SizedBox(
-                        width: 650,
+                        width: 680,
                         child: _SelectionList(),
                       ),
                     ),
@@ -266,7 +266,12 @@ class _PrintSelectionMatchItem extends StatelessWidget {
                         playingLevelMaxWidth: 90,
                       ),
                     ),
-                    MatchupLabel(match: match, participantWidth: 220),
+                    MatchupLabel(
+                      match: match,
+                      participantWidth: 250,
+                      useFullName: true,
+                      boldLastName: true,
+                    ),
                     Expanded(
                       child: _MatchPrintStatus(match: match),
                     )
