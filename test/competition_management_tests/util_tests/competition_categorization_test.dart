@@ -45,6 +45,8 @@ Tournament doubleCategorizedTournament = Tournament(
   title: '',
   useAgeGroups: true,
   usePlayingLevels: true,
+  dontReprintGameSheets: true,
+  printQrCodes: true,
 );
 
 Tournament ageGroupCategorizedTournament = Tournament(
@@ -54,6 +56,8 @@ Tournament ageGroupCategorizedTournament = Tournament(
   title: '',
   useAgeGroups: true,
   usePlayingLevels: false,
+  dontReprintGameSheets: true,
+  printQrCodes: true,
 );
 
 Tournament playingLevelCategorizedTournament = Tournament(
@@ -63,6 +67,8 @@ Tournament playingLevelCategorizedTournament = Tournament(
   title: '',
   useAgeGroups: false,
   usePlayingLevels: true,
+  dontReprintGameSheets: true,
+  printQrCodes: true,
 );
 
 void main() {

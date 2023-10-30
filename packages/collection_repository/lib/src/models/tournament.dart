@@ -27,10 +27,23 @@ class Tournament extends Model with _$Tournament {
     required String title,
     required bool useAgeGroups,
     required bool usePlayingLevels,
+    required bool dontReprintGameSheets,
+    required bool printQrCodes,
   }) = _Tournament;
 
   factory Tournament.fromJson(Map<String, dynamic> json) =>
       _$TournamentFromJson(json);
+
+  factory Tournament.newTournament(String title) => Tournament(
+        id: '',
+        created: DateTime.now().toUtc(),
+        updated: DateTime.now().toUtc(),
+        title: title,
+        useAgeGroups: false,
+        usePlayingLevels: false,
+        dontReprintGameSheets: true,
+        printQrCodes: true,
+      );
 
   @override
   Map<String, dynamic> toCollapsedJson() {

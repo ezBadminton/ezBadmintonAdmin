@@ -24,15 +24,21 @@ class GameSheetPrintingCubit
     required TournamentProgressState tournamentProgressState,
     required this.l10n,
     required CollectionRepository<MatchData> matchDataRepository,
+    required CollectionRepository<Tournament> tournamentRepository,
   }) : super(
           collectionRepositories: [
             matchDataRepository,
+            tournamentRepository,
           ],
           GameSheetPrintingState(
             tournamentProgressState: tournamentProgressState,
           ),
         ) {
     _emitStateWithPdf(state);
+    subscribeToCollectionUpdates(
+      tournamentRepository,
+      (_) => _emitStateWithPdf(state),
+    );
   }
 
   final AppLocalizations l10n;
@@ -128,9 +134,18 @@ class GameSheetPrintingCubit
           .toList(),
     };
 
+    Tournament? tournament =
+        (await querier.fetchCollection<Tournament>())?.first;
+
+    bool excludePrinted = tournament?.dontReprintGameSheets ?? true;
+
     List<BadmintonMatch> matchPrintSelection = switch (state.printSelection) {
       PrintSelection.custom => matches,
-      _ => _getMatchPrintSelection(state.printSelection, matches),
+      _ => _getMatchPrintSelection(
+          state.printSelection,
+          matches,
+          excludePrinted,
+        ),
     };
 
     pw.Document pdf = await _createPdf(matchPrintSelection);
@@ -182,11 +197,12 @@ class GameSheetPrintingCubit
   List<BadmintonMatch> _getMatchPrintSelection(
     PrintSelection printSelection,
     List<BadmintonMatch> matches,
+    bool excludePrinted,
   ) {
     Iterable<BadmintonMatch> unprintedMatches = matches.where(
       (m) =>
           !m.isBye &&
-          !m.matchData!.gameSheetPrinted &&
+          (!excludePrinted || !m.matchData!.gameSheetPrinted) &&
           !m.inProgress &&
           !m.isCompleted,
     );

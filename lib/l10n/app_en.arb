@@ -263,5 +263,9 @@
   "apply": "Apply",
   "sheetCreated": "Game sheet already created once",
   "sheetNotCreated": "Game sheet not created yet",
-  "printingCategory": "{status, select, readyForCallOut{Ready for call out} noCourt{No court assigned} waitingForQualification{Waiting for qualification} alreadyRunning{Running matches} other{OTHER}}"
+  "printingCategory": "{status, select, readyForCallOut{Ready for call out} noCourt{No court assigned} waitingForQualification{Waiting for qualification} alreadyRunning{Running matches} other{OTHER}}",
+  "dontReprintGameSheets": "Don't reprint game sheets",
+  "dontReprintGameSheetsHelp": "With this option, game sheets that have been printed before wont be reprinted (except in a manual selection).",
+  "printQrCodes": "Print QR codes",
+  "options": "Options"
 }

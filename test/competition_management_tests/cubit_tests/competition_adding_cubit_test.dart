@@ -152,6 +152,8 @@ void main() {
       title: 'Test Tournament!',
       useAgeGroups: useAgeGroups,
       usePlayingLevels: usePlayingLevels,
+      dontReprintGameSheets: true,
+      printQrCodes: true,
     );
     tournamentRepository = TestCollectionRepository(
       initialCollection: [tournament],

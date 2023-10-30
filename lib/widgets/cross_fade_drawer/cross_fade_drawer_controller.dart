@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CrossFadeDrawerController extends ValueNotifier<bool> {
-  CrossFadeDrawerController() : super(true);
+  CrossFadeDrawerController([super.value = true]);
 
   bool get isExpanded => super.value;
   set isExpanded(bool expanded) => super.value = expanded;

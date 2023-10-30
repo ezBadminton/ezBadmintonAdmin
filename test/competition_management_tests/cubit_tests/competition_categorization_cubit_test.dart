@@ -123,6 +123,8 @@ void main() {
       title: 'test!',
       useAgeGroups: useAgeGroups,
       usePlayingLevels: usePlayingLevels,
+      dontReprintGameSheets: true,
+      printQrCodes: true,
     );
 
     tournamentRepository = TestCollectionRepository<Tournament>(

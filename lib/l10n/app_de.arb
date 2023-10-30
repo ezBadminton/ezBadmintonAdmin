@@ -263,5 +263,9 @@
   "apply": "Übernehmen",
   "sheetCreated": "Spielzettel bereits einmal erstellt",
   "sheetNotCreated": "Spielzettel noch nicht erstellt",
-  "printingCategory": "{status, select, readyForCallOut{Bereit zum Aufrufen} noCourt{Ohne zugewiesenes Feld} waitingForQualification{Warten auf Qualifikation} alreadyRunning{Laufende Spiele} other{OTHER}}"
+  "printingCategory": "{status, select, readyForCallOut{Bereit zum Aufrufen} noCourt{Ohne zugewiesenes Feld} waitingForQualification{Warten auf Qualifikation} alreadyRunning{Laufende Spiele} other{OTHER}}",
+  "dontReprintGameSheets": "Spielzettel nicht mehrfach erstellen",
+  "dontReprintGameSheetsHelp": "Mit dieser Option werden (außer bei manueller Auswahl) keine Spielzettel erstellt, die vorher schon einmal generiert wurden.",
+  "printQrCodes": "QR-Codes drucken",
+  "options": "Optionen"
 }
