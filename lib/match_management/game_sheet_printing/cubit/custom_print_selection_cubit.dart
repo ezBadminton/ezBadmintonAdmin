@@ -155,10 +155,12 @@ class CustomPrintSelectionCubit extends Cubit<CustomPrintSelectionState> {
         )
         .where(
           // Filter match by player filter (one match in the players is enough)
-          (m) => m
-              .getPlayersOfMatch()
-              .where((p) => playerFilter?.call(p) ?? true)
-              .isNotEmpty,
+          (m) => playerFilter == null
+              ? true
+              : m
+                  .getPlayersOfMatch()
+                  .where((p) => playerFilter.call(p))
+                  .isNotEmpty,
         )
         .toList();
 
