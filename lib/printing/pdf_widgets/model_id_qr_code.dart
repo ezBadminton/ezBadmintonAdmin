@@ -1,7 +1,17 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/constants.dart';
+import 'package:ez_badminton_admin_app/match_management/result_entering/cubit/match_scan_listener_cubit.dart';
+import 'package:ez_badminton_admin_app/match_management/result_entering/widgets/match_scan_listener.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+/// A QR code that contains a string of the format
+/// "[matchQrPrefix]`<model ID>`[matchQrSuffix]".
+///
+/// See also:
+/// * [MatchScanListener] which listens to global keyboard input
+/// (e.g. from a scanner device)
+/// * [MatchScanListenerCubit] which detects the model ID and finds the
+/// corresponding object
 class ModelIdQRCode extends pw.StatelessWidget {
   ModelIdQRCode(this.model);
 
