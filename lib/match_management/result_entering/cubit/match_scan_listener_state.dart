@@ -19,7 +19,7 @@ class MatchScanListenerState
   }) {
     return MatchScanListenerState(
       loadingStatus: loadingStatus ?? this.loadingStatus,
-      scannedMatch: scannedMatch ?? this.scannedMatch,
+      scannedMatch: scannedMatch ?? const SelectionInput.dirty(),
       collections: collections ?? this.collections,
     );
   }

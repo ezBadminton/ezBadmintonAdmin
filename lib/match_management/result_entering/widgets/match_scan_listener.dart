@@ -45,9 +45,7 @@ class _MatchScanFocus extends StatelessWidget {
     var progressCubit = context.read<TournamentProgressCubit>();
 
     return BlocListener<MatchScanListenerCubit, MatchScanListenerState>(
-      listenWhen: (previous, current) =>
-          previous.scannedMatch != current.scannedMatch &&
-          current.scannedMatch.value != null,
+      listenWhen: (previous, current) => current.scannedMatch.value != null,
       listener: (context, state) {
         MatchData scannedMatchData = state.scannedMatch.value!;
         if (scannedMatchData.startTime == null ||
