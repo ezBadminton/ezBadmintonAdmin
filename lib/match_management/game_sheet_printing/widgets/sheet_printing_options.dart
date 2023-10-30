@@ -50,7 +50,8 @@ class SheetPrintingOptions extends StatelessWidget {
 }
 
 class _OptionsHeader extends StatelessWidget {
-  const _OptionsHeader() : super(key: const ValueKey('OPTIONS_AR'));
+  const _OptionsHeader()
+      : super(key: const ValueKey('sheet_printing_options_header'));
 
   @override
   Widget build(BuildContext context) {
