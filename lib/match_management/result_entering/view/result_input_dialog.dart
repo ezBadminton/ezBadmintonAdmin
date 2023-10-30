@@ -264,16 +264,15 @@ class _MatchParticipantLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTextStyle.merge(
-      style: TextStyle(
+    return MatchParticipantLabel(
+      participant,
+      teamSize: participant.resolvePlayer()!.players.length,
+      isEditable: false,
+      alignment: CrossAxisAlignment.end,
+      textStyle: TextStyle(
+        color: Theme.of(context).colorScheme.onSurface,
         fontSize: 20,
         fontWeight: markAsWinner ? FontWeight.bold : FontWeight.normal,
-      ),
-      child: MatchParticipantLabel(
-        participant,
-        teamSize: participant.resolvePlayer()!.players.length,
-        isEditable: false,
-        alignment: CrossAxisAlignment.end,
       ),
     );
   }

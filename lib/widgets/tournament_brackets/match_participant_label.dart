@@ -19,11 +19,12 @@ class MatchParticipantLabel extends StatelessWidget {
     this.width,
     this.showClub = false,
     this.useFullName = true,
-    this.boldLastName = false,
     this.placeholderLabel,
     this.alignment = CrossAxisAlignment.start,
     this.padding = const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10),
     this.byeLabel,
+    this.textStyle,
+    this.lastNametextStyle,
   });
 
   final MatchParticipant<Team> participant;
@@ -37,8 +38,6 @@ class MatchParticipantLabel extends StatelessWidget {
 
   final bool useFullName;
 
-  final bool boldLastName;
-
   final Widget? placeholderLabel;
 
   final CrossAxisAlignment alignment;
@@ -46,6 +45,9 @@ class MatchParticipantLabel extends StatelessWidget {
   final EdgeInsets padding;
 
   final Widget? byeLabel;
+
+  final TextStyle? textStyle;
+  final TextStyle? lastNametextStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -76,11 +78,12 @@ class MatchParticipantLabel extends StatelessWidget {
             isEditable ? SizedBox(width: iconSize + 8, height: iconSize) : null,
         showClub: showClub,
         useFullName: useFullName,
-        boldLastName: boldLastName,
         placeholderLabel: placeholderLabel,
         alignment: alignment,
         padding: padding,
         byeLabel: byeLabel,
+        textStyle: textStyle,
+        lastNametextStyle: lastNametextStyle,
       );
     }
   }
@@ -95,7 +98,6 @@ class _MatchParticipantLabel extends StatelessWidget {
     required this.width,
     required this.showClub,
     required this.useFullName,
-    required this.boldLastName,
     this.leadingWidget,
     // ignore: unused_element
     this.trailingWidget,
@@ -103,6 +105,8 @@ class _MatchParticipantLabel extends StatelessWidget {
     required this.alignment,
     required this.padding,
     required this.byeLabel,
+    required this.textStyle,
+    required this.lastNametextStyle,
   });
 
   final MatchParticipant<Team> participant;
@@ -116,7 +120,6 @@ class _MatchParticipantLabel extends StatelessWidget {
   final bool showClub;
 
   final bool useFullName;
-  final bool boldLastName;
 
   final Widget? leadingWidget;
   final Widget? trailingWidget;
@@ -128,6 +131,9 @@ class _MatchParticipantLabel extends StatelessWidget {
   final EdgeInsets padding;
 
   final Widget byeLabel;
+
+  final TextStyle? textStyle;
+  final TextStyle? lastNametextStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -203,14 +209,12 @@ class _MatchParticipantLabel extends StatelessWidget {
     return RichText(
       overflow: TextOverflow.ellipsis,
       text: TextSpan(
-        style: TextStyle(color: textColor),
+        style: textStyle ?? TextStyle(color: textColor),
         children: [
           if (useFullName) TextSpan(text: '${player.firstName} '),
           TextSpan(
             text: player.lastName,
-            style: boldLastName
-                ? const TextStyle(fontWeight: FontWeight.bold)
-                : null,
+            style: lastNametextStyle,
           ),
           if (showClub && player.club != null)
             TextSpan(text: ' (${player.club!.name})'),
@@ -277,10 +281,11 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
         width: width,
         showClub: true,
         useFullName: true,
-        boldLastName: false,
         alignment: alignment,
         padding: padding,
         byeLabel: byeLabel,
+        textStyle: null,
+        lastNametextStyle: null,
       ),
       child: DragTarget<Team>(
         onWillAccept: (droppedTeam) {
@@ -306,10 +311,11 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
             width: width,
             showClub: true,
             useFullName: true,
-            boldLastName: false,
             alignment: alignment,
             padding: padding,
             byeLabel: byeLabel,
+            textStyle: null,
+            lastNametextStyle: null,
           ),
           child: _MatchParticipantLabel(
             participant: participant,
@@ -326,10 +332,11 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
             width: width,
             showClub: true,
             useFullName: true,
-            boldLastName: false,
             alignment: alignment,
             padding: padding,
             byeLabel: byeLabel,
+            textStyle: null,
+            lastNametextStyle: null,
           ),
         ),
       ),

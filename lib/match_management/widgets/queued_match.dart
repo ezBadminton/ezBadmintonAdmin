@@ -285,7 +285,10 @@ class _PlayerBlockingDialog extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: MatchLabel(
                     match: match,
-                    opponentStyle: const TextStyle(fontSize: 19),
+                    opponentStyle: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 19,
+                    ),
                     infoStyle: const TextStyle(fontSize: 14),
                   ),
                 ),

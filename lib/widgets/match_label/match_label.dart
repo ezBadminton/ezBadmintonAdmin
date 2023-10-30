@@ -30,9 +30,10 @@ class MatchLabel extends StatelessWidget {
         const SizedBox(height: 5),
         RunningMatchInfo(match: match, textStyle: infoStyle),
         const SizedBox(height: 5),
-        DefaultTextStyle.merge(
-          style: opponentStyle,
-          child: MatchupLabel(match: match, orientation: Axis.horizontal),
+        MatchupLabel(
+          match: match,
+          orientation: Axis.horizontal,
+          textStyle: opponentStyle,
         ),
         const SizedBox(height: 5),
         Text(match.court!.name, style: infoStyle),
@@ -49,6 +50,7 @@ class MatchupLabel extends StatelessWidget {
     this.participantWidth = 185,
     this.useFullName = false,
     this.boldLastName = false,
+    this.textStyle,
   });
 
   final BadmintonMatch match;
@@ -61,9 +63,14 @@ class MatchupLabel extends StatelessWidget {
 
   final bool boldLastName;
 
+  final TextStyle? textStyle;
+
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
+
+    TextStyle? lastNameTextStyle =
+        boldLastName ? const TextStyle(fontWeight: FontWeight.bold) : null;
 
     List<Widget> widgets = [
       MatchParticipantLabel(
@@ -82,7 +89,8 @@ class MatchupLabel extends StatelessWidget {
           style: TextStyle(color: Theme.of(context).disabledColor),
         ),
         useFullName: useFullName,
-        boldLastName: boldLastName,
+        textStyle: textStyle,
+        lastNametextStyle: lastNameTextStyle,
       ),
       Text(
         '- ${l10n.versusAbbreviated} -',
@@ -107,7 +115,8 @@ class MatchupLabel extends StatelessWidget {
           style: TextStyle(color: Theme.of(context).disabledColor),
         ),
         useFullName: useFullName,
-        boldLastName: boldLastName,
+        textStyle: textStyle,
+        lastNametextStyle: lastNameTextStyle,
       ),
     ];
 
