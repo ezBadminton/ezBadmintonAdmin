@@ -57,6 +57,6 @@ enum PrintSelection {
   readyForCallOut,
   playersQualified,
   playersPartiallyQualified,
-  allUnprinted,
+  allUpcoming,
   custom,
 }

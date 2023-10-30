@@ -208,7 +208,7 @@ class GameSheetPrintingCubit
     );
 
     Iterable<BadmintonMatch> selectedMatches = switch (printSelection) {
-      PrintSelection.allUnprinted => unprintedMatches,
+      PrintSelection.allUpcoming => unprintedMatches,
       PrintSelection.playersPartiallyQualified => unprintedMatches.where(
           (m) => m.a.readyToPlay || m.b.readyToPlay,
         ),
