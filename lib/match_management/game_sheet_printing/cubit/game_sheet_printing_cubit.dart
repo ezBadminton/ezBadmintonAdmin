@@ -138,6 +138,7 @@ class GameSheetPrintingCubit
         (await querier.fetchCollection<Tournament>())?.first;
 
     bool excludePrinted = tournament?.dontReprintGameSheets ?? true;
+    bool qrCodeEnabled = tournament?.printQrCodes ?? true;
 
     List<BadmintonMatch> matchPrintSelection = switch (state.printSelection) {
       PrintSelection.custom => matches,
@@ -148,7 +149,7 @@ class GameSheetPrintingCubit
         ),
     };
 
-    pw.Document pdf = await _createPdf(matchPrintSelection);
+    pw.Document pdf = await _createPdf(matchPrintSelection, qrCodeEnabled);
 
     GameSheetPrintingState stateWithPdf = state.copyWith(
       matchesToPrint: matchPrintSelection,
@@ -158,7 +159,10 @@ class GameSheetPrintingCubit
     emit(stateWithPdf);
   }
 
-  Future<pw.Document> _createPdf(List<BadmintonMatch> matchesToPrint) async {
+  Future<pw.Document> _createPdf(
+    List<BadmintonMatch> matchesToPrint,
+    bool qrCodeEnabled,
+  ) async {
     pw.Document pdf = pw.Document();
     final Uint8List fontData =
         File(p.join(fontDirPath, 'Inter', 'Inter.ttf')).readAsBytesSync();
@@ -184,6 +188,7 @@ class GameSheetPrintingCubit
           child: GameSheetPage(
             matches: matchesToPrint,
             l10n: l10n,
+            qrCodeEnabled: qrCodeEnabled,
           ),
         ),
       ],

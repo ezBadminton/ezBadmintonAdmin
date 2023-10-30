@@ -27,40 +27,43 @@ class CompetitionLabel extends pw.StatelessWidget {
           ),
         );
 
-    return pw.Row(children: [
-      if (competition.playingLevel != null) ...[
-        pw.ConstrainedBox(
-          constraints: const pw.BoxConstraints(maxWidth: 140),
-          child: pw.Text(
-            competition.playingLevel!.name,
-            overflow: pw.TextOverflow.clip,
-            softWrap: false,
-          ),
-        ),
-        divider(),
-      ],
-      if (competition.ageGroup != null) ...[
-        pw.ConstrainedBox(
-          constraints: const pw.BoxConstraints(maxWidth: 80),
-          child: pw.Text(
-            display_strings.ageGroup(
-              l10n,
-              competition.ageGroup!,
+    return pw.Row(
+      mainAxisSize: pw.MainAxisSize.min,
+      children: [
+        if (competition.playingLevel != null) ...[
+          pw.ConstrainedBox(
+            constraints: const pw.BoxConstraints(maxWidth: 140),
+            child: pw.Text(
+              competition.playingLevel!.name,
+              overflow: pw.TextOverflow.clip,
+              softWrap: false,
             ),
-            overflow: pw.TextOverflow.clip,
-            softWrap: false,
           ),
+          divider(),
+        ],
+        if (competition.ageGroup != null) ...[
+          pw.ConstrainedBox(
+            constraints: const pw.BoxConstraints(maxWidth: 80),
+            child: pw.Text(
+              display_strings.ageGroup(
+                l10n,
+                competition.ageGroup!,
+              ),
+              overflow: pw.TextOverflow.clip,
+              softWrap: false,
+            ),
+          ),
+          divider(),
+        ],
+        pw.Text(
+          display_strings.competitionGenderAndType(
+            l10n,
+            competition.genderCategory,
+            competition.type,
+          ),
+          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
         ),
-        divider(),
       ],
-      pw.Text(
-        display_strings.competitionGenderAndType(
-          l10n,
-          competition.genderCategory,
-          competition.type,
-        ),
-        style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-      ),
-    ]);
+    );
   }
 }

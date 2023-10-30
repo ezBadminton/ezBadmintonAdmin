@@ -14,6 +14,7 @@ class WritingLine extends pw.StatelessWidget {
   pw.Widget build(pw.Context context) {
     return pw.Row(
       crossAxisAlignment: pw.CrossAxisAlignment.end,
+      mainAxisSize: pw.MainAxisSize.min,
       children: [
         pw.Text('$label:'),
         pw.SizedBox(width: 4),

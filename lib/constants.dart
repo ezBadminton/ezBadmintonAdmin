@@ -36,3 +36,6 @@ const List<Type> tournamentModes = [
 ];
 
 final String fontDirPath = p.join(Directory.current.path, 'fonts');
+
+const String matchQrPrefix = '\$match:';
+const String matchQrSuffix = '\$';
