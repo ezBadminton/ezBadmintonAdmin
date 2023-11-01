@@ -1,4 +1,6 @@
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/court_list/cubit/court_list_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_court_view_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_selection_cubit.dart';
@@ -33,42 +35,53 @@ class CourtList extends StatelessWidget {
           selectionCubit.gymnasiumToggled(gyms.first);
         }
       },
-      child: BlocBuilder<CourtListCubit, CourtListState>(
-        buildWhen: (previous, current) => previous.courtMap != current.courtMap,
-        builder: (context, state) {
-          Map<Widget, List<Widget>> courtListWidgets =
-              _buildCourtMapItems(context, state.courtMap);
-          return StickyScrollableFollower(
-            scrollController: controller,
-            followerMargin: 30,
-            followerOffset:
-                courtListWidgets.isEmpty ? 40 : -listBottomPadding + 15,
-            scrollable: MapListView(
-              itemMap: courtListWidgets,
-              topPadding: 25,
-              bottomPadding: listBottomPadding,
-              controller: controller,
-            ),
-            follower: ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).push(GymnasiumEditingPage.route());
-              },
-              style: const ButtonStyle(
-                shape: MaterialStatePropertyAll(StadiumBorder()),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.add),
-                    const SizedBox(width: 3),
-                    Text(l10n.gym(1)),
-                    const SizedBox(width: 6),
-                  ],
+      child: BlocBuilder<TournamentProgressCubit, TournamentProgressState>(
+        buildWhen: (previous, current) =>
+            previous.occupiedCourts != current.occupiedCourts,
+        builder: (context, progressState) {
+          return BlocBuilder<CourtListCubit, CourtListState>(
+            buildWhen: (previous, current) =>
+                previous.courtMap != current.courtMap,
+            builder: (context, state) {
+              Map<Widget, List<Widget>> courtListWidgets = _buildCourtMapItems(
+                context,
+                state.courtMap,
+                progressState.occupiedCourts,
+              );
+
+              return StickyScrollableFollower(
+                scrollController: controller,
+                followerMargin: 30,
+                followerOffset:
+                    courtListWidgets.isEmpty ? 40 : -listBottomPadding + 15,
+                scrollable: MapListView(
+                  itemMap: courtListWidgets,
+                  topPadding: 25,
+                  bottomPadding: listBottomPadding,
+                  controller: controller,
                 ),
-              ),
-            ),
+                follower: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).push(GymnasiumEditingPage.route());
+                  },
+                  style: const ButtonStyle(
+                    shape: MaterialStatePropertyAll(StadiumBorder()),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.add),
+                        const SizedBox(width: 3),
+                        Text(l10n.gym(1)),
+                        const SizedBox(width: 6),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
           );
         },
       ),
@@ -78,11 +91,13 @@ class CourtList extends StatelessWidget {
   Map<Widget, List<Widget>> _buildCourtMapItems(
     BuildContext context,
     Map<Gymnasium, List<Court>> courtMap,
+    Map<Court, BadmintonMatch> matchesOnCourts,
   ) {
     return {
       for (Gymnasium gym in courtMap.keys)
-        _buildGymnasiumItem(context, gym):
-            courtMap[gym]!.map((c) => _buildCourtItem(context, c)).toList(),
+        _buildGymnasiumItem(context, gym): courtMap[gym]!
+            .map((c) => _buildCourtItem(context, c, matchesOnCourts[c]))
+            .toList(),
     };
   }
 
@@ -121,9 +136,20 @@ class CourtList extends StatelessWidget {
     );
   }
 
-  Widget _buildCourtItem(BuildContext context, Court court) {
+  Widget _buildCourtItem(
+    BuildContext context,
+    Court court,
+    BadmintonMatch? matchOnCourt,
+  ) {
     var selectionCubit = context.read<GymnasiumSelectionCubit>();
     var viewCubit = context.read<GymnasiumCourtViewCubit>();
+
+    Color occupationStatusColor = switch (matchOnCourt) {
+      null => Colors.green[400]!,
+      BadmintonMatch(startTime: null) => Colors.orange,
+      BadmintonMatch(startTime: var _!) => Colors.red,
+    };
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -162,9 +188,9 @@ class CourtList extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        const Icon(
+        Icon(
           Icons.circle,
-          color: Colors.green,
+          color: occupationStatusColor,
         ),
       ],
     );
