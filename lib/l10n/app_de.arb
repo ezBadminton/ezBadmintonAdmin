@@ -267,5 +267,6 @@
   "dontReprintGameSheets": "Spielzettel nicht mehrfach erstellen",
   "dontReprintGameSheetsHelp": "Mit dieser Option werden (außer bei manueller Auswahl) keine Spielzettel erstellt, die vorher schon einmal generiert wurden.",
   "printQrCodes": "QR-Codes drucken",
-  "options": "Optionen"
+  "options": "Optionen",
+  "cancelMatch": "Spiel abbrechen\n(zurück zur Aufrufliste)"
 }

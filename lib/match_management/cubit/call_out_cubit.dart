@@ -58,4 +58,27 @@ class CallOutCubit extends CollectionQuerierCubit<CallOutState> {
 
     emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
   }
+
+  void matchCanceled(MatchData matchData) async {
+    assert(matchData.court != null &&
+        matchData.startTime != null &&
+        matchData.endTime == null);
+
+    if (state.formStatus == FormzSubmissionStatus.inProgress) {
+      return;
+    }
+
+    emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
+
+    MatchData matchDataWithoutStartTime = matchData.copyWith(startTime: null);
+
+    MatchData? updatedMatchData =
+        await querier.updateModel(matchDataWithoutStartTime);
+    if (updatedMatchData == null) {
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      return;
+    }
+
+    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+  }
 }

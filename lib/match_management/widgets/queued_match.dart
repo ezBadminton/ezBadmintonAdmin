@@ -130,9 +130,14 @@ class RunningMatch extends StatelessWidget {
                   Text(l10n.playingTime),
                   MinutesTimer(timestamp: match.startTime!),
                   const SizedBox(height: 10),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 12.0),
-                    child: _EnterResultButton(match: match),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _CancelMatchButton(match: match),
+                      const SizedBox(width: 12),
+                      _EnterResultButton(match: match),
+                      const SizedBox(width: 8),
+                    ],
                   ),
                 ],
               ),
@@ -413,6 +418,39 @@ class _EnterResultButton extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _CancelMatchButton extends StatelessWidget {
+  const _CancelMatchButton({
+    required this.match,
+  });
+
+  final BadmintonMatch match;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+    var cubit = context.read<CallOutCubit>();
+
+    return PopupMenuButton<VoidCallback>(
+      onSelected: (callback) => callback(),
+      tooltip: '',
+      splashRadius: 19,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4.0),
+        child: Icon(
+          Icons.more_vert,
+          color: Theme.of(context).primaryColor,
+        ),
+      ),
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: () => cubit.matchCanceled(match.matchData!),
+          child: Text(l10n.cancelMatch),
+        ),
+      ],
     );
   }
 }
