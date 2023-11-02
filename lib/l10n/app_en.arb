@@ -268,5 +268,12 @@
   "dontReprintGameSheetsHelp": "With this option, game sheets that have been printed before wont be reprinted (except in a manual selection).",
   "printQrCodes": "Print QR codes",
   "options": "Options",
-  "cancelMatch": "Cancel match\n(back to call out list)"
+  "cancelMatch": "Cancel match\n(back to call out list)",
+  "settings": "Settings",
+  "queueModeSetting": "Queue mode",
+  "queueMode": "{mode, select, manual{Manual} autoCourtAssignment{Automatic court assignment} auto{Full auto} other{OTHER}}",
+  "queueModeHelp": "{mode, select, manual{Match starting and court assignment are done manually.} autoCourtAssignment{The match starting is done manually and the courts are assigned automatically.} auto{The matches are automatically started as soon as a court becomes available and the players had their rest time.\n\nThe matches are ordered in a round robin from all competitions running in parallel.} other{OTHER}}",
+  "playerRestTime": "Rest time",
+  "playerRestTimeHelp": "Matches are held in the queue until all participants have had at least {minutes} break since their last game.",
+  "minute": "{count, plural, =1{minute} other{minutes}}"
 }

@@ -154,6 +154,8 @@ void main() {
       usePlayingLevels: usePlayingLevels,
       dontReprintGameSheets: true,
       printQrCodes: true,
+      playerRestTime: 20,
+      queueMode: QueueMode.manual,
     );
     tournamentRepository = TestCollectionRepository(
       initialCollection: [tournament],

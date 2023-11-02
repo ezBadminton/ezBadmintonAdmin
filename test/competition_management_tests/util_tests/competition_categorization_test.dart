@@ -47,6 +47,8 @@ Tournament doubleCategorizedTournament = Tournament(
   usePlayingLevels: true,
   dontReprintGameSheets: true,
   printQrCodes: true,
+  playerRestTime: 20,
+  queueMode: QueueMode.manual,
 );
 
 Tournament ageGroupCategorizedTournament = Tournament(
@@ -58,6 +60,8 @@ Tournament ageGroupCategorizedTournament = Tournament(
   usePlayingLevels: false,
   dontReprintGameSheets: true,
   printQrCodes: true,
+  playerRestTime: 20,
+  queueMode: QueueMode.manual,
 );
 
 Tournament playingLevelCategorizedTournament = Tournament(
@@ -69,6 +73,8 @@ Tournament playingLevelCategorizedTournament = Tournament(
   usePlayingLevels: true,
   dontReprintGameSheets: true,
   printQrCodes: true,
+  playerRestTime: 20,
+  queueMode: QueueMode.manual,
 );
 
 void main() {

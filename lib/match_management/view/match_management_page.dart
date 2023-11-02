@@ -3,8 +3,10 @@ import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/call_out_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/match_queue_cubit.dart';
+import 'package:ez_badminton_admin_app/match_management/cubit/match_queue_settings_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/widgets/call_out_script.dart';
 import 'package:ez_badminton_admin_app/match_management/widgets/match_queue_list.dart';
+import 'package:ez_badminton_admin_app/match_management/widgets/match_queue_settings.dart';
 import 'package:ez_badminton_admin_app/match_management/widgets/queued_match.dart';
 import 'package:ez_badminton_admin_app/match_management/game_sheet_printing/view/game_sheet_printing_page.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +27,12 @@ class MatchManagementPage extends StatelessWidget {
           create: (context) => CallOutCubit(
             matchDataRepository:
                 context.read<CollectionRepository<MatchData>>(),
+          ),
+        ),
+        BlocProvider(
+          create: (context) => MatchQueueSettingsCubit(
+            tournamentRepository:
+                context.read<CollectionRepository<Tournament>>(),
           ),
         ),
       ],
@@ -86,9 +94,15 @@ class _MatchQueueLists extends StatelessWidget {
           children: [
             MatchQueueList(
               width: 420,
-              title: Text(
-                l10n.matchQueue,
-                style: queueTitleStyle,
+              title: Column(
+                children: [
+                  Text(
+                    l10n.matchQueue,
+                    style: queueTitleStyle,
+                  ),
+                  const SizedBox(height: 10),
+                  const MatchQueueSettings(),
+                ],
               ),
               sublists: _buildWaitList(
                 state.waitList,
@@ -103,7 +117,6 @@ class _MatchQueueLists extends StatelessWidget {
             MatchQueueList(
               width: 250,
               title: Column(
-                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     l10n.readyForCallout,

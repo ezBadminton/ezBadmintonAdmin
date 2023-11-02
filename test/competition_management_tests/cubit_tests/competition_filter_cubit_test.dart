@@ -60,6 +60,8 @@ void main() {
       usePlayingLevels: false,
       dontReprintGameSheets: true,
       printQrCodes: true,
+      playerRestTime: 20,
+      queueMode: QueueMode.manual,
     );
 
     tournamentRepository = TestCollectionRepository<Tournament>(
