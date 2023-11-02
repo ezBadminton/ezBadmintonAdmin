@@ -12,8 +12,8 @@ class TimerCubit extends Cubit<TimerState> {
   final DateTime timestamp;
 
   Future<bool> _updateTime() async {
-    final Duration duration =
-        DateTime.now().toUtc().difference(timestamp.toUtc());
+    final DateTime now = DateTime.now().toUtc();
+    final Duration duration = now.difference(timestamp.toUtc());
 
     emit(TimerState(
       minutes: duration.inMinutes,

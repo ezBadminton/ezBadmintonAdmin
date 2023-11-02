@@ -213,7 +213,7 @@
   "matchQueue": "Warteschlange",
   "readyForCallout": "Bereit zum Aufrufen",
   "runningMatches": "Laufende Spiele",
-  "matchWaitingStatus": "{status, select, waitingForCourt{Warten auf Feld} waitingForPlayer{Warten auf Spieler} waitingForProgress{Warten auf Turnierfortschritt} other{OTHER}}",
+  "matchWaitingStatus": "{status, select, waitingForCourt{Warten auf Feld} waitingForRest{Warten auf Spielpause} waitingForPlayer{Warten auf Spieler} waitingForProgress{Warten auf Turnierfortschritt} other{OTHER}}",
   "versusAbbreviated": "vs",
   "versus": "gegen",
   "qualificationPending": "Qualifikation ausstehend",

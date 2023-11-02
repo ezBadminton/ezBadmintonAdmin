@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
@@ -79,10 +80,22 @@ class TournamentProgressCubit
         for (Player player in match.getPlayersOfMatch()) player: match,
     };
 
+    List<BadmintonMatch> finishedMatches = runningTournaments.values
+        .expand((t) => t.matches)
+        .where((match) => match.isCompleted)
+        .sortedBy((match) => match.endTime!)
+        .toList();
+
+    Map<Player, DateTime> restingPlayers = {
+      for (BadmintonMatch match in finishedMatches)
+        for (Player player in match.getPlayersOfMatch()) player: match.endTime!,
+    };
+
     return state.copyWith(
       runningTournaments: runningTournaments,
       occupiedCourts: occupiedCourts,
       playingPlayers: playingPlayers,
+      restingPlayers: restingPlayers,
     );
   }
 }

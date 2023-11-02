@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/assets/badminton_icons_icons.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
@@ -7,12 +8,15 @@ import 'package:ez_badminton_admin_app/match_management/cubit/call_out_cubit.dar
 import 'package:ez_badminton_admin_app/match_management/cubit/match_queue_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/result_entering/view/result_input_dialog.dart';
 import 'package:ez_badminton_admin_app/match_management/widgets/call_out_script.dart';
+import 'package:ez_badminton_admin_app/widgets/countdown/countdown.dart';
 import 'package:ez_badminton_admin_app/widgets/match_info/match_info.dart';
 import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
 import 'package:ez_badminton_admin_app/widgets/minutes_timer/minutes_timer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
+    as display_strings;
 
 class WaitingMatch extends StatelessWidget {
   WaitingMatch({
@@ -41,6 +45,8 @@ class WaitingMatch extends StatelessWidget {
                 child: switch (waitingStatus) {
                   MatchWaitingStatus.waitingForCourt =>
                     _CourtAssignmentButton(matchData: match.matchData!),
+                  MatchWaitingStatus.waitingForRest =>
+                    _RestBlockingInfo(match: match),
                   MatchWaitingStatus.waitingForPlayer =>
                     _PlayerBlockingInfo(match: match),
                   _ => const SizedBox(),
@@ -252,6 +258,90 @@ class _PlayerBlockingInfo extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _RestBlockingInfo extends StatelessWidget {
+  const _RestBlockingInfo({
+    required this.match,
+  });
+
+  final BadmintonMatch match;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+
+    return BlocBuilder<MatchQueueCubit, MatchQueueState>(
+      builder: (context, state) {
+        Set<Player> matchParticipants = match.getPlayersOfMatch().toSet();
+        Set<Player> restingPlayers =
+            state.restingPlayers.keys.toSet().intersection(matchParticipants);
+        Map<Player, DateTime> restDeadlines = {
+          for (Player player in restingPlayers)
+            player: state.restingPlayers[player]!
+                .add(Duration(minutes: state.playerRestTime)),
+        };
+
+        DateTime latestRestDeadline = restDeadlines.values.sorted().last;
+
+        return Tooltip(
+          richMessage: _createTooltip(restDeadlines, l10n),
+          child: Column(
+            children: [
+              Text('${l10n.playerRestTime}:'),
+              Countdown(
+                timestamp: latestRestDeadline,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  InlineSpan _createTooltip(
+    Map<Player, DateTime> restDeadlines,
+    AppLocalizations l10n,
+  ) {
+    TextStyle tooltipStyle = const TextStyle(
+      fontSize: 12,
+      color: Colors.white,
+    );
+
+    List<Widget> playerNames = restDeadlines.keys
+        .map((p) => Text(
+              display_strings.playerName(p),
+              style: tooltipStyle,
+            ))
+        .toList();
+
+    DateTime now = DateTime.now().toUtc();
+    List<Widget> restTimes = restDeadlines.values.map((t) {
+      int restTime = t.difference(now).inMinutes + 1;
+
+      return Text(
+        l10n.nMinutes(restTime),
+        style: tooltipStyle,
+      );
+    }).toList();
+
+    return WidgetSpan(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: playerNames,
+          ),
+          const SizedBox(width: 15),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: restTimes,
+          ),
+        ],
+      ),
     );
   }
 }

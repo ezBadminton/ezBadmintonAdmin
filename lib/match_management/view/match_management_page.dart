@@ -21,7 +21,10 @@ class MatchManagementPage extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => MatchQueueCubit(),
+          create: (context) => MatchQueueCubit(
+            tournamentRepository:
+                context.read<CollectionRepository<Tournament>>(),
+          ),
         ),
         BlocProvider(
           create: (context) => CallOutCubit(
