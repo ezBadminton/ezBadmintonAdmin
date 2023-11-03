@@ -108,8 +108,8 @@ class _MatchQueueLists extends StatelessWidget {
                 ],
               ),
               sublists: _buildWaitList(
+                context,
                 state.waitList,
-                l10n,
                 (match, waitingStatus) => WaitingMatch(
                   match: match,
                   waitingStatus: waitingStatus,
@@ -152,16 +152,47 @@ class _MatchQueueLists extends StatelessWidget {
     );
   }
 
-  Map<String, List<Widget>> _buildWaitList(
+  Map<Widget, List<Widget>> _buildWaitList(
+    BuildContext context,
     Map<MatchWaitingStatus, List<BadmintonMatch>> waitList,
-    AppLocalizations l10n,
     Widget Function(BadmintonMatch match, MatchWaitingStatus waitingStatus)
         matchItemBuilder,
   ) {
-    return waitList.map<String, List<Widget>>(
-      (waitStatus, matches) => MapEntry(
-        l10n.matchWaitingStatus(waitStatus.toString()),
-        matches.map((match) => matchItemBuilder(match, waitStatus)).toList(),
+    return waitList.map<Widget, List<Widget>>(
+      (waitingStatus, matches) => MapEntry(
+        _buildWaitListStatusTitle(context, waitingStatus),
+        matches.map((match) => matchItemBuilder(match, waitingStatus)).toList(),
+      ),
+    );
+  }
+
+  Widget _buildWaitListStatusTitle(
+    BuildContext context,
+    MatchWaitingStatus waitingStatus,
+  ) {
+    var l10n = AppLocalizations.of(context)!;
+
+    return Container(
+      padding: const EdgeInsets.all(12.0),
+      child: Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              l10n.matchWaitingStatus(waitingStatus.toString()),
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            if (waitingStatus == MatchWaitingStatus.waitingForCourt) ...[
+              const SizedBox(width: 8),
+              const _OpenCourtsInfo(),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -171,6 +202,28 @@ class _MatchQueueLists extends StatelessWidget {
     Widget Function(BadmintonMatch match) matchItemBuilder,
   ) {
     return matches.map((match) => matchItemBuilder(match)).toList();
+  }
+}
+
+class _OpenCourtsInfo extends StatelessWidget {
+  const _OpenCourtsInfo();
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+
+    return BlocBuilder<TournamentProgressCubit, TournamentProgressState>(
+      buildWhen: (previous, current) =>
+          previous.openCourts.length != current.openCourts.length,
+      builder: (context, state) {
+        return Text(
+          l10n.nOpenCourts(state.openCourts.length),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(.55),
+          ),
+        );
+      },
+    );
   }
 }
 

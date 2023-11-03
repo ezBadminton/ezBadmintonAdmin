@@ -275,5 +275,6 @@
   "queueModeHelp": "{mode, select, manual{Match starting and court assignment are done manually.} autoCourtAssignment{The match starting is done manually and the courts are assigned automatically.} auto{The matches are automatically started as soon as a court becomes available and the players had their rest time.\n\nThe matches are ordered in a round robin from all competitions running in parallel.} other{OTHER}}",
   "playerRestTime": "Rest time",
   "playerRestTimeHelp": "Matches are held in the queue until all participants have had at least {minutes} break since their last game.",
-  "minute": "{count, plural, =1{minute} other{minutes}}"
+  "minute": "{count, plural, =1{minute} other{minutes}}",
+  "nOpenCourts": "{count, plural, =0{No open courts} =1{1 open court} other{{count} open courts}}"
 }

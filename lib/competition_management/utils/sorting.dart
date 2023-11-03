@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_sorter/comparators/competition_comparator.dart';
+import 'package:ez_badminton_admin_app/court_management/court_list/utils/numbered_string.dart';
 
 extension CollectionSorting<S extends CollectionFetcherState<S>>
     on CollectionFetcherState<S> {
@@ -56,6 +57,19 @@ extension CollectionSorting<S extends CollectionFetcherState<S>>
 
     return updatedState;
   }
+
+  S copyWithCourtSorting() {
+    List<Court> courts = getCollection<Court>();
+
+    courts.sortByCompare((c) => c, compareCourts);
+
+    S updatedState = copyWithCollection(
+      modelType: Court,
+      collection: courts,
+    );
+
+    return updatedState;
+  }
 }
 
 int compareAgeGroups(AgeGroup ageGroup1, AgeGroup ageGroup2) {
@@ -71,4 +85,18 @@ int compareAgeGroups(AgeGroup ageGroup1, AgeGroup ageGroup2) {
   // Sort by age descending
   int ageComparison = ageGroup2.age.compareTo(ageGroup1.age);
   return ageComparison;
+}
+
+int compareCourts(Court court1, Court court2) {
+  NumberedString gymName1 = NumberedString(court1.gymnasium.name);
+  NumberedString gymName2 = NumberedString(court2.gymnasium.name);
+  NumberedString courtName1 = NumberedString(court1.name);
+  NumberedString courtName2 = NumberedString(court2.name);
+
+  int gymComparison = gymName1.compareTo(gymName2);
+  if (gymComparison != 0) {
+    return gymComparison;
+  }
+
+  return courtName1.compareTo(courtName2);
 }

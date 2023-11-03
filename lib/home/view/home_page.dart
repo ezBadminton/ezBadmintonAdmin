@@ -143,6 +143,7 @@ class _HomePageState extends State<HomePage>
           create: (context) => TournamentProgressCubit(
             competitionRepository:
                 context.read<CollectionRepository<Competition>>(),
+            courtRepository: context.read<CollectionRepository<Court>>(),
           ),
         ),
       ],

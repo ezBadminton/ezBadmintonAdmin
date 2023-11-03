@@ -14,7 +14,7 @@ class MatchQueueList extends StatelessWidget {
   final Widget title;
 
   final List<Widget>? list;
-  final Map<String, List<Widget>>? sublists;
+  final Map<Widget, List<Widget>>? sublists;
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +63,7 @@ class MatchQueueList extends StatelessWidget {
       return _buildSublist(context, null, list!);
     } else {
       return [
-        for (String title in sublists!.keys)
+        for (Widget title in sublists!.keys)
           ..._buildSublist(context, title, sublists![title]!),
       ];
     }
@@ -71,25 +71,11 @@ class MatchQueueList extends StatelessWidget {
 
   List<Widget> _buildSublist(
     BuildContext context,
-    String? title,
+    Widget? title,
     List<Widget> sublist,
   ) {
     return [
-      if (title != null && sublist.isNotEmpty)
-        Container(
-          padding: const EdgeInsets.all(12.0),
-          child: Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: Text(
-              title,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-          ),
-        ),
+      if (title != null && sublist.isNotEmpty) title,
       ...sublist,
     ];
   }
