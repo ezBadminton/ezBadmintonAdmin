@@ -5,7 +5,9 @@ import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/call_out_cubit.dart';
+import 'package:ez_badminton_admin_app/match_management/cubit/match_court_assignment_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/match_queue_cubit.dart';
+import 'package:ez_badminton_admin_app/match_management/cubit/match_queue_settings_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/result_entering/view/result_input_dialog.dart';
 import 'package:ez_badminton_admin_app/match_management/widgets/call_out_script.dart';
 import 'package:ez_badminton_admin_app/widgets/countdown/countdown.dart';
@@ -190,6 +192,30 @@ class _CourtAssignmentButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return BlocBuilder<MatchQueueSettingsCubit, MatchQueueSettingsState>(
+      buildWhen: (previous, current) => previous.queueMode != current.queueMode,
+      builder: (context, state) {
+        return switch (state.queueMode) {
+          QueueMode.manual =>
+            _ManualCourtAssignmentButton(matchData: matchData),
+          QueueMode.autoCourtAssignment =>
+            _AutoCourtAssignmentButton(matchData: matchData),
+          QueueMode.auto => const Placeholder(),
+        };
+      },
+    );
+  }
+}
+
+class _ManualCourtAssignmentButton extends StatelessWidget {
+  const _ManualCourtAssignmentButton({
+    required this.matchData,
+  });
+
+  final MatchData matchData;
+
+  @override
+  Widget build(BuildContext context) {
     var navigationCubit = context.read<TabNavigationCubit>();
     var l10n = AppLocalizations.of(context)!;
 
@@ -217,6 +243,78 @@ class _CourtAssignmentButton extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _AutoCourtAssignmentButton extends StatelessWidget {
+  const _AutoCourtAssignmentButton({
+    required this.matchData,
+  });
+
+  final MatchData matchData;
+
+  @override
+  Widget build(BuildContext context) {
+    var assignmentCubit = context.read<MatchCourtAssignmentCubit>();
+    var l10n = AppLocalizations.of(context)!;
+
+    return BlocBuilder<TournamentProgressCubit, TournamentProgressState>(
+      builder: (context, state) {
+        Court? nextCourt = state.openCourts.firstOrNull;
+
+        return Tooltip(
+          message: l10n.assignCourt,
+          child: SizedBox.square(
+            dimension: 45,
+            child: ElevatedButton(
+              onPressed: nextCourt != null
+                  ? () {
+                      assignmentCubit.assignMatchToCourt(matchData, nextCourt);
+                    }
+                  : null,
+              style: ButtonStyle(
+                shape: MaterialStatePropertyAll(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14.0),
+                  ),
+                ),
+                padding: const MaterialStatePropertyAll(EdgeInsets.zero),
+              ),
+              child: Stack(
+                children: [
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(bottom: 11, left: 4, right: 4),
+                    child: Container(
+                      decoration: const BoxDecoration(),
+                      clipBehavior: Clip.hardEdge,
+                      child: const SizedBox(
+                        width: 26,
+                        height: 20,
+                        child: Icon(
+                          BadmintonIcons.badminton_court_outline,
+                          size: 26,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const Positioned(
+                    bottom: -1,
+                    left: 0,
+                    right: 0,
+                    child: Text(
+                      'AUTO',
+                      style: TextStyle(fontSize: 10),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

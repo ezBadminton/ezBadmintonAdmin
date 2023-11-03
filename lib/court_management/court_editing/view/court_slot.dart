@@ -7,11 +7,11 @@ import 'package:ez_badminton_admin_app/constants.dart';
 import 'package:ez_badminton_admin_app/court_management/court_editing/cubit/court_deletion_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/court_editing/cubit/court_adding_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/court_editing/cubit/court_renaming_cubit.dart';
-import 'package:ez_badminton_admin_app/court_management/court_editing/cubit/match_assignment_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_court_view_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_state.dart';
+import 'package:ez_badminton_admin_app/match_management/cubit/match_court_assignment_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/badminton_court/badminton_court.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
 import 'package:ez_badminton_admin_app/widgets/match_info/match_info.dart';
@@ -362,44 +362,23 @@ class _MatchAssignmentButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
+    var cubit = context.read<MatchCourtAssignmentCubit>();
 
-    return BlocProvider(
-      create: (context) => MatchAssignmentCubit(
-        court: court,
-        courtRepository: context.read<CollectionRepository<Court>>(),
-        matchDataRepository: context.read<CollectionRepository<MatchData>>(),
-      ),
-      child: BlocConsumer<MatchAssignmentCubit, MatchAssignmentState>(
-        listenWhen: (previous, current) =>
-            previous.formStatus != FormzSubmissionStatus.success &&
-            current.formStatus == FormzSubmissionStatus.success,
-        listener: (context, state) {
-          var cubit = context.read<TabNavigationCubit>();
-
-          // Go back to match page
-          cubit.tabChanged(4);
-        },
-        builder: (context, state) {
-          var cubit = context.read<MatchAssignmentCubit>();
-
-          return ElevatedButton(
-            onPressed: () => cubit.assignMatch(matchData),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(BadmintonIcons.badminton_shuttlecock),
-                  const SizedBox(width: 10),
-                  Text(
-                    l10n.playMatchHere,
-                    style: const TextStyle(fontSize: 18),
-                  ),
-                ],
-              ),
+    return ElevatedButton(
+      onPressed: () => cubit.assignMatchToCourt(matchData, court),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(BadmintonIcons.badminton_shuttlecock),
+            const SizedBox(width: 10),
+            Text(
+              l10n.playMatchHere,
+              style: const TextStyle(fontSize: 18),
             ),
-          );
-        },
+          ],
+        ),
       ),
     );
   }

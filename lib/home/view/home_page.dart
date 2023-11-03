@@ -7,6 +7,7 @@ import 'package:ez_badminton_admin_app/draw_management/view/draw_management_page
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_state.dart';
 import 'package:ez_badminton_admin_app/home/widgets/navigation_tab.dart';
+import 'package:ez_badminton_admin_app/match_management/cubit/match_court_assignment_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/result_entering/widgets/match_scan_listener.dart';
 import 'package:ez_badminton_admin_app/match_management/view/match_management_page.dart';
 import 'package:ez_badminton_admin_app/player_management/view/player_list_page.dart';
@@ -144,6 +145,12 @@ class _HomePageState extends State<HomePage>
             competitionRepository:
                 context.read<CollectionRepository<Competition>>(),
             courtRepository: context.read<CollectionRepository<Court>>(),
+          ),
+        ),
+        BlocProvider(
+          create: (context) => MatchCourtAssignmentCubit(
+            matchDataRepository:
+                context.read<CollectionRepository<MatchData>>(),
           ),
         ),
       ],
