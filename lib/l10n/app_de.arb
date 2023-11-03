@@ -272,7 +272,7 @@
   "settings": "Einstellungen",
   "queueModeSetting": "Warteschlangenmodus",
   "queueMode": "{mode, select, manual{Manuell} autoCourtAssignment{Automatische Feldzuweisung} auto{Vollautomatisch} other{OTHER}}",
-  "queueModeHelp": "{mode, select, manual{Spiele werden manuell gestartet und manuell einem Feld zugewiesen.} autoCourtAssignment{Spiele werden manuell gestartet und automatisch einem freien Feld zugewiesen.} auto{Spiele werden automatisch zur Aufrufliste hinzugefügt, sobald ein Feld frei ist und die Spieler ihre Pausenzeit hatten.\n\nDie Spiele werden in einem Rundlauf aus allen parallel laufenden Disziplinen ausgewählt.} other{OTHER}}",
+  "queueModeHelp": "{mode, select, manual{Spielreihenfolge und Feldzuweisung werden manuell gemacht.} autoCourtAssignment{Die Spielreihenfolge wird manuell gewählt, Spiele werden automatisch einem freien Feld zugewiesen.} auto{Spiele werden automatisch zur Aufrufliste hinzugefügt, sobald ein Feld frei ist und die Spieler ihre Pausenzeit hatten.\n\nDie Spiele werden in einem Rundlauf aus allen parallel laufenden Disziplinen ausgewählt.} other{OTHER}}",
   "playerRestTime": "Pausenzeit",
   "playerRestTimeHelp": "Spiele werden in der Warteschlange zurückgehalten, bis alle Teilnehmer min. {minutes} Pause seit ihrem letzten Spiel hatten.",
   "minute": "{count, plural, =1{Minute} other{Minuten}}",
