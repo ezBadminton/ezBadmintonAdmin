@@ -91,7 +91,7 @@ class MatchQueueCubit extends CollectionFetcherCubit<MatchQueueState>
 
     List<BadmintonMatch> inProgressList = matches
         .where((m) => m.startTime != null && m.score == null)
-        .sortedByCompare((m) => m.competition, compareCompetitions)
+        .sortedBy((m) => m.startTime!)
         .toList();
 
     _scheduleRestTimeUpdate(restingPlayers);
