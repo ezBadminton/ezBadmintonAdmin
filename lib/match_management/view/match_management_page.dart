@@ -24,6 +24,8 @@ class MatchManagementPage extends StatelessWidget {
           create: (context) => MatchQueueCubit(
             tournamentRepository:
                 context.read<CollectionRepository<Tournament>>(),
+            matchDataRepository:
+                context.read<CollectionRepository<MatchData>>(),
           ),
         ),
         BlocProvider(

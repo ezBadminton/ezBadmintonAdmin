@@ -4,7 +4,7 @@ import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/tournament_mode_hydration.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
-import 'package:ez_badminton_admin_app/competition_management/utils/sorting.dart';
+import 'package:ez_badminton_admin_app/utils/sorting.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 
 part 'tournament_progress_state.dart';

@@ -22,6 +22,7 @@ class MatchQueueState extends CollectionFetcherState<MatchQueueState> {
   final Map<Player, DateTime> restingPlayers;
 
   int get playerRestTime => getCollection<Tournament>().first.playerRestTime;
+  QueueMode get queueMode => getCollection<Tournament>().first.queueMode;
 
   MatchQueueState copyWith({
     LoadingStatus? loadingStatus,

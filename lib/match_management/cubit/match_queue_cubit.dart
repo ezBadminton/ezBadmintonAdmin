@@ -5,16 +5,21 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
+import 'package:ez_badminton_admin_app/match_management/cubit/mixins/match_court_assignment_query.dart';
+import 'package:ez_badminton_admin_app/utils/sorting.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 
 part 'match_queue_state.dart';
 
-class MatchQueueCubit extends CollectionFetcherCubit<MatchQueueState> {
+class MatchQueueCubit extends CollectionFetcherCubit<MatchQueueState>
+    with MatchCourtAssignmentQuery {
   MatchQueueCubit({
     required CollectionRepository<Tournament> tournamentRepository,
+    required CollectionRepository<MatchData> matchDataRepository,
   }) : super(
           collectionRepositories: [
             tournamentRepository,
+            matchDataRepository,
           ],
           MatchQueueState(),
         ) {
@@ -79,21 +84,45 @@ class MatchQueueCubit extends CollectionFetcherCubit<MatchQueueState> {
       restingPlayerConflicts,
     );
 
-    List<BadmintonMatch> calloutWaitList =
-        matches.where((m) => m.startTime == null && m.court != null).toList();
+    List<BadmintonMatch> calloutWaitList = matches
+        .where((m) => m.startTime == null && m.court != null)
+        .sortedByCompare((m) => m.competition, compareCompetitions)
+        .toList();
 
-    List<BadmintonMatch> inProgressList =
-        matches.where((m) => m.startTime != null && m.score == null).toList();
+    List<BadmintonMatch> inProgressList = matches
+        .where((m) => m.startTime != null && m.score == null)
+        .sortedByCompare((m) => m.competition, compareCompetitions)
+        .toList();
 
     _scheduleRestTimeUpdate(restingPlayers);
 
-    emit(state.copyWith(
+    MatchQueueState newState = state.copyWith(
       progressState: progressState,
       waitList: waitList,
       calloutWaitList: calloutWaitList,
       inProgressList: inProgressList,
       restingPlayers: restingPlayers,
-    ));
+    );
+
+    if (state.queueMode == QueueMode.auto) {
+      _callOutNextMatch(newState);
+    }
+
+    emit(newState);
+  }
+
+  void _callOutNextMatch(MatchQueueState queueState) async {
+    Court? nextCourt = queueState.progressState!.openCourts.firstOrNull;
+    BadmintonMatch? nextMatch =
+        queueState.waitList[MatchWaitingStatus.waitingForCourt]?.firstOrNull;
+
+    if (nextCourt == null || nextMatch == null) {
+      return;
+    }
+
+    MatchData matchData = nextMatch.matchData!;
+
+    submitMatchCourtAssignment(matchData, nextCourt);
   }
 
   Map<Player, DateTime> _getRestingPlayers(
@@ -149,6 +178,7 @@ class MatchQueueCubit extends CollectionFetcherCubit<MatchQueueState> {
                 matchPlayerConflicts[m]!.isEmpty &&
                 restingPlayerConflicts[m]!.isEmpty,
           )
+          .sorted(compareMatches)
           .toList(),
       MatchWaitingStatus.waitingForRest: playableMatches
           .where(
@@ -156,12 +186,16 @@ class MatchQueueCubit extends CollectionFetcherCubit<MatchQueueState> {
                 matchPlayerConflicts[m]!.isEmpty &&
                 restingPlayerConflicts[m]!.isNotEmpty,
           )
+          .sortedByCompare((m) => m.competition, compareCompetitions)
           .toList(),
       MatchWaitingStatus.waitingForPlayer: playableMatches
           .where((m) => matchPlayerConflicts[m]!.isNotEmpty)
+          .sortedByCompare((m) => m.competition, compareCompetitions)
           .toList(),
-      MatchWaitingStatus.waitingForProgress:
-          matches.where((m) => !m.isPlayable).toList(),
+      MatchWaitingStatus.waitingForProgress: matches
+          .where((m) => !m.isPlayable)
+          .sortedByCompare((m) => m.competition, compareCompetitions)
+          .toList(),
     };
 
     return waitList;

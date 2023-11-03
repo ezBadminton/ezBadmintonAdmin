@@ -23,12 +23,11 @@ class CallOutCubit extends CollectionQuerierCubit<CallOutState> {
 
     emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
-    MatchData matchDataWithStartTime =
-        matchData.copyWith(startTime: DateTime.now().toUtc());
+    DateTime now = DateTime.now().toUtc();
+    MatchData matchWithStartTime = matchData.copyWith(startTime: now);
 
-    MatchData? updatedMatchData =
-        await querier.updateModel(matchDataWithStartTime);
-    if (updatedMatchData == null) {
+    MatchData? updatedMatch = await querier.updateModel(matchWithStartTime);
+    if (updatedMatch == null) {
       emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
       return;
     }

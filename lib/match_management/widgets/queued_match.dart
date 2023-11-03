@@ -119,34 +119,34 @@ class RunningMatch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var l10n = AppLocalizations.of(context)!;
-
     return _QueuedMatchCard(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: MatchInfo(match: match),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                MatchInfo(match: match),
+                const SizedBox(height: 7),
+                MinutesTimer(
+                  timestamp: match.startTime!,
+                  textStyle: const TextStyle(fontSize: 12),
+                ),
+              ],
+            ),
           ),
           MatchupLabel(match: match),
           Expanded(
             child: Align(
               alignment: AlignmentDirectional.centerEnd,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(l10n.playingTime),
-                  MinutesTimer(timestamp: match.startTime!),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _CancelMatchButton(match: match),
-                      const SizedBox(width: 12),
-                      _EnterResultButton(match: match),
-                      const SizedBox(width: 8),
-                    ],
-                  ),
+                  _CancelMatchButton(match: match),
+                  const SizedBox(width: 12),
+                  _EnterResultButton(match: match),
+                  const SizedBox(width: 8),
                 ],
               ),
             ),
@@ -200,7 +200,7 @@ class _CourtAssignmentButton extends StatelessWidget {
             _ManualCourtAssignmentButton(matchData: matchData),
           QueueMode.autoCourtAssignment =>
             _AutoCourtAssignmentButton(matchData: matchData),
-          QueueMode.auto => const Placeholder(),
+          QueueMode.auto => const _FullAutoSymbol(),
         };
       },
     );
@@ -315,6 +315,34 @@ class _AutoCourtAssignmentButton extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _FullAutoSymbol extends StatelessWidget {
+  const _FullAutoSymbol();
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+
+    return Tooltip(
+      message: l10n.matchWaitsForCourt,
+      child: SizedBox.square(
+        dimension: 45,
+        child: Card(
+          margin: EdgeInsets.zero,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14.0),
+          ),
+          color: Theme.of(context).secondaryHeaderColor,
+          child: Icon(
+            Icons.hourglass_top_rounded,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(.6),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -548,23 +576,32 @@ class _BackToWaitlistButton extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
     var cancelingCubit = context.read<CallOutCubit>();
 
-    return SizedBox.square(
-      dimension: 35,
-      child: Tooltip(
-        message: l10n.backToWaitList,
-        child: IconButton(
-          onPressed: () => cancelingCubit.callOutCanceled(matchData),
-          style: const ButtonStyle(
-            shape: MaterialStatePropertyAll(CircleBorder()),
-            padding: MaterialStatePropertyAll(EdgeInsets.zero),
+    return BlocBuilder<MatchQueueSettingsCubit, MatchQueueSettingsState>(
+      buildWhen: (previous, current) => previous.queueMode != current.queueMode,
+      builder: (context, state) {
+        if (state.queueMode == QueueMode.auto) {
+          return const SizedBox();
+        }
+
+        return SizedBox.square(
+          dimension: 35,
+          child: Tooltip(
+            message: l10n.backToWaitList,
+            child: IconButton(
+              onPressed: () => cancelingCubit.callOutCanceled(matchData),
+              style: const ButtonStyle(
+                shape: MaterialStatePropertyAll(CircleBorder()),
+                padding: MaterialStatePropertyAll(EdgeInsets.zero),
+              ),
+              splashRadius: 18,
+              icon: const Icon(
+                Icons.arrow_back,
+                size: 18,
+              ),
+            ),
           ),
-          splashRadius: 18,
-          icon: const Icon(
-            Icons.arrow_back,
-            size: 18,
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

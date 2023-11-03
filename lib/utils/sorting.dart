@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_sorter/comparators/competition_comparator.dart';
 import 'package:ez_badminton_admin_app/court_management/court_list/utils/numbered_string.dart';
@@ -45,10 +46,8 @@ extension CollectionSorting<S extends CollectionFetcherState<S>>
   /// Only works on a state that holds the [Competition] collection.
   S copyWithCompetitionSorting() {
     List<Competition> competitions = getCollection<Competition>();
-    Comparator<Competition> comparator =
-        const CompetitionComparator().comparator;
 
-    competitions.sortByCompare((c) => c, comparator);
+    competitions.sort(compareCompetitions);
 
     S updatedState = copyWithCollection(
       modelType: Competition,
@@ -61,7 +60,7 @@ extension CollectionSorting<S extends CollectionFetcherState<S>>
   S copyWithCourtSorting() {
     List<Court> courts = getCollection<Court>();
 
-    courts.sortByCompare((c) => c, compareCourts);
+    courts.sort(compareCourts);
 
     S updatedState = copyWithCollection(
       modelType: Court,
@@ -71,6 +70,9 @@ extension CollectionSorting<S extends CollectionFetcherState<S>>
     return updatedState;
   }
 }
+
+final Comparator<Competition> compareCompetitions =
+    const CompetitionComparator().comparator;
 
 int compareAgeGroups(AgeGroup ageGroup1, AgeGroup ageGroup2) {
   int typeIndex1 = AgeGroupType.values.indexOf(ageGroup1.type);
@@ -99,4 +101,25 @@ int compareCourts(Court court1, Court court2) {
   }
 
   return courtName1.compareTo(courtName2);
+}
+
+int compareMatches(BadmintonMatch match1, BadmintonMatch match2) {
+  List<BadmintonMatch> matches1 = match1.round!.tournament.matches.cast();
+  List<BadmintonMatch> matches2 = match2.round!.tournament.matches.cast();
+
+  int matchIndex1 = matches1.indexOf(match1);
+  int matchIndex2 = matches2.indexOf(match2);
+
+  assert(matchIndex1 != -1 && matchIndex2 != -1);
+
+  int matchIndexComparison = matchIndex1.compareTo(matchIndex2);
+
+  if (matchIndexComparison != 0) {
+    return matchIndexComparison;
+  }
+
+  int competitionComparison =
+      compareCompetitions(match1.competition, match2.competition);
+
+  return competitionComparison;
 }

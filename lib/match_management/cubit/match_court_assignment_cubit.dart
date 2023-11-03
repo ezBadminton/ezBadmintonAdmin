@@ -1,11 +1,13 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
+import 'package:ez_badminton_admin_app/match_management/cubit/mixins/match_court_assignment_query.dart';
 import 'package:formz/formz.dart';
 
 part 'match_court_assignment_state.dart';
 
 class MatchCourtAssignmentCubit
-    extends CollectionQuerierCubit<MatchCourtAssignmentState> {
+    extends CollectionQuerierCubit<MatchCourtAssignmentState>
+    with MatchCourtAssignmentQuery {
   MatchCourtAssignmentCubit({
     required CollectionRepository<MatchData> matchDataRepository,
   }) : super(
@@ -22,14 +24,9 @@ class MatchCourtAssignmentCubit
 
     emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
-    MatchData matchWithCourt = matchData.copyWith(court: court);
+    FormzSubmissionStatus assignmentStatus =
+        await submitMatchCourtAssignment(matchData, court);
 
-    MatchData? updatedMatch = await querier.updateModel(matchWithCourt);
-    if (updatedMatch == null) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-      return;
-    }
-
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+    emit(state.copyWith(formStatus: assignmentStatus));
   }
 }

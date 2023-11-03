@@ -276,5 +276,6 @@
   "playerRestTime": "Rest time",
   "playerRestTimeHelp": "Matches are held in the queue until all participants have had at least {minutes} break since their last game.",
   "minute": "{count, plural, =1{minute} other{minutes}}",
-  "nOpenCourts": "{count, plural, =0{No open courts} =1{1 open court} other{{count} open courts}}"
+  "nOpenCourts": "{count, plural, =0{No open courts} =1{1 open court} other{{count} open courts}}",
+  "matchWaitsForCourt": "Match is waiting for open court"
 }
