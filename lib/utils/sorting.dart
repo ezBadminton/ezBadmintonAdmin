@@ -104,8 +104,10 @@ int compareCourts(Court court1, Court court2) {
 }
 
 int compareMatches(BadmintonMatch match1, BadmintonMatch match2) {
-  List<BadmintonMatch> matches1 = match1.round!.tournament.matches.cast();
-  List<BadmintonMatch> matches2 = match2.round!.tournament.matches.cast();
+  List<BadmintonMatch> matches1 =
+      match1.round!.tournament.matches.where((m) => !m.isBye).toList().cast();
+  List<BadmintonMatch> matches2 =
+      match2.round!.tournament.matches.where((m) => !m.isBye).toList().cast();
 
   int matchIndex1 = matches1.indexOf(match1);
   int matchIndex2 = matches2.indexOf(match2);
