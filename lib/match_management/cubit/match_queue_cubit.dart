@@ -172,14 +172,11 @@ class MatchQueueCubit extends CollectionFetcherCubit<MatchQueueState>
     Map<BadmintonMatch, Set<Player>> restingPlayerConflicts,
   ) {
     Map<MatchWaitingStatus, List<BadmintonMatch>> waitList = {
-      MatchWaitingStatus.waitingForCourt: playableMatches
-          .where(
-            (m) =>
-                matchPlayerConflicts[m]!.isEmpty &&
-                restingPlayerConflicts[m]!.isEmpty,
-          )
-          .sorted(compareMatches)
-          .toList(),
+      MatchWaitingStatus.waitingForCourt: _createWaitingForCourtList(
+        playableMatches,
+        matchPlayerConflicts,
+        restingPlayerConflicts,
+      ),
       MatchWaitingStatus.waitingForRest: playableMatches
           .where(
             (m) =>
@@ -199,6 +196,69 @@ class MatchQueueCubit extends CollectionFetcherCubit<MatchQueueState>
     };
 
     return waitList;
+  }
+
+  /// Filters the matches that are ready to play and waiting for court
+  /// assignment. Also sorts them in the order that they should be played.
+  List<BadmintonMatch> _createWaitingForCourtList(
+    List<BadmintonMatch> playableMatches,
+    Map<BadmintonMatch, Set<Player>> matchPlayerConflicts,
+    Map<BadmintonMatch, Set<Player>> restingPlayerConflicts,
+  ) {
+    List<BadmintonMatch> waitingForCourt = playableMatches
+        .where(
+          (m) =>
+              matchPlayerConflicts[m]!.isEmpty &&
+              restingPlayerConflicts[m]!.isEmpty,
+        )
+        .toList();
+
+    List<BadmintonMatch> sortedWaitingForCourt = waitingForCourt.sorted(
+      (a, b) => _compareWaitingMatches(waitingForCourt, a, b),
+    );
+
+    return sortedWaitingForCourt;
+  }
+
+  /// Determines which of the matches [match1] or [match2] should be played
+  /// first.
+  ///
+  /// For this purpose the index of both matches within the list of waiting
+  /// matches of their respective tournament is compared.
+  /// The earlier match goes first.
+  ///
+  /// If they have the same index they are ordered according to the
+  /// competition that they are played in. The comparison is done by the
+  /// [compareCompetitions] method.
+  int _compareWaitingMatches(
+    List<BadmintonMatch> waitingForCourt,
+    BadmintonMatch match1,
+    BadmintonMatch match2,
+  ) {
+    List<BadmintonMatch> matches1 = match1.round!.tournament.matches
+        .cast<BadmintonMatch>()
+        .where((m) => waitingForCourt.contains(m))
+        .toList();
+    List<BadmintonMatch> matches2 = match2.round!.tournament.matches
+        .cast<BadmintonMatch>()
+        .where((m) => waitingForCourt.contains(m))
+        .toList();
+
+    int matchIndex1 = matches1.indexOf(match1);
+    int matchIndex2 = matches2.indexOf(match2);
+
+    assert(matchIndex1 != -1 && matchIndex2 != -1);
+
+    int matchIndexComparison = matchIndex1.compareTo(matchIndex2);
+
+    if (matchIndexComparison != 0) {
+      return matchIndexComparison;
+    }
+
+    int competitionComparison =
+        compareCompetitions(match1.competition, match2.competition);
+
+    return competitionComparison;
   }
 
   void _scheduleRestTimeUpdate(Map<Player, DateTime> restingPlayers) {
