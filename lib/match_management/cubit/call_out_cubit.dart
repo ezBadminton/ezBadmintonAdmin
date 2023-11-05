@@ -46,7 +46,10 @@ class CallOutCubit extends CollectionQuerierCubit<CallOutState> {
 
     emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
-    MatchData matchDataWithoutCourt = matchData.copyWith(court: null);
+    MatchData matchDataWithoutCourt = matchData.copyWith(
+      court: null,
+      courtAssignmentTime: null,
+    );
 
     MatchData? updatedMatchData =
         await querier.updateModel(matchDataWithoutCourt);

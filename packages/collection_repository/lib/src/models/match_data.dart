@@ -37,11 +37,12 @@ class MatchData extends Model with _$MatchData {
     required List<MatchSet> sets,
     Court? court,
     required MatchStatus status,
+    DateTime? courtAssignmentTime,
     DateTime? startTime,
     DateTime? endTime,
     String? resultCard,
     required bool gameSheetPrinted,
-  }) = _Match;
+  }) = _MatchData;
 
   factory MatchData.fromJson(Map<String, dynamic> json) =>
       _$MatchDataFromJson(json..cleanUpExpansions(expandedFields));

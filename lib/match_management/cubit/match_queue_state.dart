@@ -4,10 +4,7 @@ class MatchQueueState extends CollectionFetcherState<MatchQueueState> {
   MatchQueueState({
     this.loadingStatus = LoadingStatus.loading,
     this.progressState,
-    this.waitList = const {},
-    this.calloutWaitList = const [],
-    this.inProgressList = const [],
-    this.restingPlayers = const {},
+    this.matchSchedule,
     super.collections = const {},
   });
 
@@ -15,11 +12,14 @@ class MatchQueueState extends CollectionFetcherState<MatchQueueState> {
 
   final TournamentProgressState? progressState;
 
-  final Map<MatchWaitingStatus, List<BadmintonMatch>> waitList;
-  final List<BadmintonMatch> calloutWaitList;
-  final List<BadmintonMatch> inProgressList;
+  final MatchSchedule? matchSchedule;
 
-  final Map<Player, DateTime> restingPlayers;
+  Map<MatchWaitingStatus, List<BadmintonMatch>> get schedule =>
+      matchSchedule!.schedule;
+  List<BadmintonMatch> get calloutWaitList => matchSchedule!.calloutWaitList;
+  List<BadmintonMatch> get inProgressList => matchSchedule!.inProgressList;
+
+  Map<Player, DateTime> get restingDeadlines => matchSchedule!.restingDeadlines;
 
   int get playerRestTime => getCollection<Tournament>().first.playerRestTime;
   QueueMode get queueMode => getCollection<Tournament>().first.queueMode;
@@ -27,27 +27,14 @@ class MatchQueueState extends CollectionFetcherState<MatchQueueState> {
   MatchQueueState copyWith({
     LoadingStatus? loadingStatus,
     TournamentProgressState? progressState,
-    Map<MatchWaitingStatus, List<BadmintonMatch>>? waitList,
-    List<BadmintonMatch>? calloutWaitList,
-    List<BadmintonMatch>? inProgressList,
-    Map<Player, DateTime>? restingPlayers,
+    MatchSchedule? matchSchedule,
     Map<Type, List<Model>>? collections,
   }) {
     return MatchQueueState(
       loadingStatus: loadingStatus ?? this.loadingStatus,
       progressState: progressState ?? this.progressState,
-      waitList: waitList ?? this.waitList,
-      calloutWaitList: calloutWaitList ?? this.calloutWaitList,
-      inProgressList: inProgressList ?? this.inProgressList,
-      restingPlayers: restingPlayers ?? this.restingPlayers,
+      matchSchedule: matchSchedule ?? this.matchSchedule,
       collections: collections ?? this.collections,
     );
   }
-}
-
-enum MatchWaitingStatus {
-  waitingForCourt,
-  waitingForRest,
-  waitingForPlayer,
-  waitingForProgress,
 }

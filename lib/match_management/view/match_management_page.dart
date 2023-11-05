@@ -4,11 +4,13 @@ import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament
 import 'package:ez_badminton_admin_app/match_management/cubit/call_out_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/match_queue_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/match_queue_settings_cubit.dart';
+import 'package:ez_badminton_admin_app/match_management/match_schedule/match_schedule.dart';
 import 'package:ez_badminton_admin_app/match_management/widgets/call_out_script.dart';
 import 'package:ez_badminton_admin_app/match_management/widgets/match_queue_list.dart';
 import 'package:ez_badminton_admin_app/match_management/widgets/match_queue_settings.dart';
 import 'package:ez_badminton_admin_app/match_management/widgets/queued_match.dart';
 import 'package:ez_badminton_admin_app/match_management/game_sheet_printing/view/game_sheet_printing_page.dart';
+import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -22,6 +24,10 @@ class MatchManagementPage extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (context) => MatchQueueCubit(
+            scheduler: (progressState, playerRestTime) => ParallelMatchSchedule(
+              progressState: progressState,
+              playerRestTime: playerRestTime,
+            ),
             tournamentRepository:
                 context.read<CollectionRepository<Tournament>>(),
             matchDataRepository:
@@ -94,61 +100,64 @@ class _MatchQueueLists extends StatelessWidget {
 
     return BlocBuilder<MatchQueueCubit, MatchQueueState>(
       builder: (context, state) {
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            MatchQueueList(
-              width: 420,
-              title: Column(
-                children: [
-                  Text(
-                    l10n.matchQueue,
-                    style: queueTitleStyle,
+        return LoadingScreen(
+          loadingStatus: state.loadingStatus,
+          builder: (context) => Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              MatchQueueList(
+                width: 420,
+                title: Column(
+                  children: [
+                    Text(
+                      l10n.matchQueue,
+                      style: queueTitleStyle,
+                    ),
+                    const SizedBox(height: 10),
+                    const MatchQueueSettings(),
+                  ],
+                ),
+                sublists: _buildWaitList(
+                  context,
+                  state.schedule,
+                  (match, waitingStatus) => WaitingMatch(
+                    match: match,
+                    waitingStatus: waitingStatus,
                   ),
-                  const SizedBox(height: 10),
-                  const MatchQueueSettings(),
-                ],
-              ),
-              sublists: _buildWaitList(
-                context,
-                state.waitList,
-                (match, waitingStatus) => WaitingMatch(
-                  match: match,
-                  waitingStatus: waitingStatus,
                 ),
               ),
-            ),
-            const SizedBox(width: 5),
-            MatchQueueList(
-              width: 250,
-              title: Column(
-                children: [
-                  Text(
-                    l10n.readyForCallout,
-                    style: queueTitleStyle,
-                  ),
-                  const SizedBox(height: 10),
-                  const _CallOutAllButton(),
-                ],
+              const SizedBox(width: 5),
+              MatchQueueList(
+                width: 250,
+                title: Column(
+                  children: [
+                    Text(
+                      l10n.readyForCallout,
+                      style: queueTitleStyle,
+                    ),
+                    const SizedBox(height: 10),
+                    const _CallOutAllButton(),
+                  ],
+                ),
+                list: _buildMatchList(
+                  state.calloutWaitList,
+                  (match) => ReadyForCallOutMatch(match: match),
+                ),
               ),
-              list: _buildMatchList(
-                state.calloutWaitList,
-                (match) => ReadyForCallOutMatch(match: match),
+              const SizedBox(width: 5),
+              MatchQueueList(
+                width: 420,
+                title: Text(
+                  l10n.runningMatches,
+                  style: queueTitleStyle,
+                ),
+                list: _buildMatchList(
+                  state.inProgressList,
+                  (match) => RunningMatch(match: match),
+                ),
               ),
-            ),
-            const SizedBox(width: 5),
-            MatchQueueList(
-              width: 420,
-              title: Text(
-                l10n.runningMatches,
-                style: queueTitleStyle,
-              ),
-              list: _buildMatchList(
-                state.inProgressList,
-                (match) => RunningMatch(match: match),
-              ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );

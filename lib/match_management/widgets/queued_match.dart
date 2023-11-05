@@ -7,7 +7,7 @@ import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/call_out_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/match_court_assignment_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/match_queue_cubit.dart';
-import 'package:ez_badminton_admin_app/match_management/cubit/match_queue_settings_cubit.dart';
+import 'package:ez_badminton_admin_app/match_management/match_schedule/match_schedule.dart';
 import 'package:ez_badminton_admin_app/match_management/result_entering/view/result_input_dialog.dart';
 import 'package:ez_badminton_admin_app/match_management/widgets/call_out_script.dart';
 import 'package:ez_badminton_admin_app/widgets/countdown/countdown.dart';
@@ -192,7 +192,7 @@ class _CourtAssignmentButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<MatchQueueSettingsCubit, MatchQueueSettingsState>(
+    return BlocBuilder<MatchQueueCubit, MatchQueueState>(
       buildWhen: (previous, current) => previous.queueMode != current.queueMode,
       builder: (context, state) {
         return switch (state.queueMode) {
@@ -402,18 +402,16 @@ class _RestBlockingInfo extends StatelessWidget {
     return BlocBuilder<MatchQueueCubit, MatchQueueState>(
       builder: (context, state) {
         Set<Player> matchParticipants = match.getPlayersOfMatch().toSet();
-        Set<Player> restingPlayers =
-            state.restingPlayers.keys.toSet().intersection(matchParticipants);
-        Map<Player, DateTime> restDeadlines = {
-          for (Player player in restingPlayers)
-            player: state.restingPlayers[player]!
-                .add(Duration(minutes: state.playerRestTime)),
-        };
 
-        DateTime latestRestDeadline = restDeadlines.values.sorted().last;
+        Map<Player, DateTime> restingDeadlines = Map.fromEntries(
+          state.restingDeadlines.entries
+              .where((entry) => matchParticipants.contains(entry.key)),
+        );
+
+        DateTime latestRestDeadline = restingDeadlines.values.sorted().last;
 
         return Tooltip(
-          richMessage: _createTooltip(restDeadlines, l10n),
+          richMessage: _createTooltip(restingDeadlines, l10n),
           child: Column(
             children: [
               Text('${l10n.playerRestTime}:'),
@@ -428,7 +426,7 @@ class _RestBlockingInfo extends StatelessWidget {
   }
 
   InlineSpan _createTooltip(
-    Map<Player, DateTime> restDeadlines,
+    Map<Player, DateTime> restingDeadlines,
     AppLocalizations l10n,
   ) {
     TextStyle tooltipStyle = const TextStyle(
@@ -436,7 +434,7 @@ class _RestBlockingInfo extends StatelessWidget {
       color: Colors.white,
     );
 
-    List<Widget> playerNames = restDeadlines.keys
+    List<Widget> playerNames = restingDeadlines.keys
         .map((p) => Text(
               display_strings.playerName(p),
               style: tooltipStyle,
@@ -444,7 +442,7 @@ class _RestBlockingInfo extends StatelessWidget {
         .toList();
 
     DateTime now = DateTime.now().toUtc();
-    List<Widget> restTimes = restDeadlines.values.map((t) {
+    List<Widget> restTimes = restingDeadlines.values.map((t) {
       int restTime = t.difference(now).inMinutes + 1;
 
       return Text(
@@ -576,7 +574,7 @@ class _BackToWaitlistButton extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
     var cancelingCubit = context.read<CallOutCubit>();
 
-    return BlocBuilder<MatchQueueSettingsCubit, MatchQueueSettingsState>(
+    return BlocBuilder<MatchQueueCubit, MatchQueueState>(
       buildWhen: (previous, current) => previous.queueMode != current.queueMode,
       builder: (context, state) {
         if (state.queueMode == QueueMode.auto) {

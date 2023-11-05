@@ -4,8 +4,15 @@ import 'package:formz/formz.dart';
 
 mixin MatchCourtAssignmentQuery<S> on CollectionQuerierCubit<S> {
   Future<FormzSubmissionStatus> submitMatchCourtAssignment(
-      MatchData matchData, Court court) async {
-    MatchData matchWithCourt = matchData.copyWith(court: court);
+    MatchData matchData,
+    Court court,
+  ) async {
+    DateTime now = DateTime.now().toUtc();
+
+    MatchData matchWithCourt = matchData.copyWith(
+      court: court,
+      courtAssignmentTime: now,
+    );
 
     MatchData? updatedMatch = await querier.updateModel(matchWithCourt);
     if (updatedMatch == null) {

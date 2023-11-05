@@ -100,7 +100,7 @@ class TournamentProgressCubit
         .sortedBy((match) => match.endTime!)
         .toList();
 
-    Map<Player, DateTime> restingPlayers = {
+    Map<Player, DateTime> lastPlayerMatches = {
       for (BadmintonMatch match in finishedMatches)
         for (Player player in match.getPlayersOfMatch()) player: match.endTime!,
     };
@@ -110,7 +110,7 @@ class TournamentProgressCubit
       occupiedCourts: occupiedCourts,
       openCourts: openCourts,
       playingPlayers: playingPlayers,
-      restingPlayers: restingPlayers,
+      lastPlayerMatches: lastPlayerMatches,
     );
   }
 }
