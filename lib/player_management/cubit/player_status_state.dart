@@ -1,21 +1,26 @@
-import 'package:collection_repository/collection_repository.dart';
-import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
+part of 'player_status_cubit.dart';
 
-class PlayerStatusState {
+class PlayerStatusState implements DialogState {
   PlayerStatusState({
     required this.player,
-    this.loadingStatus = LoadingStatus.done,
+    this.formStatus = FormzSubmissionStatus.initial,
+    this.dialog = const CubitDialog(),
   });
 
   final Player player;
-  final LoadingStatus loadingStatus;
+  final FormzSubmissionStatus formStatus;
+
+  @override
+  final CubitDialog dialog;
 
   PlayerStatusState copyWith({
     Player? player,
-    LoadingStatus? loadingStatus,
+    FormzSubmissionStatus? formStatus,
+    CubitDialog? dialog,
   }) =>
       PlayerStatusState(
         player: player ?? this.player,
-        loadingStatus: loadingStatus ?? this.loadingStatus,
+        formStatus: formStatus ?? this.formStatus,
+        dialog: dialog ?? this.dialog,
       );
 }

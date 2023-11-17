@@ -68,11 +68,7 @@ class TournamentProgressCubit
     for (Competition competition in runningCompetitions) {
       BadmintonTournamentMode tournament = runningTournaments[competition]!;
 
-      hydrateTournament(tournament, competition.matches);
-
-      for (BadmintonMatch match in tournament.matches) {
-        match.competition = competition;
-      }
+      hydrateTournament(competition, tournament, competition.matches);
     }
 
     List<BadmintonMatch> runningMatches = runningTournaments.values

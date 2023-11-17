@@ -277,5 +277,7 @@
   "playerRestTimeHelp": "Spiele werden in der Warteschlange zurückgehalten, bis alle Teilnehmer min. {minutes} Pause seit ihrem letzten Spiel hatten.",
   "minute": "{count, plural, =1{Minute} other{Minuten}}",
   "nOpenCourts": "{count, plural, =0{Keine freien Felder} =1{1 freies Feld} other{{count} freie Felder}}",
-  "matchWaitsForCourt": "Spiel wartet auf freies Feld"
+  "matchWaitsForCourt": "Spiel wartet auf freies Feld",
+  "playerWithdrawal": "Rücktritt eines Turnierteilnehmers",
+  "playerWithdrawalInfo": "Folgende Spiele werden in Folge des Rücktritts von {playerName} als verloren gewertet:"
 }

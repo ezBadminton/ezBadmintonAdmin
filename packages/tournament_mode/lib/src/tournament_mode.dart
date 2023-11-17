@@ -36,6 +36,12 @@ abstract class TournamentMode<P, S, M extends TournamentMatch<P, S>> {
   /// The final ranks of the players after all matches are finished.
   Ranking<P> get finalRanking;
 
+  /// Called when a [player] withdraws from the tournament.
+  ///
+  /// Returns a list of matches that become walkovers because the [player]
+  /// withdrew.
+  List<M> withdrawPlayer(P player);
+
   /// Returns the earliest round that still has unfinished matches
   ///
   /// Returns `-1` if all matches are completed.

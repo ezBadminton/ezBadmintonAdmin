@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_round_robin_ranking.dart';
@@ -80,4 +81,20 @@ class BadmintonGroupKnockout extends GroupKnockout<
           numGroups: settings.numGroups,
           qualificationsPerGroup: settings.qualificationsPerGroup,
         );
+
+  @override
+  List<BadmintonMatch> withdrawPlayer(Team player) {
+    bool hasKnockOutStarted = knockoutPhase.matches.firstWhereOrNull(
+          (m) => m.matchData!.startTime != null,
+        ) !=
+        null;
+
+    // While the knock out phase has not started yet, the group walkovers are
+    // forced even if the group matches have been completed.
+    if (!hasKnockOutStarted) {
+      return groupPhase.withdrawPlayer(player, true);
+    } else {
+      return knockoutPhase.withdrawPlayer(player);
+    }
+  }
 }

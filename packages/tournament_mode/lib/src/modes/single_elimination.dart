@@ -167,13 +167,14 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
     List<TournamentMatch<P, S>> roundMatches,
   ) {
     // The winners are determined by placement in a WinnerRanking
-    List<MatchParticipant<P>> winners = roundMatches
-        .map(
-          (match) => MatchParticipant.fromPlacement(
-            Placement(ranking: WinnerRanking<P, S>(match), place: 0),
-          ),
-        )
-        .toList();
+    List<MatchParticipant<P>> winners = roundMatches.map(
+      (match) {
+        WinnerRanking<P, S> winnerRanking = WinnerRanking(match);
+        return MatchParticipant.fromPlacement(
+          Placement(ranking: winnerRanking, place: 0),
+        );
+      },
+    ).toList();
 
     return winners;
   }
@@ -187,6 +188,18 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
     }
 
     return rounds;
+  }
+
+  @override
+  List<M> withdrawPlayer(P player) {
+    List<M> incompleteMatchesOfPlayer = matches
+        .where(
+          (m) => m.a.resolvePlayer() == player || m.b.resolvePlayer() == player,
+        )
+        .where((m) => !m.isCompleted)
+        .toList();
+
+    return incompleteMatchesOfPlayer;
   }
 }
 

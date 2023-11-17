@@ -91,7 +91,7 @@ class ParallelMatchSchedule implements MatchSchedule {
   void _initSchedule() {
     _allMatches = progressState.runningTournaments.values
         .expand((t) => t.matches)
-        .where((match) => !match.isBye)
+        .where((match) => !match.isBye && !match.isWalkover)
         .toList();
 
     _qualifiedMatches =
@@ -153,7 +153,7 @@ class ParallelMatchSchedule implements MatchSchedule {
     _competitionReadyMatches =
         progressState.runningTournaments.map((competition, tournament) {
       List<BadmintonMatch> readyMatches = tournament.matches
-          .where((m) => m.isPlayable && m.court == null)
+          .where((m) => m.isPlayable && m.court == null && !m.isWalkover)
           .where(
             (m) =>
                 _matchPlayerConflicts[m]!.isEmpty &&

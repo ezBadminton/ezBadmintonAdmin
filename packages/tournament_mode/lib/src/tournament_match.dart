@@ -63,7 +63,7 @@ abstract class TournamentMatch<P, S> {
   /// Returns whether this match is playable according to the tournament's
   /// progress.
   ///
-  /// This is `true` when both participants are [MatchParticipant.readyToPlay]
+  /// This is `true` when both participants are [MatchParticipant.readyToPlay].
   bool get isPlayable => a.readyToPlay && b.readyToPlay;
 
   /// Returns whether this match is a bye and thus only has one real
@@ -71,6 +71,9 @@ abstract class TournamentMatch<P, S> {
   ///
   /// Byes should be specially treated in [Ranking]s.
   bool get isBye => a.isBye || b.isBye;
+
+  /// Returns wheter this match is a walkover.
+  bool get isWalkover => walkoverWinner != null;
 
   /// Sets the start time of this match. If [startTime] is `null` it uses
   /// [DateTime.now].

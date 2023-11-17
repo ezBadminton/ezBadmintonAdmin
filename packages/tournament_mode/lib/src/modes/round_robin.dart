@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:tournament_mode/src/match_participant.dart';
 import 'package:tournament_mode/src/ranking.dart';
 import 'package:tournament_mode/src/rankings/match_ranking.dart';
@@ -132,5 +133,23 @@ class RoundRobin<P, S, M extends TournamentMatch<P, S>>
     }
 
     return matcher(first, second);
+  }
+
+  @override
+  List<M> withdrawPlayer(P player, [bool forceWalkover = false]) {
+    List<M> matchesOfPlayer = matches
+        .where(
+          (m) => m.a.resolvePlayer() == player || m.b.resolvePlayer() == player,
+        )
+        .toList();
+
+    bool hasCompletedAllMatches =
+        matchesOfPlayer.firstWhereOrNull((m) => !m.isCompleted) == null;
+
+    if (hasCompletedAllMatches && !forceWalkover) {
+      return [];
+    } else {
+      return matchesOfPlayer;
+    }
   }
 }

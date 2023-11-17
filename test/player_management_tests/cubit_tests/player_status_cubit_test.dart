@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:bloc_test/bloc_test.dart';
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_status_cubit.dart';
-import 'package:ez_badminton_admin_app/player_management/cubit/player_status_state.dart';
-import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:formz/formz.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../common_matchers/model_matchers.dart';
@@ -16,6 +16,7 @@ class MockCollectionRepository<M extends Model> extends Mock
 
 void main() {
   late CollectionRepository<Player> playerRepository;
+  late CollectionRepository<MatchData> matchDataRepository;
   late Player player;
   late PlayerStatusCubit sut;
   late StreamController<CollectionUpdateEvent<Player>>
@@ -24,7 +25,9 @@ void main() {
   PlayerStatusCubit createSut() {
     return PlayerStatusCubit(
       player: player,
+      tournamentProgressGetter: () => TournamentProgressState(),
       playerRepository: playerRepository,
+      matchDataRepository: matchDataRepository,
     );
   }
 
@@ -47,36 +50,37 @@ void main() {
 
   setUp(() {
     playerRepository = MockCollectionRepository();
+    matchDataRepository = MockCollectionRepository();
     player = Player.newPlayer().copyWith(id: 'testplayer');
     playerUpdateStreamController = StreamController.broadcast();
     arrangePlayerRepositoryUpdates();
   });
 
-  test('initial state is LoadingState.done', () {
+  test('initial state is FormzSubmissionStatus.initial', () {
     sut = createSut();
-    expect(sut.state.loadingStatus, LoadingStatus.done);
+    expect(sut.state.formStatus, FormzSubmissionStatus.initial);
   });
 
   blocTest<PlayerStatusCubit, PlayerStatusState>(
-    'emits LoadingStatus.failed when repository throws',
+    'emits FormzSubmissionStatus.failure when repository throws',
     setUp: arrangePlayerRepositoryThrows,
     build: createSut,
     act: (cubit) => cubit.statusChanged(PlayerStatus.attending),
     expect: () => [
-      HasLoadingStatus(LoadingStatus.loading),
-      HasLoadingStatus(LoadingStatus.failed),
+      HasFormStatus(FormzSubmissionStatus.inProgress),
+      HasFormStatus(FormzSubmissionStatus.failure),
     ],
   );
 
   blocTest<PlayerStatusCubit, PlayerStatusState>(
-    """emits LoadingStatus.done when repository updates,
+    """emits FormzSubmissionStatus.success when repository updates,
     the update method has been called with a Player that has the changed
     PlayerStatus""",
     build: createSut,
     act: (cubit) => cubit.statusChanged(PlayerStatus.forfeited),
     expect: () => [
-      HasLoadingStatus(LoadingStatus.loading),
-      HasLoadingStatus(LoadingStatus.done),
+      HasFormStatus(FormzSubmissionStatus.inProgress),
+      HasFormStatus(FormzSubmissionStatus.success),
     ],
     verify: (bloc) {
       verify(

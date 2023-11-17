@@ -42,6 +42,7 @@ List<MatchData> createMatchesFromTournament(
 
 /// Hydrate the [tournamentMode]'s matches with the [matchDataList].
 void hydrateTournament(
+  Competition competition,
   BadmintonTournamentMode tournamentMode,
   List<MatchData> matchDataList,
 ) {
@@ -50,6 +51,6 @@ void hydrateTournament(
   assert(matchDataList.length == matches.length);
 
   for (int i = 0; i < matchDataList.length; i += 1) {
-    matches[i].hydrateMatch(matchDataList[i]);
+    matches[i].hydrateMatch(competition, matchDataList[i]);
   }
 }

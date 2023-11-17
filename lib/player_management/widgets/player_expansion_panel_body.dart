@@ -1,18 +1,20 @@
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
 import 'package:ez_badminton_admin_app/constants.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_delete_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_delete_state.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_status_cubit.dart';
-import 'package:ez_badminton_admin_app/player_management/cubit/player_status_state.dart';
 import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/player_editing_page.dart';
+import 'package:ez_badminton_admin_app/player_management/widgets/player_withdrawal_info.dart';
 import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
-import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/registration_display_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:formz/formz.dart';
 
 class PlayerExpansionPanelBody extends StatelessWidget {
   const PlayerExpansionPanelBody({
@@ -210,10 +212,14 @@ class _PlayerStatus extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
+    var progressCubit = context.read<TournamentProgressCubit>();
+
     return BlocProvider(
       create: (context) => PlayerStatusCubit(
         player: player,
+        tournamentProgressGetter: () => progressCubit.state,
         playerRepository: context.read<CollectionRepository<Player>>(),
+        matchDataRepository: context.read<CollectionRepository<MatchData>>(),
       ),
       child: Expanded(
         flex: 2,
@@ -240,54 +246,67 @@ class _PlayerStatusSwitcher extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
     var cubit = context.read<PlayerStatusCubit>();
-    return BlocBuilder<PlayerStatusCubit, PlayerStatusState>(
-      builder: (context, state) {
-        return Column(
-          children: [
-            if (state.player.status == PlayerStatus.notAttending)
-              Tooltip(
-                message: l10n.confirmAttendance,
-                preferBelow: false,
-                child: InkWell(
-                  onTap: () {
-                    cubit.statusChanged(PlayerStatus.attending);
-                  },
-                  customBorder: const CircleBorder(),
-                  child: _statusIcon(context, state),
-                ),
-              )
-            else
-              _statusIcon(context, state),
-            const SizedBox(height: 5),
-            PopupMenuButton<PlayerStatus>(
-              tooltip: l10n.changeStatus,
-              onSelected: cubit.statusChanged,
-              child: Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      l10n.playerStatus(player.status.name),
-                      style: const TextStyle(fontSize: 15),
-                    ),
-                    const Icon(Icons.arrow_drop_down_sharp),
-                  ],
-                ),
-              ),
-              itemBuilder: (context) => PlayerStatus.values
-                  .map(
-                    (s) => PopupMenuItem<PlayerStatus>(
-                      value: s,
-                      child: Text(l10n.playerStatus(s.name)),
-                    ),
-                  )
-                  .toList(),
-            ),
-          ],
+    return DialogListener<PlayerStatusCubit, PlayerStatusState, bool>(
+      builder: (context, state, withdrawnMatches) {
+        return ConfirmDialog(
+          title: Text(l10n.playerWithdrawal),
+          content: PlayerWithdrawalInfo(
+            player: player,
+            withdrawnMatches: withdrawnMatches as List<BadmintonMatch>,
+          ),
+          confirmButtonLabel: l10n.confirm,
+          cancelButtonLabel: l10n.cancel,
         );
       },
+      child: BlocBuilder<PlayerStatusCubit, PlayerStatusState>(
+        builder: (context, state) {
+          return Column(
+            children: [
+              if (state.player.status == PlayerStatus.notAttending)
+                Tooltip(
+                  message: l10n.confirmAttendance,
+                  preferBelow: false,
+                  child: InkWell(
+                    onTap: () {
+                      cubit.statusChanged(PlayerStatus.attending);
+                    },
+                    customBorder: const CircleBorder(),
+                    child: _statusIcon(context, state),
+                  ),
+                )
+              else
+                _statusIcon(context, state),
+              const SizedBox(height: 5),
+              PopupMenuButton<PlayerStatus>(
+                tooltip: l10n.changeStatus,
+                onSelected: cubit.statusChanged,
+                child: Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        l10n.playerStatus(player.status.name),
+                        style: const TextStyle(fontSize: 15),
+                      ),
+                      const Icon(Icons.arrow_drop_down_sharp),
+                    ],
+                  ),
+                ),
+                itemBuilder: (context) => PlayerStatus.values
+                    .map(
+                      (s) => PopupMenuItem<PlayerStatus>(
+                        value: s,
+                        child: Text(l10n.playerStatus(s.name)),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -304,7 +323,7 @@ class _PlayerStatusSwitcher extends StatelessWidget {
         child: SizedBox(
           width: 40,
           height: 40,
-          child: state.loadingStatus == LoadingStatus.loading
+          child: state.formStatus == FormzSubmissionStatus.inProgress
               ? const CircularProgressIndicator()
               : Icon(
                   playerStatusIcons[player.status],

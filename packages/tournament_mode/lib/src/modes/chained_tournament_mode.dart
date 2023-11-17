@@ -61,4 +61,12 @@ class ChainedTournamentMode<
         ...first.rounds,
         ...second.rounds,
       ];
+
+  @override
+  List<M> withdrawPlayer(P player) {
+    return [
+      ...first.withdrawPlayer(player),
+      ...second.withdrawPlayer(player),
+    ];
+  }
 }
