@@ -65,6 +65,70 @@ class PlayerStatusCubit extends CollectionQuerierCubit<PlayerStatusState>
       return FormzSubmissionStatus.success;
     }
 
+    Map<BadmintonTournamentMode, Team> teamsOfPlayer = _getTeamsOfPlayer();
+
+    Map<List<BadmintonMatch>, Team> walkoversOfTeams = teamsOfPlayer.map(
+      (tournament, team) => MapEntry(
+        tournament
+            .withdrawPlayer(team)
+            .whereNot((match) => match.matchData!.withdrawnTeams.contains(team))
+            .toList(),
+        team,
+      ),
+    );
+
+    List<BadmintonMatch> walkoverMatches =
+        walkoversOfTeams.keys.expand((matchList) => matchList).toList();
+
+    if (walkoverMatches.isNotEmpty) {
+      bool userConfirmation =
+          (await requestDialogChoice<bool>(reason: walkoverMatches))!;
+
+      if (!userConfirmation) {
+        return FormzSubmissionStatus.canceled;
+      }
+    }
+
+    MatchData withdrawTeamFromMatch(Team team, MatchData matchData) {
+      assert(!matchData.withdrawnTeams.contains(team));
+
+      List<Team> newWithdrawnTeams = List.of(matchData.withdrawnTeams)
+        ..add(team);
+
+      MatchData newMatchData =
+          matchData.copyWith(withdrawnTeams: newWithdrawnTeams);
+
+      if (newMatchData.court != null && newMatchData.endTime == null) {
+        // If the match is already running, cancel it
+        newMatchData = newMatchData.copyWith(
+          startTime: null,
+          court: null,
+          courtAssignmentTime: null,
+        );
+      }
+
+      return newMatchData;
+    }
+
+    List<MatchData> matchDataWithNewStatus = walkoversOfTeams.entries
+        .expand(
+          (MapEntry<List<BadmintonMatch>, Team> entry) => entry.key.map(
+            (match) => withdrawTeamFromMatch(entry.value, match.matchData!),
+          ),
+        )
+        .toList();
+
+    List<MatchData?> updatedMatchData =
+        await querier.updateModels(matchDataWithNewStatus);
+
+    if (updatedMatchData.contains(null)) {
+      return FormzSubmissionStatus.failure;
+    }
+
+    return FormzSubmissionStatus.success;
+  }
+
+  Map<BadmintonTournamentMode, Team> _getTeamsOfPlayer() {
     TournamentProgressState progressState = tournamentProgressGetter();
 
     List<BadmintonTournamentMode> runningTournaments = progressState
@@ -84,54 +148,7 @@ class PlayerStatusCubit extends CollectionQuerierCubit<PlayerStatusState>
       }
     }
 
-    List<BadmintonMatch> walkoverMatches = teamsOfPlayer.entries
-        .expand((entry) => entry.key.withdrawPlayer(entry.value))
-        .where((match) => match.matchData!.status == MatchStatus.normal)
-        .toList();
-
-    if (walkoverMatches.isNotEmpty) {
-      bool userConfirmation =
-          (await requestDialogChoice<bool>(reason: walkoverMatches))!;
-
-      if (!userConfirmation) {
-        return FormzSubmissionStatus.canceled;
-      }
-    }
-
-    List<MatchData> matchDataWithNewStatus = walkoverMatches.map(
-      (match) {
-        MatchStatus newMatchStatus;
-        if (match.a.resolvePlayer()!.players.contains(state.player)) {
-          newMatchStatus = MatchStatus.walkover2;
-        } else {
-          newMatchStatus = MatchStatus.walkover1;
-        }
-
-        MatchData newMatchData = match.matchData!;
-
-        newMatchData = newMatchData.copyWith(status: newMatchStatus);
-
-        if (newMatchData.court != null && newMatchData.endTime == null) {
-          // If the match is already running, cancel it
-          newMatchData = newMatchData.copyWith(
-            startTime: null,
-            court: null,
-            courtAssignmentTime: null,
-          );
-        }
-
-        return newMatchData;
-      },
-    ).toList();
-
-    List<MatchData?> updatedMatchData =
-        await querier.updateModels(matchDataWithNewStatus);
-
-    if (updatedMatchData.contains(null)) {
-      return FormzSubmissionStatus.failure;
-    }
-
-    return FormzSubmissionStatus.success;
+    return teamsOfPlayer;
   }
 
   void _onPlayerUpdated(CollectionUpdateEvent<Player> event) {

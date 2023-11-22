@@ -36,7 +36,7 @@ class MatchData extends Model with _$MatchData {
     required DateTime updated,
     required List<MatchSet> sets,
     Court? court,
-    required MatchStatus status,
+    required List<Team> withdrawnTeams,
     DateTime? courtAssignmentTime,
     DateTime? startTime,
     DateTime? endTime,
@@ -52,7 +52,7 @@ class MatchData extends Model with _$MatchData {
         created: DateTime.now().toUtc(),
         updated: DateTime.now().toUtc(),
         sets: const [],
-        status: MatchStatus.normal,
+        withdrawnTeams: const [],
         gameSheetPrinted: false,
       );
 
@@ -69,6 +69,12 @@ class MatchData extends Model with _$MatchData {
       isRequired: false,
       isSingle: true,
     ),
+    ExpandedField(
+      model: Team,
+      key: 'withdrawnTeams',
+      isRequired: true,
+      isSingle: false,
+    ),
   ];
 
   @override
@@ -76,12 +82,4 @@ class MatchData extends Model with _$MatchData {
     Map<String, dynamic> json = toJson();
     return json..collapseExpansions(expandedFields);
   }
-}
-
-enum MatchStatus {
-  normal,
-  // Walkover in favor of opponent 1
-  walkover1,
-  // Walkover in favor of opponent 2
-  walkover2,
 }

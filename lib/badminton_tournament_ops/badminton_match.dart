@@ -31,37 +31,51 @@ class BadmintonMatch extends TournamentMatch<Team, List<MatchSet>> {
       beginMatch(matchData.startTime);
     }
 
+    walkoverWinner = _getWalkoverWinnerOrNull();
+
     if (matchData.sets.isNotEmpty) {
       assert(matchData.endTime != null);
-      if (matchData.status == MatchStatus.normal) {
+      if (walkoverWinner == null) {
         setScore(matchData.sets, endTime: matchData.endTime);
       } else {
-        setScore(
-          _createWalkoverScore(matchData.status),
-          endTime: matchData.endTime,
-        );
+        setScore(_createWalkoverScore(), endTime: matchData.endTime);
       }
     }
-
-    walkoverWinner = switch (matchData.status) {
-      MatchStatus.normal => null,
-      MatchStatus.walkover1 => a,
-      MatchStatus.walkover2 => b,
-    };
   }
 
-  List<MatchSet> _createWalkoverScore(MatchStatus status) {
+  MatchParticipant<Team>? _getWalkoverWinnerOrNull() {
+    if (matchData!.withdrawnTeams.isEmpty || !isPlayable) {
+      return null;
+    }
+
+    Team firstWithdrawnTeam = matchData!.withdrawnTeams.first;
+
+    MatchParticipant<Team> walkoverWinner = [a, b].firstWhere(
+      (participant) {
+        bool containsWithdrawal =
+            participant.resolvePlayer()! == firstWithdrawnTeam;
+
+        return !containsWithdrawal;
+      },
+    );
+
+    return walkoverWinner;
+  }
+
+  List<MatchSet> _createWalkoverScore() {
+    assert(walkoverWinner != null);
+
     int winningSets = competition.tournamentModeSettings!.winningSets;
     int winningPoints = competition.tournamentModeSettings!.winningPoints;
 
+    int winnerIndex = [a, b].indexOf(walkoverWinner!);
+
     List<MatchSet> walkoverScore = List.generate(
       winningSets,
-      (_) => switch (status) {
-        MatchStatus.walkover1 =>
-          MatchSet.newMatchSet(team1Points: winningPoints, team2Points: 0),
-        MatchStatus.walkover2 =>
-          MatchSet.newMatchSet(team1Points: 0, team2Points: winningPoints),
-        MatchStatus.normal => throw Exception('not a walkover'),
+      (_) => switch (winnerIndex) {
+        0 => MatchSet.newMatchSet(team1Points: winningPoints, team2Points: 0),
+        1 => MatchSet.newMatchSet(team1Points: 0, team2Points: winningPoints),
+        _ => throw Exception('not a walkover'),
       },
     );
 
