@@ -35,9 +35,33 @@ abstract class TournamentMatch<P, S> {
   /// Is `true` when the match has a score recorded.
   bool get isCompleted => score != null;
 
-  /// Is set when one of the opponents withdrew for some reason. The other
-  /// opponent is the [walkoverWinner].
-  MatchParticipant<P>? walkoverWinner;
+  /// This list is filled when one or both of the participants withdrew
+  /// for some reason.
+  List<MatchParticipant<P>>? withdrawnParticipants;
+
+  /// This is set when the match is decided due to [withdrawnParticipants].
+  ///
+  /// When only one participant withdrew, the other one becomes the
+  /// [walkoverWinner].
+  ///
+  /// When both withdrew a [MatchParticipant.bye] is returned as the winner.
+  /// This causes the next round that the winner might be qualified for to
+  /// become a bye round for the other qualified opponent.
+  MatchParticipant<P>? get walkoverWinner {
+    if (!isWalkover) {
+      return null;
+    }
+
+    if (withdrawnParticipants!.length == 1) {
+      if (withdrawnParticipants!.first == a) {
+        return b;
+      } else if (withdrawnParticipants!.first == b) {
+        return a;
+      }
+    }
+
+    return const MatchParticipant.bye();
+  }
 
   /// Returns the winner of the match, [a] or [b].
   ///
@@ -49,15 +73,14 @@ abstract class TournamentMatch<P, S> {
   /// If [getWinner] returns `null` it returns `null`.
   MatchParticipant<P>? getLoser() {
     MatchParticipant<P>? winner = getWinner();
-    if (winner == null) {
-      return null;
-    }
 
     if (winner == a) {
       return b;
-    } else {
+    } else if (winner == b) {
       return a;
     }
+
+    return null;
   }
 
   /// Returns whether this match is playable according to the tournament's
@@ -72,8 +95,10 @@ abstract class TournamentMatch<P, S> {
   /// Byes should be specially treated in [Ranking]s.
   bool get isBye => a.isBye || b.isBye;
 
-  /// Returns wheter this match is a walkover.
-  bool get isWalkover => walkoverWinner != null;
+  /// Returns whether this match is a walkover.
+  ///
+  /// That is the case when one or both match participants withdrew.
+  bool get isWalkover => withdrawnParticipants?.isNotEmpty ?? false;
 
   /// Sets the start time of this match. If [startTime] is `null` it uses
   /// [DateTime.now].

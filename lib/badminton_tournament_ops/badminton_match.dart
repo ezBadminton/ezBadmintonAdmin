@@ -31,7 +31,7 @@ class BadmintonMatch extends TournamentMatch<Team, List<MatchSet>> {
       beginMatch(matchData.startTime);
     }
 
-    walkoverWinner = _getWalkoverWinnerOrNull();
+    withdrawnParticipants = _getWithdrawnParticipants();
 
     if (matchData.sets.isNotEmpty) {
       assert(matchData.endTime != null);
@@ -43,23 +43,19 @@ class BadmintonMatch extends TournamentMatch<Team, List<MatchSet>> {
     }
   }
 
-  MatchParticipant<Team>? _getWalkoverWinnerOrNull() {
+  List<MatchParticipant<Team>>? _getWithdrawnParticipants() {
     if (matchData!.withdrawnTeams.isEmpty || !isPlayable) {
       return null;
     }
 
-    Team firstWithdrawnTeam = matchData!.withdrawnTeams.first;
+    List<MatchParticipant<Team>> withdrawnParticipants = [a, b]
+        .where(
+          (participant) =>
+              matchData!.withdrawnTeams.contains(participant.resolvePlayer()),
+        )
+        .toList();
 
-    MatchParticipant<Team> walkoverWinner = [a, b].firstWhere(
-      (participant) {
-        bool containsWithdrawal =
-            participant.resolvePlayer()! == firstWithdrawnTeam;
-
-        return !containsWithdrawal;
-      },
-    );
-
-    return walkoverWinner;
+    return withdrawnParticipants;
   }
 
   List<MatchSet> _createWalkoverScore() {
