@@ -22,9 +22,9 @@ class TournamentProgressCubit
           TournamentProgressState(),
         ) {
     loadCollections();
-    subscribeToCollectionUpdates(
+    subscribeToCollectionUpdateNotifications(
       competitionRepository,
-      (_) => loadCollections(),
+      loadCollections,
     );
     subscribeToCollectionUpdates(
       courtRepository,

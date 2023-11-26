@@ -7,7 +7,7 @@ import 'package:ez_badminton_admin_app/player_management/cubit/player_delete_sta
 import 'package:ez_badminton_admin_app/player_management/cubit/player_status_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/player_editing_page.dart';
-import 'package:ez_badminton_admin_app/player_management/widgets/player_withdrawal_info.dart';
+import 'package:ez_badminton_admin_app/player_management/widgets/player_participation_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/registration_display_card.dart';
@@ -15,6 +15,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:formz/formz.dart';
+import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
+    as display_strings;
 
 class PlayerExpansionPanelBody extends StatelessWidget {
   const PlayerExpansionPanelBody({
@@ -246,18 +248,36 @@ class _PlayerStatusSwitcher extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
     var cubit = context.read<PlayerStatusCubit>();
-    return DialogListener<PlayerStatusCubit, PlayerStatusState, bool>(
-      builder: (context, state, withdrawnMatches) {
-        return ConfirmDialog(
-          title: Text(l10n.playerWithdrawal),
-          content: PlayerWithdrawalInfo(
-            player: player,
-            withdrawnMatches: withdrawnMatches as List<BadmintonMatch>,
-          ),
-          confirmButtonLabel: l10n.confirm,
-          cancelButtonLabel: l10n.cancel,
+
+    String playerName = display_strings.playerName(player);
+
+    return DialogListener<PlayerStatusCubit, PlayerStatusState, List<bool>>(
+      builder: (context, state, reenteringTuple) {
+        reenteringTuple = reenteringTuple as (
+          StatusChangeDirection,
+          Map<CompetitionRegistration, List<BadmintonMatch>>,
+          List<CompetitionRegistration>
+        );
+
+        bool isWithdrawal =
+            reenteringTuple.$1 == StatusChangeDirection.withdrawal;
+
+        Widget title = isWithdrawal
+            ? Text(l10n.playerWithdrawal)
+            : Text(l10n.playerReentering);
+
+        Widget info = isWithdrawal
+            ? Text(l10n.playerWithdrawalInfo(playerName))
+            : Text(l10n.playerReenteringInfo(playerName));
+
+        return PlayerParticipationDialog(
+          matchList: reenteringTuple.$2,
+          changableParticipations: reenteringTuple.$3,
+          title: title,
+          content: info,
         );
       },
+      useRootNavigator: true,
       child: BlocBuilder<PlayerStatusCubit, PlayerStatusState>(
         builder: (context, state) {
           return Column(

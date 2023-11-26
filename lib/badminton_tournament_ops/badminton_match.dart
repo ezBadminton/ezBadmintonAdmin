@@ -33,18 +33,18 @@ class BadmintonMatch extends TournamentMatch<Team, List<MatchSet>> {
 
     withdrawnParticipants = _getWithdrawnParticipants();
 
-    if (matchData.sets.isNotEmpty) {
+    if (matchData.sets.isNotEmpty && walkoverWinner == null) {
       assert(matchData.endTime != null);
-      if (walkoverWinner == null) {
-        setScore(matchData.sets, endTime: matchData.endTime);
-      } else {
-        setScore(_createWalkoverScore(), endTime: matchData.endTime);
-      }
+      setScore(matchData.sets, endTime: matchData.endTime);
+    }
+
+    if (walkoverWinner != null) {
+      setScore(_createWalkoverScore(), endTime: matchData.endTime);
     }
   }
 
   List<MatchParticipant<Team>>? _getWithdrawnParticipants() {
-    if (matchData!.withdrawnTeams.isEmpty || !isPlayable) {
+    if (matchData!.withdrawnTeams.isEmpty) {
       return null;
     }
 
@@ -71,7 +71,8 @@ class BadmintonMatch extends TournamentMatch<Team, List<MatchSet>> {
       (_) => switch (winnerIndex) {
         0 => MatchSet.newMatchSet(team1Points: winningPoints, team2Points: 0),
         1 => MatchSet.newMatchSet(team1Points: 0, team2Points: winningPoints),
-        _ => throw Exception('not a walkover'),
+        // Both players withdrew from the match
+        _ => MatchSet.newMatchSet(team1Points: 0, team2Points: 0),
       },
     );
 

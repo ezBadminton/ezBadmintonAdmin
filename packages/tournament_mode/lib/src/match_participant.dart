@@ -21,13 +21,13 @@ class MatchParticipant<P> {
   const MatchParticipant.fromPlayer(
     this.player,
   )   : placement = null,
-        isBye = false;
+        _isBye = false;
 
   /// Creates a [MatchParticipant] that is defined in terms of the [placement].
   const MatchParticipant.fromPlacement(
     this.placement,
   )   : player = null,
-        isBye = false;
+        _isBye = false;
 
   /// Creates a [MatchParticipant] as a stand in for a bye. The opponent of this
   /// participant either has a break due to an uneven number of entries or
@@ -35,15 +35,29 @@ class MatchParticipant<P> {
   const MatchParticipant.bye()
       : player = null,
         placement = null,
-        isBye = true;
+        _isBye = true;
 
   final P? player;
   final Placement<P>? placement;
 
-  final bool isBye;
+  bool get isBye {
+    if (_isBye) {
+      return true;
+    }
+
+    MatchParticipant<P>? place = placement?.getPlacement();
+
+    if (place != null) {
+      return place.isBye;
+    }
+
+    return false;
+  }
+
+  final bool _isBye;
 
   /// Returns whether this participant is ready to start a match.
-  bool get readyToPlay => !isBye && resolvePlayer() != null;
+  bool get readyToPlay => !_isBye && resolvePlayer() != null;
 
   /// Resolves to a player [P] who is actually going to fill this participant's
   /// role.
@@ -51,7 +65,7 @@ class MatchParticipant<P> {
   /// If the participant is defined by a [placement] and the necessary results
   /// to determine it are not yet known, it returns `null`.
   P? resolvePlayer() {
-    if (isBye) {
+    if (_isBye) {
       return null;
     }
 

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:tournament_mode/src/match_participant.dart';
 import 'package:tournament_mode/src/ranking.dart';
 import 'package:tournament_mode/src/rankings/elimination_ranking.dart';
@@ -192,14 +193,80 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
 
   @override
   List<M> withdrawPlayer(P player) {
-    List<M> incompleteMatchesOfPlayer = matches
+    M? walkoverMatch = matches
         .where(
-          (m) => m.a.resolvePlayer() == player || m.b.resolvePlayer() == player,
+      (m) => m.a.resolvePlayer() == player || m.b.resolvePlayer() == player,
+    )
+        .firstWhereOrNull(
+      (m) {
+        M? nextMatch = getNextMatch(m);
+
+        bool walkoverNotInEffect =
+            m.isWalkover && nextMatch != null && nextMatch.startTime == null;
+
+        bool incompleteMatch = !m.isCompleted;
+
+        return walkoverNotInEffect || incompleteMatch;
+      },
+    );
+
+    if (walkoverMatch == null) {
+      return [];
+    }
+
+    return [walkoverMatch];
+  }
+
+  @override
+  List<M> reenterPlayer(P player) {
+    List<M> withdrawnMatchesOfPlayer = matches
+        .where((m) => m.isWalkover)
+        .where(
+          (m) => m.withdrawnParticipants!
+              .map((p) => p.resolvePlayer())
+              .contains(player),
         )
-        .where((m) => !m.isCompleted)
         .toList();
 
-    return incompleteMatchesOfPlayer;
+    assert(withdrawnMatchesOfPlayer.length <= 1);
+
+    if (withdrawnMatchesOfPlayer.isEmpty) {
+      return [];
+    }
+
+    M? nextMatch = getNextMatch(withdrawnMatchesOfPlayer.first);
+
+    bool canReenter = nextMatch == null || !nextMatch.inProgress;
+
+    if (canReenter) {
+      return withdrawnMatchesOfPlayer;
+    } else {
+      return [];
+    }
+  }
+
+  /// For the given [match] of this [SingleElimination], returns the match that
+  /// the winner qualifies for.
+  ///
+  /// For example the next match of both semi finals is the final.
+  ///
+  /// The final has no next match. The return value is null in this case.
+  M? getNextMatch(M match) {
+    EliminationRound<M> round =
+        rounds.firstWhere((r) => r.matches.contains(match));
+
+    if (round.roundSize == 2) {
+      /// There is no match after the final
+      return null;
+    }
+
+    int matchIndex = round.matches.indexOf(match);
+
+    EliminationRound<M> nextRound = rounds.firstWhere(
+      (r) => r.roundSize == round.roundSize ~/ 2,
+    );
+
+    return nextRound.matches[matchIndex ~/ 2];
   }
 }
 

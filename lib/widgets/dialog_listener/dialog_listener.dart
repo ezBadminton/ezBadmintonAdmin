@@ -17,6 +17,7 @@ class DialogListener<C extends DialogCubit<S>, S extends DialogState, T>
     required this.builder,
     this.child,
     this.barrierDismissable = false,
+    this.useRootNavigator = false,
   });
 
   /// The dialog builder. It is used via [showDialog] when the listener
@@ -36,6 +37,8 @@ class DialogListener<C extends DialogCubit<S>, S extends DialogState, T>
 
   final bool barrierDismissable;
 
+  final bool useRootNavigator;
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<C, S>(
@@ -47,7 +50,7 @@ class DialogListener<C extends DialogCubit<S>, S extends DialogState, T>
         T? decision = await showDialog<T>(
           context: context,
           barrierDismissible: barrierDismissable,
-          useRootNavigator: false,
+          useRootNavigator: useRootNavigator,
           builder: (context) => builder(
             context,
             state,

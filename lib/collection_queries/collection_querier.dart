@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 typedef FetcherFunction<M extends Model> = Future<List<M>?> Function();
@@ -144,6 +146,8 @@ class CollectionQuerier {
   Future<M?> updateModel<M extends Model>(
     M updatedModel, {
     ExpansionTree? expand,
+    bool isMulti = false,
+    bool isFinalMulti = false,
   }) async {
     assert(
       collectionRepositories.whereType<CollectionRepository<M>>().isNotEmpty,
@@ -154,7 +158,12 @@ class CollectionQuerier {
         collectionRepositories.whereType<CollectionRepository<M>>().first;
 
     try {
-      return await collectionRepository.update(updatedModel, expand: expand);
+      return await collectionRepository.update(
+        updatedModel,
+        expand: expand,
+        isMulti: isMulti,
+        isFinalMulti: isFinalMulti,
+      );
     } on CollectionQueryException {
       return null;
     }
@@ -183,9 +192,22 @@ class CollectionQuerier {
     // doesn't support transactional bulk operations yet. Keep an eye on
     // https://github.com/pocketbase/pocketbase/issues/48 where this will be
     // added.
-    Iterable<Future<M?>> modelUpdates =
-        models.map((model) => updateModel(model, expand: expand));
+    Iterable<Future<M?>> modelUpdates = models.mapIndexed((index, model) {
+      bool isFinal = index == (models.length - 1);
+
+      return updateModel(
+        model,
+        expand: expand,
+        isMulti: true,
+        isFinalMulti: isFinal,
+      );
+    });
     List<M?> updatedModels = await Future.wait(modelUpdates);
+
+    collectionRepositories
+        .whereType<CollectionRepository<M>>()
+        .first
+        .emitUpdateNotification();
 
     return updatedModels;
   }
@@ -248,6 +270,15 @@ class CollectionQuerierCubit<State> extends Cubit<State> {
     void Function(CollectionUpdateEvent<M> updateEvent)? listener,
   ) {
     StreamSubscription subscription = repository.updateStream.listen(listener);
+    collectionUpdateSubscriptions.add(subscription);
+  }
+
+  void subscribeToCollectionUpdateNotifications<M extends Model>(
+    CollectionRepository<M> repository,
+    VoidCallback? listener,
+  ) {
+    StreamSubscription subscription =
+        repository.updateNotificationStream.listen((_) => listener?.call());
     collectionUpdateSubscriptions.add(subscription);
   }
 

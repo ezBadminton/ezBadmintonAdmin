@@ -7,7 +7,7 @@ import 'package:collection_repository/collection_repository.dart';
 /// A [CollectionRepository] holding the collection in memory for testing
 /// purposes.
 class TestCollectionRepository<M extends Model>
-    implements CollectionRepository<M> {
+    extends CollectionRepository<M> {
   TestCollectionRepository({
     List<M> initialCollection = const [],
     this.throwing = false,
@@ -29,7 +29,16 @@ class TestCollectionRepository<M extends Model>
   }
 
   @override
+  Stream<void> get updateNotificationStream async* {
+    yield* updateNotificationStreamController.stream;
+  }
+
+  @override
   final StreamController<CollectionUpdateEvent<M>> updateStreamController =
+      StreamController.broadcast();
+
+  @override
+  final StreamController<void> updateNotificationStreamController =
       StreamController.broadcast();
 
   @override
@@ -64,7 +73,12 @@ class TestCollectionRepository<M extends Model>
   }
 
   @override
-  Future<M> update(M updatedModel, {ExpansionTree? expand}) async {
+  Future<M> update(
+    M updatedModel, {
+    ExpansionTree? expand,
+    bool isMulti = false,
+    bool isFinalMulti = false,
+  }) async {
     _testThrow();
     await _delayResponse();
     if (collection.firstWhereOrNull((m) => m.id == updatedModel.id) == null) {
@@ -73,6 +87,9 @@ class TestCollectionRepository<M extends Model>
     collection.removeWhere((m) => m.id == updatedModel.id);
     collection.add(updatedModel);
     updateStreamController.add(CollectionUpdateEvent.update(updatedModel));
+    if (!isMulti || isFinalMulti) {
+      updateNotificationStreamController.add(null);
+    }
     return updatedModel;
   }
 

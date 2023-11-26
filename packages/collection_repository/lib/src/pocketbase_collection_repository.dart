@@ -7,7 +7,7 @@ import 'package:pocketbase/pocketbase.dart';
 import 'package:pocketbase_provider/pocketbase_provider.dart';
 
 class PocketbaseCollectionRepository<M extends Model>
-    implements CollectionRepository<M> {
+    extends CollectionRepository<M> {
   /// A repository for directly interfacing with the database.
   ///
   /// The repository handles all CRUD operations for model [M] via pocketbase.
@@ -36,8 +36,17 @@ class PocketbaseCollectionRepository<M extends Model>
       StreamController.broadcast();
 
   @override
+  final StreamController<void> updateNotificationStreamController =
+      StreamController.broadcast();
+
+  @override
   Stream<CollectionUpdateEvent<M>> get updateStream async* {
     yield* updateStreamController.stream;
+  }
+
+  @override
+  Stream<void> get updateNotificationStream async* {
+    yield* updateNotificationStreamController.stream;
   }
 
   static final Map<Type, ExpansionTree> _defaultExpansions = {
@@ -110,7 +119,12 @@ class PocketbaseCollectionRepository<M extends Model>
   }
 
   @override
-  Future<M> update(M updatedModel, {ExpansionTree? expand}) async {
+  Future<M> update(
+    M updatedModel, {
+    ExpansionTree? expand,
+    bool isMulti = false,
+    bool isFinalMulti = false,
+  }) async {
     var expandString = expandStringFromExpansionTree(expand);
     Map<String, dynamic> json = updatedModel.toCollapsedJson();
     json.clearMetaJsonFields();
@@ -127,9 +141,14 @@ class PocketbaseCollectionRepository<M extends Model>
     var updatedModelFromDB = _modelConstructor(
       updated.toExpandedJson(),
     );
-    emitUpdateEvent(
-      CollectionUpdateEvent.update(updatedModelFromDB),
-    );
+    emitUpdateEvent(CollectionUpdateEvent.update(
+      updatedModelFromDB,
+      isMulti: isMulti,
+      isFinalMulti: isFinalMulti,
+    ));
+    if (!isMulti || isFinalMulti) {
+      emitUpdateNotification();
+    }
     return updatedModelFromDB;
   }
 

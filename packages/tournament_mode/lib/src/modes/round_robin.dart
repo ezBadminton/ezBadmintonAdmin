@@ -152,4 +152,18 @@ class RoundRobin<P, S, M extends TournamentMatch<P, S>>
       return matchesOfPlayer;
     }
   }
+
+  @override
+  List<M> reenterPlayer(P player) {
+    List<M> withdrawnMatchesOfPlayer = matches
+        .where((m) => m.isWalkover)
+        .where(
+          (m) => m.withdrawnParticipants!
+              .map((p) => p.resolvePlayer())
+              .contains(player),
+        )
+        .toList();
+
+    return withdrawnMatchesOfPlayer;
+  }
 }

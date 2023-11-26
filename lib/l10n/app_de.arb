@@ -279,5 +279,8 @@
   "nOpenCourts": "{count, plural, =0{Keine freien Felder} =1{1 freies Feld} other{{count} freie Felder}}",
   "matchWaitsForCourt": "Spiel wartet auf freies Feld",
   "playerWithdrawal": "Rücktritt eines Turnierteilnehmers",
-  "playerWithdrawalInfo": "Folgende Spiele werden in Folge des Rücktritts von {playerName} als verloren gewertet:"
+  "playerWithdrawalInfo": "Du hast den 'Anwesend'-Status von {playerName} zurückgezogen.\n\nWähle die Disziplinen, in denen der Spieler nicht weiter antritt. Die gelisteten Spiele werden dann als verloren gewertet:",
+  "playerReentering": "Wiedereintritt eines Turnierteilnehmers",
+  "playerReenteringInfo": "Du hast den Status von {playerName} wieder auf 'Anwesend' gestellt.\n\nDer Spieler kann wieder in Disziplinen einsteigen, wenn die Disziplin seit dem Rücktritt nicht fortgeschritten ist.\n\nWähle die Disziplinen, in denen der Wiedereinstieg gewünscht ist. Die gelisteten Spiele werden dann wieder normal gewertet bzw. müssen noch gespielt werden:",
+  "playerCannotReenter": "Disziplin ist fortgeschritten.\nWiedereinstieg nicht möglich."
 }

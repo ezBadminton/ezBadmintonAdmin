@@ -69,4 +69,12 @@ class ChainedTournamentMode<
       ...second.withdrawPlayer(player),
     ];
   }
+
+  @override
+  List<M> reenterPlayer(P player) {
+    return [
+      ...first.reenterPlayer(player),
+      ...second.reenterPlayer(player),
+    ];
+  }
 }

@@ -14,6 +14,8 @@ class WinnerRanking<P, S> implements Ranking<P> {
     if (match.isBye) {
       MatchParticipant<P> winner = match.a.isBye ? match.b : match.a;
       return [winner];
+    } else if (match.isWalkover && match.walkoverWinner!.isBye) {
+      return [match.walkoverWinner!];
     } else if (match.isCompleted || match.isWalkover) {
       return [match.getWinner()!, match.getLoser()!];
     } else {

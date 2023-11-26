@@ -18,12 +18,18 @@ BadmintonTournamentMode createTournamentMode(Competition competition) {
   DrawSeeds<Team> entries = DrawSeeds(competition.draw);
 
   BadmintonTournamentMode tournament = switch (settings) {
-    SingleEliminationSettings _ =>
-      BadmintonSingleElimination(seededEntries: entries),
-    RoundRobinSettings settings =>
-      BadmintonRoundRobin.fromSettings(entries: entries, settings: settings),
-    GroupKnockoutSettings settings =>
-      BadmintonGroupKnockout.fromSettings(entries: entries, settings: settings),
+    SingleEliminationSettings _ => BadmintonSingleElimination(
+        seededEntries: entries,
+        competition: competition,
+      ),
+    RoundRobinSettings _ => BadmintonRoundRobin.fromCompetition(
+        entries: entries,
+        competition: competition,
+      ),
+    GroupKnockoutSettings _ => BadmintonGroupKnockout.fromCompetition(
+        entries: entries,
+        competition: competition,
+      ),
   };
 
   return tournament;

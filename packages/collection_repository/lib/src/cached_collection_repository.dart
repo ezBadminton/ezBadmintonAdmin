@@ -25,7 +25,7 @@ class CachedCollectionRepository<M extends Model>
         ) {
     if (relationRepositories != null) {
       _relationUpdateStreamSubscriptions = relationRepositories
-          .map((s) => s.updateStream.listen(_onRelationUpdate))
+          .map((r) => r.updateStream.listen(_onRelationUpdate))
           .toList();
     } else {
       _relationUpdateStreamSubscriptions = [];
@@ -51,8 +51,16 @@ class CachedCollectionRepository<M extends Model>
       targetCollectionRepository.updateStream;
 
   @override
+  Stream<void> get updateNotificationStream =>
+      targetCollectionRepository.updateNotificationStream;
+
+  @override
   StreamController<CollectionUpdateEvent<M>> get updateStreamController =>
       targetCollectionRepository.updateStreamController;
+
+  @override
+  StreamController<void> get updateNotificationStreamController =>
+      targetCollectionRepository.updateNotificationStreamController;
 
   @override
   Future<M> getModel(String id, {ExpansionTree? expand}) async {
@@ -92,10 +100,17 @@ class CachedCollectionRepository<M extends Model>
   }
 
   @override
-  Future<M> update(M updatedModel, {ExpansionTree? expand}) async {
+  Future<M> update(
+    M updatedModel, {
+    ExpansionTree? expand,
+    bool isMulti = false,
+    bool isFinalMulti = false,
+  }) async {
     var updatedModelFromDB = await targetCollectionRepository.update(
       updatedModel,
       expand: expand,
+      isMulti: isMulti,
+      isFinalMulti: isFinalMulti,
     );
     _cachedCollection
       ..removeWhere((m) => m.id == updatedModelFromDB.id)
@@ -109,12 +124,23 @@ class CachedCollectionRepository<M extends Model>
     _cachedCollection.removeWhere((m) => m.id == deletedModel.id);
   }
 
-  void _updateCache(M updatedModel) {
+  void _updateCache(
+    M updatedModel, {
+    required bool isMulti,
+    required bool isFinalMulti,
+  }) {
     _cachedCollection
       ..removeWhere((m) => m.id == updatedModel.id)
       ..add(updatedModel);
 
-    updateStreamController.add(CollectionUpdateEvent.update(updatedModel));
+    updateStreamController.add(CollectionUpdateEvent.update(
+      updatedModel,
+      isMulti: isMulti,
+      isFinalMulti: isFinalMulti,
+    ));
+    if (!isMulti || isFinalMulti) {
+      updateNotificationStreamController.add(null);
+    }
   }
 
   void _onRelationUpdate(CollectionUpdateEvent updateEvent) async {
@@ -123,7 +149,11 @@ class CachedCollectionRepository<M extends Model>
       updateEvent,
     );
     for (M model in updatedModels) {
-      _updateCache(model);
+      _updateCache(
+        model,
+        isMulti: updateEvent.isMulti,
+        isFinalMulti: updateEvent.isFinalMulti,
+      );
     }
   }
 

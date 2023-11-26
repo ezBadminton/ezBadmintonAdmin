@@ -32,8 +32,8 @@ abstract class TournamentMatch<P, S> {
   /// Is `true` while this match is ongoing.
   bool get inProgress => _startTime != null && score == null;
 
-  /// Is `true` when the match has a score recorded.
-  bool get isCompleted => score != null;
+  /// Is `true` when the match has a winner.
+  bool get isCompleted => getWinner() != null;
 
   /// This list is filled when one or both of the participants withdrew
   /// for some reason.

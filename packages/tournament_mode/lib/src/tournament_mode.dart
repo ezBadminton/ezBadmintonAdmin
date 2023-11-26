@@ -42,6 +42,18 @@ abstract class TournamentMode<P, S, M extends TournamentMatch<P, S>> {
   /// withdrew.
   List<M> withdrawPlayer(P player);
 
+  /// Called when a [player] who previously withdrew from the tournament
+  /// reenters.
+  ///
+  /// This is not always possible for all matches since some tournament modes
+  /// have temporal dependencies between rounds.
+  /// E.g. a single elimination match can't be changed once the next round
+  /// started.
+  ///
+  /// Returns a list of matches that can be reverted from their walkover status
+  /// while keeping the tournament progression intact.
+  List<M> reenterPlayer(P player);
+
   /// Returns the earliest round that still has unfinished matches
   ///
   /// Returns `-1` if all matches are completed.

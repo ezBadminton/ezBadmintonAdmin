@@ -19,10 +19,12 @@ abstract class MatchRanking<P, S, M extends TournamentMatch<P, S>>
       return false;
     }
 
-    return matches!
+    bool ranksAvailable = matches!
             .where((match) => !match.isBye)
             .firstWhereOrNull((match) => !match.isCompleted) ==
         null;
+
+    return ranksAvailable;
   }
 }
 

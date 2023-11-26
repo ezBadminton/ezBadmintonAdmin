@@ -279,5 +279,8 @@
   "nOpenCourts": "{count, plural, =0{No open courts} =1{1 open court} other{{count} open courts}}",
   "matchWaitsForCourt": "Match is waiting for open court",
   "playerWithdrawal": "Withdrawal of a tournament participant",
-  "playerWithdrawalInfo": "The following matches will be deemed forfeited because of the withdrawal of {playerName}:"
+  "playerWithdrawalInfo": "You have withdrawn the 'Attending' status of {playerName}.\n\nSelect the competitions in which the player no longer competes. The listed matches will then be counted as lost:",
+  "playerReentering": "Re-entering of a tournament participant",
+  "playerReenteringInfo": "You have set the status of {playerName} back to 'Attending'.\n\nThe player can re-enter competitions if the competition has not progressed since the withdrawal.\n\nSelect the competitions in which re-entry is desired. The listed matches will then be scored normally again or must still be played:",
+  "playerCannotReenter": "Competition progressed.\nRe-entry not possible."
 }
