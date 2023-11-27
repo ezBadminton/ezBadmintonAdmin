@@ -227,11 +227,23 @@ class BadmintonRoundRobinRanking
     Map<Team, int> wins = {};
 
     for (BadmintonMatch match in matches) {
-      Team winner = match.getWinner()!.resolvePlayer()!;
-      Team loser = match.getLoser()!.resolvePlayer()!;
+      Team? winner = match.getWinner()?.resolvePlayer();
+      Team? loser = match.getLoser()?.resolvePlayer();
 
-      wins.update(winner, (wins) => wins + 1, ifAbsent: () => 1);
-      wins.putIfAbsent(loser, () => 0);
+      if (winner != null && loser != null) {
+        wins.update(winner, (wins) => wins + 1, ifAbsent: () => 1);
+        wins.putIfAbsent(loser, () => 0);
+      } else {
+        Team? team1 = match.a.resolvePlayer();
+        Team? team2 = match.b.resolvePlayer();
+
+        if (team1 != null) {
+          wins.putIfAbsent(team1, () => 0);
+        }
+        if (team2 != null) {
+          wins.putIfAbsent(team2, () => 0);
+        }
+      }
     }
 
     return wins;
