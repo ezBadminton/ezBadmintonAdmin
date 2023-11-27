@@ -67,8 +67,8 @@ class SingleEliminationMatchNode extends StatelessWidget {
             teamSize: teamSize,
             isEditable: isEditable && isFirstRound,
             width: width,
-            placeholderLabel: placeholderLabels.containsKey(match.a)
-                ? Text(placeholderLabels[match.a]!)
+            placeholderLabel: placeholderLabels.containsKey(match.b)
+                ? Text(placeholderLabels[match.b]!)
                 : null,
           ),
         ],
