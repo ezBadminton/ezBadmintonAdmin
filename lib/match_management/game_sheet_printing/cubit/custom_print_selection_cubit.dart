@@ -148,7 +148,7 @@ class CustomPrintSelectionCubit extends Cubit<CustomPrintSelectionState> {
 
     List<BadmintonMatch> allMatches = progressState.runningTournaments.values
         .expand((t) => t.matches)
-        .where((m) => !m.isBye)
+        .where((m) => !m.isBye && !m.isWalkover)
         .where(
           // Filter match by competition filter
           (m) => competitionFilter?.call(m.competition) ?? true,
