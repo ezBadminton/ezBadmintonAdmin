@@ -269,6 +269,8 @@
   "printQrCodes": "Print QR codes",
   "options": "Options",
   "cancelMatch": "Cancel match\n(back to call out list)",
+  "cancelMatchConfirmation": "Really cancel match?",
+  "cancelMatchInfo": "The match can be started again, the match duration will be reset.",
   "settings": "Settings",
   "queueModeSetting": "Queue mode",
   "queueMode": "{mode, select, manual{Manual} autoCourtAssignment{Automatic court assignment} auto{Full auto} other{OTHER}}",
@@ -282,5 +284,7 @@
   "playerWithdrawalInfo": "You have withdrawn the 'Attending' status of {playerName}.\n\nSelect the competitions in which the player no longer competes. The listed matches will then be counted as lost:",
   "playerReentering": "Re-entering of a tournament participant",
   "playerReenteringInfo": "You have set the status of {playerName} back to 'Attending'.\n\nThe player can re-enter competitions if the competition has not progressed since the withdrawal.\n\nSelect the competitions in which re-entry is desired. The listed matches will then be scored normally again or must still be played:",
-  "playerCannotReenter": "Competition progressed.\nRe-entry not possible."
+  "playerCannotReenter": "Competition progressed.\nRe-entry not possible.",
+  "unlockCourt": "Unlock court\n(Enter result later)",
+  "matchEnded": "Match ended"
 }

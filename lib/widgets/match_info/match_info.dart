@@ -104,6 +104,7 @@ class RunningMatchInfo extends StatelessWidget {
                       ),
                       MinutesTimer(
                         timestamp: match.startTime!,
+                        endTime: match.endTime,
                         textStyle: textStyle,
                       ),
                     ],

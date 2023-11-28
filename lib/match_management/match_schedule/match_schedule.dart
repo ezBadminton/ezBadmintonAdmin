@@ -103,7 +103,7 @@ class ParallelMatchSchedule implements MatchSchedule {
         .toList();
 
     inProgressList = _allMatches
-        .where((m) => m.inProgress)
+        .where((m) => m.startTime != null && m.score == null)
         .sortedBy((m) => m.startTime!)
         .toList();
 

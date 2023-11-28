@@ -33,6 +33,12 @@ class BadmintonMatch extends TournamentMatch<Team, List<MatchSet>> {
 
     withdrawnParticipants = _getWithdrawnParticipants();
 
+    if (matchData.sets.isEmpty &&
+        walkoverWinner == null &&
+        matchData.endTime != null) {
+      endMatch(matchData.endTime!);
+    }
+
     if (matchData.sets.isNotEmpty && walkoverWinner == null) {
       assert(matchData.endTime != null);
       setScore(matchData.sets, endTime: matchData.endTime);

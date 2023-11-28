@@ -209,7 +209,7 @@ class GameSheetPrintingCubit
           !m.isBye &&
           (!excludePrinted || !m.matchData!.gameSheetPrinted) &&
           !m.inProgress &&
-          !m.isCompleted,
+          m.endTime == null,
     );
 
     Iterable<BadmintonMatch> selectedMatches = switch (printSelection) {

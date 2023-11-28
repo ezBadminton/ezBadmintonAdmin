@@ -30,7 +30,7 @@ abstract class TournamentMatch<P, S> {
   DateTime? get endTime => _endTime;
 
   /// Is `true` while this match is ongoing.
-  bool get inProgress => _startTime != null && score == null;
+  bool get inProgress => _startTime != null && _endTime == null;
 
   /// Is `true` when the match has a winner.
   bool get isCompleted => getWinner() != null;
@@ -108,16 +108,25 @@ abstract class TournamentMatch<P, S> {
     _startTime = time;
   }
 
-  /// The score is set when the match result becomes known
+  /// This is called when the match ended but the score is not known.
   ///
-  /// Setting the score also sets the [TournamentMatch.endTime] of the match to
-  /// the current time or alternatively to the given [endTime].
-  void setScore(S? score, {DateTime? endTime}) {
-    if (score == null) {
-      _endTime = null;
-    } else {
-      _endTime = endTime ?? DateTime.now().toUtc();
-    }
+  /// It sets the [TournamentMatch.endTime] to the current time.
+  ///
+  /// [setScore] should be called at a later time when the score becomes known.
+  ///
+  /// If [endTime] is `null` it uses [DateTime.now].
+  void endMatch([DateTime? endTime]) {
+    DateTime time = endTime ?? DateTime.now().toUtc();
+    _endTime = time;
+  }
+
+  /// Sets the [score].
+  ///
+  /// When the [TournamentMatch.endTime] is null, setting the score also sets
+  /// the [TournamentMatch.endTime] to the current time or alternatively to the
+  /// given [endTime].
+  void setScore(S score, {DateTime? endTime}) {
+    _endTime ??= endTime ?? DateTime.now().toUtc();
 
     _score = score;
   }

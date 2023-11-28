@@ -46,8 +46,8 @@ class DialogListener<C extends DialogCubit<S>, S extends DialogState, T>
           previous.dialog != current.dialog &&
           current.dialog.decisionCompleter != null &&
           current.dialog is CubitDialog<T>,
-      listener: (context, state) async {
-        T? decision = await showDialog<T>(
+      listener: (context, state) {
+        Future<T?> decision = showDialog<T>(
           context: context,
           barrierDismissible: barrierDismissable,
           useRootNavigator: useRootNavigator,

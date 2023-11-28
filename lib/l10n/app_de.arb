@@ -269,6 +269,8 @@
   "printQrCodes": "QR-Codes drucken",
   "options": "Optionen",
   "cancelMatch": "Spiel abbrechen\n(zurück zur Aufrufliste)",
+  "cancelMatchConfirmation": "Spiel wirklich abbrechen?",
+  "cancelMatchInfo": "Das Spiel kann erneut gestartet werden, die Spieldauer wird aber zurückgesetzt.",
   "settings": "Einstellungen",
   "queueModeSetting": "Warteschlangenmodus",
   "queueMode": "{mode, select, manual{Manuell} autoCourtAssignment{Automatische Feldzuweisung} auto{Vollautomatisch} other{OTHER}}",
@@ -282,5 +284,7 @@
   "playerWithdrawalInfo": "Du hast den 'Anwesend'-Status von {playerName} zurückgezogen.\n\nWähle die Disziplinen, in denen der Spieler nicht weiter antritt. Die gelisteten Spiele werden dann als verloren gewertet:",
   "playerReentering": "Wiedereintritt eines Turnierteilnehmers",
   "playerReenteringInfo": "Du hast den Status von {playerName} wieder auf 'Anwesend' gestellt.\n\nDer Spieler kann wieder in Disziplinen einsteigen, wenn die Disziplin seit dem Rücktritt nicht fortgeschritten ist.\n\nWähle die Disziplinen, in denen der Wiedereinstieg gewünscht ist. Die gelisteten Spiele werden dann wieder normal gewertet bzw. müssen noch gespielt werden:",
-  "playerCannotReenter": "Disziplin ist fortgeschritten.\nWiedereinstieg nicht möglich."
+  "playerCannotReenter": "Disziplin ist fortgeschritten.\nWiedereinstieg nicht möglich.",
+  "unlockCourt": "Feld freigeben\n(Ergebnis später eintragen)",
+  "matchEnded": "Spiel beendet"
 }

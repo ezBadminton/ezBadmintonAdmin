@@ -119,6 +119,8 @@ class RunningMatch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+
     return _QueuedMatchCard(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -129,10 +131,17 @@ class RunningMatch extends StatelessWidget {
               children: [
                 MatchInfo(match: match),
                 const SizedBox(height: 7),
-                MinutesTimer(
-                  timestamp: match.startTime!,
-                  textStyle: const TextStyle(fontSize: 12),
-                ),
+                if (match.endTime == null)
+                  MinutesTimer(
+                    timestamp: match.startTime!,
+                    endTime: match.endTime,
+                    textStyle: const TextStyle(fontSize: 12),
+                  )
+                else
+                  Text(
+                    l10n.matchEnded,
+                    style: const TextStyle(fontSize: 12),
+                  ),
               ],
             ),
           ),
@@ -143,7 +152,7 @@ class RunningMatch extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _CancelMatchButton(match: match),
+                  _RunningMatchMenuButton(match: match),
                   const SizedBox(width: 12),
                   _EnterResultButton(match: match),
                   const SizedBox(width: 8),
@@ -645,8 +654,8 @@ class _EnterResultButton extends StatelessWidget {
   }
 }
 
-class _CancelMatchButton extends StatelessWidget {
-  const _CancelMatchButton({
+class _RunningMatchMenuButton extends StatelessWidget {
+  const _RunningMatchMenuButton({
     required this.match,
   });
 
@@ -669,9 +678,17 @@ class _CancelMatchButton extends StatelessWidget {
         ),
       ),
       itemBuilder: (context) => [
+        if (match.endTime == null)
+          PopupMenuItem(
+            value: () => cubit.matchEnded(match.matchData!),
+            child: Text(l10n.unlockCourt),
+          ),
         PopupMenuItem(
           value: () => cubit.matchCanceled(match.matchData!),
-          child: Text(l10n.cancelMatch),
+          child: Text(
+            l10n.cancelMatch,
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
+          ),
         ),
       ],
     );
