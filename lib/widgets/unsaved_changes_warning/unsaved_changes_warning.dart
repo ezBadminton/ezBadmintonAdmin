@@ -4,7 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 /// When the user tries to leave the current scope and the [formState] has
 /// unsaved changes, this widget shows a warning
-class UnsavedChangesWarning extends StatelessWidget {
+class UnsavedChangesWarning extends StatefulWidget {
   const UnsavedChangesWarning({
     super.key,
     required this.formState,
@@ -16,22 +16,36 @@ class UnsavedChangesWarning extends StatelessWidget {
   final Widget child;
 
   @override
+  State<UnsavedChangesWarning> createState() => _UnsavedChangesWarningState();
+}
+
+class _UnsavedChangesWarningState extends State<UnsavedChangesWarning> {
+  late bool _userDismissedChanges;
+
+  @override
+  void initState() {
+    super.initState();
+    _userDismissedChanges = false;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        if (formState.isDirty) {
-          return _showUnsavedChangesDialog(context);
-        } else {
-          return true;
+    return PopScope(
+      canPop: widget.formState.isPure || _userDismissedChanges,
+      onPopInvoked: (bool didPop) {
+        if (!didPop) {
+          _showUnsavedChangesDialog(context);
         }
       },
-      child: child,
+      child: widget.child,
     );
   }
 
-  Future<bool> _showUnsavedChangesDialog(BuildContext context) async {
+  void _showUnsavedChangesDialog(BuildContext context) async {
     var l10n = AppLocalizations.of(context)!;
-    var dismissChanges = await showDialog<bool>(
+    NavigatorState navigatorState = Navigator.of(context);
+
+    bool? dismissChanges = await showDialog<bool>(
       context: context,
       barrierDismissible: true,
       builder: (context) {
@@ -51,6 +65,13 @@ class UnsavedChangesWarning extends StatelessWidget {
       },
     );
     dismissChanges ??= false;
-    return dismissChanges;
+
+    setState(() {
+      _userDismissedChanges = dismissChanges!;
+    });
+
+    if (_userDismissedChanges) {
+      navigatorState.pop();
+    }
   }
 }

@@ -44,7 +44,7 @@ dependencies:
     sdk: flutter
   flutter_bloc: ^8.1.2
   formz: ^0.6.0
-  pocketbase: ^0.14.1
+  pocketbase: ^0.16.0
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -76,7 +76,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  very_good_analysis: ^5.0.0
+  very_good_analysis: ^5.1.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -85,7 +85,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
   mocktail: ^1.0.0
-  bloc_test: ^9.1.4
+  bloc_test: ^9.1.5
   expect_stream:
     path: packages/expect_stream
 

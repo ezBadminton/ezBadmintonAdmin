@@ -203,6 +203,7 @@ class _AppViewState extends State<AppView> {
       navigatorKey: _navigatorKey,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      theme: ThemeData(useMaterial3: false),
       builder: (context, child) {
         return BlocListener<AuthenticationBloc, AuthenticationState>(
           listener: (_, state) {

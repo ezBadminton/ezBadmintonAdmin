@@ -32,5 +32,5 @@ dependencies:
   collection: ^1.17.2
 
 dev_dependencies:
-  very_good_analysis: ^5.0.0
+  very_good_analysis: ^5.1.0
   flutter_lints: ^2.0.0
