@@ -1,7 +1,7 @@
-part of 'call_out_cubit.dart';
+part of 'match_start_stop_cubit.dart';
 
-class CallOutState implements DialogState {
-  CallOutState({
+class MatchStartStopState implements DialogState {
+  MatchStartStopState({
     this.formStatus = FormzSubmissionStatus.initial,
     this.dialog = const CubitDialog(),
   });
@@ -11,11 +11,11 @@ class CallOutState implements DialogState {
   @override
   final CubitDialog dialog;
 
-  CallOutState copyWith({
+  MatchStartStopState copyWith({
     FormzSubmissionStatus? formStatus,
     CubitDialog? dialog,
   }) {
-    return CallOutState(
+    return MatchStartStopState(
       formStatus: formStatus ?? this.formStatus,
       dialog: dialog ?? this.dialog,
     );

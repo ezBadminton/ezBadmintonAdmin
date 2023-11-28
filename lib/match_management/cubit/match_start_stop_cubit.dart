@@ -1,22 +1,27 @@
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
 import 'package:formz/formz.dart';
 
-part 'call_out_state.dart';
+part 'match_start_stop_state.dart';
 
-class CallOutCubit extends CollectionQuerierCubit<CallOutState>
-    with DialogCubit<CallOutState> {
-  CallOutCubit({
+class MatchStartStopCubit extends CollectionQuerierCubit<MatchStartStopState>
+    with DialogCubit<MatchStartStopState> {
+  MatchStartStopCubit({
+    required this.tournamentProgressGetter,
     required CollectionRepository<MatchData> matchDataRepository,
   }) : super(
           collectionRepositories: [
             matchDataRepository,
           ],
-          CallOutState(),
+          MatchStartStopState(),
         );
 
-  Future<void> calledOut(MatchData matchData) async {
+  final TournamentProgressState Function() tournamentProgressGetter;
+
+  /// Called when a match that has a court assigned is started
+  Future<void> matchStarted(MatchData matchData) async {
     assert(matchData.court != null && matchData.startTime == null);
 
     if (state.formStatus == FormzSubmissionStatus.inProgress) {
@@ -37,36 +42,15 @@ class CallOutCubit extends CollectionQuerierCubit<CallOutState>
     emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
   }
 
-  /// Cancel the ready for call out status of a match by reverting the court
-  /// assignment in [matchData].
-  void callOutCanceled(MatchData matchData) async {
-    assert(matchData.court != null && matchData.startTime == null);
-
-    if (state.formStatus == FormzSubmissionStatus.inProgress) {
-      return;
-    }
-
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
-
-    MatchData matchDataWithoutCourt = matchData.copyWith(
-      court: null,
-      courtAssignmentTime: null,
-    );
-
-    MatchData? updatedMatchData =
-        await querier.updateModel(matchDataWithoutCourt);
-    if (updatedMatchData == null) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-      return;
-    }
-
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
-  }
-
+  /// Cancels a match before it has its score recorded.
+  ///
+  /// When the match already ended, it is attempted to restore the court
+  /// assignment. Should the court already be assigned to a new match, the
+  /// match gets no court and needs to be assigned again.
   void matchCanceled(MatchData matchData) async {
     assert(matchData.court != null &&
         matchData.startTime != null &&
-        matchData.endTime == null);
+        matchData.sets.isEmpty);
 
     if (state.formStatus == FormzSubmissionStatus.inProgress) {
       return;
@@ -74,26 +58,34 @@ class CallOutCubit extends CollectionQuerierCubit<CallOutState>
 
     emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
-    DateTime now = DateTime.now().toUtc();
+    bool userConfirmation = (await requestDialogChoice<bool>())!;
 
-    Duration matchDuration = now.difference(matchData.startTime!);
-
-    if (matchDuration.inMinutes >= 1) {
-      bool userConfirmation = (await requestDialogChoice<bool>())!;
-
-      if (!userConfirmation) {
-        emit(state.copyWith(formStatus: FormzSubmissionStatus.canceled));
-        return;
-      }
+    if (!userConfirmation) {
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.canceled));
+      return;
     }
 
-    MatchData matchDataWithoutStartTime = matchData.copyWith(
+    MatchData matchDataWithCancellation = matchData.copyWith(
       startTime: null,
       endTime: null,
     );
 
+    if (matchData.endTime != null) {
+      Court courtOfMatch = matchData.court!;
+      TournamentProgressState tournamentProgressState =
+          tournamentProgressGetter();
+
+      // Revoke court from the canceled match if it is not open
+      if (!tournamentProgressState.openCourts.contains(courtOfMatch)) {
+        matchDataWithCancellation = matchDataWithCancellation.copyWith(
+          court: null,
+          courtAssignmentTime: null,
+        );
+      }
+    }
+
     MatchData? updatedMatchData =
-        await querier.updateModel(matchDataWithoutStartTime);
+        await querier.updateModel(matchDataWithCancellation);
     if (updatedMatchData == null) {
       emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
       return;
@@ -102,6 +94,9 @@ class CallOutCubit extends CollectionQuerierCubit<CallOutState>
     emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
   }
 
+  /// Ends a match without a score being recorded.
+  ///
+  /// This frees the court for the next match. The score can be entered later.
   void matchEnded(MatchData matchData) async {
     assert(matchData.court != null &&
         matchData.startTime != null &&

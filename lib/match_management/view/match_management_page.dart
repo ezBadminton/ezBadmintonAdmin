@@ -1,7 +1,7 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
-import 'package:ez_badminton_admin_app/match_management/cubit/call_out_cubit.dart';
+import 'package:ez_badminton_admin_app/match_management/cubit/match_start_stop_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/match_queue_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/match_queue_settings_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/match_schedule/match_schedule.dart';
@@ -22,6 +22,8 @@ class MatchManagementPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var progressCubit = context.read<TournamentProgressCubit>();
+
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -37,7 +39,8 @@ class MatchManagementPage extends StatelessWidget {
           ),
         ),
         BlocProvider(
-          create: (context) => CallOutCubit(
+          create: (context) => MatchStartStopCubit(
+            tournamentProgressGetter: () => progressCubit.state,
             matchDataRepository:
                 context.read<CollectionRepository<MatchData>>(),
           ),
@@ -105,7 +108,7 @@ class _MatchQueueLists extends StatelessWidget {
         return LoadingScreen(
           loadingStatus: state.loadingStatus,
           builder: (context) =>
-              DialogListener<CallOutCubit, CallOutState, bool>(
+              DialogListener<MatchStartStopCubit, MatchStartStopState, bool>(
             builder: (context, state, reason) {
               return ConfirmDialog(
                 title: Text(l10n.cancelMatchConfirmation),
@@ -268,7 +271,7 @@ class _CallOutAllButton extends StatelessWidget {
                     context: context,
                     builder: (_) => CallOutScript(
                       callOuts: state.calloutWaitList,
-                      callOutCubit: context.read<CallOutCubit>(),
+                      matchStartingCubit: context.read<MatchStartStopCubit>(),
                     ),
                   );
                 },

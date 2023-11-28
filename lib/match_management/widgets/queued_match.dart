@@ -4,7 +4,7 @@ import 'package:ez_badminton_admin_app/assets/badminton_icons_icons.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
-import 'package:ez_badminton_admin_app/match_management/cubit/call_out_cubit.dart';
+import 'package:ez_badminton_admin_app/match_management/cubit/match_start_stop_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/match_court_assignment_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/match_queue_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/match_schedule/match_schedule.dart';
@@ -279,7 +279,8 @@ class _AutoCourtAssignmentButton extends StatelessWidget {
             child: ElevatedButton(
               onPressed: nextCourt != null
                   ? () {
-                      assignmentCubit.assignMatchToCourt(matchData, nextCourt);
+                      assignmentCubit.courtAssignedToMatch(
+                          matchData, nextCourt);
                     }
                   : null,
               style: ButtonStyle(
@@ -556,7 +557,7 @@ class _CallOutButton extends StatelessWidget {
               context: context,
               builder: (_) => CallOutScript(
                 callOuts: [match],
-                callOutCubit: context.read<CallOutCubit>(),
+                matchStartingCubit: context.read<MatchStartStopCubit>(),
               ),
             );
           },
@@ -581,7 +582,7 @@ class _BackToWaitlistButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    var cancelingCubit = context.read<CallOutCubit>();
+    var courtAssignmentCubit = context.read<MatchCourtAssignmentCubit>();
 
     return BlocBuilder<MatchQueueCubit, MatchQueueState>(
       buildWhen: (previous, current) => previous.queueMode != current.queueMode,
@@ -595,7 +596,8 @@ class _BackToWaitlistButton extends StatelessWidget {
           child: Tooltip(
             message: l10n.backToWaitList,
             child: IconButton(
-              onPressed: () => cancelingCubit.callOutCanceled(matchData),
+              onPressed: () =>
+                  courtAssignmentCubit.courtAssignmentRevoked(matchData),
               style: const ButtonStyle(
                 shape: MaterialStatePropertyAll(CircleBorder()),
                 padding: MaterialStatePropertyAll(EdgeInsets.zero),
@@ -664,7 +666,7 @@ class _RunningMatchMenuButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    var cubit = context.read<CallOutCubit>();
+    var cubit = context.read<MatchStartStopCubit>();
 
     return PopupMenuButton<VoidCallback>(
       onSelected: (callback) => callback(),

@@ -365,7 +365,7 @@ class _MatchAssignmentButton extends StatelessWidget {
     var cubit = context.read<MatchCourtAssignmentCubit>();
 
     return ElevatedButton(
-      onPressed: () => cubit.assignMatchToCourt(matchData, court),
+      onPressed: () => cubit.courtAssignedToMatch(matchData, court),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: Row(
