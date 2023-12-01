@@ -11,6 +11,7 @@ import 'package:ez_badminton_admin_app/match_management/cubit/match_court_assign
 import 'package:ez_badminton_admin_app/match_management/result_entering/widgets/match_scan_listener.dart';
 import 'package:ez_badminton_admin_app/match_management/view/match_management_page.dart';
 import 'package:ez_badminton_admin_app/player_management/view/player_list_page.dart';
+import 'package:ez_badminton_admin_app/result_management/view/result_management_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -31,7 +32,7 @@ class _HomePageState extends State<HomePage>
     with TickerProviderStateMixin<HomePage> {
   late final List<GlobalKey<NavigatorState>> navigatorKeys;
   late final List<AnimationController> switchAnimationControllers;
-  final int numTabs = 5;
+  final int numTabs = 6;
   late List<NavigationTab> tabs;
   late List<Widget> tabViews;
 
@@ -97,6 +98,13 @@ class _HomePageState extends State<HomePage>
           root: const MatchManagementPage(),
           unselectedIcon: BadmintonIcons.badminton_shuttlecock_outline,
           selectedIcon: BadmintonIcons.badminton_shuttlecock,
+        ),
+        NavigationTab(
+          index: 5,
+          label: l10n.result(2),
+          root: const ResultManagementPage(),
+          unselectedIcon: Icons.emoji_events_outlined,
+          selectedIcon: Icons.emoji_events,
         ),
       ];
 

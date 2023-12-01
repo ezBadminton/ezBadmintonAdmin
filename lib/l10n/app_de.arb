@@ -286,5 +286,7 @@
   "playerReenteringInfo": "Du hast den Status von {playerName} wieder auf 'Anwesend' gestellt.\n\nDer Spieler kann wieder in Disziplinen einsteigen, wenn die Disziplin seit dem Rücktritt nicht fortgeschritten ist.\n\nWähle die Disziplinen, in denen der Wiedereinstieg gewünscht ist. Die gelisteten Spiele werden dann wieder normal gewertet bzw. müssen noch gespielt werden:",
   "playerCannotReenter": "Disziplin ist fortgeschritten.\nWiedereinstieg nicht möglich.",
   "unlockCourt": "Feld freigeben\n(Ergebnis später eintragen)",
-  "matchEnded": "Spiel beendet"
+  "matchEnded": "Spiel beendet",
+  "result": "{count, plural, =1{Ergebnis} other{Ergebnisse}}",
+  "resultManagement": "Ergebnisse verwalten"
 }

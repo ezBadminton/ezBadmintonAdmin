@@ -286,5 +286,7 @@
   "playerReenteringInfo": "You have set the status of {playerName} back to 'Attending'.\n\nThe player can re-enter competitions if the competition has not progressed since the withdrawal.\n\nSelect the competitions in which re-entry is desired. The listed matches will then be scored normally again or must still be played:",
   "playerCannotReenter": "Competition progressed.\nRe-entry not possible.",
   "unlockCourt": "Unlock court\n(Enter result later)",
-  "matchEnded": "Match ended"
+  "matchEnded": "Match ended",
+  "result": "{count, plural, =1{Result} other{Results}}",
+  "resultManagement": "Manage results"
 }
