@@ -1,13 +1,13 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/view/tournament_mode_assignment_page.dart';
-import 'package:ez_badminton_admin_app/draw_management/cubit/competition_draw_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/draw_deletion_cubit.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/draw_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/drawing_cubit.dart';
 import 'package:ez_badminton_admin_app/draw_management/widgets/tournament_mode_card.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/tournament_mode_hydration.dart';
 import 'package:ez_badminton_admin_app/utils/confirmation_cubit/confirmation_cubit.dart';
+import 'package:ez_badminton_admin_app/widgets/competition_selection_list/cubit/competition_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
 import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/tournament_bracket_explorer_controller_cubit.dart';
@@ -29,8 +29,7 @@ class DrawEditor extends StatelessWidget {
 
     return BlocProvider(
       create: (context) => TournamentBracketExplorerControllerCubit(),
-      child: BlocBuilder<CompetitionDrawSelectionCubit,
-          CompetitionDrawSelectionState>(
+      child: BlocBuilder<CompetitionSelectionCubit, CompetitionSelectionState>(
         builder: (context, state) {
           if (state.selectedCompetition.value == null) {
             return Center(

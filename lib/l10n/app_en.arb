@@ -205,6 +205,7 @@
   "drawsWillBeOverriddenInfo": "By changing the tournament mode existing draws will be removed.\n\nContinue?",
   "noCompetitionsRegistrationHint": "Add a competition to become able to make registrations",
   "noCompetitionsDrawHint": "No competitions.\n\nAdd a competition and register participants to make a draw.",
+  "noCompetitionsResultHint": "Keine Disziplinen.\n\nAdd a competition and start it to see results.",
   "matchOperations": "Match operations",
   "startTournament": "Start tournament",
   "startTournamentInfo": "You are about to start the tournament for the selected competitions.\nThe matches will appear on the 'Matches' tab and the tournament operations can commence!",

@@ -1,21 +1,23 @@
 import 'package:collection_repository/collection_repository.dart';
-import 'package:ez_badminton_admin_app/draw_management/cubit/competition_draw_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/choice_chip_tab/choice_chip_tab.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
+import 'package:ez_badminton_admin_app/widgets/competition_selection_list/cubit/competition_selection_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class CompetitionDrawSelectionList extends StatelessWidget {
-  const CompetitionDrawSelectionList({super.key});
+class CompetitionSelectionList extends StatelessWidget {
+  const CompetitionSelectionList({
+    super.key,
+    required this.noCompetitionsHint,
+  });
+
+  final String noCompetitionsHint;
 
   @override
   Widget build(BuildContext context) {
-    var cubit = context.read<CompetitionDrawSelectionCubit>();
-    var l10n = AppLocalizations.of(context)!;
+    var cubit = context.read<CompetitionSelectionCubit>();
 
-    return BlocBuilder<CompetitionDrawSelectionCubit,
-        CompetitionDrawSelectionState>(
+    return BlocBuilder<CompetitionSelectionCubit, CompetitionSelectionState>(
       builder: (context, state) {
         List<Competition> competitions = state.getCollection<Competition>();
 
@@ -26,7 +28,7 @@ class CompetitionDrawSelectionList extends StatelessWidget {
               horizontal: 8.0,
             ),
             child: Text(
-              l10n.noCompetitionsDrawHint,
+              noCompetitionsHint,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 17,

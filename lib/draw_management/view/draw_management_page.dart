@@ -1,11 +1,11 @@
 import 'package:collection_repository/collection_repository.dart';
-import 'package:ez_badminton_admin_app/draw_management/cubit/competition_draw_selection_cubit.dart';
-import 'package:ez_badminton_admin_app/draw_management/widgets/competition_draw_selection_list.dart';
+import 'package:ez_badminton_admin_app/widgets/competition_selection_list/competition_selection_list.dart';
 import 'package:ez_badminton_admin_app/draw_management/widgets/draw_editor.dart';
 import 'package:ez_badminton_admin_app/draw_management/widgets/entry_list.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_state.dart';
 import 'package:ez_badminton_admin_app/utils/simple_cubit.dart';
+import 'package:ez_badminton_admin_app/widgets/competition_selection_list/cubit/competition_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/cross_fade_drawer/cross_fade_drawer.dart';
 import 'package:ez_badminton_admin_app/widgets/cross_fade_drawer/cross_fade_drawer_controller.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
@@ -22,7 +22,7 @@ class DrawManagementPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => CompetitionDrawSelectionCubit(
+      create: (context) => CompetitionSelectionCubit(
         competitionRepository:
             context.read<CollectionRepository<Competition>>(),
       ),
@@ -48,15 +48,15 @@ class _DrawManagementPageScaffold extends StatelessWidget {
               current.selectedIndex == 3 &&
               current.tabChangeReason is Competition,
           listener: (context, state) {
-            var cubit = context.read<CompetitionDrawSelectionCubit>();
+            var cubit = context.read<CompetitionSelectionCubit>();
             cubit.competitionSelected(state.tabChangeReason as Competition);
           },
           child: BlocProvider(
             create: (context) => SimpleCubit<CrossFadeDrawerController>(
               CrossFadeDrawerController(),
             ),
-            child: BlocBuilder<CompetitionDrawSelectionCubit,
-                CompetitionDrawSelectionState>(
+            child: BlocBuilder<CompetitionSelectionCubit,
+                CompetitionSelectionState>(
               buildWhen: (previous, current) =>
                   previous.loadingStatus != current.loadingStatus,
               builder: (context, state) => LoadingScreen(
@@ -115,16 +115,19 @@ class _DrawSelectionPanels extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CompetitionDrawSelectionCubit,
-        CompetitionDrawSelectionState>(
+    var l10n = AppLocalizations.of(context)!;
+
+    return BlocBuilder<CompetitionSelectionCubit, CompetitionSelectionState>(
       builder: (context, state) {
         return Row(
           children: [
-            const SizedBox(
+            SizedBox(
               width: 260,
               child: Align(
                 alignment: Alignment.topCenter,
-                child: CompetitionDrawSelectionList(),
+                child: CompetitionSelectionList(
+                  noCompetitionsHint: l10n.noCompetitionsDrawHint,
+                ),
               ),
             ),
             const VerticalDivider(

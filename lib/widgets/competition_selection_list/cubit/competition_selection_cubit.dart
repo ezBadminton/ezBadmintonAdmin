@@ -4,17 +4,17 @@ import 'package:ez_badminton_admin_app/utils/sorting.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 
-part 'competition_draw_selection_state.dart';
+part 'competition_selection_state.dart';
 
-class CompetitionDrawSelectionCubit
-    extends CollectionFetcherCubit<CompetitionDrawSelectionState> {
-  CompetitionDrawSelectionCubit({
+class CompetitionSelectionCubit
+    extends CollectionFetcherCubit<CompetitionSelectionState> {
+  CompetitionSelectionCubit({
     required CollectionRepository<Competition> competitionRepository,
   }) : super(
           collectionRepositories: [
             competitionRepository,
           ],
-          CompetitionDrawSelectionState(),
+          CompetitionSelectionState(),
         ) {
     loadCollections();
     subscribeToCollectionUpdates(
