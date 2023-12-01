@@ -172,6 +172,7 @@ class ParallelMatchSchedule implements MatchSchedule {
         progressState.runningTournaments.map(
       (competition, tournament) {
         Iterable<DateTime> courtAssignmentTimes = tournament.matches
+            .where((m) => !m.isBye)
             .where((m) => m.matchData!.courtAssignmentTime != null)
             .map((m) => m.matchData!.courtAssignmentTime!);
         DateTime lastCourtAssignmentTime = courtAssignmentTimes.fold(
