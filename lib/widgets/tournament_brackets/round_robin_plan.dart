@@ -2,6 +2,7 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/interactive_view_blocker_cubit.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section_subtree.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/bracket_match_label.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';
 import 'package:flutter/material.dart';
@@ -34,20 +35,23 @@ class RoundRobinPlan extends StatelessWidget {
     List<MatchParticipant<Team>> participants =
         tournament.participants.where((p) => !p.isBye).toList();
 
-    return Column(
-      children: [
-        _RoundRobinTable(
-          participants: participants,
-          competition: competition,
-          isEditable: isEditable,
-          title: title ?? l10n.participant(2),
-        ),
-        const SizedBox(height: 5),
-        _RoundRobinMatchList(
-          rounds: tournament.rounds,
-          competition: competition,
-        ),
-      ],
+    return BracketSectionSubtree(
+      tournamentDataObject: tournament,
+      child: Column(
+        children: [
+          _RoundRobinTable(
+            participants: participants,
+            competition: competition,
+            isEditable: isEditable,
+            title: title ?? l10n.participant(2),
+          ),
+          const SizedBox(height: 5),
+          _RoundRobinMatchList(
+            rounds: tournament.rounds,
+            competition: competition,
+          ),
+        ],
+      ),
     );
   }
 }

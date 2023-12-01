@@ -13,7 +13,7 @@ import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/tournament_bracket_explorer_controller_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/edge_panning_area.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/tournament_bracket_explorer_controller.dart';
-import 'package:ez_badminton_admin_app/widgets/tournament_brackets/section_labels.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bracket.dart';
 import 'package:ez_badminton_admin_app/widgets/transformation_zoom_buttons/transformation_zoom_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -63,8 +63,6 @@ class _TournamentBracketExplorerState extends State<TournamentBracketExplorer>
 
   @override
   Widget build(BuildContext context) {
-    var l10n = AppLocalizations.of(context)!;
-
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -131,12 +129,12 @@ class _TournamentBracketExplorerState extends State<TournamentBracketExplorer>
                   ),
                   Column(
                     children: [
-                      if (widget.tournamentBracket is SectionLabels)
+                      if (widget.tournamentBracket is SectionedBracket)
                         BracketSectionNavigator(
                           constraints: constraints,
-                          sectionLabels:
-                              (widget.tournamentBracket as SectionLabels)
-                                  .getSectionLabels(l10n),
+                          sections:
+                              (widget.tournamentBracket as SectionedBracket)
+                                  .sections,
                           viewController: _viewController!,
                         ),
                       _ViewControlBar(competition: widget.competition),

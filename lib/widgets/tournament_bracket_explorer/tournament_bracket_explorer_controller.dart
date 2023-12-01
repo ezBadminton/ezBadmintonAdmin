@@ -4,6 +4,7 @@ import 'package:ez_badminton_admin_app/utils/animated_transformation_controller/
 import 'package:ez_badminton_admin_app/utils/aspect_ratios.dart'
     as aspect_ratios;
 import 'package:flutter/material.dart';
+import 'package:vector_math/vector_math_64.dart';
 
 // The controller uses this size when the tournament bracket has not been
 // rendered and its size is not yet known
@@ -55,9 +56,33 @@ class TournamentBracketExplorerController
     }
   }
 
-  void focusHorizontal(double horizontalOffset) {
-    Offset point = Offset(horizontalOffset, currentSceneFocus.dy);
+  void focusGlobalKey(GlobalKey key) {
+    RenderObject? viewRenderObject =
+        bracketViewKey.currentContext?.findRenderObject();
 
-    focusPoint(point, 1.1);
+    RenderBox? renderBox =
+        (key.currentContext?.findRenderObject() as RenderBox?);
+
+    if (viewRenderObject == null ||
+        renderBox == null ||
+        viewConstraints == null) {
+      return;
+    }
+
+    Vector3 translation =
+        renderBox.getTransformTo(viewRenderObject).getTranslation();
+
+    Offset widgetCenter =
+        renderBox.paintBounds.translate(translation.x, translation.y).center;
+    Size widgetSize = renderBox.paintBounds.size;
+
+    Size viewSize = viewConstraints!.biggest;
+
+    double xScale = viewSize.width / widgetSize.width;
+    double yScale = viewSize.height / widgetSize.height;
+
+    double fittingScale = min(1.33, min(xScale, yScale));
+
+    focusPoint(widgetCenter, fittingScale);
   }
 }

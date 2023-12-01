@@ -1,23 +1,28 @@
 import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/round_robin_plan.dart';
-import 'package:ez_badminton_admin_app/widgets/tournament_brackets/section_labels.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bracket.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
 import 'package:flutter/material.dart';
 import 'package:tournament_mode/tournament_mode.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'bracket_widths.dart' as bracket_widths;
 
-class GroupKnockoutPlan extends StatelessWidget implements SectionLabels {
-  const GroupKnockoutPlan({
+class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
+  GroupKnockoutPlan({
     super.key,
     required this.tournament,
     required this.competition,
-  });
+  }) : _sections = _getSections(tournament);
 
   final BadmintonGroupKnockout tournament;
   final Competition competition;
+
+  final List<BracketSection> _sections;
+  @override
+  List<BracketSection> get sections => _sections;
 
   @override
   Widget build(BuildContext context) {
@@ -70,32 +75,25 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionLabels {
     return placeholders;
   }
 
-  @override
-  List<SectionLabel> getSectionLabels(AppLocalizations l10n) {
-    int numGroups = tournament.numGroups;
-
-    List<SectionLabel> groupPhaseSectionLabels = [
-      for (int g = 0; g < numGroups; g += 1) ...[
-        SectionLabel(
-          width: bracket_widths.roundRobinTableWidth,
-          label: l10n.groupNumber(g + 1),
-        ),
-        SectionLabel(width: bracket_widths.groupKnockoutGroupGap),
-      ],
-    ];
-
-    SingleEliminationTree eliminationTree = SingleEliminationTree(
-      rounds: tournament.knockoutPhase.rounds,
-      competition: competition,
+  static List<BracketSection> _getSections(BadmintonGroupKnockout tournament) {
+    Iterable<BracketSection> groupSections =
+        tournament.groupPhase.groupRoundRobins.mapIndexed(
+      (index, group) => BracketSection(
+        tournamentDataObject: group,
+        labelBuilder: (context) =>
+            AppLocalizations.of(context)!.groupNumber(index + 1),
+      ),
     );
 
-    List<SectionLabel> eliminationSectionLabels =
-        eliminationTree.getSectionLabels(l10n);
+    Iterable<BracketSection> eliminationSections =
+        tournament.knockoutPhase.rounds.map(
+      (round) => BracketSection(
+        tournamentDataObject: round,
+        labelBuilder: (context) =>
+            AppLocalizations.of(context)!.roundOfN('${round.roundSize}'),
+      ),
+    );
 
-    return [
-      ...groupPhaseSectionLabels,
-      SectionLabel(width: bracket_widths.groupKnockoutEliminationGap),
-      ...eliminationSectionLabels,
-    ];
+    return [...groupSections, ...eliminationSections];
   }
 }

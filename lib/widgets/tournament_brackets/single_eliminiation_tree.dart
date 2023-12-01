@@ -1,22 +1,22 @@
-import 'dart:math';
-
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
-import 'package:ez_badminton_admin_app/widgets/tournament_brackets/section_labels.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section_subtree.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bracket.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_elimination_match_node.dart';
 import 'package:flutter/material.dart';
 import 'package:tournament_mode/tournament_mode.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'bracket_widths.dart' as bracket_widths;
 
-class SingleEliminationTree extends StatelessWidget implements SectionLabels {
-  const SingleEliminationTree({
+class SingleEliminationTree extends StatelessWidget
+    implements SectionedBracket {
+  SingleEliminationTree({
     super.key,
     required this.rounds,
     required this.competition,
     this.isEditable = false,
     this.placeholderLabels = const {},
-  });
+  }) : _sections = _getSections(rounds);
 
   final List<EliminationRound<BadmintonMatch>> rounds;
   final Competition competition;
@@ -25,26 +25,35 @@ class SingleEliminationTree extends StatelessWidget implements SectionLabels {
 
   final Map<MatchParticipant, String> placeholderLabels;
 
+  final List<BracketSection> _sections;
+  @override
+  List<BracketSection> get sections => _sections;
+
   @override
   Widget build(BuildContext context) {
-    List<List<Widget>> roundNodes = [];
+    List<Widget> roundNodes = [];
 
     for (EliminationRound<BadmintonMatch> round in rounds) {
       bool isFirst = rounds.first == round;
       bool isLast = rounds.last == round;
 
       roundNodes.add(
-        List.generate(
-          round.matches.length,
-          (index) => Expanded(
-            child: SingleEliminationMatchNode(
-              match: round.matches[index],
-              teamSize: competition.teamSize,
-              matchIndex: index,
-              isFirstRound: isFirst,
-              isLastRound: isLast,
-              isEditable: isEditable,
-              placeholderLabels: placeholderLabels,
+        BracketSectionSubtree(
+          tournamentDataObject: round,
+          child: Column(
+            children: List.generate(
+              round.matches.length,
+              (index) => Expanded(
+                child: SingleEliminationMatchNode(
+                  match: round.matches[index],
+                  teamSize: competition.teamSize,
+                  matchIndex: index,
+                  isFirstRound: isFirst,
+                  isLastRound: isLast,
+                  isEditable: isEditable,
+                  placeholderLabels: placeholderLabels,
+                ),
+              ),
             ),
           ),
         ),
@@ -54,29 +63,20 @@ class SingleEliminationTree extends StatelessWidget implements SectionLabels {
     return IntrinsicHeight(
       child: Row(
         children: [
-          for (List<Widget> matchNodes in roundNodes)
-            Column(children: matchNodes)
+          for (Widget round in roundNodes) round,
         ],
       ),
     );
   }
 
-  @override
-  List<SectionLabel> getSectionLabels(AppLocalizations l10n) {
-    int numRounds = rounds.length;
-    return [
-      for (int i = numRounds - 1; i >= 0; i -= 1) ...[
-        if (i != numRounds - 1)
-          SectionLabel(width: bracket_widths.singleEliminationRoundGap),
-        SectionLabel(
-          width: (isEditable && i == numRounds - 1)
-              ? bracket_widths.editableSingleEliminationNodeWidth
-              : bracket_widths.singleEliminatioNodeWith,
-          label: l10n.roundOfN('${pow(2, i + 1)}'),
-        ),
-        if (i != 0)
-          SectionLabel(width: bracket_widths.singleEliminationRoundGap),
-      ],
-    ];
+  static List<BracketSection> _getSections(
+      List<EliminationRound<BadmintonMatch>> rounds) {
+    return rounds.map((round) {
+      return BracketSection(
+        tournamentDataObject: round,
+        labelBuilder: (context) =>
+            AppLocalizations.of(context)!.roundOfN('${round.roundSize}'),
+      );
+    }).toList();
   }
 }

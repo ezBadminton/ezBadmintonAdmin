@@ -72,6 +72,7 @@ dependencies:
   path: ^1.8.3
   url_launcher: ^6.2.1
   open_file: ^3.3.2
+  vector_math: ^2.1.4
 
 dev_dependencies:
   flutter_test:
