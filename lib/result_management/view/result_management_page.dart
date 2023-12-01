@@ -1,4 +1,5 @@
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/result_management/widgets/result_explorer.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_selection_list/competition_selection_list.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_selection_list/cubit/competition_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
@@ -45,7 +46,14 @@ class _ResultManagementPageScaffold extends StatelessWidget {
                     ),
                   ),
                 ),
-                const Expanded(child: Placeholder()),
+                const VerticalDivider(
+                  thickness: 1,
+                  width: 1,
+                  color: Colors.black26,
+                ),
+                const Expanded(
+                  child: ResultExplorer(),
+                ),
               ],
             ),
           );

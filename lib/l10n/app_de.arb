@@ -178,6 +178,8 @@
   "addToSeeds": "Setzplatz geben",
   "removeFromSeeds": "Von Setzliste nehmen",
   "noDrawCompetitionSelected": "Wähle eine Disziplin, um eine Auslosung zu machen",
+  "noResultCompetitionSelected": "Wähle eine Disziplin, um die Ergebnisse zu sehen",
+  "noResultsYet": "Für diese Disziplin liegen noch keine Spielstände vor",
   "noTournamentMode": "Diese Disziplin hat keinen Turniermodus festgelegt",
   "makeDraw": "Auslosung machen",
   "bye": "Freilos",

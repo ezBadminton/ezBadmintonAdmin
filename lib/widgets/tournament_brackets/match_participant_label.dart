@@ -24,7 +24,7 @@ class MatchParticipantLabel extends StatelessWidget {
     this.padding = const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10),
     this.byeLabel,
     this.textStyle,
-    this.lastNametextStyle,
+    this.lastNameTextStyle,
   });
 
   final MatchParticipant<Team> participant;
@@ -47,7 +47,7 @@ class MatchParticipantLabel extends StatelessWidget {
   final Widget? byeLabel;
 
   final TextStyle? textStyle;
-  final TextStyle? lastNametextStyle;
+  final TextStyle? lastNameTextStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +83,7 @@ class MatchParticipantLabel extends StatelessWidget {
         padding: padding,
         byeLabel: byeLabel,
         textStyle: textStyle,
-        lastNametextStyle: lastNametextStyle,
+        lastNameTextStyle: lastNameTextStyle,
       );
     }
   }
@@ -106,7 +106,7 @@ class _MatchParticipantLabel extends StatelessWidget {
     required this.padding,
     required this.byeLabel,
     required this.textStyle,
-    required this.lastNametextStyle,
+    required this.lastNameTextStyle,
   });
 
   final MatchParticipant<Team> participant;
@@ -133,7 +133,7 @@ class _MatchParticipantLabel extends StatelessWidget {
   final Widget byeLabel;
 
   final TextStyle? textStyle;
-  final TextStyle? lastNametextStyle;
+  final TextStyle? lastNameTextStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -214,7 +214,7 @@ class _MatchParticipantLabel extends StatelessWidget {
           if (useFullName) TextSpan(text: '${player.firstName} '),
           TextSpan(
             text: player.lastName,
-            style: lastNametextStyle,
+            style: lastNameTextStyle,
           ),
           if (showClub && player.club != null)
             TextSpan(text: ' (${player.club!.name})'),
@@ -285,7 +285,7 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
         padding: padding,
         byeLabel: byeLabel,
         textStyle: null,
-        lastNametextStyle: null,
+        lastNameTextStyle: null,
       ),
       child: DragTarget<Team>(
         onWillAccept: (droppedTeam) {
@@ -315,7 +315,7 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
             padding: padding,
             byeLabel: byeLabel,
             textStyle: null,
-            lastNametextStyle: null,
+            lastNameTextStyle: null,
           ),
           child: _MatchParticipantLabel(
             participant: participant,
@@ -336,7 +336,7 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
             padding: padding,
             byeLabel: byeLabel,
             textStyle: null,
-            lastNametextStyle: null,
+            lastNameTextStyle: null,
           ),
         ),
       ),

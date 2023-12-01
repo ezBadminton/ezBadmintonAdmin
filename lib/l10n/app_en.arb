@@ -178,6 +178,8 @@
   "addToSeeds": "Add to seeds",
   "removeFromSeeds": "Remove from seeds",
   "noDrawCompetitionSelected": "Select a competition to make a draw",
+  "noResultCompetitionSelected": "Select a competition to see the results",
+  "noResultsYet": "There are no scores for this competition yet",
   "noTournamentMode": "This competition has no tournament mode assigned",
   "makeDraw": "Make draw",
   "bye": "Bye",

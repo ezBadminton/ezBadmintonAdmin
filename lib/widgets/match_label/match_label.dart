@@ -90,7 +90,7 @@ class MatchupLabel extends StatelessWidget {
         ),
         useFullName: useFullName,
         textStyle: textStyle,
-        lastNametextStyle: lastNameTextStyle,
+        lastNameTextStyle: lastNameTextStyle,
       ),
       Text(
         '- ${l10n.versusAbbreviated} -',
@@ -116,7 +116,7 @@ class MatchupLabel extends StatelessWidget {
         ),
         useFullName: useFullName,
         textStyle: textStyle,
-        lastNametextStyle: lastNameTextStyle,
+        lastNameTextStyle: lastNameTextStyle,
       ),
     ];
 

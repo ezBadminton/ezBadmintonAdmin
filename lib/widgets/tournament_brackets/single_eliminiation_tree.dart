@@ -15,6 +15,7 @@ class SingleEliminationTree extends StatelessWidget
     required this.rounds,
     required this.competition,
     this.isEditable = false,
+    this.showResults = false,
     this.placeholderLabels = const {},
   }) : _sections = _getSections(rounds);
 
@@ -22,6 +23,7 @@ class SingleEliminationTree extends StatelessWidget
   final Competition competition;
 
   final bool isEditable;
+  final bool showResults;
 
   final Map<MatchParticipant, String> placeholderLabels;
 
@@ -51,6 +53,7 @@ class SingleEliminationTree extends StatelessWidget
                   isFirstRound: isFirst,
                   isLastRound: isLast,
                   isEditable: isEditable,
+                  showResult: showResults,
                   placeholderLabels: placeholderLabels,
                 ),
               ),

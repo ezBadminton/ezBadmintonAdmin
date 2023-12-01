@@ -124,6 +124,7 @@ class _InteractiveDraw extends StatelessWidget {
     };
 
     return TournamentBracketExplorer(
+      key: ValueKey('DrawEditor-${competition.id}'),
       competition: competition,
       tournamentBracket: drawView,
       controlBarOptionsBuilder: (bool compact) =>
