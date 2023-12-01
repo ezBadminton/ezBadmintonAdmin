@@ -72,7 +72,7 @@ class _BracketSectionNavigatorState extends State<BracketSectionNavigator> {
     const double indicatorHeigt = 2;
 
     if (_sectionRects == null) {
-      return const SizedBox();
+      return const SizedBox(height: height + indicatorHeigt);
     }
 
     double totalSectionWidth = _getTotalSectionWidth();

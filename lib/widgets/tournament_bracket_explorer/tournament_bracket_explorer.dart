@@ -1,12 +1,7 @@
 import 'package:collection_repository/collection_repository.dart';
-import 'package:ez_badminton_admin_app/draw_management/cubit/draw_deletion_cubit.dart';
-import 'package:ez_badminton_admin_app/draw_management/cubit/drawing_cubit.dart';
 import 'package:ez_badminton_admin_app/utils/animated_transformation_controller/animated_transformation_controller.dart';
-import 'package:ez_badminton_admin_app/utils/confirmation_cubit/confirmation_cubit.dart';
 import 'package:ez_badminton_admin_app/utils/simple_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
-import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
-import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section_navigator.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/bracket_section_navigator_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/interactive_view_blocker_cubit.dart';
@@ -17,7 +12,6 @@ import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bra
 import 'package:ez_badminton_admin_app/widgets/transformation_zoom_buttons/transformation_zoom_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:local_hero/local_hero.dart';
 
 class TournamentBracketExplorer extends StatefulWidget {
@@ -25,10 +19,13 @@ class TournamentBracketExplorer extends StatefulWidget {
     super.key,
     required this.competition,
     required this.tournamentBracket,
+    required this.controlBarOptionsBuilder,
   });
 
   final Competition competition;
   final Widget tournamentBracket;
+
+  final Widget Function(bool compact) controlBarOptionsBuilder;
 
   @override
   State<TournamentBracketExplorer> createState() =>
@@ -86,9 +83,8 @@ class _TournamentBracketExplorerState extends State<TournamentBracketExplorer>
 
           // Wait for the bracket view to be painted so the
           // render box sizes are available
-          Future.delayed(
-            Duration.zero,
-            () {
+          WidgetsBinding.instance.addPostFrameCallback(
+            (_) {
               sectionNavigatorcubit.onViewChanged();
               boundaryCubit.changeState(
                 _viewController!.boundaryMargin,
@@ -137,7 +133,11 @@ class _TournamentBracketExplorerState extends State<TournamentBracketExplorer>
                                   .sections,
                           viewController: _viewController!,
                         ),
-                      _ViewControlBar(competition: widget.competition),
+                      _ViewControlBar(
+                        competition: widget.competition,
+                        controlBarOptionsBuilder:
+                            widget.controlBarOptionsBuilder,
+                      ),
                     ],
                   ),
                   Positioned.fill(
@@ -163,9 +163,12 @@ class _TournamentBracketExplorerState extends State<TournamentBracketExplorer>
 class _ViewControlBar extends StatelessWidget {
   const _ViewControlBar({
     required this.competition,
+    required this.controlBarOptionsBuilder,
   });
 
   final Competition competition;
+
+  final Widget Function(bool compact) controlBarOptionsBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -223,7 +226,7 @@ class _ViewControlBar extends StatelessWidget {
                       ),
                     ),
                   ),
-                _DrawOptions(compact: compact),
+                controlBarOptionsBuilder(compact),
               ],
             ),
           ),
@@ -231,134 +234,4 @@ class _ViewControlBar extends StatelessWidget {
       );
     });
   }
-}
-
-class _DrawOptions extends StatelessWidget {
-  const _DrawOptions({
-    required this.compact,
-  });
-
-  final bool compact;
-
-  @override
-  Widget build(BuildContext context) {
-    var l10n = AppLocalizations.of(context)!;
-
-    var drawingCubit = context.read<DrawingCubit>();
-    var drawDeletionCubit = context.read<DrawDeletionCubit>();
-
-    return BlocProvider(
-      create: (context) => ConfirmationCubit(),
-      child: DialogListener<ConfirmationCubit, ConfirmationState, bool>(
-        builder: (context, state, reason) {
-          String title = switch (reason as _ConfirmReason) {
-            _ConfirmReason.undoManualDraw => l10n.undoManualDraw,
-            _ConfirmReason.redraw => l10n.redraw,
-            _ConfirmReason.deleteDraw => l10n.deleteSubject(l10n.draw(1)),
-          };
-
-          String body = switch (reason) {
-            _ConfirmReason.undoManualDraw => l10n.undoManualDrawWarning,
-            _ConfirmReason.redraw => l10n.redrawWarning,
-            _ConfirmReason.deleteDraw => l10n.deleteDrawWarning,
-          };
-
-          return ConfirmDialog(
-            title: Text(title),
-            content: Text(body),
-            confirmButtonLabel: l10n.confirm,
-            cancelButtonLabel: l10n.cancel,
-          );
-        },
-        child: Builder(builder: (context) {
-          var confirmationCubit = context.read<ConfirmationCubit>();
-
-          undoManualDraw() => confirmationCubit.executeWithConfirmation(
-                drawingCubit.makeDraw,
-                reason: _ConfirmReason.undoManualDraw,
-              );
-
-          redraw() => confirmationCubit.executeWithConfirmation(
-                drawingCubit.redraw,
-                reason: _ConfirmReason.redraw,
-              );
-
-          deleteDraw() => confirmationCubit.executeWithConfirmation(
-                drawDeletionCubit.deleteDraw,
-                reason: _ConfirmReason.deleteDraw,
-              );
-
-          if (compact) {
-            return PopupMenuButton<VoidCallback>(
-              onSelected: (callback) => callback(),
-              tooltip: '',
-              splashRadius: 19,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                child: Icon(
-                  Icons.more_vert,
-                  color: Theme.of(context).primaryColor,
-                ),
-              ),
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: undoManualDraw,
-                  child: Text(l10n.undoManualDraw),
-                ),
-                PopupMenuItem(
-                  value: redraw,
-                  child: Text(l10n.redraw),
-                ),
-                PopupMenuItem(
-                  value: deleteDraw,
-                  child: Text(
-                    l10n.deleteSubject(l10n.draw(1)),
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-                ),
-              ],
-            );
-          } else {
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Tooltip(
-                  message: l10n.undoManualDraw,
-                  waitDuration: const Duration(milliseconds: 500),
-                  child: TextButton(
-                    onPressed: undoManualDraw,
-                    child: const Icon(Icons.restore),
-                  ),
-                ),
-                Tooltip(
-                  message: l10n.redraw,
-                  waitDuration: const Duration(milliseconds: 500),
-                  child: TextButton(
-                    onPressed: redraw,
-                    child: const Icon(Icons.casino_outlined),
-                  ),
-                ),
-                Tooltip(
-                  message: l10n.deleteSubject(l10n.draw(1)),
-                  waitDuration: const Duration(milliseconds: 500),
-                  child: TextButton(
-                    onPressed: deleteDraw,
-                    child: const Icon(Icons.delete),
-                  ),
-                ),
-              ],
-            );
-          }
-        }),
-      ),
-    );
-  }
-}
-
-enum _ConfirmReason {
-  undoManualDraw,
-  redraw,
-  deleteDraw,
 }
