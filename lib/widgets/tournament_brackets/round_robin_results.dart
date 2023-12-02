@@ -111,7 +111,7 @@ class _RoundRobinLeaderboard extends StatelessWidget {
     const double rankWidth = 42;
     const double teamWidth = 250;
     const double statNumberWidth = 50;
-    const double dualStatNumberWidth = 65;
+    const double dualStatNumberWidth = 70;
 
     return Table(
       columnWidths: const {
