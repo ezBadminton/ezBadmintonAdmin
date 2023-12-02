@@ -16,13 +16,11 @@ class RoundRobinPlan extends StatelessWidget {
   const RoundRobinPlan({
     super.key,
     required this.tournament,
-    required this.competition,
     this.isEditable = false,
     this.title,
   });
 
   final BadmintonRoundRobin tournament;
-  final Competition competition;
 
   final bool isEditable;
 
@@ -41,14 +39,14 @@ class RoundRobinPlan extends StatelessWidget {
         children: [
           _RoundRobinTable(
             participants: participants,
-            competition: competition,
+            competition: tournament.competition,
             isEditable: isEditable,
             title: title ?? l10n.participant(2),
           ),
           const SizedBox(height: 5),
           _RoundRobinMatchList(
             rounds: tournament.rounds,
-            competition: competition,
+            competition: tournament.competition,
           ),
         ],
       ),

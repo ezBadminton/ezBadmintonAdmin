@@ -53,7 +53,8 @@ class PlayerFilterMenus extends StatelessWidget {
   Widget build(BuildContext context) {
     AppLocalizations l10n = AppLocalizations.of(context)!;
     return BlocListener<TabNavigationCubit, TabNavigationState>(
-      listenWhen: (_, current) => current.tabChangeReason is Competition,
+      listenWhen: (_, current) =>
+          current.selectedIndex == 0 && current.tabChangeReason is Competition,
       listener: (context, state) {
         Competition competition = state.tabChangeReason as Competition;
         _filterForCompetition(competition, context);

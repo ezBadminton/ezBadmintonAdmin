@@ -291,5 +291,8 @@
   "unlockCourt": "Feld freigeben\n(Ergebnis später eintragen)",
   "matchEnded": "Spiel beendet",
   "result": "{count, plural, =1{Ergebnis} other{Ergebnisse}}",
-  "resultManagement": "Ergebnisse verwalten"
+  "resultManagement": "Ergebnisse verwalten",
+  "win": "{count, plural, =1{Sieg} other{Siege}}",
+  "game": "{count, plural, =1{Satz} other{Sätze}}",
+  "point": "{count, plural, =1{Punkt} other{Punkte}}"
 }

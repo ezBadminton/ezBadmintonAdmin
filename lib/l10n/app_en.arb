@@ -291,5 +291,8 @@
   "unlockCourt": "Unlock court\n(Enter result later)",
   "matchEnded": "Match ended",
   "result": "{count, plural, =1{Result} other{Results}}",
-  "resultManagement": "Manage results"
+  "resultManagement": "Manage results",
+  "win": "{count, plural, =1{Win} other{Wins}}",
+  "game": "{count, plural, =1{Game} other{Games}}",
+  "point": "{count, plural, =1{Point} other{Points}}"
 }

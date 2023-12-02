@@ -5,15 +5,30 @@ import 'package:tournament_mode/tournament_mode.dart';
 
 class BadmintonRoundRobinRanking
     extends TieableMatchRanking<Team, List<MatchSet>, BadmintonMatch> {
+  /// Returns the final ranking once all matches have been completed.
+  ///
+  /// Before everything is completed, an empty list is returned.
   @override
   List<List<MatchParticipant<Team>>> tiedRank() {
     if (!ranksAvailable()) {
       return [];
     }
-    List<BadmintonMatch> finishedMatches =
-        matches!.where((match) => !match.isBye).toList();
 
-    Map<Team, RoundRobinStats> stats = _createStats(finishedMatches);
+    return currentTiedRank();
+  }
+
+  /// Returns the tied ranking as it results from the matches completed so far.
+  List<List<MatchParticipant<Team>>> currentTiedRank() {
+    List<BadmintonMatch> finishedMatches = matches!
+        .where(
+          (match) =>
+              !match.isBye &&
+              match.withdrawnParticipants?.length != 2 &&
+              match.isCompleted,
+        )
+        .toList();
+
+    Map<Team, RoundRobinStats> stats = getStats();
 
     List<List<Team>> rankedByWins = _rankByStat(
       stats.keys,
@@ -31,10 +46,28 @@ class BadmintonRoundRobinRanking
         .toList();
   }
 
+  /// Returns the current stats of all teams
+  Map<Team, RoundRobinStats> getStats() {
+    List<BadmintonMatch> finishedMatches = matches!
+        .where(
+          (match) =>
+              !match.isBye &&
+              match.withdrawnParticipants?.length != 2 &&
+              match.isCompleted,
+        )
+        .toList();
+
+    Map<Team, RoundRobinStats> stats = _createStats(finishedMatches);
+
+    for (Team team in matches!.first.competition.draw) {
+      stats.putIfAbsent(team, () => const RoundRobinStats.zero());
+    }
+
+    return stats;
+  }
+
   /// Ranks the [teams] by one of the values in their [stats]. The particular
   /// value to use is determined by the [statGetter].
-  ///
-  /// All [teams] must have an entry in the [stats] map.
   ///
   /// The returned list is descending in rank and each nested list is a rank
   /// of teams that have the same stat. More than one team in a rank means the
@@ -48,7 +81,7 @@ class BadmintonRoundRobinRanking
 
     for (Team team in teams) {
       statBuckets.update(
-        statGetter(stats[team]!),
+        statGetter(stats[team] ?? const RoundRobinStats.zero()),
         (bucket) => bucket..add(team),
         ifAbsent: () => [team],
       );
@@ -62,8 +95,6 @@ class BadmintonRoundRobinRanking
   }
 
   /// Attempts to break the [tie] between teams with the same amount of wins.
-  ///
-  /// All [tie]ed teams must have an entry in the [stats] map.
   ///
   /// The tie-break operates in this order:
   ///  - If the [tie] has only 2 teams it is forwarded to [_breakTwoWayTie]
@@ -113,8 +144,6 @@ class BadmintonRoundRobinRanking
   }
 
   /// Attempts to break a two-way-tie between [team1] and [team2].
-  ///
-  /// Both teams must have an entry in the [stats] map.
   ///
   /// The tie-break operates in this order:
   ///
@@ -318,6 +347,14 @@ class RoundRobinStats {
     required this.pointsWon,
     required this.pointsLost,
   });
+
+  const RoundRobinStats.zero()
+      : numMatches = 0,
+        wins = 0,
+        setsWon = 0,
+        setsLost = 0,
+        pointsWon = 0,
+        pointsLost = 0;
 
   final int numMatches;
   final int wins;

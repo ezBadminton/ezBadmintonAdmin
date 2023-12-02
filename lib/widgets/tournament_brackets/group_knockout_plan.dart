@@ -34,7 +34,6 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
     List<RoundRobinPlan> groupPlans = groupRoundRobins
         .mapIndexed((index, group) => RoundRobinPlan(
               tournament: group,
-              competition: competition,
               isEditable: true,
               title: l10n.groupNumber(index + 1),
             ))

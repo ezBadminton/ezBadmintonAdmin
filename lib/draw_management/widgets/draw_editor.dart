@@ -114,7 +114,6 @@ class _InteractiveDraw extends StatelessWidget {
         ),
       BadmintonRoundRobin tournament => RoundRobinPlan(
           tournament: tournament,
-          competition: competition,
         ),
       BadmintonGroupKnockout tournament => GroupKnockoutPlan(
           tournament: tournament,

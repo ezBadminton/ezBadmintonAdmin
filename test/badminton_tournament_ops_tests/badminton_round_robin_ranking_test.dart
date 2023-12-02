@@ -23,6 +23,11 @@ class HasRankOccupant extends CustomMatcher {
 }
 
 void main() {
+  Competition competition = Competition.newCompetition(
+    teamSize: 1,
+    genderCategory: GenderCategory.any,
+  );
+
   List<Player> players = List.generate(
     10,
     (index) => Player.newPlayer().copyWith(id: 'player-$index'),
@@ -44,7 +49,7 @@ void main() {
       finalRanking: BadmintonRoundRobinRanking(),
       passes: passes,
       matcher: (MatchParticipant<Team> a, MatchParticipant<Team> b) =>
-          BadmintonMatch(a, b),
+          BadmintonMatch(a, b)..hydrateMatch(competition, MatchData.newMatch()),
     );
   }
 
