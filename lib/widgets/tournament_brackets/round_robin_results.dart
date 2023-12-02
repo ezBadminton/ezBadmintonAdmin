@@ -1,6 +1,8 @@
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_round_robin_ranking.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
+import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
 import 'package:ez_badminton_admin_app/widgets/mouse_hover_builder/mouse_hover_builder.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';
 import 'package:flutter/material.dart';
@@ -20,9 +22,16 @@ class RoundRobinResults extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _RoundRobinLeaderboard(
-      tournament: tournament,
-      parentTournament: parentTournament,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _RoundRobinLeaderboard(
+          tournament: tournament,
+          parentTournament: parentTournament,
+        ),
+        const SizedBox(height: 30),
+        _MatchResultList(tournament: tournament),
+      ],
     );
   }
 }
@@ -149,6 +158,38 @@ class _RoundRobinLeaderboard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _MatchResultList extends StatelessWidget {
+  const _MatchResultList({
+    required this.tournament,
+  });
+
+  final BadmintonRoundRobin tournament;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (RoundRobinRound round in tournament.rounds) ...[
+          Text(
+            l10n.encounterNumber(round.roundNumber + 1),
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+          for (BadmintonMatch match in round.matches.cast())
+            MatchupCard(
+              match: match,
+              showResult: true,
+              width: 330,
+            ),
+          const SizedBox(height: 10),
+        ],
+      ],
     );
   }
 }

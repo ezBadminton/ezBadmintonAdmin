@@ -23,9 +23,14 @@ class BadmintonMatch extends TournamentMatch<Team, List<MatchSet>> {
   /// [MatchData.court], [MatchData.sets] and more.
   ///
   /// The method can be called multiple times to update the [matchData].
-  void hydrateMatch(Competition competition, MatchData matchData) {
-    this.matchData = matchData;
+  void hydrateMatch(Competition competition, MatchData? matchData) {
     _competition = competition;
+
+    if (matchData == null) {
+      return;
+    }
+
+    this.matchData = matchData;
 
     if (matchData.startTime != null) {
       beginMatch(matchData.startTime);

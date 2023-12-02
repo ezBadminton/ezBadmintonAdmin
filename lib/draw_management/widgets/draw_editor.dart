@@ -18,7 +18,6 @@ import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_elimin
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:tournament_mode/tournament_mode.dart';
 
 class DrawEditor extends StatelessWidget {
   const DrawEditor({super.key});
@@ -104,7 +103,8 @@ class _InteractiveDraw extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TournamentMode tournament = createTournamentMode(competition);
+    BadmintonTournamentMode tournament = createTournamentMode(competition);
+    hydrateTournament(competition, tournament, null);
 
     Widget drawView = switch (tournament) {
       BadmintonSingleElimination tournament => SingleEliminationTree(

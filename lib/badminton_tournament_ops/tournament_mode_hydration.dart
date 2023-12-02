@@ -50,13 +50,13 @@ List<MatchData> createMatchesFromTournament(
 void hydrateTournament(
   Competition competition,
   BadmintonTournamentMode tournamentMode,
-  List<MatchData> matchDataList,
+  List<MatchData>? matchDataList,
 ) {
   List<BadmintonMatch> matches =
       tournamentMode.matches.where((match) => !match.isBye).toList();
-  assert(matchDataList.length == matches.length);
+  assert(matchDataList == null || matchDataList.length == matches.length);
 
-  for (int i = 0; i < matchDataList.length; i += 1) {
-    matches[i].hydrateMatch(competition, matchDataList[i]);
+  for (int i = 0; i < matches.length; i += 1) {
+    matches[i].hydrateMatch(competition, matchDataList?[i]);
   }
 }
