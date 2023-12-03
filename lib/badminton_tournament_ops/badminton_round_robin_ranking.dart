@@ -59,7 +59,7 @@ class BadmintonRoundRobinRanking
 
     Map<Team, RoundRobinStats> stats = _createStats(finishedMatches);
 
-    for (Team team in matches!.first.competition.draw) {
+    for (Team team in _getTeams()) {
       stats.putIfAbsent(team, () => const RoundRobinStats.zero());
     }
 
@@ -335,6 +335,13 @@ class BadmintonRoundRobinRanking
     }
 
     return points;
+  }
+
+  Set<Team> _getTeams() {
+    return matches!
+        .expand((match) => [match.a.resolvePlayer(), match.b.resolvePlayer()])
+        .whereType<Team>()
+        .toSet();
   }
 }
 

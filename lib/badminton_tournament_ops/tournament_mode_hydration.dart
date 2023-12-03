@@ -59,4 +59,11 @@ void hydrateTournament(
   for (int i = 0; i < matches.length; i += 1) {
     matches[i].hydrateMatch(competition, matchDataList?[i]);
   }
+
+  Iterable<BadmintonMatch> byes =
+      tournamentMode.matches.where((match) => match.isBye);
+
+  for (BadmintonMatch match in byes) {
+    match.hydrateMatch(competition, null);
+  }
 }

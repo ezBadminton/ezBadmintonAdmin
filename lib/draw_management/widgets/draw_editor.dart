@@ -117,7 +117,6 @@ class _InteractiveDraw extends StatelessWidget {
         ),
       BadmintonGroupKnockout tournament => GroupKnockoutPlan(
           tournament: tournament,
-          competition: competition,
         ),
       _ => const Text('No View implemented yet'),
     };

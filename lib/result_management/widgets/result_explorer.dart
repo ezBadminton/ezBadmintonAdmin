@@ -4,6 +4,7 @@ import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament
 import 'package:ez_badminton_admin_app/widgets/competition_selection_list/cubit/competition_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/tournament_bracket_explorer_controller_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/tournament_bracket_explorer.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/group_knockout_results.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/round_robin_results.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
 import 'package:flutter/material.dart';
@@ -82,6 +83,9 @@ class _InteractiveResultExplorer extends StatelessWidget {
           showResults: true,
         ),
       BadmintonRoundRobin tournament => RoundRobinResults(
+          tournament: tournament,
+        ),
+      BadmintonGroupKnockout tournament => GroupKnockoutResults(
           tournament: tournament,
         ),
       _ => const Text('No View implemented yet'),

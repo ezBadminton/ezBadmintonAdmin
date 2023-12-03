@@ -1,5 +1,4 @@
 import 'package:collection/collection.dart';
-import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/round_robin_plan.dart';
@@ -14,11 +13,9 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
   GroupKnockoutPlan({
     super.key,
     required this.tournament,
-    required this.competition,
-  }) : _sections = _getSections(tournament);
+  }) : _sections = getSections(tournament);
 
   final BadmintonGroupKnockout tournament;
-  final Competition competition;
 
   final List<BracketSection> _sections;
   @override
@@ -41,8 +38,8 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
 
     SingleEliminationTree eliminationTree = SingleEliminationTree(
       rounds: tournament.knockoutPhase.rounds,
-      competition: competition,
-      placeholderLabels: _createQualificationPlaceholders(context),
+      competition: tournament.competition,
+      placeholderLabels: createQualificationPlaceholders(context, tournament),
     );
 
     return Row(
@@ -57,8 +54,9 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
     );
   }
 
-  Map<MatchParticipant, String> _createQualificationPlaceholders(
+  static Map<MatchParticipant, String> createQualificationPlaceholders(
     BuildContext context,
+    BadmintonGroupKnockout tournament,
   ) {
     var l10n = AppLocalizations.of(context)!;
     List<MatchParticipant> finalGroupRanking =
@@ -74,7 +72,7 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
     return placeholders;
   }
 
-  static List<BracketSection> _getSections(BadmintonGroupKnockout tournament) {
+  static List<BracketSection> getSections(BadmintonGroupKnockout tournament) {
     Iterable<BracketSection> groupSections =
         tournament.groupPhase.groupRoundRobins.mapIndexed(
       (index, group) => BracketSection(

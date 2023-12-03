@@ -4,6 +4,7 @@ import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_round_
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
 import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
 import 'package:ez_badminton_admin_app/widgets/mouse_hover_builder/mouse_hover_builder.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section_subtree.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';
 import 'package:flutter/material.dart';
 import 'package:tournament_mode/tournament_mode.dart';
@@ -22,16 +23,19 @@ class RoundRobinResults extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _RoundRobinLeaderboard(
-          tournament: tournament,
-          parentTournament: parentTournament,
-        ),
-        const SizedBox(height: 30),
-        _MatchResultList(tournament: tournament),
-      ],
+    return BracketSectionSubtree(
+      tournamentDataObject: tournament,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _RoundRobinLeaderboard(
+            tournament: tournament,
+            parentTournament: parentTournament,
+          ),
+          const SizedBox(height: 30),
+          _MatchResultList(tournament: tournament),
+        ],
+      ),
     );
   }
 }
@@ -175,17 +179,19 @@ class _MatchResultList extends StatelessWidget {
 
     return Column(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         for (RoundRobinRound round in tournament.rounds) ...[
           Text(
             l10n.encounterNumber(round.roundNumber + 1),
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
-          for (BadmintonMatch match in round.matches.cast())
+          for (BadmintonMatch match
+              in round.matches.where((m) => !m.isBye).cast())
             MatchupCard(
               match: match,
               showResult: true,
-              width: 330,
+              width: 345,
             ),
           const SizedBox(height: 10),
         ],
