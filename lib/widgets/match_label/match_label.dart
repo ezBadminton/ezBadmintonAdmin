@@ -254,14 +254,20 @@ class _Scoreline extends StatelessWidget {
         ? Theme.of(context).disabledColor.withOpacity(.3)
         : Theme.of(context).primaryColor.withOpacity(.55);
 
-    List<(int, int)?> scores = List.generate(
-      maxSets,
-      (index) {
-        MatchSet? set = match.score?.elementAtOrNull(index);
+    List<(int, int)?> scores;
 
-        return set == null ? null : (set.team1Points, set.team2Points);
-      },
-    );
+    if (match.isBye || (match.getWinner()?.isBye ?? false)) {
+      scores = List.generate(maxSets, (index) => null);
+    } else {
+      scores = List.generate(
+        maxSets,
+        (index) {
+          MatchSet? set = match.score?.elementAtOrNull(index);
+
+          return set == null ? null : (set.team1Points, set.team2Points);
+        },
+      );
+    }
 
     List<Widget> scoreColumns = scores.map(
       (score) {
@@ -271,13 +277,13 @@ class _Scoreline extends StatelessWidget {
           context,
           score?.$1,
           winner1,
-          match.isCompleted,
+          match.isCompleted || match.isBye,
         );
         Widget score2 = _buildScoreNumber(
           context,
           score?.$2,
           winner2,
-          match.isCompleted,
+          match.isCompleted || match.isBye,
         );
 
         return _ScoreContainer(
