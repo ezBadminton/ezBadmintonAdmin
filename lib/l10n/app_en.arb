@@ -295,5 +295,6 @@
   "resultManagement": "Manage results",
   "win": "{count, plural, =1{Win} other{Wins}}",
   "game": "{count, plural, =1{Game} other{Games}}",
-  "point": "{count, plural, =1{Point} other{Points}}"
+  "point": "{count, plural, =1{Point} other{Points}}",
+  "walkover": "Walkover"
 }

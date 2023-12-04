@@ -5,16 +5,19 @@ class HelpTooltipIcon extends StatelessWidget {
   const HelpTooltipIcon({
     super.key,
     required this.helpText,
+    this.icon = Icons.help_outline,
   });
 
   final String helpText;
+
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
     return LongTooltip(
       message: helpText,
       child: Icon(
-        Icons.help_outline,
+        icon,
         color: Theme.of(context).colorScheme.onSurface.withOpacity(.5),
         size: 21,
       ),

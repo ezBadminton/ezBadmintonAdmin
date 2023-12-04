@@ -3,6 +3,7 @@ import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/result_entering/view/result_input_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
+import 'package:ez_badminton_admin_app/widgets/help_tooltip_icon/help_tooltip_icon.dart';
 import 'package:ez_badminton_admin_app/widgets/match_info/match_info.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section_subtree.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';
@@ -177,6 +178,7 @@ class MatchupCard extends StatelessWidget {
           width: width,
           child: Row(
             children: [
+              _WalkoverInfo(match: match),
               _ScoreEditButton(match: match),
               Expanded(
                 child: Column(
@@ -248,6 +250,10 @@ class _Scoreline extends StatelessWidget {
   Widget build(BuildContext context) {
     int maxSets = match.competition.tournamentModeSettings!.winningSets * 2 - 1;
 
+    Color dividerColor = match.isWalkover
+        ? Theme.of(context).disabledColor.withOpacity(.3)
+        : Theme.of(context).primaryColor.withOpacity(.55);
+
     List<(int, int)?> scores = List.generate(
       maxSets,
       (index) {
@@ -275,6 +281,7 @@ class _Scoreline extends StatelessWidget {
         );
 
         return _ScoreContainer(
+          isWalkover: match.isWalkover,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -284,7 +291,7 @@ class _Scoreline extends StatelessWidget {
               Divider(
                 height: 0,
                 thickness: 1,
-                color: Theme.of(context).primaryColor.withOpacity(.55),
+                color: dividerColor,
               ),
               Expanded(
                 child: Center(child: score2),
@@ -303,7 +310,7 @@ class _Scoreline extends StatelessWidget {
             VerticalDivider(
               width: 2,
               thickness: 2,
-              color: Theme.of(context).primaryColor.withOpacity(.55),
+              color: dividerColor,
             ),
           column,
         ],
@@ -343,16 +350,23 @@ class _Scoreline extends StatelessWidget {
 
 class _ScoreContainer extends StatelessWidget {
   const _ScoreContainer({
+    required this.isWalkover,
     required this.child,
   });
+
+  final bool isWalkover;
 
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
+    Color backgroundColor = isWalkover
+        ? Theme.of(context).disabledColor.withOpacity(.13)
+        : Theme.of(context).primaryColorLight;
+
     return Container(
       width: 40,
-      color: Theme.of(context).primaryColorLight,
+      color: backgroundColor,
       child: child,
     );
   }
@@ -397,6 +411,34 @@ class _ScoreEditButton extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _WalkoverInfo extends StatelessWidget {
+  const _WalkoverInfo({
+    required this.match,
+  });
+
+  final BadmintonMatch match;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!match.isWalkover) {
+      return const SizedBox();
+    }
+
+    var l10n = AppLocalizations.of(context)!;
+
+    return Container(
+      width: 30,
+      color: Theme.of(context).disabledColor.withOpacity(.13),
+      child: SizedBox.expand(
+        child: HelpTooltipIcon(
+          helpText: l10n.walkover,
+          icon: Icons.info_outline,
+        ),
+      ),
     );
   }
 }
