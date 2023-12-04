@@ -196,11 +196,7 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
     List<M> editableMatches = matches
         .where((match) => !match.isWalkover && match.isCompleted)
         .where((match) {
-      M? nextMatch = getNextMatch(match);
-
-      while (nextMatch != null && (nextMatch.isBye || nextMatch.isWalkover)) {
-        nextMatch = getNextMatch(nextMatch);
-      }
+      M? nextMatch = getNextPlayableMatch(match);
 
       return nextMatch == null || nextMatch.startTime == null;
     }).toList();
@@ -210,13 +206,9 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
 
   @override
   List<M> withdrawPlayer(P player) {
-    M? walkoverMatch = matches
-        .where(
-      (m) => m.a.resolvePlayer() == player || m.b.resolvePlayer() == player,
-    )
-        .firstWhereOrNull(
+    M? walkoverMatch = getMatchesOfPlayer(player).firstWhereOrNull(
       (m) {
-        M? nextMatch = getNextMatch(m);
+        M? nextMatch = getNextPlayableMatch(m);
 
         bool walkoverNotInEffect =
             m.isWalkover && nextMatch != null && nextMatch.startTime == null;
@@ -251,7 +243,7 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
       return [];
     }
 
-    M? nextMatch = getNextMatch(withdrawnMatchesOfPlayer.first);
+    M? nextMatch = getNextPlayableMatch(withdrawnMatchesOfPlayer.single);
 
     bool canReenter = nextMatch == null || !nextMatch.inProgress;
 
@@ -284,6 +276,21 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
     );
 
     return nextRound.matches[matchIndex ~/ 2];
+  }
+
+  /// For the given [match] of this [SingleElimination], returns the next match
+  /// in the qualification chain that is not a bye or walkover.
+  ///
+  /// For example when the semi-final is a walkover then the next playable match
+  /// of the quarter-final is the final.
+  M? getNextPlayableMatch(M match) {
+    M? nextMatch = getNextMatch(match);
+
+    while (nextMatch != null && (nextMatch.isBye || nextMatch.isWalkover)) {
+      nextMatch = getNextMatch(nextMatch);
+    }
+
+    return nextMatch;
   }
 }
 

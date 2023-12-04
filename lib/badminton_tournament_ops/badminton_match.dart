@@ -77,6 +77,10 @@ class BadmintonMatch extends TournamentMatch<Team, List<MatchSet>> {
 
     int winnerIndex = [a, b].indexOf(walkoverWinner!);
 
+    if (walkoverWinner!.isBye) {
+      winnerIndex = -1;
+    }
+
     List<MatchSet> walkoverScore = List.generate(
       winningSets,
       (_) => switch (winnerIndex) {

@@ -146,11 +146,7 @@ class RoundRobin<P, S, M extends TournamentMatch<P, S>>
 
   @override
   List<M> withdrawPlayer(P player, [bool forceWalkover = false]) {
-    List<M> matchesOfPlayer = matches
-        .where(
-          (m) => m.a.resolvePlayer() == player || m.b.resolvePlayer() == player,
-        )
-        .toList();
+    List<M> matchesOfPlayer = getMatchesOfPlayer(player).toList();
 
     bool hasCompletedAllMatches =
         matchesOfPlayer.firstWhereOrNull((m) => !m.isCompleted) == null;

@@ -117,4 +117,14 @@ abstract class TournamentMode<P, S, M extends TournamentMatch<P, S>> {
             .firstWhereOrNull((match) => !match.isCompleted) ==
         null;
   }
+
+  Iterable<M> getMatchesOfPlayer(P player) {
+    return matches
+        .where(
+          (m) => !m.isDrawnBye,
+        )
+        .where(
+          (m) => m.a.resolvePlayer() == player || m.b.resolvePlayer() == player,
+        );
+  }
 }

@@ -53,15 +53,16 @@ void hydrateTournament(
   List<MatchData>? matchDataList,
 ) {
   List<BadmintonMatch> matches =
-      tournamentMode.matches.where((match) => !match.isBye).toList();
+      tournamentMode.matches.where((match) => !match.isDrawnBye).toList();
   assert(matchDataList == null || matchDataList.length == matches.length);
 
   for (int i = 0; i < matches.length; i += 1) {
     matches[i].hydrateMatch(competition, matchDataList?[i]);
   }
 
+  // The drawn bye matches do not have match data
   Iterable<BadmintonMatch> byes =
-      tournamentMode.matches.where((match) => match.isBye);
+      tournamentMode.matches.where((match) => match.isDrawnBye);
 
   for (BadmintonMatch match in byes) {
     match.hydrateMatch(competition, null);

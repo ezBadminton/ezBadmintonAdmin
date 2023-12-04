@@ -60,7 +60,7 @@ abstract class TournamentMatch<P, S> {
       }
     }
 
-    return const MatchParticipant.bye();
+    return const MatchParticipant.bye(isDrawnBye: false);
   }
 
   /// Returns the winner of the match, [a] or [b].
@@ -94,6 +94,14 @@ abstract class TournamentMatch<P, S> {
   ///
   /// Byes should be specially treated in [Ranking]s.
   bool get isBye => a.isBye || b.isBye;
+
+  /// Returns whether this match is a bye by draw.
+  ///
+  /// A bye by draw stems from an uneven amount of participants.
+  /// A bye "not by draw" is a bye that is granted when nobody qualifies
+  /// for a round because both participants of the previous round gave a
+  /// walkover.
+  bool get isDrawnBye => a.isDrawnBye || b.isDrawnBye;
 
   /// Returns whether this match is a walkover.
   ///

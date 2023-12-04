@@ -168,6 +168,7 @@ class PlayerStatusCubit extends CollectionQuerierCubit<PlayerStatusState>
           return MapEntry(
             entry.key,
             entry.value.matches
+                .where((m) => !m.isDrawnBye)
                 .where(
                   (m) => m.matchData!.withdrawnTeams.contains(entry.key.team),
                 )

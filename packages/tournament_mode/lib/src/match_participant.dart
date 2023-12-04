@@ -21,25 +21,35 @@ class MatchParticipant<P> {
   const MatchParticipant.fromPlayer(
     this.player,
   )   : placement = null,
-        _isBye = false;
+        _isBye = false,
+        _isDrawnBye = false;
 
   /// Creates a [MatchParticipant] that is defined in terms of the [placement].
   const MatchParticipant.fromPlacement(
     this.placement,
   )   : player = null,
-        _isBye = false;
+        _isBye = false,
+        _isDrawnBye = false;
 
   /// Creates a [MatchParticipant] as a stand in for a bye. The opponent of this
   /// participant either has a break due to an uneven number of entries or
   /// gets to advance to the next round due to seeding or a lucky draw.
-  const MatchParticipant.bye()
-      : player = null,
+  const MatchParticipant.bye({
+    bool isDrawnBye = true,
+  })  : player = null,
         placement = null,
-        _isBye = true;
+        _isBye = true,
+        _isDrawnBye = isDrawnBye;
 
   final P? player;
   final Placement<P>? placement;
 
+  /// Whether this participant is a bye for the opponent.
+  ///
+  /// A bye participant can be directly created with the [MatchParticipant.bye]
+  /// constructor.
+  /// Participants from the [MatchParticipant.fromPlacement] constructor can
+  /// also become byes when the placement itself is a bye.
   bool get isBye {
     if (_isBye) {
       return true;
@@ -55,6 +65,12 @@ class MatchParticipant<P> {
   }
 
   final bool _isBye;
+
+  final bool _isDrawnBye;
+
+  /// Whether this participant is a bye because it was directly constructed
+  /// with [MatchParticipant.bye].
+  bool get isDrawnBye => _isDrawnBye;
 
   /// Returns whether this participant is ready to start a match.
   bool get readyToPlay => !_isBye && resolvePlayer() != null;
