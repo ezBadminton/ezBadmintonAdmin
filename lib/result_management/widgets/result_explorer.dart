@@ -1,6 +1,9 @@
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
+import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
+import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_state.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_selection_list/cubit/competition_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/tournament_bracket_explorer_controller_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/tournament_bracket_explorer.dart';
@@ -20,43 +23,83 @@ class ResultExplorer extends StatelessWidget {
 
     return BlocProvider(
       create: (context) => TournamentBracketExplorerControllerCubit(),
-      child: BlocBuilder<CompetitionSelectionCubit, CompetitionSelectionState>(
-        builder: (context, state) {
-          if (state.selectedCompetition.value == null) {
-            return Center(
-              child: Text(
-                l10n.noResultCompetitionSelected,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color:
-                      Theme.of(context).colorScheme.onSurface.withOpacity(.25),
-                  fontSize: 25,
+      child: BlocListener<TabNavigationCubit, TabNavigationState>(
+        listenWhen: (previous, current) =>
+            current.tabChangeReason != null && current.selectedIndex == 5,
+        listener: (context, navigationState) => _handleSectionFocusRequest(
+          context,
+          navigationState.tabChangeReason!,
+        ),
+        child:
+            BlocBuilder<CompetitionSelectionCubit, CompetitionSelectionState>(
+          builder: (context, selectionState) {
+            if (selectionState.selectedCompetition.value == null) {
+              return Center(
+                child: Text(
+                  l10n.noResultCompetitionSelected,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(.25),
+                    fontSize: 25,
+                  ),
                 ),
-              ),
-            );
-          }
+              );
+            }
 
-          Competition selectedCompetition = state.selectedCompetition.value!;
+            Competition selectedCompetition =
+                selectionState.selectedCompetition.value!;
 
-          bool hasStarted = selectedCompetition.matches.isNotEmpty;
+            bool hasStarted = selectedCompetition.matches.isNotEmpty;
 
-          if (!hasStarted) {
-            return Center(
-              child: Text(
-                l10n.noResultsYet,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color:
-                      Theme.of(context).colorScheme.onSurface.withOpacity(.65),
-                  fontSize: 25,
+            if (!hasStarted) {
+              return Center(
+                child: Text(
+                  l10n.noResultsYet,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(.65),
+                    fontSize: 25,
+                  ),
                 ),
-              ),
-            );
-          }
+              );
+            }
 
-          return _InteractiveResultExplorer(competition: selectedCompetition);
-        },
+            return _InteractiveResultExplorer(competition: selectedCompetition);
+          },
+        ),
       ),
+    );
+  }
+
+  void _handleSectionFocusRequest(
+    BuildContext context,
+    Object tournamentDataObject,
+  ) {
+    Competition? competition = switch (tournamentDataObject) {
+      BadmintonMatch match => match.competition,
+      _ => null,
+    };
+
+    if (competition == null) {
+      return;
+    }
+
+    var selectionCubit = context.read<CompetitionSelectionCubit>();
+    var controllerCubit =
+        context.read<TournamentBracketExplorerControllerCubit>();
+
+    selectionCubit.competitionSelected(competition);
+    Future.delayed(
+      const Duration(milliseconds: 100),
+      () => controllerCubit.getViewController(competition).focusGlobalKey(
+            GlobalObjectKey(tournamentDataObject),
+          ),
     );
   }
 }

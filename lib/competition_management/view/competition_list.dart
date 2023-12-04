@@ -402,7 +402,7 @@ class _CompetitionActionButton extends StatelessWidget {
     return () => navigationCubit.tabChanged(
           3,
           reason: competition,
-          fromIndex: 1,
+          showBackButton: true,
         );
   }
 
@@ -451,7 +451,7 @@ class _RegistrationCount extends StatelessWidget {
             : () => navigationCubit.tabChanged(
                   0,
                   reason: competition,
-                  fromIndex: 1,
+                  showBackButton: true,
                 ),
         child: Align(
           alignment: AlignmentDirectional.centerStart,

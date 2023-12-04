@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:ez_badminton_admin_app/utils/animated_transformation_controller/animated_transformation_controller.dart';
 import 'package:ez_badminton_admin_app/utils/aspect_ratios.dart'
     as aspect_ratios;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math_64.dart';
 
@@ -81,7 +82,7 @@ class TournamentBracketExplorerController
     double xScale = viewSize.width / widgetSize.width;
     double yScale = viewSize.height / widgetSize.height;
 
-    double fittingScale = min(1.33, min(xScale, yScale));
+    double fittingScale = clampDouble(min(xScale, yScale), 0.01, 1.33);
 
     focusPoint(widgetCenter, fittingScale);
   }

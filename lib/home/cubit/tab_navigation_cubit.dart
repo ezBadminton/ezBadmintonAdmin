@@ -12,12 +12,12 @@ class TabNavigationCubit extends Cubit<TabNavigationState> {
   void tabChanged(
     int selectedIndex, {
     Object? reason,
-    int? fromIndex,
+    bool showBackButton = false,
   }) {
     emit(state.copyWith(
       selectedIndex: selectedIndex,
       tabChangeReason: reason,
-      fromIndex: fromIndex,
+      fromIndex: showBackButton ? state.selectedIndex : null,
     ));
   }
 }

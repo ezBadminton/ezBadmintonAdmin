@@ -1,7 +1,9 @@
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
+import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
 import 'package:ez_badminton_admin_app/widgets/minutes_timer/minutes_timer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
     as display_strings;
@@ -26,6 +28,8 @@ class MatchInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
+    var navigationCubit = context.read<TabNavigationCubit>();
+
     String? roundName = display_strings.matchRoundName(l10n, match);
 
     return Column(
@@ -42,9 +46,20 @@ class MatchInfo extends StatelessWidget {
         ),
         if (roundName != null) ...[
           const SizedBox(height: 7),
-          Text(
-            roundName,
-            style: textStyle,
+          TextButton(
+            onPressed: () => navigationCubit.tabChanged(
+              5,
+              reason: match,
+              showBackButton: true,
+            ),
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+              alignment: AlignmentDirectional.centerStart,
+            ),
+            child: Text(
+              roundName,
+              style: textStyle,
+            ),
           ),
         ],
         if (match.court != null) ...[

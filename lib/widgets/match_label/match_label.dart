@@ -2,6 +2,7 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
 import 'package:ez_badminton_admin_app/widgets/match_info/match_info.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section_subtree.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -157,7 +158,7 @@ class MatchupCard extends StatelessWidget {
   Widget build(BuildContext context) {
     MatchParticipant? winner = showResult ? match.getWinner() : null;
 
-    return Card(
+    Widget matchupCard = Card(
       elevation: 0,
       clipBehavior: Clip.antiAlias,
       margin: const EdgeInsets.symmetric(vertical: 5.0),
@@ -221,6 +222,11 @@ class MatchupCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+
+    return BracketSectionSubtree(
+      tournamentDataObject: match,
+      child: matchupCard,
     );
   }
 }
