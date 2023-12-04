@@ -136,6 +136,15 @@ class RoundRobin<P, S, M extends TournamentMatch<P, S>>
   }
 
   @override
+  List<M> getEditableMatches() {
+    List<M> editableMatches = matches
+        .where((match) => match.isCompleted && !match.isWalkover)
+        .toList();
+
+    return editableMatches;
+  }
+
+  @override
   List<M> withdrawPlayer(P player, [bool forceWalkover = false]) {
     List<M> matchesOfPlayer = matches
         .where(

@@ -32,7 +32,7 @@ class SingleEliminationMatchNode extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double width = isEditable && isFirstRound
+    double width = (isEditable && isFirstRound)
         ? bracket_widths.editableSingleEliminationNodeWidth
         : bracket_widths.singleEliminatioNodeWith;
 

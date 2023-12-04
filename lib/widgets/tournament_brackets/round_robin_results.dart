@@ -191,7 +191,7 @@ class _MatchResultList extends StatelessWidget {
             MatchupCard(
               match: match,
               showResult: true,
-              width: 345,
+              width: 550,
             ),
           const SizedBox(height: 10),
         ],

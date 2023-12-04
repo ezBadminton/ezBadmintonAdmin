@@ -20,7 +20,7 @@ class ResultEnteringCubit extends CollectionQuerierCubit<ResultEnteringState> {
     required this.twoPointMargin,
     required CollectionRepository<MatchData> matchDataRepository,
     required CollectionRepository<MatchSet> matchSetRepository,
-  })  : controllers = _createScoreInputControllers(winningSets),
+  })  : controllers = _createScoreInputControllers(match, winningSets),
         submitButtonFocusNode = FocusNode(),
         maxPoints = twoPointMargin ? maxPoints : winningPoints,
         super(
@@ -29,7 +29,11 @@ class ResultEnteringCubit extends CollectionQuerierCubit<ResultEnteringState> {
             matchSetRepository,
           ],
           const ResultEnteringState(),
-        );
+        ) {
+    if (match.score != null && match.score!.isNotEmpty) {
+      _updateWinnerState();
+    }
+  }
 
   final BadmintonMatch match;
 
@@ -77,8 +81,13 @@ class ResultEnteringCubit extends CollectionQuerierCubit<ResultEnteringState> {
 
     MatchData matchDataWithSets = match.matchData!.copyWith(
       sets: sets,
-      endTime: DateTime.now().toUtc(),
     );
+
+    if (matchDataWithSets.endTime == null) {
+      matchDataWithSets = matchDataWithSets.copyWith(
+        endTime: DateTime.now().toUtc(),
+      );
+    }
 
     MatchData? updatedMatchData = await querier.updateModel(matchDataWithSets);
     if (updatedMatchData == null) {
@@ -283,15 +292,33 @@ class ResultEnteringCubit extends CollectionQuerierCubit<ResultEnteringState> {
   }
 
   static List<ScoreInputController> _createScoreInputControllers(
+    BadmintonMatch match,
     int winningSets,
   ) {
+    List<MatchSet> existingSets = match.score ?? [];
     int maxSets = 2 * winningSets - 1;
     List<ScoreInputController> inputControllers = List.generate(
       maxSets * 2,
-      (index) => ScoreInputController(
-        participantIndex: index % 2,
-        setIndex: index ~/ 2,
-      ),
+      (index) {
+        int participantIndex = index % 2;
+        int setIndex = index ~/ 2;
+
+        ScoreInputController controller = ScoreInputController(
+          participantIndex: index % 2,
+          setIndex: index ~/ 2,
+        );
+
+        MatchSet? existingSet = existingSets.elementAtOrNull(setIndex);
+
+        if (existingSet != null) {
+          int score = participantIndex == 0
+              ? existingSet.team1Points
+              : existingSet.team2Points;
+          controller.editingController.text = '$score';
+        }
+
+        return controller;
+      },
     );
 
     return inputControllers;

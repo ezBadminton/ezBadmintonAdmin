@@ -29,6 +29,10 @@ class ResultInputDialog extends StatelessWidget {
     TournamentModeSettings modeSettings =
         match.competition.tournamentModeSettings!;
 
+    bool alreadyHasScore = match.score?.isNotEmpty ?? false;
+
+    String dialogTitle = alreadyHasScore ? l10n.editResult : l10n.enterResult;
+
     return BlocProvider(
       create: (context) => ResultEnteringCubit(
         match: match,
@@ -53,7 +57,7 @@ class ResultInputDialog extends StatelessWidget {
             actionsPadding: const EdgeInsets.fromLTRB(0, 20, 25, 25),
             title: Row(
               children: [
-                Text(l10n.enterResult),
+                Text(dialogTitle),
                 const SizedBox(width: 7),
                 HelpTooltipIcon(helpText: l10n.resultEnteringHelp),
               ],

@@ -101,12 +101,17 @@ class TournamentProgressCubit
         for (Player player in match.getPlayersOfMatch()) player: match.endTime!,
     };
 
+    List<BadmintonMatch> editableMatches = runningTournaments.values
+        .expand((tournament) => tournament.getEditableMatches())
+        .toList();
+
     return state.copyWith(
       runningTournaments: runningTournaments,
       occupiedCourts: occupiedCourts,
       openCourts: openCourts,
       playingPlayers: playingPlayers,
       lastPlayerMatches: lastPlayerMatches,
+      editableMatches: editableMatches,
     );
   }
 }

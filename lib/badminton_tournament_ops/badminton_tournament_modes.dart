@@ -120,6 +120,15 @@ class BadmintonGroupKnockout extends GroupKnockout<
         );
 
   @override
+  List<BadmintonMatch> getEditableMatches() {
+    if (!hasKnockoutStarted) {
+      return groupPhase.getEditableMatches();
+    } else {
+      return knockoutPhase.getEditableMatches();
+    }
+  }
+
+  @override
   List<BadmintonMatch> withdrawPlayer(Team player) {
     // While the knock out phase has not started yet, the group walkovers are
     // forced even if the group matches have been completed.

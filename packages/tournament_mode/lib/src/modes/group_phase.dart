@@ -133,6 +133,11 @@ class GroupPhase<P, S, M extends TournamentMatch<P, S>,
   }
 
   @override
+  List<M> getEditableMatches() {
+    return groupRoundRobins.expand((r) => r.getEditableMatches()).toList();
+  }
+
+  @override
   List<M> withdrawPlayer(P player, [bool forceWalkover = false]) {
     return groupRoundRobins
         .expand((r) => r.withdrawPlayer(player, forceWalkover))

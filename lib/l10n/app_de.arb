@@ -234,6 +234,7 @@
   "playingTime": "Spieldauer",
   "matchPlanned": "Spiel geplant",
   "enterResult": "Ergebnis eintragen",
+  "editResult": "Ergebnis bearbeiten",
   "callOutHelp": "Teile den Spielteilnehmern mit, gegen wen und wo sie spielen. Das Spiel gilt daraufhin als gestartet.",
   "resultEnteringHelp": "Wenn ein Spiel beendet ist, gib hier das Ergebnis ein.\n\nTipp: Gib bei jedem Satz nur die Punktzahl des Verlierers ein und drücke ENTER, um das Satzergebnis automatisch zu vervollständigen!",
   "nBlockingPlayers": "{count, plural, =1{1 Spieler\nist in einem anderen Spiel} other{{count} Spieler\nsind in einem anderen Spiel}}",

@@ -63,6 +63,14 @@ class ChainedTournamentMode<
       ];
 
   @override
+  List<M> getEditableMatches() {
+    return [
+      ...first.getEditableMatches(),
+      ...second.getEditableMatches(),
+    ];
+  }
+
+  @override
   List<M> withdrawPlayer(P player) {
     return [
       ...first.withdrawPlayer(player),

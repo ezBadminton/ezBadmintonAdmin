@@ -9,6 +9,7 @@ class TournamentProgressState
     this.openCourts = const [],
     this.playingPlayers = const {},
     this.lastPlayerMatches = const {},
+    this.editableMatches = const [],
     super.collections = const {},
   });
 
@@ -23,6 +24,8 @@ class TournamentProgressState
 
   final Map<Player, DateTime> lastPlayerMatches;
 
+  final List<BadmintonMatch> editableMatches;
+
   TournamentProgressState copyWith({
     LoadingStatus? loadingStatus,
     Map<Competition, BadmintonTournamentMode>? runningTournaments,
@@ -30,6 +33,7 @@ class TournamentProgressState
     List<Court>? openCourts,
     Map<Player, BadmintonMatch>? playingPlayers,
     Map<Player, DateTime>? lastPlayerMatches,
+    List<BadmintonMatch>? editableMatches,
     Map<Type, List<Model>>? collections,
   }) {
     return TournamentProgressState(
@@ -39,6 +43,7 @@ class TournamentProgressState
       openCourts: openCourts ?? this.openCourts,
       playingPlayers: playingPlayers ?? this.playingPlayers,
       lastPlayerMatches: lastPlayerMatches ?? this.lastPlayerMatches,
+      editableMatches: editableMatches ?? this.editableMatches,
       collections: collections ?? this.collections,
     );
   }

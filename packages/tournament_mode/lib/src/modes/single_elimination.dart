@@ -192,6 +192,23 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
   }
 
   @override
+  List<M> getEditableMatches() {
+    List<M> editableMatches = matches
+        .where((match) => !match.isWalkover && match.isCompleted)
+        .where((match) {
+      M? nextMatch = getNextMatch(match);
+
+      while (nextMatch != null && (nextMatch.isBye || nextMatch.isWalkover)) {
+        nextMatch = getNextMatch(nextMatch);
+      }
+
+      return nextMatch == null || nextMatch.startTime == null;
+    }).toList();
+
+    return editableMatches;
+  }
+
+  @override
   List<M> withdrawPlayer(P player) {
     M? walkoverMatch = matches
         .where(

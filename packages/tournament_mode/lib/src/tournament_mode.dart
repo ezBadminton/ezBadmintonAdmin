@@ -36,6 +36,14 @@ abstract class TournamentMode<P, S, M extends TournamentMatch<P, S>> {
   /// The final ranks of the players after all matches are finished.
   Ranking<P> get finalRanking;
 
+  /// Returns the list of matches ([M]) where the score can be edited.
+  ///
+  /// This is not always possible for all matches since some tournament modes
+  /// have temporal dependencies between rounds.
+  /// E.g. a single elimination match can't be changed once the next round
+  /// started.
+  List<M> getEditableMatches();
+
   /// Called when a [player] withdraws from the tournament.
   ///
   /// Returns a list of matches that become walkovers because the [player]

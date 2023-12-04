@@ -1,10 +1,13 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
+import 'package:ez_badminton_admin_app/match_management/result_entering/view/result_input_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
 import 'package:ez_badminton_admin_app/widgets/match_info/match_info.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section_subtree.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:tournament_mode/tournament_mode.dart';
 
@@ -170,56 +173,59 @@ class MatchupCard extends StatelessWidget {
         ),
       ),
       child: IntrinsicHeight(
-        child: Row(
-          children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                MatchParticipantLabel(
-                  match.a,
-                  teamSize: match.competition.teamSize,
-                  isEditable: isEditable,
-                  width: width,
-                  placeholderLabel: placeholderLabels.containsKey(match.a)
-                      ? Text(placeholderLabels[match.a]!)
-                      : null,
-                  alignment: showResult
+        child: SizedBox(
+          width: width,
+          child: Row(
+            children: [
+              _ScoreEditButton(match: match),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: showResult
                       ? CrossAxisAlignment.end
                       : CrossAxisAlignment.start,
-                  textStyle: winner == match.a
-                      ? TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        )
-                      : null,
+                  children: [
+                    MatchParticipantLabel(
+                      match.a,
+                      teamSize: match.competition.teamSize,
+                      isEditable: isEditable,
+                      placeholderLabel: placeholderLabels.containsKey(match.a)
+                          ? Text(placeholderLabels[match.a]!)
+                          : null,
+                      textStyle: winner == match.a
+                          ? TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            )
+                          : null,
+                      alignment: showResult
+                          ? CrossAxisAlignment.end
+                          : CrossAxisAlignment.start,
+                    ),
+                    const Divider(height: 0, thickness: 1),
+                    MatchParticipantLabel(
+                      match.b,
+                      teamSize: match.competition.teamSize,
+                      isEditable: isEditable,
+                      placeholderLabel: placeholderLabels.containsKey(match.b)
+                          ? Text(placeholderLabels[match.b]!)
+                          : null,
+                      textStyle: winner == match.b
+                          ? TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            )
+                          : null,
+                      alignment: showResult
+                          ? CrossAxisAlignment.end
+                          : CrossAxisAlignment.start,
+                    ),
+                  ],
                 ),
-                SizedBox(
-                  width: width,
-                  child: const Divider(height: 0, thickness: 1),
-                ),
-                MatchParticipantLabel(
-                  match.b,
-                  teamSize: match.competition.teamSize,
-                  isEditable: isEditable,
-                  width: width,
-                  placeholderLabel: placeholderLabels.containsKey(match.b)
-                      ? Text(placeholderLabels[match.b]!)
-                      : null,
-                  alignment: showResult
-                      ? CrossAxisAlignment.end
-                      : CrossAxisAlignment.start,
-                  textStyle: winner == match.b
-                      ? TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        )
-                      : null,
-                ),
-              ],
-            ),
-            if (showResult) _Scoreline(match: match),
-          ],
+              ),
+              if (showResult) _Scoreline(match: match),
+            ],
+          ),
         ),
       ),
     );
@@ -348,6 +354,49 @@ class _ScoreContainer extends StatelessWidget {
       width: 40,
       color: Theme.of(context).primaryColorLight,
       child: child,
+    );
+  }
+}
+
+class _ScoreEditButton extends StatelessWidget {
+  const _ScoreEditButton({
+    required this.match,
+  });
+
+  final BadmintonMatch match;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+
+    return BlocBuilder<TournamentProgressCubit, TournamentProgressState>(
+      builder: (context, state) {
+        bool isEditable = state.editableMatches.contains(match);
+
+        if (!isEditable) {
+          return const SizedBox();
+        }
+
+        return Tooltip(
+          message: l10n.editResult,
+          child: SizedBox(
+            width: 36,
+            child: SizedBox.expand(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(padding: EdgeInsets.zero),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) => ResultInputDialog(match: match),
+                  );
+                },
+                child: const Icon(Icons.edit),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
