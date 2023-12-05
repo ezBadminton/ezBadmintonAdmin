@@ -102,7 +102,7 @@ class BadmintonGroupKnockout extends GroupKnockout<
 
   bool get hasKnockoutStarted =>
       knockoutPhase.matches.firstWhereOrNull(
-        (m) => m.matchData!.startTime != null,
+        (m) => m.matchData?.startTime != null,
       ) !=
       null;
 
@@ -147,7 +147,8 @@ class BadmintonGroupKnockout extends GroupKnockout<
         .toSet();
 
     Set<Team> teamsInKnockout = knockoutPhase.matches
-        .where((m) => m.inProgress || m.isCompleted)
+        .where((m) => !m.isBye && !m.isWalkover)
+        .where((m) => m.inProgress || m.hasWinner)
         .expand((m) => [m.a.resolvePlayer()!, m.b.resolvePlayer()!])
         .toSet();
 

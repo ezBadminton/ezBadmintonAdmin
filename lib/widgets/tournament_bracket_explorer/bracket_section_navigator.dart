@@ -32,10 +32,7 @@ class BracketSectionNavigator extends StatefulWidget {
 class _BracketSectionNavigatorState extends State<BracketSectionNavigator> {
   Map<BracketSection, Rect>? _sectionRects;
 
-  @override
-  void initState() {
-    super.initState();
-
+  void _updateSectionRects() {
     // Delay the section rect getter by one frame so the widgets of the sections
     // are layed out.
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -46,16 +43,24 @@ class _BracketSectionNavigatorState extends State<BracketSectionNavigator> {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    _updateSectionRects();
+  }
+
+  @override
   void didUpdateWidget(BracketSectionNavigator oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // When the section keys change, do not redetermine the section rects
-    // because they never change. Just map the new keys to the existing rects.
     if (oldWidget.sections == widget.sections) {
       return;
     }
 
-    assert(oldWidget.sections.length == widget.sections.length);
+    if (oldWidget.sections.length != widget.sections.length) {
+      _updateSectionRects();
+      return;
+    }
 
     List<Rect> rects = _sectionRects!.values.toList();
     Map<BracketSection, Rect> newSectionRects = Map.fromEntries(widget.sections

@@ -21,7 +21,7 @@ abstract class MatchRanking<P, S, M extends TournamentMatch<P, S>>
 
     bool ranksAvailable = matches!
             .where((match) => !match.isBye)
-            .firstWhereOrNull((match) => !match.isCompleted) ==
+            .firstWhereOrNull((match) => !match.hasWinner) ==
         null;
 
     return ranksAvailable;

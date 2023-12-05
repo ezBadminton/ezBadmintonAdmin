@@ -53,7 +53,7 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
   List<EliminationRound<M>> get rounds => _rounds;
 
   @override
-  final MatchRanking<P, S, M> finalRanking;
+  final TieableMatchRanking<P, S, M> finalRanking;
 
   void _createMatches() {
     _participants = entries.rank();
@@ -194,7 +194,7 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
   @override
   List<M> getEditableMatches() {
     List<M> editableMatches = matches
-        .where((match) => !match.isWalkover && match.isCompleted)
+        .where((match) => match.hasWinner && !match.isWalkover && !match.isBye)
         .where((match) {
       M? nextMatch = getNextPlayableMatch(match);
 
@@ -210,10 +210,12 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
       (m) {
         M? nextMatch = getNextPlayableMatch(m);
 
-        bool walkoverNotInEffect =
-            m.isWalkover && nextMatch != null && nextMatch.startTime == null;
+        bool walkoverNotInEffect = !m.isDrawnBye &&
+            (m.isWalkover || m.isBye) &&
+            nextMatch != null &&
+            nextMatch.startTime == null;
 
-        bool incompleteMatch = !m.isCompleted;
+        bool incompleteMatch = !m.hasWinner;
 
         return walkoverNotInEffect || incompleteMatch;
       },

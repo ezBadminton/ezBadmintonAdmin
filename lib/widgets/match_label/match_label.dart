@@ -277,13 +277,13 @@ class _Scoreline extends StatelessWidget {
           context,
           score?.$1,
           winner1,
-          match.isCompleted || match.isBye,
+          match.hasWinner,
         );
         Widget score2 = _buildScoreNumber(
           context,
           score?.$2,
           winner2,
-          match.isCompleted || match.isBye,
+          match.hasWinner,
         );
 
         return _ScoreContainer(

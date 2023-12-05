@@ -33,7 +33,7 @@ abstract class TournamentMatch<P, S> {
   bool get inProgress => _startTime != null && _endTime == null;
 
   /// Is `true` when the match has a winner.
-  bool get isCompleted => getWinner() != null;
+  bool get hasWinner => getWinner() != null;
 
   /// This list is filled when one or both of the participants withdrew
   /// for some reason.
@@ -63,6 +63,15 @@ abstract class TournamentMatch<P, S> {
     return const MatchParticipant.bye(isDrawnBye: false);
   }
 
+  /// This is set only when the match is decided due to being a bye.
+  MatchParticipant<P>? get byeWinner {
+    if (!isBye) {
+      return null;
+    }
+
+    return a.isBye ? b : a;
+  }
+
   /// Returns the winner of the match, [a] or [b].
   ///
   /// Returns `null` if the [score] is `null`.
@@ -70,7 +79,8 @@ abstract class TournamentMatch<P, S> {
 
   /// Returns the loser by returning the opposite participant of [getWinner].
   ///
-  /// If [getWinner] returns `null` it returns `null`.
+  /// If [getWinner] returns null it returns null.
+  /// If the winner is a [MatchParticipant.bye] it also returns null.
   MatchParticipant<P>? getLoser() {
     MatchParticipant<P>? winner = getWinner();
 

@@ -62,60 +62,9 @@ abstract class TournamentMode<P, S, M extends TournamentMatch<P, S>> {
   /// while keeping the tournament progression intact.
   List<M> reenterPlayer(P player);
 
-  /// Returns the earliest round that still has unfinished matches
-  ///
-  /// Returns `-1` if all matches are completed.
-  int ongoingRound() {
-    for (int i = 0; i < rounds.length; i += 1) {
-      bool ongoing = roundMatches
-              .elementAt(i)
-              .where((match) => !match.isBye)
-              .firstWhereOrNull((match) => !match.isCompleted) !=
-          null;
-      if (ongoing) {
-        return i;
-      }
-    }
-
-    return -1;
-  }
-
-  /// Returns the latest round that already has one or more matches in progress
-  /// or completed.
-  ///
-  /// Returns `0` if no matches have been started.
-  int latestOngoingRound() {
-    for (int i = rounds.length - 1; i >= 0; i -= 1) {
-      bool inProgress = roundMatches
-              .elementAt(i)
-              .where((match) => !match.isBye)
-              .firstWhereOrNull((match) => match.startTime != null) !=
-          null;
-      if (inProgress) {
-        return i;
-      }
-    }
-
-    return 0;
-  }
-
-  /// Returns how many rounds are currently in progress at once.
-  ///
-  /// This is useful for scheduling (e.g. a group phase) to not make the
-  /// progress between the rounds too unbalanced.
-  int roundLag() {
-    if (isCompleted()) {
-      return 0;
-    }
-    return latestOngoingRound() - ongoingRound() + 1;
-  }
-
   /// Returns whether all [matches] are completed.
   bool isCompleted() {
-    return matches
-            .where((match) => !match.isBye)
-            .firstWhereOrNull((match) => !match.isCompleted) ==
-        null;
+    return matches.firstWhereOrNull((match) => !match.hasWinner) == null;
   }
 
   Iterable<M> getMatchesOfPlayer(P player) {

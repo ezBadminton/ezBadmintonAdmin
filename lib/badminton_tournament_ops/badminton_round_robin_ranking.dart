@@ -24,7 +24,7 @@ class BadmintonRoundRobinRanking
           (match) =>
               !match.isBye &&
               match.withdrawnParticipants?.length != 2 &&
-              match.isCompleted,
+              match.hasWinner,
         )
         .toList();
 
@@ -53,7 +53,7 @@ class BadmintonRoundRobinRanking
           (match) =>
               !match.isBye &&
               match.withdrawnParticipants?.length != 2 &&
-              match.isCompleted,
+              match.hasWinner,
         )
         .toList();
 

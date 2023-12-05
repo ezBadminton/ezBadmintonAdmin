@@ -11,15 +11,18 @@ class WinnerRanking<P, S> implements Ranking<P> {
 
   @override
   List<MatchParticipant<P>> rank() {
-    if (match.isBye && !match.isWalkover) {
-      MatchParticipant<P> winner = match.a.isBye ? match.b : match.a;
-      return [winner];
-    } else if (match.isWalkover && match.walkoverWinner!.isBye) {
-      return [match.walkoverWinner!];
-    } else if (match.isCompleted || match.isWalkover) {
-      return [match.getWinner()!, match.getLoser()!];
-    } else {
-      return [];
+    switch (match) {
+      case TournamentMatch(
+          hasWinner: true,
+        ):
+        MatchParticipant<P>? loser = match.getLoser();
+        return [
+          match.getWinner()!,
+          if (loser != null) loser,
+        ];
+
+      default:
+        return [];
     }
   }
 }

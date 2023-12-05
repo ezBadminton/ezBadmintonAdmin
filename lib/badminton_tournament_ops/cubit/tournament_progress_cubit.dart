@@ -92,7 +92,7 @@ class TournamentProgressCubit
 
     List<BadmintonMatch> finishedMatches = runningTournaments.values
         .expand((t) => t.matches)
-        .where((match) => match.isCompleted)
+        .where((match) => match.hasWinner && match.endTime != null)
         .sortedBy((match) => match.endTime!)
         .toList();
 

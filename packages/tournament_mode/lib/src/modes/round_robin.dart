@@ -138,7 +138,7 @@ class RoundRobin<P, S, M extends TournamentMatch<P, S>>
   @override
   List<M> getEditableMatches() {
     List<M> editableMatches = matches
-        .where((match) => match.isCompleted && !match.isWalkover)
+        .where((match) => match.hasWinner && !match.isWalkover && !match.isBye)
         .toList();
 
     return editableMatches;
@@ -149,7 +149,7 @@ class RoundRobin<P, S, M extends TournamentMatch<P, S>>
     List<M> matchesOfPlayer = getMatchesOfPlayer(player).toList();
 
     bool hasCompletedAllMatches =
-        matchesOfPlayer.firstWhereOrNull((m) => !m.isCompleted) == null;
+        matchesOfPlayer.firstWhereOrNull((m) => !m.hasWinner) == null;
 
     if (hasCompletedAllMatches && !forceWalkover) {
       return [];

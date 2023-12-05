@@ -100,6 +100,10 @@ class BadmintonMatch extends TournamentMatch<Team, List<MatchSet>> {
       return walkoverWinner;
     }
 
+    if (byeWinner != null) {
+      return byeWinner;
+    }
+
     int aWins = 0;
     int bWins = 0;
 
