@@ -81,10 +81,14 @@ class _RoundRobinLeaderboard extends StatelessWidget {
         tournament.finalRanking as BadmintonRoundRobinRanking;
 
     List<List<MatchParticipant<Team>>> ranks = ranking.currentTiedRank();
+    List<int> rankIndicies = TieableMatchRanking.getRankIndices(ranks);
     Map<Team, RoundRobinStats> stats = ranking.getStats();
 
     List<TableRow> leaderboardEntries = [];
-    for (List<MatchParticipant<Team>> rank in ranks) {
+    for ((int, List<MatchParticipant<Team>>) rankEntry in ranks.indexed) {
+      int rankIndex = rankIndicies[rankEntry.$1];
+      List<MatchParticipant<Team>> rank = rankEntry.$2;
+
       for (MatchParticipant<Team> participant in rank) {
         Team team = participant.resolvePlayer()!;
         RoundRobinStats teamStats = stats[team]!;
@@ -92,7 +96,7 @@ class _RoundRobinLeaderboard extends StatelessWidget {
         TableRow row = TableRow(
           children: [
             if (rank.first == participant)
-              _RankNumber(rankIndex: ranks.indexOf(rank))
+              _RankNumber(rankIndex: rankIndex)
             else
               const _RankNumber(rankIndex: null),
             MatchParticipantLabel(
