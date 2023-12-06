@@ -105,13 +105,15 @@ void main() {
     match.setScore(createSets(score1, score2, score3));
   }
 
-  test('inital ranking is empty', () {
+  test('inital ranking has one rank that contains all participants', () {
     RoundRobin<Team, List<MatchSet>, BadmintonMatch> tournament =
         createTournament(3);
     BadmintonRoundRobinRanking sut =
         tournament.finalRanking as BadmintonRoundRobinRanking;
 
-    expect(sut.rank(), isEmpty);
+    expect(sut.rank(), hasLength(3));
+    expect(sut.tiedRank(), hasLength(1));
+    expect(sut.tiedRank()[0], hasLength(3));
   });
 
   test('three-way-tie', () {

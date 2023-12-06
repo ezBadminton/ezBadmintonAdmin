@@ -2,6 +2,7 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_round_robin_ranking.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
+import 'package:ez_badminton_admin_app/widgets/leaderboard/leaderboard.dart';
 import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
 import 'package:ez_badminton_admin_app/widgets/mouse_hover_builder/mouse_hover_builder.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section_subtree.dart';
@@ -80,8 +81,8 @@ class _RoundRobinLeaderboard extends StatelessWidget {
     BadmintonRoundRobinRanking ranking =
         tournament.finalRanking as BadmintonRoundRobinRanking;
 
-    List<List<MatchParticipant<Team>>> ranks = ranking.currentTiedRank();
-    List<int> rankIndicies = TieableMatchRanking.getRankIndices(ranks);
+    List<List<MatchParticipant<Team>>> ranks = ranking.tiedRank();
+    List<int> rankIndicies = TieableRanking.getRankIndices(ranks);
     Map<Team, RoundRobinStats> stats = ranking.getStats();
 
     List<TableRow> leaderboardEntries = [];
@@ -90,15 +91,15 @@ class _RoundRobinLeaderboard extends StatelessWidget {
       List<MatchParticipant<Team>> rank = rankEntry.$2;
 
       for (MatchParticipant<Team> participant in rank) {
+        bool isFirstInRank = rank.first == participant;
+        int? participantRankIndex = isFirstInRank ? rankIndex : null;
+
         Team team = participant.resolvePlayer()!;
         RoundRobinStats teamStats = stats[team]!;
 
         TableRow row = TableRow(
           children: [
-            if (rank.first == participant)
-              _RankNumber(rankIndex: rankIndex)
-            else
-              const _RankNumber(rankIndex: null),
+            RankNumber(rankIndex: participantRankIndex),
             MatchParticipantLabel(
               participant,
               teamSize: tournament.competition.teamSize,
@@ -200,31 +201,6 @@ class _MatchResultList extends StatelessWidget {
           const SizedBox(height: 10),
         ],
       ],
-    );
-  }
-}
-
-class _RankNumber extends StatelessWidget {
-  const _RankNumber({
-    this.rankIndex,
-  });
-
-  final int? rankIndex;
-
-  @override
-  Widget build(BuildContext context) {
-    TextStyle rankStyle = const TextStyle(fontWeight: FontWeight.bold);
-
-    Widget number = rankIndex == null
-        ? const SizedBox()
-        : Text('${rankIndex! + 1}.', style: rankStyle);
-
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Align(
-        alignment: AlignmentDirectional.centerEnd,
-        child: number,
-      ),
     );
   }
 }

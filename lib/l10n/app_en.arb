@@ -296,5 +296,7 @@
   "win": "{count, plural, =1{Win} other{Wins}}",
   "game": "{count, plural, =1{Game} other{Games}}",
   "point": "{count, plural, =1{Point} other{Points}}",
-  "walkover": "Walkover"
+  "walkover": "Walkover",
+  "leaderboard": "Leaderboard",
+  "provisionalLeaderboardInfo": "The competition has not yet been completed. The current provisional status of the leaderboard is displayed."
 }

@@ -5,6 +5,7 @@ import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_state.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_selection_list/cubit/competition_selection_cubit.dart';
+import 'package:ez_badminton_admin_app/widgets/leaderboard/leaderboard.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/tournament_bracket_explorer_controller_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/tournament_bracket_explorer.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/group_knockout_results.dart';
@@ -113,6 +114,8 @@ class _InteractiveResultExplorer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+
     TournamentProgressState progressState =
         context.read<TournamentProgressCubit>().state;
 
@@ -138,7 +141,68 @@ class _InteractiveResultExplorer extends StatelessWidget {
       key: ValueKey('ResultExplorer-${competition.id}'),
       competition: competition,
       tournamentBracket: resultView,
-      controlBarOptionsBuilder: (_) => const SizedBox(),
+      controlBarOptionsBuilder: (compact) {
+        onPressed() {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text(l10n.leaderboard),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ProvisionalLeaderboardInfo(tournament: tournament),
+                    Flexible(
+                      child: SingleChildScrollView(
+                        child: Leaderboard(ranking: tournament.finalRanking),
+                      ),
+                    ),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text(l10n.confirm),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+
+        if (compact) {
+          return Tooltip(
+            message: l10n.leaderboard,
+            child: SizedBox(
+              width: 32,
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                ),
+                onPressed: onPressed,
+                child: const Icon(Icons.emoji_events),
+              ),
+            ),
+          );
+        }
+
+        return TextButton(
+          onPressed: onPressed,
+          child: SizedBox(
+            width: 160,
+            child: Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.emoji_events),
+                  const SizedBox(width: 7),
+                  Text(l10n.leaderboard),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

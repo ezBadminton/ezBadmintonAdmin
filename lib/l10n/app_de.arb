@@ -296,5 +296,7 @@
   "win": "{count, plural, =1{Sieg} other{Siege}}",
   "game": "{count, plural, =1{Satz} other{Sätze}}",
   "point": "{count, plural, =1{Punkt} other{Punkte}}",
-  "walkover": "Walkover"
+  "walkover": "Walkover",
+  "leaderboard": "Rangliste",
+  "provisionalLeaderboardInfo": "Die Disziplin ist noch nicht abgeschlossen. Es wird der aktuelle vorläufige Stand der Rangliste angezeigt."
 }

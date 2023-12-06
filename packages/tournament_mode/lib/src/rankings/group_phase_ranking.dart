@@ -1,6 +1,5 @@
 import 'package:collection/collection.dart';
 import 'package:tournament_mode/src/match_participant.dart';
-import 'package:tournament_mode/src/modes/group_knockout.dart';
 import 'package:tournament_mode/src/modes/group_phase.dart';
 import 'package:tournament_mode/src/modes/round_robin.dart';
 import 'package:tournament_mode/src/ranking.dart';
@@ -53,12 +52,14 @@ class GroupPhaseRanking<P, S, M extends TournamentMatch<P, S>>
   }
 }
 
-/// A [Placement] for the final [MatchRanking] of a [RoundRobin] that is used
-/// as a group in a [GroupKnockout].
+/// A [Placement] for a [MatchRanking].
 ///
-/// It replaces any placed participants that withdrew from the group matches
-/// with a [MatchParticipant.bye]. This way no withdrawn players can become
-/// qualified.
+/// It holds back the placement ([getPlacement] returns null) while the matches
+/// are not all completed.
+///
+/// It also replaces any placed participants that withdrew from the matches with
+/// a [MatchParticipant.bye]. This way no withdrawn players can pass this
+/// placement.
 ///
 /// For example it can happen that 3 of 4 group members withdraw but the top 2
 /// qualify for the knockouts. Then 2nd place is occupied by a withdrawn player.
@@ -76,6 +77,10 @@ class _GroupPhasePlacement<P> extends Placement<P> {
 
   @override
   MatchParticipant<P>? getPlacement() {
+    if (!ranking.allMatchesComplete()) {
+      return null;
+    }
+
     MatchParticipant<P>? placement = super.getPlacement();
 
     P? player = placement?.resolvePlayer();

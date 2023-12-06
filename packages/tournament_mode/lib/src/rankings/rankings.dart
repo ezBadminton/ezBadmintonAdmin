@@ -5,3 +5,5 @@ export 'group_qualification_ranking.dart';
 export 'match_ranking.dart';
 export 'ranking_decorator.dart';
 export 'winner_ranking.dart';
+export 'tieable_ranking.dart';
+export 'group_knockout_ranking.dart';

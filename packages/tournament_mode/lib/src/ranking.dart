@@ -8,7 +8,7 @@ abstract class Ranking<P> {
   List<MatchParticipant<P>> rank();
 }
 
-/// A simple index into a [Ranking].
+/// A simple index getter into a [Ranking].
 class Placement<P> {
   /// Creates the [Placement] of [place] inside the [ranking].
   Placement({
@@ -16,12 +16,12 @@ class Placement<P> {
     required this.place,
   });
 
-  final int place;
   final Ranking<P> ranking;
+  final int place;
 
   /// Returns the current occupant of [place] in [ranking].
   ///
-  /// If the place is not occupied yet it returns null.
+  /// If the place is not occupied it returns null.
   MatchParticipant<P>? getPlacement() {
     List<MatchParticipant<P>?> ranks = ranking.rank();
     return ranks.elementAtOrNull(place);

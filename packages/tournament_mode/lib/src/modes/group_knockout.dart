@@ -3,8 +3,7 @@ import 'package:tournament_mode/src/modes/group_phase.dart';
 import 'package:tournament_mode/src/modes/round_robin.dart';
 import 'package:tournament_mode/src/modes/single_elimination.dart';
 import 'package:tournament_mode/src/ranking.dart';
-import 'package:tournament_mode/src/rankings/group_phase_ranking.dart';
-import 'package:tournament_mode/src/rankings/group_qualification_ranking.dart';
+import 'package:tournament_mode/src/rankings/rankings.dart';
 import 'package:tournament_mode/src/tournament_match.dart';
 
 /// A [GroupPhase] followed by a knockout-phase ([SingleElimination])
@@ -42,10 +41,17 @@ class GroupKnockout<
             numGroups: numGroups,
             qualificationsPerGroup: qualificationsPerGroup,
           ),
-        );
+        ) {
+    _finalRanking = GroupKnockoutRanking(groupKnockout: this);
+  }
 
   final int numGroups;
   final int qualificationsPerGroup;
+
+  late final TieableRanking<P> _finalRanking;
+
+  @override
+  Ranking<P> get finalRanking => _finalRanking;
 
   G get groupPhase => super.first;
 

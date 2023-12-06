@@ -5,20 +5,9 @@ import 'package:tournament_mode/tournament_mode.dart';
 
 class BadmintonRoundRobinRanking
     extends TieableMatchRanking<Team, List<MatchSet>, BadmintonMatch> {
-  /// Returns the final ranking once all matches have been completed.
-  ///
-  /// Before everything is completed, an empty list is returned.
+  /// Returns the tied ranking as it results from the matches completed so far.
   @override
   List<List<MatchParticipant<Team>>> tiedRank() {
-    if (!ranksAvailable()) {
-      return [];
-    }
-
-    return currentTiedRank();
-  }
-
-  /// Returns the tied ranking as it results from the matches completed so far.
-  List<List<MatchParticipant<Team>>> currentTiedRank() {
     List<BadmintonMatch> finishedMatches = matches!
         .where(
           (match) =>
