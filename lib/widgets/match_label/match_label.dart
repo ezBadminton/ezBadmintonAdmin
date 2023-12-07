@@ -387,6 +387,8 @@ class _ScoreEditButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var progressCubit = context.read<TournamentProgressCubit>();
+
     var l10n = AppLocalizations.of(context)!;
 
     return BlocBuilder<TournamentProgressCubit, TournamentProgressState>(
@@ -408,7 +410,10 @@ class _ScoreEditButton extends StatelessWidget {
                   showDialog(
                     context: context,
                     barrierDismissible: false,
-                    builder: (context) => ResultInputDialog(match: match),
+                    builder: (context) => ResultInputDialog(
+                      match: match,
+                      tournamentProgressCubit: progressCubit,
+                    ),
                   );
                 },
                 child: const Icon(Icons.edit),

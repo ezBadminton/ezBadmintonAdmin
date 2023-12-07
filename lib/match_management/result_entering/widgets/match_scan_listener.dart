@@ -67,7 +67,10 @@ class _MatchScanFocus extends StatelessWidget {
         showDialog(
           context: context,
           barrierDismissible: false,
-          builder: (context) => ResultInputDialog(match: scannedMatch),
+          builder: (context) => ResultInputDialog(
+            match: scannedMatch,
+            tournamentProgressCubit: progressCubit,
+          ),
         );
       },
       child: Focus(

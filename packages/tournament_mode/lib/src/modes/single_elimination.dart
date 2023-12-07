@@ -198,7 +198,7 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
         .where((match) {
       M? nextMatch = getNextPlayableMatch(match);
 
-      return nextMatch == null || nextMatch.startTime == null;
+      return nextMatch == null || !nextMatch.hasWinner;
     }).toList();
 
     return editableMatches;

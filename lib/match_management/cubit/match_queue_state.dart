@@ -15,11 +15,14 @@ class MatchQueueState extends CollectionFetcherState<MatchQueueState> {
   final MatchSchedule? matchSchedule;
 
   Map<MatchWaitingStatus, List<BadmintonMatch>> get schedule =>
-      matchSchedule!.schedule;
-  List<BadmintonMatch> get calloutWaitList => matchSchedule!.calloutWaitList;
-  List<BadmintonMatch> get inProgressList => matchSchedule!.inProgressList;
+      matchSchedule?.schedule ?? {};
+  List<BadmintonMatch> get calloutWaitList =>
+      matchSchedule?.calloutWaitList ?? [];
+  List<BadmintonMatch> get inProgressList =>
+      matchSchedule?.inProgressList ?? [];
 
-  Map<Player, DateTime> get restingDeadlines => matchSchedule!.restingDeadlines;
+  Map<Player, DateTime> get restingDeadlines =>
+      matchSchedule?.restingDeadlines ?? {};
 
   int get playerRestTime => getCollection<Tournament>().first.playerRestTime;
   QueueMode get queueMode => getCollection<Tournament>().first.queueMode;

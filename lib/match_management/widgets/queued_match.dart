@@ -626,6 +626,8 @@ class _EnterResultButton extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
+    var progressCubit = context.read<TournamentProgressCubit>();
+
     return Tooltip(
       message: l10n.enterResult,
       child: SizedBox.square(
@@ -635,7 +637,10 @@ class _EnterResultButton extends StatelessWidget {
             showDialog(
               context: context,
               barrierDismissible: false,
-              builder: (context) => ResultInputDialog(match: match),
+              builder: (context) => ResultInputDialog(
+                match: match,
+                tournamentProgressCubit: progressCubit,
+              ),
             );
           },
           style: ButtonStyle(

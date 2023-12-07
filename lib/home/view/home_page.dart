@@ -153,6 +153,8 @@ class _HomePageState extends State<HomePage>
             competitionRepository:
                 context.read<CollectionRepository<Competition>>(),
             courtRepository: context.read<CollectionRepository<Court>>(),
+            matchDataRepository:
+                context.read<CollectionRepository<MatchData>>(),
           ),
         ),
         BlocProvider(

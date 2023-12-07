@@ -1,9 +1,13 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
+import 'package:ez_badminton_admin_app/match_management/result_entering/cubit/result_deletion_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/result_entering/cubit/result_entering_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/result_entering/input_validation/score_input_controller.dart';
 import 'package:ez_badminton_admin_app/match_management/result_entering/input_validation/score_input_formatter.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
+import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
+import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/help_tooltip_icon/help_tooltip_icon.dart';
 import 'package:ez_badminton_admin_app/widgets/match_info/match_info.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';
@@ -18,9 +22,12 @@ class ResultInputDialog extends StatelessWidget {
   const ResultInputDialog({
     super.key,
     required this.match,
+    required this.tournamentProgressCubit,
   });
 
   final BadmintonMatch match;
+
+  final TournamentProgressCubit tournamentProgressCubit;
 
   @override
   Widget build(BuildContext context) {
@@ -33,16 +40,30 @@ class ResultInputDialog extends StatelessWidget {
 
     String dialogTitle = alreadyHasScore ? l10n.editResult : l10n.enterResult;
 
-    return BlocProvider(
-      create: (context) => ResultEnteringCubit(
-        match: match,
-        matchDataRepository: context.read<CollectionRepository<MatchData>>(),
-        matchSetRepository: context.read<CollectionRepository<MatchSet>>(),
-        winningPoints: modeSettings.winningPoints,
-        winningSets: modeSettings.winningSets,
-        twoPointMargin: modeSettings.twoPointMargin,
-        maxPoints: modeSettings.maxPoints,
-      ),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => ResultEnteringCubit(
+            match: match,
+            matchDataRepository:
+                context.read<CollectionRepository<MatchData>>(),
+            matchSetRepository: context.read<CollectionRepository<MatchSet>>(),
+            winningPoints: modeSettings.winningPoints,
+            winningSets: modeSettings.winningSets,
+            twoPointMargin: modeSettings.twoPointMargin,
+            maxPoints: modeSettings.maxPoints,
+          ),
+        ),
+        BlocProvider(
+          create: (context) => ResultDeletionCubit(
+            match: match,
+            tournamentProgressGetter: () => tournamentProgressCubit.state,
+            matchDataRepository:
+                context.read<CollectionRepository<MatchData>>(),
+            matchSetRepository: context.read<CollectionRepository<MatchSet>>(),
+          ),
+        ),
+      ],
       child: BlocConsumer<ResultEnteringCubit, ResultEnteringState>(
         listenWhen: (previous, current) =>
             previous.formStatus != FormzSubmissionStatus.success &&
@@ -54,7 +75,7 @@ class ResultInputDialog extends StatelessWidget {
           var cubit = context.read<ResultEnteringCubit>();
 
           return AlertDialog(
-            actionsPadding: const EdgeInsets.fromLTRB(0, 20, 25, 25),
+            actionsPadding: const EdgeInsets.fromLTRB(20, 20, 25, 25),
             title: Row(
               children: [
                 Text(dialogTitle),
@@ -77,16 +98,22 @@ class ResultInputDialog extends StatelessWidget {
               ],
             ),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(l10n.cancel),
-              ),
-              ElevatedButton(
-                focusNode: cubit.submitButtonFocusNode,
-                onPressed: state.winningParticipantIndex == null
-                    ? null
-                    : cubit.resultSubmitted,
-                child: Text(l10n.enterResult),
+              Row(
+                children: [
+                  _ResultDeleteButton(match: match),
+                  const Expanded(child: SizedBox()),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text(l10n.cancel),
+                  ),
+                  ElevatedButton(
+                    focusNode: cubit.submitButtonFocusNode,
+                    onPressed: state.winningParticipantIndex == null
+                        ? null
+                        : cubit.resultSubmitted,
+                    child: Text(l10n.enterResult),
+                  ),
+                ],
               ),
             ],
           );
@@ -277,6 +304,51 @@ class _MatchParticipantLabel extends StatelessWidget {
         color: Theme.of(context).colorScheme.onSurface,
         fontSize: 20,
         fontWeight: markAsWinner ? FontWeight.bold : FontWeight.normal,
+      ),
+    );
+  }
+}
+
+class _ResultDeleteButton extends StatelessWidget {
+  const _ResultDeleteButton({
+    required this.match,
+  });
+
+  final BadmintonMatch match;
+
+  @override
+  Widget build(BuildContext context) {
+    if (match.score == null) {
+      return const SizedBox();
+    }
+
+    var l10n = AppLocalizations.of(context)!;
+
+    var deletionCubit = context.read<ResultDeletionCubit>();
+
+    return DialogListener<ResultDeletionCubit, ResultDeletionState, bool>(
+      builder: (context, state, reason) {
+        return ConfirmDialog(
+          title: Text(l10n.deleteResult),
+          content: Text(l10n.deleteResultInfo),
+          confirmButtonLabel: l10n.confirm,
+          cancelButtonLabel: l10n.cancel,
+        );
+      },
+      child: BlocListener<ResultDeletionCubit, ResultDeletionState>(
+        listenWhen: (previous, current) =>
+            previous.formStatus != FormzSubmissionStatus.success &&
+            current.formStatus == FormzSubmissionStatus.success,
+        listener: (context, state) => Navigator.of(context).pop(),
+        child: TextButton(
+          onPressed: deletionCubit.resultDeleted,
+          child: Text(
+            l10n.deleteResult,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.error.withOpacity(.7),
+            ),
+          ),
+        ),
       ),
     );
   }

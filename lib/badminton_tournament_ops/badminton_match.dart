@@ -17,6 +17,14 @@ class BadmintonMatch extends TournamentMatch<Team, List<MatchSet>> {
   /// [BadmintonMatch.hydrateMatch] method was called.
   Competition get competition => _competition;
 
+  bool _isDangling = false;
+
+  /// A match is dangling when it has been started despite both participants
+  /// not being qualified.
+  ///
+  /// This can happen when the result of a preceding match is deleted.
+  bool get isDangling => _isDangling;
+
   /// Hydrate this match with [matchData].
   ///
   /// The [MatchData] contains administrative values about the match like
@@ -31,6 +39,11 @@ class BadmintonMatch extends TournamentMatch<Team, List<MatchSet>> {
     }
 
     this.matchData = matchData;
+
+    if (!isPlayable && matchData.court != null) {
+      _isDangling = true;
+      return;
+    }
 
     if (matchData.startTime != null) {
       beginMatch(matchData.startTime);

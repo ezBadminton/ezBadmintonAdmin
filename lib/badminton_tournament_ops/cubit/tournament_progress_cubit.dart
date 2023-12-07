@@ -4,20 +4,24 @@ import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/tournament_mode_hydration.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
+import 'package:ez_badminton_admin_app/match_management/cubit/mixins/match_canceling_mixin.dart';
 import 'package:ez_badminton_admin_app/utils/sorting.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 
 part 'tournament_progress_state.dart';
 
 class TournamentProgressCubit
-    extends CollectionFetcherCubit<TournamentProgressState> {
+    extends CollectionFetcherCubit<TournamentProgressState>
+    with MatchCancelingMixin {
   TournamentProgressCubit({
     required CollectionRepository<Competition> competitionRepository,
     required CollectionRepository<Court> courtRepository,
+    required CollectionRepository<MatchData> matchDataRepository,
   }) : super(
           collectionRepositories: [
             competitionRepository,
             courtRepository,
+            matchDataRepository,
           ],
           TournamentProgressState(),
         ) {
@@ -71,6 +75,16 @@ class TournamentProgressCubit
       hydrateTournament(competition, tournament, competition.matches);
     }
 
+    List<BadmintonMatch> danglingMatches = runningTournaments.values
+        .expand((tournament) => tournament.matches)
+        .where((match) => match.isDangling)
+        .toList();
+
+    if (danglingMatches.isNotEmpty) {
+      _cancelDanglingMatches(danglingMatches);
+      return this.state;
+    }
+
     List<BadmintonMatch> runningMatches = runningTournaments.values
         .expand((t) => t.matches)
         .where((match) => match.court != null && match.endTime == null)
@@ -113,5 +127,19 @@ class TournamentProgressCubit
       lastPlayerMatches: lastPlayerMatches,
       editableMatches: editableMatches,
     );
+  }
+
+  void _cancelDanglingMatches(List<BadmintonMatch> danglingMatches) {
+    List<MatchData> canceledMatches = danglingMatches
+        .map(
+          (match) => cancelMatch(
+            match.matchData!,
+            state,
+            unassignCourt: true,
+          ),
+        )
+        .toList();
+
+    querier.updateModels(canceledMatches);
   }
 }

@@ -1,13 +1,14 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
+import 'package:ez_badminton_admin_app/match_management/cubit/mixins/match_canceling_mixin.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
 import 'package:formz/formz.dart';
 
 part 'match_start_stop_state.dart';
 
 class MatchStartStopCubit extends CollectionQuerierCubit<MatchStartStopState>
-    with DialogCubit<MatchStartStopState> {
+    with DialogCubit<MatchStartStopState>, MatchCancelingMixin {
   MatchStartStopCubit({
     required this.tournamentProgressGetter,
     required CollectionRepository<MatchData> matchDataRepository,
@@ -65,27 +66,13 @@ class MatchStartStopCubit extends CollectionQuerierCubit<MatchStartStopState>
       return;
     }
 
-    MatchData matchDataWithCancellation = matchData.copyWith(
-      startTime: null,
-      endTime: null,
-    );
+    TournamentProgressState tournamentProgressState =
+        tournamentProgressGetter();
 
-    if (matchData.endTime != null) {
-      Court courtOfMatch = matchData.court!;
-      TournamentProgressState tournamentProgressState =
-          tournamentProgressGetter();
+    MatchData canceledMatchData =
+        cancelMatch(matchData, tournamentProgressState);
 
-      // Revoke court from the canceled match if it is not open
-      if (!tournamentProgressState.openCourts.contains(courtOfMatch)) {
-        matchDataWithCancellation = matchDataWithCancellation.copyWith(
-          court: null,
-          courtAssignmentTime: null,
-        );
-      }
-    }
-
-    MatchData? updatedMatchData =
-        await querier.updateModel(matchDataWithCancellation);
+    MatchData? updatedMatchData = await querier.updateModel(canceledMatchData);
     if (updatedMatchData == null) {
       emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
       return;
