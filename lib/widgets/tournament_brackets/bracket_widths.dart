@@ -2,7 +2,7 @@
 
 const double roundRobinTableWidth = 440;
 
-const double singleEliminationNodeWith = 450;
+const double singleEliminationNodeWidth = 450;
 const double singleEliminationRoundGap = 25;
 
 const double groupKnockoutGroupGap = 30;

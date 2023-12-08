@@ -111,9 +111,9 @@ void main() {
     BadmintonRoundRobinRanking sut =
         tournament.finalRanking as BadmintonRoundRobinRanking;
 
-    expect(sut.rank(), hasLength(3));
-    expect(sut.tiedRank(), hasLength(1));
-    expect(sut.tiedRank()[0], hasLength(3));
+    expect(sut.ranks, hasLength(3));
+    expect(sut.createTiedRanks(), hasLength(1));
+    expect(sut.createTiedRanks()[0], hasLength(3));
   });
 
   test('three-way-tie', () {
@@ -131,8 +131,8 @@ void main() {
     // 2 wins vs 0
     arrangeScore(players[2], players[0], (21, 0), (21, 0), null, matches);
 
-    expect(sut.rank(), hasLength(3));
-    expect(sut.tiedRank(), hasLength(1));
+    expect(sut.ranks, hasLength(3));
+    expect(sut.createTiedRanks(), hasLength(1));
   });
 
   test('three-way tie-break via overall sets', () {
@@ -150,12 +150,12 @@ void main() {
     // 2 wins vs 0
     arrangeScore(players[2], players[0], (21, 0), (21, 0), null, matches);
 
-    expect(sut.rank(), hasLength(3));
-    expect(sut.tiedRank(), hasLength(3));
+    expect(sut.ranks, hasLength(3));
+    expect(sut.createTiedRanks(), hasLength(3));
 
-    expect(sut.rank(), HasRankOccupant(players[1], rank: 0));
-    expect(sut.rank(), HasRankOccupant(players[2], rank: 1));
-    expect(sut.rank(), HasRankOccupant(players[0], rank: 2));
+    expect(sut.ranks, HasRankOccupant(players[1], rank: 0));
+    expect(sut.ranks, HasRankOccupant(players[2], rank: 1));
+    expect(sut.ranks, HasRankOccupant(players[0], rank: 2));
   });
 
   test('three-way tie-break via overall points', () {
@@ -173,12 +173,12 @@ void main() {
     // 2 wins vs 0
     arrangeScore(players[2], players[0], (21, 0), (21, 0), null, matches);
 
-    expect(sut.rank(), hasLength(3));
-    expect(sut.tiedRank(), hasLength(3));
+    expect(sut.ranks, hasLength(3));
+    expect(sut.createTiedRanks(), hasLength(3));
 
-    expect(sut.rank(), HasRankOccupant(players[1], rank: 0));
-    expect(sut.rank(), HasRankOccupant(players[2], rank: 1));
-    expect(sut.rank(), HasRankOccupant(players[0], rank: 2));
+    expect(sut.ranks, HasRankOccupant(players[1], rank: 0));
+    expect(sut.ranks, HasRankOccupant(players[2], rank: 1));
+    expect(sut.ranks, HasRankOccupant(players[0], rank: 2));
   });
 
   test('three-way tie-break via points and direct comparison', () {
@@ -202,13 +202,13 @@ void main() {
     // 3 wins vs 1
     arrangeScore(players[3], players[1], (21, 0), (21, 0), null, matches);
 
-    expect(sut.rank(), hasLength(4));
-    expect(sut.tiedRank(), hasLength(4));
+    expect(sut.ranks, hasLength(4));
+    expect(sut.createTiedRanks(), hasLength(4));
 
-    expect(sut.rank(), HasRankOccupant(players[0], rank: 0));
-    expect(sut.rank(), HasRankOccupant(players[2], rank: 1));
-    expect(sut.rank(), HasRankOccupant(players[3], rank: 2));
-    expect(sut.rank(), HasRankOccupant(players[1], rank: 3));
+    expect(sut.ranks, HasRankOccupant(players[0], rank: 0));
+    expect(sut.ranks, HasRankOccupant(players[2], rank: 1));
+    expect(sut.ranks, HasRankOccupant(players[3], rank: 2));
+    expect(sut.ranks, HasRankOccupant(players[1], rank: 3));
   });
 
   test('two-way tie-break via direct win', () {
@@ -233,11 +233,11 @@ void main() {
     // 3 wins vs 2
     arrangeScore(players[3], players[2], (21, 0), (21, 0), null, matches);
 
-    expect(sut.rank(), hasLength(4));
-    expect(sut.tiedRank(), hasLength(4));
+    expect(sut.ranks, hasLength(4));
+    expect(sut.createTiedRanks(), hasLength(4));
 
-    expect(sut.rank(), HasRankOccupant(players[0], rank: 0));
-    expect(sut.rank(), HasRankOccupant(players[1], rank: 1));
+    expect(sut.ranks, HasRankOccupant(players[0], rank: 0));
+    expect(sut.ranks, HasRankOccupant(players[1], rank: 1));
   });
 
   test('two-way-tie', () {
@@ -255,8 +255,8 @@ void main() {
     arrangeScore(players[1], players[0], (21, 0), (21, 0), null, matches,
         matchIndex: 1);
 
-    expect(sut.rank(), hasLength(2));
-    expect(sut.tiedRank(), hasLength(1));
+    expect(sut.ranks, hasLength(2));
+    expect(sut.createTiedRanks(), hasLength(1));
   });
 
   test('two-way tie-break via direct sets', () {
@@ -274,11 +274,11 @@ void main() {
     arrangeScore(players[1], players[0], (21, 0), (0, 21), (21, 0), matches,
         matchIndex: 1);
 
-    expect(sut.rank(), hasLength(2));
-    expect(sut.tiedRank(), hasLength(2));
+    expect(sut.ranks, hasLength(2));
+    expect(sut.createTiedRanks(), hasLength(2));
 
-    expect(sut.rank(), HasRankOccupant(players[0], rank: 0));
-    expect(sut.rank(), HasRankOccupant(players[1], rank: 1));
+    expect(sut.ranks, HasRankOccupant(players[0], rank: 0));
+    expect(sut.ranks, HasRankOccupant(players[1], rank: 1));
   });
 
   test('two-way tie-break via direct points', () {
@@ -296,11 +296,11 @@ void main() {
     arrangeScore(players[1], players[0], (21, 0), (21, 0), null, matches,
         matchIndex: 1);
 
-    expect(sut.rank(), hasLength(2));
-    expect(sut.tiedRank(), hasLength(2));
+    expect(sut.ranks, hasLength(2));
+    expect(sut.createTiedRanks(), hasLength(2));
 
-    expect(sut.rank(), HasRankOccupant(players[1], rank: 0));
-    expect(sut.rank(), HasRankOccupant(players[0], rank: 1));
+    expect(sut.ranks, HasRankOccupant(players[1], rank: 0));
+    expect(sut.ranks, HasRankOccupant(players[0], rank: 1));
   });
 
   test('two-way tie-break via overall sets', () {
@@ -330,12 +330,12 @@ void main() {
     arrangeScore(players[1], players[2], (21, 0), (21, 0), null, matches,
         matchIndex: 1);
 
-    expect(sut.rank(), hasLength(3));
-    expect(sut.tiedRank(), hasLength(3));
+    expect(sut.ranks, hasLength(3));
+    expect(sut.createTiedRanks(), hasLength(3));
 
-    expect(sut.rank(), HasRankOccupant(players[1], rank: 0));
-    expect(sut.rank(), HasRankOccupant(players[0], rank: 1));
-    expect(sut.rank(), HasRankOccupant(players[2], rank: 2));
+    expect(sut.ranks, HasRankOccupant(players[1], rank: 0));
+    expect(sut.ranks, HasRankOccupant(players[0], rank: 1));
+    expect(sut.ranks, HasRankOccupant(players[2], rank: 2));
   });
 
   test('two-way tie-break via overall points', () {
@@ -365,11 +365,11 @@ void main() {
     arrangeScore(players[1], players[2], (21, 0), (21, 0), null, matches,
         matchIndex: 1);
 
-    expect(sut.rank(), hasLength(3));
-    expect(sut.tiedRank(), hasLength(3));
+    expect(sut.ranks, hasLength(3));
+    expect(sut.createTiedRanks(), hasLength(3));
 
-    expect(sut.rank(), HasRankOccupant(players[0], rank: 0));
-    expect(sut.rank(), HasRankOccupant(players[1], rank: 1));
-    expect(sut.rank(), HasRankOccupant(players[2], rank: 2));
+    expect(sut.ranks, HasRankOccupant(players[0], rank: 0));
+    expect(sut.ranks, HasRankOccupant(players[1], rank: 1));
+    expect(sut.ranks, HasRankOccupant(players[2], rank: 2));
   });
 }

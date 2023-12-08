@@ -7,7 +7,7 @@ class BadmintonRoundRobinRanking
     extends TieableMatchRanking<Team, List<MatchSet>, BadmintonMatch> {
   /// Returns the tied ranking as it results from the matches completed so far.
   @override
-  List<List<MatchParticipant<Team>>> tiedRank() {
+  List<List<MatchParticipant<Team>>> createTiedRanks() {
     List<BadmintonMatch> finishedMatches = matches!
         .where(
           (match) =>

@@ -10,7 +10,7 @@ import 'package:tournament_mode/src/utils.dart';
 class EliminationRanking<P, S, M extends TournamentMatch<P, S>>
     extends TieableMatchRanking<P, S, M> {
   @override
-  List<List<MatchParticipant<P>>> tiedRank() {
+  List<List<MatchParticipant<P>>> createTiedRanks() {
     List<List<MatchParticipant<P>>> ranks = rounds!.reversed
         .expand((round) => _rankRound(round))
         .where((rank) => rank.isNotEmpty)

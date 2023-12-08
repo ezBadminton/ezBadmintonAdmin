@@ -14,7 +14,7 @@ import 'package:tournament_mode/src/tournament_match.dart';
 /// If `m` groups have less members then the last place is a block of
 /// only `n-m` participants.
 class GroupPhaseRanking<P, S, M extends TournamentMatch<P, S>>
-    implements Ranking<P> {
+    extends Ranking<P> {
   /// Creates a [GroupPhaseRanking] for the [groups].
   GroupPhaseRanking(this.groups) {
     _createRanks();
@@ -25,7 +25,7 @@ class GroupPhaseRanking<P, S, M extends TournamentMatch<P, S>>
   List<MatchParticipant<P>>? _ranks;
 
   @override
-  List<MatchParticipant<P>> rank() => _ranks!;
+  List<MatchParticipant<P>> createRanks() => _ranks!;
 
   void _createRanks() {
     List<List<MatchParticipant<P>>> groupRankings =

@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:tournament_mode/src/match_participant.dart';
 import 'package:tournament_mode/src/modes/group_phase.dart';
 import 'package:tournament_mode/src/modes/single_elimination.dart';
 import 'package:tournament_mode/src/ranking.dart';
@@ -75,5 +76,33 @@ abstract class TournamentMode<P, S, M extends TournamentMatch<P, S>> {
         .where(
           (m) => m.a.resolvePlayer() == player || m.b.resolvePlayer() == player,
         );
+  }
+
+  /// Freeze all rankings of this tournament.
+  ///
+  /// Particularly this includes the [entries], the [finalRanking] and all
+  /// rankings that are used in a [MatchParticipant.fromPlacement].
+  ///
+  /// This should be done after the tournament's match results have been loaded
+  /// into the matches from storage.
+  ///
+  /// Without frozen rankings every call to [MatchParticipant.resolvePlayer]
+  /// triggers a full recalculation of the ranking chain that leads to
+  /// the qualification of the participant. This can become very expensive when
+  /// the tournament mode is being displayed and every participant potentially
+  /// needs to be resolved multiple times.
+  void freezeRankings() {
+    Set<Ranking> rankings = matches
+        .expand(
+            (match) => [match.a.placement?.ranking, match.b.placement?.ranking])
+        .whereType<Ranking>()
+        .toSet();
+
+    rankings.add(entries);
+    rankings.add(finalRanking);
+
+    for (Ranking ranking in rankings) {
+      ranking.freezeRanks();
+    }
   }
 }

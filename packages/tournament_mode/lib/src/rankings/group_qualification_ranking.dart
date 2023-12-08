@@ -42,8 +42,8 @@ class GroupQualificationRanking<P> extends RankingDecorator<P> {
   late final List<int> _groupKnockoutSeeds;
 
   @override
-  List<MatchParticipant<P>> rank() {
-    List<MatchParticipant<P>> groupResults = targetRanking.rank();
+  List<MatchParticipant<P>> createRanks() {
+    List<MatchParticipant<P>> groupResults = targetRanking.ranks;
 
     List<MatchParticipant<P>> seeds = List.generate(
       numGroups * qualificationsPerGroup,

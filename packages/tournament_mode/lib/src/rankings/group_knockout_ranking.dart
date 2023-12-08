@@ -6,8 +6,7 @@ import 'package:tournament_mode/src/tournament_match.dart';
 import 'package:tournament_mode/src/utils.dart';
 
 class GroupKnockoutRanking<P, S, M extends TournamentMatch<P, S>>
-    with TieableRanking<P>
-    implements Ranking<P> {
+    extends Ranking<P> with TieableRanking<P> {
   GroupKnockoutRanking({
     required this.groupKnockout,
   });
@@ -21,10 +20,10 @@ class GroupKnockoutRanking<P, S, M extends TournamentMatch<P, S>>
       SingleElimination<P, S, M>> groupKnockout;
 
   @override
-  List<List<MatchParticipant<P>>> tiedRank() {
+  List<List<MatchParticipant<P>>> createTiedRanks() {
     List<List<List<MatchParticipant<P>>>> groupRanks = groupKnockout
         .groupPhase.groupRoundRobins
-        .map((r) => r.finalRanking.tiedRank())
+        .map((r) => r.finalRanking.tiedRanks)
         .toList();
 
     int maxLength = groupRanks.fold(
@@ -46,7 +45,7 @@ class GroupKnockoutRanking<P, S, M extends TournamentMatch<P, S>>
     );
 
     List<List<MatchParticipant<P>>> knockOutRanks =
-        groupKnockout.knockoutPhase.finalRanking.tiedRank();
+        groupKnockout.knockoutPhase.finalRanking.tiedRanks;
 
     List<List<MatchParticipant<P>>> overallRanks = [
       ...knockOutRanks,

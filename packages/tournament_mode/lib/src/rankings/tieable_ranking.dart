@@ -4,50 +4,59 @@ import 'package:tournament_mode/src/ranking.dart';
 
 /// A [Ranking] that possibly has multiple participants on a single rank (ties).
 mixin TieableRanking<P> implements Ranking<P> {
+  @override
+  List<MatchParticipant<P>> get ranks => tiedRanks.flattened.toList();
+
+  List<List<MatchParticipant<P>>>? _frozenTiedRanks;
+
+  List<List<MatchParticipant<P>>> get tiedRanks =>
+      _frozenTiedRanks ?? createTieBrokenRanks();
+
+  @override
+  void freezeRanks() {
+    _frozenTiedRanks = createTieBrokenRanks();
+  }
+
   /// Returns a list of lists of [MatchParticipant]s ordered by rank.
   ///
   /// A list with multiple [MatchParticipant]s in it means they are tied and
   /// occupy the same rank.
-  List<List<MatchParticipant<P>>> tiedRank();
+  List<List<MatchParticipant<P>>> createTiedRanks();
 
   @override
-  List<MatchParticipant<P>> rank() {
-    if (blockingTies.isNotEmpty) {
-      return [];
-    }
-    return tieBreakingRank().expand((tie) => tie).toList();
+  List<MatchParticipant<P>> createRanks() {
+    return createTieBrokenRanks().flattened.toList();
   }
 
-  /// Returns the [tiedRank] but with the [tieBreakers] applied.
+  /// Returns the ranks from [createTiedRanks] but with the [tieBreakers]
+  /// applied.
   ///
   /// This does not guarantee no ties as the [tieBreakers] could be empty
   /// or do not contain breakers for all ties.
-  List<List<MatchParticipant<P>>> tieBreakingRank() {
-    return tiedRank().expand((tie) => _tryTieBreak(tie)).toList();
+  List<List<MatchParticipant<P>>> createTieBrokenRanks() {
+    return createTiedRanks().expand((tie) => _tryTieBreak(tie)).toList();
   }
 
   /// Add [Ranking]s to this list that rank the participants who are tied.
-  /// The [tieBreakingRank] method will use them to break the ties.
+  /// The [createTieBrokenRanks] method will use them to break the ties.
   ///
   /// For example this could contain the result of a coin toss or a
   /// tie-breaker match.
   List<Ranking<P>> tieBreakers = [];
 
-  /// Set this to guarantee that the output from [rank] has no ties in the
+  /// Set this to check that the output from [createRanks] has no ties in the
   /// first [requiredUntiedRanks].
-  ///
-  /// While that is not the case [rank] will return empty.
   ///
   /// The ties that are blocking this requirement can be read from
   /// the [blockingTies] property.
   ///
   /// This does not guarantee that this many ranks exist. If less ranks exist
-  /// that have no ties they will be returned by [rank].
+  /// that have no ties they will be returned by [createRanks].
   int requiredUntiedRanks = 0;
 
   /// Returns the ties that need to be broken in order to fulfill
   /// [requiredUntiedRanks].
-  List<List<MatchParticipant<P>>> get blockingTies => tieBreakingRank()
+  List<List<MatchParticipant<P>>> get blockingTies => createTieBrokenRanks()
       .whereIndexed(
           (index, tie) => tie.length > 1 && index < requiredUntiedRanks)
       .toList();
@@ -62,7 +71,7 @@ mixin TieableRanking<P> implements Ranking<P> {
 
     for (Ranking<P> tieBreaker in tieBreakers) {
       List<P> tieBreakerRanks = tieBreaker
-          .rank()
+          .createRanks()
           .where((participant) => participant.resolvePlayer() != null)
           .map((participant) => participant.resolvePlayer()!)
           .toList();
@@ -88,12 +97,12 @@ mixin TieableRanking<P> implements Ranking<P> {
 
   /// Returns a list of all current unbroken ties
   List<List<MatchParticipant<P>>> get ties =>
-      tieBreakingRank().where((tie) => tie.length > 1).toList();
+      createTieBrokenRanks().where((tie) => tie.length > 1).toList();
 
   /// Is true while at least one rank is occupied by more than one participant
   /// because they are tied and none of the [tieBreakers] apply.
   bool get hasTies =>
-      tieBreakingRank().firstWhereOrNull((tie) => tie.length > 1) != null;
+      createTieBrokenRanks().firstWhereOrNull((tie) => tie.length > 1) != null;
 
   /// See [hasTies]
   bool get hasNoTies => !hasTies;

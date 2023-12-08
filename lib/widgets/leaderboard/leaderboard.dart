@@ -24,7 +24,7 @@ class Leaderboard extends StatelessWidget {
   }
 
   Map<MatchParticipant<Team>, int?> _createRanks() {
-    List<MatchParticipant<Team>> rankList = ranking.rank();
+    List<MatchParticipant<Team>> rankList = ranking.ranks;
 
     Map<MatchParticipant<Team>, int?> ranks = Map.fromEntries(
       rankList.mapIndexed((index, participant) => MapEntry(participant, index)),
@@ -35,7 +35,7 @@ class Leaderboard extends StatelessWidget {
 
   Map<MatchParticipant<Team>, int?> _createTieableRanks() {
     List<List<MatchParticipant<Team>>> rankList =
-        (ranking as TieableRanking<Team>).tiedRank();
+        (ranking as TieableRanking<Team>).tiedRanks;
 
     List<int> rankIndices = TieableRanking.getRankIndices(rankList);
 

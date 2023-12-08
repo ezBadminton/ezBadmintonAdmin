@@ -52,7 +52,7 @@ class GroupPhase<P, S, M extends TournamentMatch<P, S>,
   GroupPhaseRanking<P, S, M> get finalRanking => _finalRanking;
 
   void _createMatches() {
-    List<MatchParticipant<P>> participants = entries.rank();
+    List<MatchParticipant<P>> participants = entries.ranks;
 
     List<List<MatchParticipant<P>>> groups =
         _createSeededGroups(participants, numGroups);

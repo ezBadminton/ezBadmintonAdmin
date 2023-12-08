@@ -5,7 +5,7 @@ import 'package:collection/collection.dart';
 
 /// A ranking based on match results.
 abstract class MatchRanking<P, S, M extends TournamentMatch<P, S>>
-    implements Ranking<P> {
+    extends Ranking<P> {
   List<List<M>>? _rounds;
   List<List<M>>? get rounds => _rounds;
   Iterable<M>? get matches => _rounds?.expand((round) => round);

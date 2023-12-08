@@ -81,7 +81,7 @@ class _RoundRobinLeaderboard extends StatelessWidget {
     BadmintonRoundRobinRanking ranking =
         tournament.finalRanking as BadmintonRoundRobinRanking;
 
-    List<List<MatchParticipant<Team>>> ranks = ranking.tiedRank();
+    List<List<MatchParticipant<Team>>> ranks = ranking.tiedRanks;
     List<int> rankIndicies = TieableRanking.getRankIndices(ranks);
     Map<Team, RoundRobinStats> stats = ranking.getStats();
 

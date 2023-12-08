@@ -60,7 +60,7 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
   ) {
     var l10n = AppLocalizations.of(context)!;
     List<MatchParticipant> finalGroupRanking =
-        tournament.groupPhase.finalRanking.rank();
+        tournament.groupPhase.finalRanking.ranks;
 
     Map<MatchParticipant, String> placeholders = {
       for (int place = 0; place < tournament.qualificationsPerGroup; place += 1)

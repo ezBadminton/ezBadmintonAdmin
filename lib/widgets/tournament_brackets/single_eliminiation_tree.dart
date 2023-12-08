@@ -38,7 +38,7 @@ class SingleEliminationTree extends StatelessWidget
     List<List<Widget>> matchNodes = [];
 
     Size matchNodeSize = Size(
-      bracket_widths.singleEliminationNodeWith,
+      bracket_widths.singleEliminationNodeWidth,
       competition.teamSize == 1 ? 80 : 118,
     );
 
@@ -49,7 +49,7 @@ class SingleEliminationTree extends StatelessWidget
           match: match,
           isEditable: isEditable,
           placeholderLabels: placeholderLabels,
-          showResult: true,
+          showResult: showResults,
           width: matchNodeSize.width,
         );
 

@@ -22,7 +22,7 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
   /// in the first round.
   ///
   /// The rounded up binary logarithm of the amount of seeded players
-  /// (length of [Ranking.rank]) determines the number of rounds. In other words
+  /// (length of [Ranking.ranks]) determines the number of rounds. In other words
   /// a minimum complete tournament tree is always constructed.
   SingleElimination({
     required Ranking<P> seededEntries,
@@ -56,7 +56,7 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
   final TieableMatchRanking<P, S, M> finalRanking;
 
   void _createMatches() {
-    _participants = entries.rank();
+    _participants = entries.ranks;
 
     assert(_participants.length > 1);
 
@@ -297,7 +297,7 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
 }
 
 /// A ranking with a number of ranks that is a power of two.
-class _BinaryRanking<P> implements Ranking<P> {
+class _BinaryRanking<P> extends Ranking<P> {
   /// Decorates the given [targetRanking] by padding the rank list with
   /// [MatchParticipant.bye] until the number of ranks reaches a power of two.
   ///
@@ -308,8 +308,8 @@ class _BinaryRanking<P> implements Ranking<P> {
   final Ranking<P> targetRanking;
 
   @override
-  List<MatchParticipant<P>> rank() {
-    List<MatchParticipant<P>> targetRanks = targetRanking.rank();
+  List<MatchParticipant<P>> createRanks() {
+    List<MatchParticipant<P>> targetRanks = targetRanking.ranks;
     int numRanks = targetRanks.length;
 
     int padding = _nextPowerOfTwo(numRanks) - numRanks;
