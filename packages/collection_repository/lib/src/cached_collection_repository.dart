@@ -149,10 +149,14 @@ class CachedCollectionRepository<M extends Model>
       updateEvent,
     );
     for (M model in updatedModels) {
+      bool isFinalRelation = model == updatedModels.last;
+      bool isFinal =
+          isFinalRelation && (!updateEvent.isMulti || updateEvent.isFinalMulti);
+
       _updateCache(
         model,
-        isMulti: updateEvent.isMulti,
-        isFinalMulti: updateEvent.isFinalMulti,
+        isMulti: true,
+        isFinalMulti: isFinal,
       );
     }
   }

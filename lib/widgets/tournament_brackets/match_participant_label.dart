@@ -146,6 +146,7 @@ class _MatchParticipantLabel extends StatelessWidget {
       );
     } else {
       label = Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           if (leadingWidget != null) leadingWidget!,
           Expanded(

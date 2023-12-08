@@ -1,12 +1,14 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
+import 'package:ez_badminton_admin_app/layout/elimination_tree/elimination_tree_layout.dart';
+import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section.dart';
-import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section_subtree.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bracket.dart';
-import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_elimination_match_node.dart';
 import 'package:flutter/material.dart';
 import 'package:tournament_mode/tournament_mode.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'bracket_widths.dart' as bracket_widths;
 
 class SingleEliminationTree extends StatelessWidget
     implements SectionedBracket {
@@ -33,42 +35,34 @@ class SingleEliminationTree extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> roundNodes = [];
+    List<List<Widget>> matchNodes = [];
+
+    Size matchNodeSize = Size(
+      bracket_widths.singleEliminationNodeWith,
+      competition.teamSize == 1 ? 80 : 118,
+    );
 
     for (EliminationRound<BadmintonMatch> round in rounds) {
-      bool isFirst = rounds.first == round;
-      bool isLast = rounds.last == round;
+      List<Widget> roundMatchNodes =
+          round.matches.mapIndexed((matchIndex, match) {
+        Widget matchCard = MatchupCard(
+          match: match,
+          isEditable: isEditable,
+          placeholderLabels: placeholderLabels,
+          showResult: true,
+          width: matchNodeSize.width,
+        );
 
-      roundNodes.add(
-        BracketSectionSubtree(
-          tournamentDataObject: round,
-          child: Column(
-            children: List.generate(
-              round.matches.length,
-              (index) => Expanded(
-                child: SingleEliminationMatchNode(
-                  match: round.matches[index],
-                  teamSize: competition.teamSize,
-                  matchIndex: index,
-                  isFirstRound: isFirst,
-                  isLastRound: isLast,
-                  isEditable: isEditable,
-                  showResult: showResults,
-                  placeholderLabels: placeholderLabels,
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
+        return matchCard;
+      }).toList();
+
+      matchNodes.add(roundMatchNodes);
     }
 
-    return IntrinsicHeight(
-      child: Row(
-        children: [
-          for (Widget round in roundNodes) round,
-        ],
-      ),
+    return EliminationTreeLayout(
+      matchNodes: matchNodes,
+      matchNodeSize: matchNodeSize,
+      roundGapWidth: bracket_widths.singleEliminationRoundGap,
     );
   }
 
@@ -76,7 +70,7 @@ class SingleEliminationTree extends StatelessWidget
       List<EliminationRound<BadmintonMatch>> rounds) {
     return rounds.map((round) {
       return BracketSection(
-        tournamentDataObject: round,
+        tournamentDataObjects: round.matches,
         labelBuilder: (context) =>
             AppLocalizations.of(context)!.roundOfN('${round.roundSize}'),
       );

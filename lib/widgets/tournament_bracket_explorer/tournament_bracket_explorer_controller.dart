@@ -3,9 +3,9 @@ import 'dart:math';
 import 'package:ez_badminton_admin_app/utils/animated_transformation_controller/animated_transformation_controller.dart';
 import 'package:ez_badminton_admin_app/utils/aspect_ratios.dart'
     as aspect_ratios;
+import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:vector_math/vector_math_64.dart';
 
 // The controller uses this size when the tournament bracket has not been
 // rendered and its size is not yet known
@@ -57,25 +57,27 @@ class TournamentBracketExplorerController
     }
   }
 
-  void focusGlobalKey(GlobalKey key) {
-    RenderObject? viewRenderObject =
-        bracketViewKey.currentContext?.findRenderObject();
-
-    RenderBox? renderBox =
-        (key.currentContext?.findRenderObject() as RenderBox?);
-
-    if (viewRenderObject == null ||
-        renderBox == null ||
-        viewConstraints == null) {
+  void focusGlobalKeys(List<GlobalKey> keys) {
+    if (keys.isEmpty) {
       return;
     }
 
-    Vector3 translation =
-        renderBox.getTransformTo(viewRenderObject).getTranslation();
+    RenderObject? viewRenderObject =
+        bracketViewKey.currentContext?.findRenderObject();
 
-    Offset widgetCenter =
-        renderBox.paintBounds.translate(translation.x, translation.y).center;
-    Size widgetSize = renderBox.paintBounds.size;
+    if (viewRenderObject == null || viewConstraints == null) {
+      return;
+    }
+
+    Rect? enclosingRect =
+        BracketSection.getEnclosingRect(keys, viewRenderObject);
+
+    if (enclosingRect == null) {
+      return;
+    }
+
+    Offset widgetCenter = enclosingRect.center;
+    Size widgetSize = enclosingRect.size;
 
     Size viewSize = viewConstraints!.biggest;
 

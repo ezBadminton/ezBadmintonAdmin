@@ -6,7 +6,9 @@ import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/tournament_bracket_explorer_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vector_math/vector_math_64.dart';
+
+const double _height = 30;
+const double _indicatorHeigt = 2;
 
 class BracketSectionNavigator extends StatefulWidget {
   BracketSectionNavigator({
@@ -73,11 +75,8 @@ class _BracketSectionNavigatorState extends State<BracketSectionNavigator> {
 
   @override
   Widget build(BuildContext context) {
-    const double height = 30;
-    const double indicatorHeigt = 2;
-
     if (_sectionRects == null) {
-      return const SizedBox(height: height + indicatorHeigt);
+      return const SizedBox(height: _height + _indicatorHeigt);
     }
 
     double totalSectionWidth = _getTotalSectionWidth();
@@ -95,34 +94,14 @@ class _BracketSectionNavigatorState extends State<BracketSectionNavigator> {
                     _getDistanceToNextSection(section);
 
                 return [
-                  Container(
-                    color: Theme.of(context).scaffoldBackgroundColor,
-                    height: height,
-                    width: widthScale * sectionWidth,
-                    child: Container(
-                      color: Theme.of(context).highlightColor.withOpacity(.2),
-                      child: SizedBox.expand(
-                        child: TextButton(
-                          onPressed: () {
-                            widget.viewController.focusGlobalKey(
-                              GlobalObjectKey(section.tournamentDataObject),
-                            );
-                          },
-                          child: Text(
-                            section.labelBuilder(context),
-                            style: const TextStyle(
-                              fontSize: 12,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  _SectionButton(
+                      width: widthScale * sectionWidth,
+                      controller: widget.viewController,
+                      section: section),
                   if (distanceToNextSection != null)
                     Container(
                       color: Theme.of(context).scaffoldBackgroundColor,
-                      height: height,
+                      height: _height,
                       width: widthScale * distanceToNextSection,
                     ),
                 ];
@@ -132,7 +111,7 @@ class _BracketSectionNavigatorState extends State<BracketSectionNavigator> {
         ),
         _SectionIndicator(
           width: widget.viewController.viewConstraints!.maxWidth,
-          height: indicatorHeigt,
+          height: _indicatorHeigt,
         ),
       ],
     );
@@ -150,23 +129,19 @@ class _BracketSectionNavigatorState extends State<BracketSectionNavigator> {
       widget.sections
           .map(
             (section) {
-              GlobalKey key = GlobalObjectKey(section.tournamentDataObject);
+              List<GlobalKey> keys = section.tournamentDataObjects
+                  .map(
+                    (tournamentDataObject) =>
+                        GlobalObjectKey(tournamentDataObject),
+                  )
+                  .toList();
 
-              RenderBox? renderBox =
-                  key.currentContext?.findRenderObject() as RenderBox?;
-
-              bool hasSize = renderBox?.hasSize ?? false;
-
-              Rect? sectionRect = hasSize ? renderBox!.semanticBounds : null;
+              Rect? sectionRect =
+                  BracketSection.getEnclosingRect(keys, viewRenderObject);
 
               if (sectionRect == null) {
                 return null;
               }
-
-              Vector3 translation =
-                  renderBox!.getTransformTo(viewRenderObject).getTranslation();
-
-              sectionRect = sectionRect.translate(translation.x, translation.y);
 
               return MapEntry<BracketSection, Rect>(section, sectionRect);
             },
@@ -204,6 +179,50 @@ class _BracketSectionNavigatorState extends State<BracketSectionNavigator> {
         sectionRects[sectionIndex + 1].left - sectionRects[sectionIndex].right;
 
     return distance;
+  }
+}
+
+class _SectionButton extends StatelessWidget {
+  const _SectionButton({
+    required this.width,
+    required this.controller,
+    required this.section,
+  });
+
+  final double width;
+  final TournamentBracketExplorerController controller;
+  final BracketSection section;
+
+  @override
+  Widget build(BuildContext context) {
+    List<GlobalKey> keys = section.tournamentDataObjects
+        .map(
+          (tournamentDataObject) => GlobalObjectKey(tournamentDataObject),
+        )
+        .toList();
+
+    return Container(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      height: _height,
+      width: width,
+      child: Container(
+        color: Theme.of(context).highlightColor.withOpacity(.2),
+        child: SizedBox.expand(
+          child: TextButton(
+            onPressed: () {
+              controller.focusGlobalKeys(keys);
+            },
+            child: Text(
+              section.labelBuilder(context),
+              style: const TextStyle(
+                fontSize: 12,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 

@@ -72,11 +72,13 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
     return placeholders;
   }
 
-  static List<BracketSection> getSections(BadmintonGroupKnockout tournament) {
+  static List<BracketSection> getSections(
+    BadmintonGroupKnockout tournament,
+  ) {
     Iterable<BracketSection> groupSections =
         tournament.groupPhase.groupRoundRobins.mapIndexed(
       (index, group) => BracketSection(
-        tournamentDataObject: group,
+        tournamentDataObjects: [group],
         labelBuilder: (context) =>
             AppLocalizations.of(context)!.groupNumber(index + 1),
       ),
@@ -85,7 +87,7 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
     Iterable<BracketSection> eliminationSections =
         tournament.knockoutPhase.rounds.map(
       (round) => BracketSection(
-        tournamentDataObject: round,
+        tournamentDataObjects: round.matches,
         labelBuilder: (context) =>
             AppLocalizations.of(context)!.roundOfN('${round.roundSize}'),
       ),

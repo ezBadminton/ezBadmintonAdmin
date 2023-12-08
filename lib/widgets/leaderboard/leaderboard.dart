@@ -158,14 +158,13 @@ class ProvisionalLeaderboardInfo extends StatelessWidget {
       ),
       child: IntrinsicHeight(
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SizedBox(
               width: 35,
-              child: SizedBox.expand(
-                child: Container(
-                  color: Theme.of(context).primaryColor.withOpacity(.33),
-                  child: const Icon(Icons.info_outline),
-                ),
+              child: Container(
+                color: Theme.of(context).primaryColor.withOpacity(.33),
+                child: const Icon(Icons.info_outline),
               ),
             ),
             Expanded(

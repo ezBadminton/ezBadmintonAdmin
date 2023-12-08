@@ -173,10 +173,12 @@ class MatchupCard extends StatelessWidget {
           width: 2,
         ),
       ),
-      child: IntrinsicHeight(
-        child: SizedBox(
-          width: width,
+      child: SizedBox(
+        width: width,
+        child: IntrinsicHeight(
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
             children: [
               _WalkoverInfo(match: match),
               _ScoreEditButton(match: match),
@@ -403,21 +405,19 @@ class _ScoreEditButton extends StatelessWidget {
           message: l10n.editResult,
           child: SizedBox(
             width: 36,
-            child: SizedBox.expand(
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(padding: EdgeInsets.zero),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (context) => ResultInputDialog(
-                      match: match,
-                      tournamentProgressCubit: progressCubit,
-                    ),
-                  );
-                },
-                child: const Icon(Icons.edit),
-              ),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(padding: EdgeInsets.zero),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) => ResultInputDialog(
+                    match: match,
+                    tournamentProgressCubit: progressCubit,
+                  ),
+                );
+              },
+              child: const Icon(Icons.edit),
             ),
           ),
         );
@@ -444,11 +444,9 @@ class _WalkoverInfo extends StatelessWidget {
     return Container(
       width: 30,
       color: Theme.of(context).disabledColor.withOpacity(.13),
-      child: SizedBox.expand(
-        child: HelpTooltipIcon(
-          helpText: l10n.walkover,
-          icon: Icons.info_outline,
-        ),
+      child: HelpTooltipIcon(
+        helpText: l10n.walkover,
+        icon: Icons.info_outline,
       ),
     );
   }

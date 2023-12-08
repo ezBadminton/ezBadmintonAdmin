@@ -29,7 +29,7 @@ class ResultExplorer extends StatelessWidget {
             current.tabChangeReason != null && current.selectedIndex == 5,
         listener: (context, navigationState) => _handleSectionFocusRequest(
           context,
-          navigationState.tabChangeReason!,
+          navigationState.tabChangeReason as List<Object>,
         ),
         child:
             BlocBuilder<CompetitionSelectionCubit, CompetitionSelectionState>(
@@ -80,9 +80,9 @@ class ResultExplorer extends StatelessWidget {
 
   void _handleSectionFocusRequest(
     BuildContext context,
-    Object tournamentDataObject,
+    List<Object> tournamentDataObjects,
   ) {
-    Competition? competition = switch (tournamentDataObject) {
+    Competition? competition = switch (tournamentDataObjects.first) {
       BadmintonMatch match => match.competition,
       _ => null,
     };
@@ -96,11 +96,15 @@ class ResultExplorer extends StatelessWidget {
         context.read<TournamentBracketExplorerControllerCubit>();
 
     selectionCubit.competitionSelected(competition);
+
+    List<GlobalKey> keys = tournamentDataObjects
+        .map((tournamentDataObject) => GlobalObjectKey(tournamentDataObject))
+        .toList();
+
     Future.delayed(
       const Duration(milliseconds: 100),
-      () => controllerCubit.getViewController(competition).focusGlobalKey(
-            GlobalObjectKey(tournamentDataObject),
-          ),
+      () =>
+          controllerCubit.getViewController(competition).focusGlobalKeys(keys),
     );
   }
 }
