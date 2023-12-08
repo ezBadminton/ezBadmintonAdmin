@@ -85,20 +85,33 @@ class PlayerStatusCubit extends CollectionQuerierCubit<PlayerStatusState>
 
     // The walkovers in each registered tournament
     Map<CompetitionRegistration, List<BadmintonMatch>> walkovers =
-        tournamentsOfPlayer.map(
-      (registration, tournament) => MapEntry(
-        registration,
-        tournament
-            .withdrawPlayer(registration.team)
-            .whereNot(
-              (match) =>
-                  match.matchData!.withdrawnTeams.contains(registration.team),
-            )
-            .toList(),
-      ),
+        Map.fromEntries(
+      tournamentsOfPlayer.entries.map(
+        (tournamentEntry) {
+          CompetitionRegistration registration = tournamentEntry.key;
+          BadmintonTournamentMode tournament = tournamentEntry.value;
+
+          List<BadmintonMatch> withdrawnMatches = tournament
+              .withdrawPlayer(registration.team)
+              .whereNot(
+                (match) =>
+                    match.matchData!.withdrawnTeams.contains(registration.team),
+              )
+              .toList();
+
+          if (withdrawnMatches.isEmpty) {
+            return null;
+          }
+
+          return MapEntry(
+            registration,
+            withdrawnMatches,
+          );
+        },
+      ).whereType<MapEntry<CompetitionRegistration, List<BadmintonMatch>>>(),
     );
 
-    if (walkovers.values.expand((matches) => matches).isEmpty) {
+    if (walkovers.isEmpty) {
       return FormzSubmissionStatus.success;
     }
 

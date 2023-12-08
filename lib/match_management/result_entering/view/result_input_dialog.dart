@@ -106,6 +106,7 @@ class ResultInputDialog extends StatelessWidget {
                     onPressed: () => Navigator.of(context).pop(),
                     child: Text(l10n.cancel),
                   ),
+                  const SizedBox(width: 15),
                   ElevatedButton(
                     focusNode: cubit.submitButtonFocusNode,
                     onPressed: state.winningParticipantIndex == null
