@@ -473,6 +473,7 @@ class _TournamentModeLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
     bool hasModeAssigned = competition.tournamentModeSettings != null;
+    bool hasCompetitionStarted = competition.matches.isNotEmpty;
     String label;
 
     if (hasModeAssigned) {
@@ -484,26 +485,39 @@ class _TournamentModeLabel extends StatelessWidget {
       label = l10n.assign;
     }
 
-    return Tooltip(
-      message: _getModeTooltip(l10n),
-      child: TextButton(
+    Widget labelWidget;
+    Widget text = Text(
+      label,
+      style: TextStyle(
+        color: hasModeAssigned
+            ? null
+            : Theme.of(context).primaryColor.withOpacity(.4),
+        //fontWeight: FontWeight.w600,
+      ),
+    );
+
+    if (hasCompetitionStarted) {
+      labelWidget = text;
+    } else {
+      labelWidget = TextButton(
         onPressed: () {
           Navigator.of(context).push(
             TournamentModeAssignmentPage.route([competition]),
           );
         },
+        style: TextButton.styleFrom(
+          padding: EdgeInsets.zero,
+        ),
         child: Align(
           alignment: AlignmentDirectional.centerStart,
-          child: Text(
-            label,
-            style: TextStyle(
-              color: hasModeAssigned
-                  ? null
-                  : Theme.of(context).primaryColor.withOpacity(.4),
-            ),
-          ),
+          child: text,
         ),
-      ),
+      );
+    }
+
+    return Tooltip(
+      message: _getModeTooltip(l10n),
+      child: labelWidget,
     );
   }
 

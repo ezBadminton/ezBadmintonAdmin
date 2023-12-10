@@ -152,6 +152,7 @@
   "assign": "Assign",
   "assignTournamentMode": "Assign tournament mode",
   "changeTournamentMode": "Change tournament mode",
+  "tournamentModeCantBeAssigned": "Tournament mode can't be change on a running competition",
   "roundRobin": "Round robin",
   "singleElimination": "Single elimination",
   "doubleElimination": "Double elimination",

@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_deletion_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_selection_cubit.dart';
@@ -5,6 +6,7 @@ import 'package:ez_badminton_admin_app/competition_management/cubit/competition_
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/view/tournament_mode_assignment_page.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
 import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
+import 'package:ez_badminton_admin_app/widgets/long_tooltip/long_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -147,16 +149,41 @@ class _AssignTournamentModeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    return ElevatedButton(
-      onPressed: selectedCompetitions.isEmpty
-          ? null
-          : () {
+
+    bool isModeAssignable = _isModeAssignable(selectedCompetitions);
+
+    Widget button = ElevatedButton(
+      onPressed: isModeAssignable
+          ? () {
               Navigator.of(context).push(
                 TournamentModeAssignmentPage.route(selectedCompetitions),
               );
-            },
+            }
+          : null,
       child: Text(l10n.assignTournamentMode),
     );
+
+    if (isModeAssignable) {
+      return button;
+    } else {
+      return LongTooltip(
+        message: l10n.tournamentModeCantBeAssigned,
+        child: button,
+      );
+    }
+  }
+
+  bool _isModeAssignable(List<Competition> competitions) {
+    if (competitions.isEmpty) {
+      return false;
+    }
+
+    bool areAllCompetitionsNotRunning = competitions.firstWhereOrNull(
+          (competition) => competition.matches.isNotEmpty,
+        ) ==
+        null;
+
+    return areAllCompetitionsNotRunning;
   }
 }
 

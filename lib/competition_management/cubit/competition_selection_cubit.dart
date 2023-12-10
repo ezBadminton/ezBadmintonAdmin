@@ -41,9 +41,9 @@ class CompetitionSelectionCubit
     );
   }
 
-  void displayCompetitionsChanged(List<Competition> displayCompeitions) {
+  void displayCompetitionsChanged(List<Competition> displayCompetitions) {
     CompetitionSelectionState updatedState =
-        state.copyWith(displayCompetitions: displayCompeitions);
+        state.copyWith(displayCompetitions: displayCompetitions);
     updatedState = _updateSelection(updatedState);
     emit(updatedState);
   }

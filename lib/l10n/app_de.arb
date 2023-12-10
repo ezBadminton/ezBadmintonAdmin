@@ -151,6 +151,7 @@
   "count": "Mitzählen",
   "assign": "Festlegen",
   "assignTournamentMode": "Turniermodus festlegen",
+  "tournamentModeCantBeAssigned": "Turniermodus kann bei laufenden Disziplinen nicht geändert werden",
   "changeTournamentMode": "Turniermodus ändern",
   "roundRobin": "Jeder gegen Jeden",
   "singleElimination": "KO-System",
