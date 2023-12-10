@@ -200,6 +200,32 @@ class _CompetitionDeleteButton extends StatelessWidget {
     var deletionCubit = context.read<CompetitionDeletionCubit>();
     return BlocBuilder<CompetitionDeletionCubit, CompetitionDeletionState>(
       builder: (context, state) {
+        Widget buttonWithTooltip;
+        Widget button = TextButton(
+          onPressed: state.formStatus != FormzSubmissionStatus.inProgress &&
+                  state.isSelectionDeletable
+              ? deletionCubit.deleteSelectedCompetitions
+              : null,
+          style: TextButton.styleFrom(
+            foregroundColor: Theme.of(context)
+                .colorScheme
+                .error
+                .withOpacity(.65), // Text Color
+          ),
+          child: Text(
+            l10n.deleteSubject(l10n.competition(2)),
+          ),
+        );
+
+        if (state.isSelectionDeletable) {
+          buttonWithTooltip = button;
+        } else {
+          buttonWithTooltip = LongTooltip(
+            message: l10n.competitionCantBeDeleted,
+            child: button,
+          );
+        }
+
         return DialogListener<CompetitionDeletionCubit,
             CompetitionDeletionState, bool>(
           builder: (context, state, reason) {
@@ -218,21 +244,7 @@ class _CompetitionDeleteButton extends StatelessWidget {
               content: Text(warningMessage),
             );
           },
-          child: TextButton(
-            onPressed: state.formStatus == FormzSubmissionStatus.inProgress ||
-                    selectedCompetitions.isEmpty
-                ? null
-                : deletionCubit.deleteSelectedCompetitions,
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context)
-                  .colorScheme
-                  .error
-                  .withOpacity(.65), // Text Color
-            ),
-            child: Text(
-              l10n.deleteSubject(l10n.competition(2)),
-            ),
-          ),
+          child: buttonWithTooltip,
         );
       },
     );

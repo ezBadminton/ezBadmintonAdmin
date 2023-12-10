@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/competition_management/utils/competition_queries.dart';
@@ -21,7 +22,10 @@ class CompetitionDeletionCubit
         );
 
   void selectedCompetitionsChanged(List<Competition> selectedCompetitions) {
-    emit(state.copyWith(selectedCompetitions: selectedCompetitions));
+    emit(state.copyWith(
+      selectedCompetitions: selectedCompetitions,
+      isSelectionDeletable: _isSelectionDeletable(selectedCompetitions),
+    ));
   }
 
   void deleteSelectedCompetitions() async {
@@ -50,5 +54,18 @@ class CompetitionDeletionCubit
     }
 
     emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+  }
+
+  bool _isSelectionDeletable(List<Competition> selectedCompetitions) {
+    if (selectedCompetitions.isEmpty) {
+      return false;
+    }
+
+    bool areAllCompetitionsNotRunning = selectedCompetitions.firstWhereOrNull(
+          (competition) => competition.matches.isNotEmpty,
+        ) ==
+        null;
+
+    return areAllCompetitionsNotRunning;
   }
 }
