@@ -180,7 +180,7 @@ class _ViewControlBar extends StatelessWidget {
 
     return LayoutBuilder(builder: (context, constraints) {
       bool compact = constraints.maxWidth < 560;
-      bool tiny = constraints.maxWidth < 400;
+      bool tiny = constraints.maxWidth < 410;
 
       return Center(
         child: Container(

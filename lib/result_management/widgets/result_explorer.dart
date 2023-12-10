@@ -27,9 +27,9 @@ class ResultExplorer extends StatelessWidget {
       child: BlocListener<TabNavigationCubit, TabNavigationState>(
         listenWhen: (previous, current) =>
             current.tabChangeReason != null && current.selectedIndex == 5,
-        listener: (context, navigationState) => _handleSectionFocusRequest(
+        listener: (context, navigationState) => _handleTabChangeReason(
           context,
-          navigationState.tabChangeReason as List<Object>,
+          navigationState.tabChangeReason!,
         ),
         child:
             BlocBuilder<CompetitionSelectionCubit, CompetitionSelectionState>(
@@ -78,12 +78,13 @@ class ResultExplorer extends StatelessWidget {
     );
   }
 
-  void _handleSectionFocusRequest(
+  void _handleTabChangeReason(
     BuildContext context,
-    List<Object> tournamentDataObjects,
+    Object tabChangeReason,
   ) {
-    Competition? competition = switch (tournamentDataObjects.first) {
-      BadmintonMatch match => match.competition,
+    Competition? competition = switch (tabChangeReason) {
+      Competition competition => competition,
+      List<BadmintonMatch> matchList => matchList.first.competition,
       _ => null,
     };
 
@@ -97,7 +98,13 @@ class ResultExplorer extends StatelessWidget {
 
     selectionCubit.competitionSelected(competition);
 
-    List<GlobalKey> keys = tournamentDataObjects
+    if (tabChangeReason is! List) {
+      // When the tab change reason is a list it is a list of tournament
+      // data objects which's bracket sections should be focused
+      return;
+    }
+
+    List<GlobalKey> keys = tabChangeReason
         .map((tournamentDataObject) => GlobalObjectKey(tournamentDataObject))
         .toList();
 
@@ -178,7 +185,7 @@ class _InteractiveResultExplorer extends StatelessWidget {
           return Tooltip(
             message: l10n.leaderboard,
             child: SizedBox(
-              width: 32,
+              width: 40,
               child: TextButton(
                 style: TextButton.styleFrom(
                   padding: EdgeInsets.zero,

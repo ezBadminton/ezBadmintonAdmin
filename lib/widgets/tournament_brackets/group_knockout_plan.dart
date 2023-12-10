@@ -13,9 +13,12 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
   GroupKnockoutPlan({
     super.key,
     required this.tournament,
+    required this.isEditable,
   }) : _sections = getSections(tournament);
 
   final BadmintonGroupKnockout tournament;
+
+  final bool isEditable;
 
   final List<BracketSection> _sections;
   @override
@@ -31,7 +34,7 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
     List<RoundRobinPlan> groupPlans = groupRoundRobins
         .mapIndexed((index, group) => RoundRobinPlan(
               tournament: group,
-              isEditable: true,
+              isEditable: isEditable,
               title: l10n.groupNumber(index + 1),
             ))
         .toList();

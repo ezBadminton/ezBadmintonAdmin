@@ -6,6 +6,7 @@ import 'package:ez_badminton_admin_app/draw_management/cubit/draw_editing_cubit.
 import 'package:ez_badminton_admin_app/draw_management/cubit/drawing_cubit.dart';
 import 'package:ez_badminton_admin_app/draw_management/widgets/tournament_mode_card.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/tournament_mode_hydration.dart';
+import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/utils/confirmation_cubit/confirmation_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_selection_list/cubit/competition_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
@@ -108,17 +109,20 @@ class _InteractiveDraw extends StatelessWidget {
 
     tournament.freezeRankings();
 
+    bool hasCompetitionStarted = competition.matches.isNotEmpty;
+
     Widget drawView = switch (tournament) {
       BadmintonSingleElimination tournament => SingleEliminationTree(
           rounds: tournament.rounds,
           competition: competition,
-          isEditable: true,
+          isEditable: !hasCompetitionStarted,
         ),
       BadmintonRoundRobin tournament => RoundRobinPlan(
           tournament: tournament,
         ),
       BadmintonGroupKnockout tournament => GroupKnockoutPlan(
           tournament: tournament,
+          isEditable: !hasCompetitionStarted,
         ),
       _ => const Text('No View implemented yet'),
     };
@@ -127,8 +131,9 @@ class _InteractiveDraw extends StatelessWidget {
       key: ValueKey('DrawEditor-${competition.id}'),
       competition: competition,
       tournamentBracket: drawView,
-      controlBarOptionsBuilder: (bool compact) =>
-          _ControlBarDrawOptions(compact: compact),
+      controlBarOptionsBuilder: (bool compact) => hasCompetitionStarted
+          ? _ResultLinkButton(compact: compact, competition: competition)
+          : _ControlBarDrawOptions(compact: compact),
     );
   }
 }
@@ -379,6 +384,61 @@ class _ControlBarDrawOptions extends StatelessWidget {
             );
           }
         }),
+      ),
+    );
+  }
+}
+
+class _ResultLinkButton extends StatelessWidget {
+  const _ResultLinkButton({
+    required this.compact,
+    required this.competition,
+  });
+
+  final bool compact;
+
+  final Competition competition;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+
+    var navigationCubit = context.read<TabNavigationCubit>();
+
+    onPressed() {
+      navigationCubit.tabChanged(5, reason: competition);
+    }
+
+    if (compact) {
+      return Tooltip(
+        message: l10n.result(2),
+        child: SizedBox(
+          width: 40,
+          child: TextButton(
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+            ),
+            onPressed: onPressed,
+            child: const Icon(Icons.emoji_events),
+          ),
+        ),
+      );
+    }
+
+    return TextButton(
+      onPressed: onPressed,
+      child: SizedBox(
+        width: 155,
+        child: Center(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.emoji_events),
+              const SizedBox(width: 7),
+              Text(l10n.result(2)),
+            ],
+          ),
+        ),
       ),
     );
   }
