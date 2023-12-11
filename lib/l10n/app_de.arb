@@ -91,6 +91,8 @@
   "categorizationHint": "Kategorisierung der Disziplinen in {category}. Die selbe Disziplin (z.B. Mixed) kann so mehrfach für verschiedene Spielergruppen ausgetragen werden.",
   "activatePlayingLevels": "Spielklassen verwenden",
   "activateAgeGroups": "Altersklassen verwenden",
+  "categorizationCantBeChanged": "Die Kategorisierung kann bei laufendem Turnier nicht geändert werden",
+  "categorizationCantBeEdited": "{category} können bei laufendem Turnier nicht hinzugefügt oder gelöscht werden",
   "editSubject": "{subject} bearbeiten",
   "addSubject": "{subject} hinzufügen",
   "deleteSubject": "{subject} löschen",

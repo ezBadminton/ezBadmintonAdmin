@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/widgets/info_card/info_card.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';
 import 'package:flutter/material.dart';
 import 'package:tournament_mode/tournament_mode.dart';
@@ -145,43 +146,9 @@ class ProvisionalLeaderboardInfo extends StatelessWidget {
 
     var l10n = AppLocalizations.of(context)!;
 
-    return Card(
-      elevation: 0,
-      clipBehavior: Clip.antiAlias,
-      margin: const EdgeInsets.only(bottom: 15.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.onSurface.withOpacity(.3),
-          width: 2,
-        ),
-      ),
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SizedBox(
-              width: 35,
-              child: Container(
-                color: Theme.of(context).primaryColor.withOpacity(.33),
-                child: const Icon(Icons.info_outline),
-              ),
-            ),
-            Expanded(
-              child: Container(
-                width: 380,
-                color: Theme.of(context).primaryColor.withOpacity(.1),
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Text(l10n.provisionalLeaderboardInfo),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15.0),
+      child: InfoCard(child: Text(l10n.provisionalLeaderboardInfo)),
     );
   }
 }

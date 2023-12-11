@@ -4,6 +4,8 @@ import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
 import 'package:ez_badminton_admin_app/widgets/dialogs/dropdown_selection_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/implicit_animated_list/implicit_animated_list.dart';
+import 'package:ez_badminton_admin_app/widgets/info_card/info_card.dart';
+import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,18 +32,27 @@ class AgeGroupEditingPopup extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 500),
           child: Padding(
             padding: const EdgeInsets.all(50.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  l10n.ageGroup(2),
-                  style: const TextStyle(fontSize: 22),
-                ),
-                const Divider(height: 25, indent: 20, endIndent: 20),
-                _AgeGroupForm(),
-                const Divider(height: 25, indent: 20, endIndent: 20),
-                const _AgeGroupList(),
-              ],
+            child: BlocBuilder<AgeGroupEditingCubit, AgeGroupEditingState>(
+              buildWhen: (previous, current) =>
+                  previous.loadingStatus != current.loadingStatus,
+              builder: (context, state) {
+                return LoadingScreen(
+                  loadingStatus: state.loadingStatus,
+                  builder: (context) => Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        l10n.ageGroup(2),
+                        style: const TextStyle(fontSize: 22),
+                      ),
+                      const Divider(height: 25, indent: 20, endIndent: 20),
+                      _AgeGroupForm(),
+                      const Divider(height: 25, indent: 20, endIndent: 20),
+                      const _AgeGroupList(),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
         ),
@@ -148,6 +159,7 @@ class _AgeGroupListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
     var cubit = context.read<AgeGroupEditingCubit>();
+
     return Column(
       children: [
         if (index != 0)
@@ -164,18 +176,35 @@ class _AgeGroupListItem extends StatelessWidget {
                 style: const TextStyle(fontSize: 16),
               ),
               const Expanded(child: SizedBox()),
-              Tooltip(
-                message: l10n.deleteSubject(l10n.ageGroup(1)),
-                waitDuration: const Duration(milliseconds: 600),
-                triggerMode: TooltipTriggerMode.manual,
-                child: IconButton(
-                  onPressed: () {
-                    if (deletable) {
-                      cubit.ageGroupRemoved(ageGroup);
-                    }
-                  },
-                  icon: const Icon(Icons.close),
-                ),
+              BlocBuilder<AgeGroupEditingCubit, AgeGroupEditingState>(
+                buildWhen: (previous, current) =>
+                    previous.getCollection<Competition>() !=
+                    current.getCollection<Competition>(),
+                builder: (context, state) {
+                  bool areAllCompetitionsNotRunning = cubit.state
+                          .getCollection<Competition>()
+                          .firstWhereOrNull((competition) =>
+                              competition.matches.isNotEmpty) ==
+                      null;
+
+                  if (!areAllCompetitionsNotRunning) {
+                    return const SizedBox();
+                  }
+
+                  return Tooltip(
+                    message: l10n.deleteSubject(l10n.ageGroup(1)),
+                    waitDuration: const Duration(milliseconds: 600),
+                    triggerMode: TooltipTriggerMode.manual,
+                    child: IconButton(
+                      onPressed: () {
+                        if (deletable) {
+                          cubit.ageGroupRemoved(ageGroup);
+                        }
+                      },
+                      icon: const Icon(Icons.close),
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -206,6 +235,18 @@ class _AgeGroupForm extends StatelessWidget {
         _focus.requestFocus();
       },
       builder: (context, state) {
+        bool areAllCompetitionsNotRunning = state
+                .getCollection<Competition>()
+                .firstWhereOrNull(
+                    (competition) => competition.matches.isNotEmpty) ==
+            null;
+
+        if (!areAllCompetitionsNotRunning) {
+          return InfoCard(
+            child: Text(l10n.categorizationCantBeEdited(l10n.ageGroup(2))),
+          );
+        }
+
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [

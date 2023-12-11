@@ -6,6 +6,7 @@ import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.d
 import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/dialogs/dropdown_selection_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/implicit_animated_list/reorderable_item_gap.dart';
+import 'package:ez_badminton_admin_app/widgets/info_card/info_card.dart';
 import 'package:ez_badminton_admin_app/widgets/mouse_hover_builder/mouse_hover_builder.dart';
 import 'package:ez_badminton_admin_app/widgets/implicit_animated_list/reorderable_implicit_animated_list.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
@@ -33,18 +34,26 @@ class PlayingLevelEditingPopup extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 500),
           child: Padding(
             padding: const EdgeInsets.all(50.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  l10n.playingLevel(2),
-                  style: const TextStyle(fontSize: 22),
-                ),
-                const Divider(height: 25, indent: 20, endIndent: 20),
-                _PlayingLevelForm(),
-                const Divider(height: 35, indent: 20, endIndent: 20),
-                const _PlayingLevelList(),
-              ],
+            child:
+                BlocBuilder<PlayingLevelEditingCubit, PlayingLevelEditingState>(
+              builder: (context, state) {
+                return LoadingScreen(
+                  loadingStatus: state.loadingStatus,
+                  builder: (context) => Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        l10n.playingLevel(2),
+                        style: const TextStyle(fontSize: 22),
+                      ),
+                      const Divider(height: 25, indent: 20, endIndent: 20),
+                      _PlayingLevelForm(),
+                      const Divider(height: 35, indent: 20, endIndent: 20),
+                      const _PlayingLevelList(),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
         ),
@@ -73,6 +82,18 @@ class _PlayingLevelForm extends StatelessWidget {
         _focus.requestFocus();
       },
       builder: (context, state) {
+        bool areAllCompetitionsNotRunning = state
+                .getCollection<Competition>()
+                .firstWhereOrNull(
+                    (competition) => competition.matches.isNotEmpty) ==
+            null;
+
+        if (!areAllCompetitionsNotRunning) {
+          return InfoCard(
+            child: Text(l10n.categorizationCantBeEdited(l10n.playingLevel(2))),
+          );
+        }
+
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32),
           child: Row(
@@ -428,19 +449,36 @@ class _PlayingLevelDisplayWithControls extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 15),
-            Tooltip(
-              message: l10n.deleteSubject(l10n.playingLevel(1)),
-              waitDuration: const Duration(milliseconds: 600),
-              triggerMode: TooltipTriggerMode.manual,
-              child: InkResponse(
-                radius: 16,
-                onTap: () {
-                  if (interactable) {
-                    cubit.playingLevelRemoved(playingLevel);
-                  }
-                },
-                child: const Icon(Icons.close),
-              ),
+            BlocBuilder<PlayingLevelEditingCubit, PlayingLevelEditingState>(
+              buildWhen: (previous, current) =>
+                  previous.getCollection<Competition>() !=
+                  current.getCollection<Competition>(),
+              builder: (context, state) {
+                bool areAllCompetitionsNotRunning = state
+                        .getCollection<Competition>()
+                        .firstWhereOrNull(
+                            (competition) => competition.matches.isNotEmpty) ==
+                    null;
+
+                if (!areAllCompetitionsNotRunning) {
+                  return const SizedBox();
+                }
+
+                return Tooltip(
+                  message: l10n.deleteSubject(l10n.playingLevel(1)),
+                  waitDuration: const Duration(milliseconds: 600),
+                  triggerMode: TooltipTriggerMode.manual,
+                  child: InkResponse(
+                    radius: 16,
+                    onTap: () {
+                      if (interactable) {
+                        cubit.playingLevelRemoved(playingLevel);
+                      }
+                    },
+                    child: const Icon(Icons.close),
+                  ),
+                );
+              },
             ),
           ],
         ],

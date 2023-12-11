@@ -91,6 +91,8 @@
   "categorizationHint": "Enable categorization of the competitions into {category}. This way the same competition (e.g. mixed) can be held more than once for different groups of players.",
   "activatePlayingLevels": "Use playing levels",
   "activateAgeGroups": "Use age groups",
+  "categorizationCantBeChanged": "The categorization can't be changed while the tournament is running",
+  "categorizationCantBeEdited": "{category} can't be added or removed while the tournament is running",
   "editSubject": "Edit {subject}",
   "addSubject": "Add {subject}",
   "deleteSubject": "Delete {subject}",

@@ -1,3 +1,5 @@
+import 'package:collection/collection.dart';
+import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/age_group_editing/view/age_group_editing_popup.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_categorization_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_categorization_state.dart';
@@ -7,6 +9,7 @@ import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.d
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/bloc_switch.dart';
 import 'package:ez_badminton_admin_app/widgets/help_tooltip_icon/help_tooltip_icon.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
+import 'package:ez_badminton_admin_app/widgets/long_tooltip/long_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -67,6 +70,15 @@ class _CategorizationSwitches extends StatelessWidget {
       buildWhen: (previous, current) =>
           previous.formStatus != current.formStatus,
       builder: (context, state) {
+        bool areNoCompetitionsRunning =
+            state.getCollection<Competition>().firstWhereOrNull(
+                      (competition) => competition.matches.isNotEmpty,
+                    ) ==
+                null;
+
+        bool switchesEnabled = areNoCompetitionsRunning &&
+            state.formStatus != FormzSubmissionStatus.inProgress;
+
         return Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,7 +91,7 @@ class _CategorizationSwitches extends StatelessWidget {
                 helpMessage: l10n.categorizationHint(l10n.ageGroup(2)),
                 editButtonLabel: l10n.editSubject(l10n.ageGroup(2)),
                 editWidget: const AgeGroupEditingPopup(),
-                enabled: state.formStatus != FormzSubmissionStatus.inProgress,
+                enabled: switchesEnabled,
               ),
             ),
             const SizedBox(width: 10),
@@ -91,7 +103,7 @@ class _CategorizationSwitches extends StatelessWidget {
                 helpMessage: l10n.categorizationHint(l10n.playingLevel(2)),
                 editButtonLabel: l10n.editSubject(l10n.playingLevel(2)),
                 editWidget: const PlayingLevelEditingPopup(),
-                enabled: state.formStatus != FormzSubmissionStatus.inProgress,
+                enabled: switchesEnabled,
               ),
             ),
           ],
@@ -189,14 +201,28 @@ class _CategorySwitchWithHelpIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+
+    Widget switchWithTooltip;
+    Widget categorySwitch = _CategorySwitch(
+      label: label,
+      valueGetter: valueGetter,
+      onChanged: enabled ? onChanged : (_) {},
+    );
+
+    if (enabled) {
+      switchWithTooltip = categorySwitch;
+    } else {
+      switchWithTooltip = LongTooltip(
+        message: l10n.categorizationCantBeChanged,
+        child: categorySwitch,
+      );
+    }
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _CategorySwitch(
-          label: label,
-          valueGetter: valueGetter,
-          onChanged: enabled ? onChanged : (_) {},
-        ),
+        switchWithTooltip,
         const SizedBox(width: 8),
         HelpTooltipIcon(helpText: helpMessage),
       ],
