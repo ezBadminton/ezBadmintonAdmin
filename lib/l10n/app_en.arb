@@ -220,6 +220,8 @@
   "matchOperations": "Match operations",
   "startTournament": "Start tournament",
   "startTournamentInfo": "You are about to start the tournament for the selected competitions.\nThe matches will appear on the 'Matches' tab and the tournament operations can commence!",
+  "cancelTournament": "Cancel tournament",
+  "cancelTournamentInfo": "Canceling the tournament for this competition means deleting all previously played matches and results in this competition. The tournament mode and draw for the competition can then be edited again. The deletion of the match results cannot be undone.\n\nDo you really want to cancel the tournament for this competition and delete the previous match results?",
   "somethingWentWrong": "Something went wrong",
   "tournamentCouldNotStart": "The tournament could not be started",
   "matchQueue": "Match queue",

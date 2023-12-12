@@ -220,6 +220,8 @@
   "matchOperations": "Spielbetrieb",
   "startTournament": "Turnier starten",
   "startTournamentInfo": "Du bist dabei das Turnier für die ausgewälten Disziplinen zu starten.\nDie Begegnungen werden daraufhin im 'Spiele' Tab auftauchen und der Turnierbetrieb kann beginnen!",
+  "cancelTournament": "Turnier abbrechen",
+  "cancelTournamentInfo": "Das Turnier für diese Disziplin abzubrechen bedeutet, alle bisher gespielten Spiele inkl. Ergebnisse in dieser Disziplin zu LÖSCHEN. Turniermodus und Auslosung der Disziplin können daraufhin wieder bearbeitet werden. Die Löschung der Spielergebnisse ist nicht rückgängig zu machen.\n\nMöchtest du wirklich das Turnier in dieser Disziplin abbrechen und die bisherigen Spielergebnisse löschen?",
   "somethingWentWrong": "Etwas ist schiefgelaufen",
   "tournamentCouldNotStart": "Das Turnier konnte nicht gerstartet werden",
   "matchQueue": "Warteschlange",

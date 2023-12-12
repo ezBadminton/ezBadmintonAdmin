@@ -2,7 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_deletion_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_selection_cubit.dart';
-import 'package:ez_badminton_admin_app/competition_management/cubit/competition_starting_cubit.dart';
+import 'package:ez_badminton_admin_app/competition_management/cubit/competition_start_stop_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/view/tournament_mode_assignment_page.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
 import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
@@ -27,7 +27,7 @@ class CompetitionSelectionOptions extends StatelessWidget {
       child: BlocConsumer<CompetitionSelectionCubit, CompetitionSelectionState>(
         listener: (context, state) {
           var deletionCubit = context.read<CompetitionDeletionCubit>();
-          var startingCubit = context.read<CompetitionStartingCubit>();
+          var startingCubit = context.read<CompetitionStartStopCubit>();
 
           deletionCubit.selectedCompetitionsChanged(state.selectedCompetitions);
           startingCubit.selectedCompetitionsChanged(state.selectedCompetitions);
@@ -111,26 +111,35 @@ class _CompetitionStartButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var startingCubit = context.read<CompetitionStartingCubit>();
+    var startingCubit = context.read<CompetitionStartStopCubit>();
     var l10n = AppLocalizations.of(context)!;
 
-    return DialogListener<CompetitionStartingCubit, CompetitionStartingState,
+    return DialogListener<CompetitionStartStopCubit, CompetitionStartStopState,
         bool>(
       builder: (context, state, reason) {
-        return ConfirmDialog(
-          title: Text(l10n.startTournament),
-          content: Text(l10n.startTournamentInfo),
-          confirmButtonLabel: l10n.confirm,
-          cancelButtonLabel: l10n.cancel,
-        );
+        if (reason is Competition) {
+          return ConfirmDialog(
+            title: Text(l10n.cancelTournament),
+            content: Text(l10n.cancelTournamentInfo),
+            confirmButtonLabel: l10n.confirm,
+            cancelButtonLabel: l10n.cancel,
+          );
+        } else {
+          return ConfirmDialog(
+            title: Text(l10n.startTournament),
+            content: Text(l10n.startTournamentInfo),
+            confirmButtonLabel: l10n.confirm,
+            cancelButtonLabel: l10n.cancel,
+          );
+        }
       },
-      child: BlocBuilder<CompetitionStartingCubit, CompetitionStartingState>(
+      child: BlocBuilder<CompetitionStartStopCubit, CompetitionStartStopState>(
         builder: (context, state) {
           return ElevatedButton(
             onPressed: state.selectedCompetitions.isEmpty ||
                     !state.selectionIsStartable
                 ? null
-                : startingCubit.startCompetitions,
+                : startingCubit.competitionsStarted,
             child: Text(l10n.startTournament),
           );
         },

@@ -1,7 +1,7 @@
-part of 'competition_starting_cubit.dart';
+part of 'competition_start_stop_cubit.dart';
 
-class CompetitionStartingState implements DialogState {
-  CompetitionStartingState({
+class CompetitionStartStopState implements DialogState {
+  CompetitionStartStopState({
     this.formStatus = FormzSubmissionStatus.initial,
     this.selectedCompetitions = const [],
     this.dialog = const CubitDialog(),
@@ -17,13 +17,13 @@ class CompetitionStartingState implements DialogState {
 
   final bool selectionIsStartable;
 
-  CompetitionStartingState copyWith({
+  CompetitionStartStopState copyWith({
     FormzSubmissionStatus? formStatus,
     List<Competition>? selectedCompetitions,
     CubitDialog? dialog,
     bool? selectionIsStartable,
   }) {
-    return CompetitionStartingState(
+    return CompetitionStartStopState(
       formStatus: formStatus ?? this.formStatus,
       selectedCompetitions: selectedCompetitions ?? this.selectedCompetitions,
       dialog: dialog ?? this.dialog,

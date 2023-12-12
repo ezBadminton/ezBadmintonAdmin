@@ -3,7 +3,7 @@ import 'package:ez_badminton_admin_app/competition_management/competition_sorter
 import 'package:ez_badminton_admin_app/competition_management/competition_sorter/cubit/competition_sorting_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_list_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_selection_cubit.dart';
-import 'package:ez_badminton_admin_app/competition_management/cubit/competition_starting_cubit.dart';
+import 'package:ez_badminton_admin_app/competition_management/cubit/competition_start_stop_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/view/tournament_mode_assignment_page.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
@@ -387,14 +387,14 @@ class _CompetitionActionButton extends StatelessWidget {
   }
 
   VoidCallback? _getOnPressed(BuildContext context) {
+    var startStopCubit = context.read<CompetitionStartStopCubit>();
+
     if (competition.matches.isNotEmpty) {
-      return null;
+      return () => startStopCubit.competitionCanceled(competition);
     }
 
     if (competition.draw.isNotEmpty) {
-      var startingCubit = context.read<CompetitionStartingCubit>();
-
-      return () => startingCubit.startCompetitions([competition]);
+      return () => startStopCubit.competitionsStarted([competition]);
     }
 
     var navigationCubit = context.read<TabNavigationCubit>();
@@ -408,7 +408,7 @@ class _CompetitionActionButton extends StatelessWidget {
 
   String _getTooltip(AppLocalizations l10n) {
     if (competition.matches.isNotEmpty) {
-      return l10n.tournamentIsStarted;
+      return l10n.cancelTournament;
     }
 
     if (competition.draw.isNotEmpty) {
@@ -420,7 +420,7 @@ class _CompetitionActionButton extends StatelessWidget {
 
   IconData _getIcon() {
     if (competition.matches.isNotEmpty) {
-      return Icons.check;
+      return Icons.stop;
     }
 
     if (competition.draw.isNotEmpty) {

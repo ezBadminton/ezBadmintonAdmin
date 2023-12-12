@@ -7,22 +7,24 @@ import 'package:formz/formz.dart';
 
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
 
-part 'competition_starting_state.dart';
+part 'competition_start_stop_state.dart';
 
-class CompetitionStartingCubit
-    extends CollectionQuerierCubit<CompetitionStartingState> with DialogCubit {
-  CompetitionStartingCubit({
+class CompetitionStartStopCubit
+    extends CollectionQuerierCubit<CompetitionStartStopState> with DialogCubit {
+  CompetitionStartStopCubit({
     required CollectionRepository<Competition> competitionRepository,
     required CollectionRepository<MatchData> matchDataRepository,
+    required CollectionRepository<MatchSet> matchSetRepository,
   }) : super(
           collectionRepositories: [
             competitionRepository,
             matchDataRepository,
+            matchSetRepository,
           ],
-          CompetitionStartingState(),
+          CompetitionStartStopState(),
         );
 
-  void startCompetitions([List<Competition>? competitions]) async {
+  void competitionsStarted([List<Competition>? competitions]) async {
     competitions = competitions ?? state.selectedCompetitions;
 
     if (state.formStatus == FormzSubmissionStatus.inProgress ||
@@ -41,6 +43,49 @@ class CompetitionStartingCubit
         competitions.map(_startCompetition);
     List<FormzSubmissionStatus> starts = await Future.wait(competitionStarts);
     if (starts.contains(FormzSubmissionStatus.failure)) {
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      return;
+    }
+
+    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+  }
+
+  void competitionCanceled(Competition competition) async {
+    if (state.formStatus == FormzSubmissionStatus.inProgress) {
+      return;
+    }
+    emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
+
+    assert(competition.matches.isNotEmpty);
+
+    bool userConfirmation =
+        (await requestDialogChoice<bool>(reason: competition))!;
+    if (!userConfirmation) {
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.canceled));
+      return;
+    }
+
+    Competition stoppedCompetition = competition.copyWith(matches: []);
+
+    Competition? updatedCompetition =
+        await querier.updateModel(stoppedCompetition);
+    if (updatedCompetition == null) {
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      return;
+    }
+
+    List<MatchData> stoppedMatches = competition.matches;
+    List<MatchSet> setsOfStoppedMatches =
+        stoppedMatches.expand((match) => match.sets).toList();
+
+    bool matchesDeleted = await querier.deleteModels(stoppedMatches);
+    if (!matchesDeleted) {
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      return;
+    }
+
+    bool setsDeleted = await querier.deleteModels(setsOfStoppedMatches);
+    if (!setsDeleted) {
       emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
       return;
     }
