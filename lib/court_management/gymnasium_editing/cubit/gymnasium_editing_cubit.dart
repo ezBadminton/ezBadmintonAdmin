@@ -1,4 +1,5 @@
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
@@ -11,6 +12,7 @@ class GymnasiumEditingCubit
     with DialogCubit<GymnasiumEditingState> {
   GymnasiumEditingCubit({
     Gymnasium? gymnasium,
+    required this.tournamentProgressGetter,
     required CollectionRepository<Gymnasium> gymnasiumRepository,
     required CollectionRepository<Court> courtRepository,
   }) : super(
@@ -24,6 +26,8 @@ class GymnasiumEditingCubit
       emit(state.copyWithGymnasium(gymnasium));
     }
   }
+
+  final TournamentProgressState Function() tournamentProgressGetter;
 
   static const _maxCourtGridDimension = 15;
 
@@ -93,14 +97,24 @@ class GymnasiumEditingCubit
     List<Court> courtsOfGym =
         courts.where((c) => c.gymnasium == state.gymnasium).toList();
 
-    List<Court> courtsToDelete = courtsOfGym
+    Set<Court> courtsToDelete = courtsOfGym
         .where((c) =>
             c.positionX > state.columns.value - 1 ||
             c.positionY > state.rows.value - 1)
-        .toList();
+        .toSet();
 
     if (courtsToDelete.isEmpty) {
       return FormzSubmissionStatus.success;
+    }
+
+    TournamentProgressState progressState = tournamentProgressGetter();
+
+    Set<Court> occupiedCourtsToDelete =
+        progressState.occupiedCourts.keys.toSet().intersection(courtsToDelete);
+
+    if (occupiedCourtsToDelete.isNotEmpty) {
+      requestDialogChoice<Error>();
+      return FormzSubmissionStatus.failure;
     }
 
     bool userConfirmation = (await requestDialogChoice<bool>())!;

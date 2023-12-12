@@ -1,4 +1,5 @@
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/view/gymnasium_editing_form.dart';
 import 'package:ez_badminton_admin_app/layout/fab_location.dart';
@@ -28,11 +29,15 @@ class GymnasiumEditingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
+
+    var progressCubit = context.read<TournamentProgressCubit>();
+
     return BlocProvider(
       create: (context) => GymnasiumEditingCubit(
+        gymnasium: gymnasium,
+        tournamentProgressGetter: () => progressCubit.state,
         gymnasiumRepository: context.read<CollectionRepository<Gymnasium>>(),
         courtRepository: context.read<CollectionRepository<Court>>(),
-        gymnasium: gymnasium,
       ),
       child: BlocConsumer<GymnasiumEditingCubit, GymnasiumEditingState>(
         listenWhen: (previous, current) =>

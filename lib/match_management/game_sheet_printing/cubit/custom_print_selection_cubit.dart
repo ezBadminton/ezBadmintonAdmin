@@ -168,8 +168,9 @@ class CustomPrintSelectionCubit extends Cubit<CustomPrintSelectionState> {
       PrintCategory.readyForCallOut: allMatches
           .where((m) => m.isPlayable && m.court != null && m.startTime == null)
           .toList(),
-      PrintCategory.noCourt:
-          allMatches.where((m) => m.isPlayable && m.court == null).toList(),
+      PrintCategory.noCourt: allMatches
+          .where((m) => m.isPlayable && m.court == null && m.startTime == null)
+          .toList(),
       PrintCategory.waitingForQualification:
           allMatches.where((m) => !m.isPlayable).toList(),
       PrintCategory.alreadyRunning:

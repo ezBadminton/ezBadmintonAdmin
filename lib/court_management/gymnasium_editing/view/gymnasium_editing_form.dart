@@ -14,30 +14,45 @@ class GymnasiumEditingForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    return DialogListener<GymnasiumEditingCubit, GymnasiumEditingState, bool>(
-      builder: (context, state, reason) => ConfirmDialog(
-        title: Text(l10n.reduceHall),
-        content: Text(l10n.reduceHallWarning),
-        confirmButtonLabel: l10n.confirm,
-        cancelButtonLabel: l10n.cancel,
-      ),
-      child: SizedBox(
-        width: 960,
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            Text(
-              l10n.description,
-              style: const TextStyle(fontSize: 22),
+    return DialogListener<GymnasiumEditingCubit, GymnasiumEditingState, Error>(
+      barrierDismissable: true,
+      builder: (context, state, reason) {
+        return AlertDialog(
+          title: Text(l10n.cantReduceHall),
+          content: Text(l10n.cantReduceHallInfo),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(l10n.confirm),
             ),
-            const Divider(height: 25, indent: 100, endIndent: 100),
-            const _DescriptionForm(),
-            const SizedBox(height: 30),
-            const _GymFloorPlanTitle(),
-            const Divider(height: 25, indent: 100, endIndent: 100),
-            const SizedBox(height: 20),
-            const _FloorPlanForm(),
           ],
+        );
+      },
+      child: DialogListener<GymnasiumEditingCubit, GymnasiumEditingState, bool>(
+        builder: (context, state, reason) => ConfirmDialog(
+          title: Text(l10n.reduceHall),
+          content: Text(l10n.reduceHallWarning),
+          confirmButtonLabel: l10n.confirm,
+          cancelButtonLabel: l10n.cancel,
+        ),
+        child: SizedBox(
+          width: 960,
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+              Text(
+                l10n.description,
+                style: const TextStyle(fontSize: 22),
+              ),
+              const Divider(height: 25, indent: 100, endIndent: 100),
+              const _DescriptionForm(),
+              const SizedBox(height: 30),
+              const _GymFloorPlanTitle(),
+              const Divider(height: 25, indent: 100, endIndent: 100),
+              const SizedBox(height: 20),
+              const _FloorPlanForm(),
+            ],
+          ),
         ),
       ),
     );

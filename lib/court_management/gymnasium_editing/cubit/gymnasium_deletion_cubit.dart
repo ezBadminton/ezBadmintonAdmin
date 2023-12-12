@@ -1,4 +1,6 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
 import 'package:formz/formz.dart';
@@ -10,6 +12,7 @@ class GymnasiumDeletionCubit
     with DialogCubit<GymnasiumDeletionState> {
   GymnasiumDeletionCubit({
     required Gymnasium gymnasium,
+    required this.tournamentProgressGetter,
     required CollectionRepository<Gymnasium> gymnasiumRepository,
     required CollectionRepository<Court> courtRepository,
   }) : super(
@@ -20,11 +23,25 @@ class GymnasiumDeletionCubit
           GymnasiumDeletionState(gymnasium: gymnasium),
         );
 
+  final TournamentProgressState Function() tournamentProgressGetter;
+
   void gymnasiumDeleted() async {
     if (state.formStatus == FormzSubmissionStatus.inProgress) {
       return;
     }
     emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
+
+    TournamentProgressState progressState = tournamentProgressGetter();
+
+    bool isGymInUse = progressState.occupiedCourts.keys
+            .firstWhereOrNull((court) => court.gymnasium == state.gymnasium) !=
+        null;
+
+    if (isGymInUse) {
+      requestDialogChoice<Error>();
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      return;
+    }
 
     List<Court>? courts = await querier.fetchCollection<Court>();
     if (courts == null) {

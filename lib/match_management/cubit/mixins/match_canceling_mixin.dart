@@ -6,21 +6,21 @@ mixin MatchCancelingMixin {
   ///
   /// When the match already ended and [unassignCourt] is false,
   /// it is attempted to restore the court assignment. Should the court already
-  /// be assigned to a new match, the match gets no court and needs to be
-  /// assigned again.
+  /// be assigned to a new match or should the court have been deleted,
+  /// the match gets no court and needs to be assigned to a new court.
   MatchData cancelMatch(
     MatchData matchData,
     TournamentProgressState tournamentProgressState, {
     bool unassignCourt = false,
   }) {
-    assert(matchData.court != null && matchData.sets.isEmpty);
+    assert(matchData.sets.isEmpty);
 
     MatchData matchDataWithCancellation = matchData.copyWith(
       startTime: null,
       endTime: null,
     );
 
-    if (unassignCourt) {
+    if (unassignCourt || matchData.court == null) {
       matchDataWithCancellation = matchDataWithCancellation.copyWith(
         court: null,
         courtAssignmentTime: null,

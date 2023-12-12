@@ -49,9 +49,7 @@ class MatchStartStopCubit extends CollectionQuerierCubit<MatchStartStopState>
   /// assignment. Should the court already be assigned to a new match, the
   /// match gets no court and needs to be assigned again.
   void matchCanceled(MatchData matchData) async {
-    assert(matchData.court != null &&
-        matchData.startTime != null &&
-        matchData.sets.isEmpty);
+    assert(matchData.startTime != null && matchData.sets.isEmpty);
 
     if (state.formStatus == FormzSubmissionStatus.inProgress) {
       return;
