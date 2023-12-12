@@ -116,14 +116,25 @@ class _CourtOptions extends StatelessWidget {
             elevation: 2,
             child: Padding(
               padding: const EdgeInsets.all(2.0),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  _RenameButton(courtInSlot: courtInSlot),
-                  const SizedBox(width: 10),
-                  const _DeleteButton(),
-                ],
+              child:
+                  BlocBuilder<TournamentProgressCubit, TournamentProgressState>(
+                builder: (context, progressState) {
+                  BadmintonMatch? matchOnCourt =
+                      progressState.occupiedCourts[courtInSlot];
+                  bool hasMatch = matchOnCourt != null;
+
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      _RenameButton(courtInSlot: courtInSlot),
+                      if (!hasMatch) ...[
+                        const SizedBox(width: 10),
+                        const _DeleteButton(),
+                      ],
+                    ],
+                  );
+                },
               ),
             ),
           ),
