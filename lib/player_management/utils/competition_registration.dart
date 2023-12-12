@@ -133,7 +133,6 @@ Future<Competition?> deregisterCompetition(
     }
     updatedCompetitionRegistrations.remove(team);
     updatedCompetitionSeeds.remove(team);
-    updatedCompetitionDraw.remove(team);
   } else {
     // update team
     List<Player> teamMembers = List.of(team.players)..remove(player);
@@ -143,6 +142,7 @@ Future<Competition?> deregisterCompetition(
       return null;
     }
   }
+  updatedCompetitionDraw.remove(team);
 
   Competition competitionWithUpdatedTeam = competition.copyWith(
     registrations: updatedCompetitionRegistrations,

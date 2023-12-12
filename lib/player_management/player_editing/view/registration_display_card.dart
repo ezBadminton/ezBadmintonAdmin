@@ -37,6 +37,14 @@ class RegistrationDisplayCard extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
+    bool hasCompetitionStarted = competition.matches.isNotEmpty;
+    bool isTeamInDraw = competition.draw.contains(registration.team);
+
+    bool isRegistrationDeletable =
+        showDeleteButton && (!hasCompetitionStarted || !isTeamInDraw);
+
+    bool isPartnerRegisterable = showPartnerInput && !hasCompetitionStarted;
+
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -62,13 +70,13 @@ class RegistrationDisplayCard extends StatelessWidget {
                   ),
                   _DoublesPartner(
                     registration: registration,
-                    showPartnerInput: showPartnerInput,
-                    showDeleteButton: showDeleteButton,
+                    showPartnerInput: isPartnerRegisterable,
+                    showDeleteButton: isRegistrationDeletable,
                   ),
                 ],
               ],
             ),
-            if (showDeleteButton)
+            if (isRegistrationDeletable)
               Align(
                 alignment: AlignmentDirectional.centerEnd,
                 child: IconButton(

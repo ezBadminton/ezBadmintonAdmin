@@ -42,12 +42,15 @@ class SingleEliminationTree extends StatelessWidget
       competition.teamSize == 1 ? 80 : 118,
     );
 
-    for (EliminationRound<BadmintonMatch> round in rounds) {
+    for ((int, EliminationRound<BadmintonMatch>) roundEntry in rounds.indexed) {
+      int roundIndex = roundEntry.$1;
+      EliminationRound<BadmintonMatch> round = roundEntry.$2;
+
       List<Widget> roundMatchNodes =
           round.matches.mapIndexed((matchIndex, match) {
         Widget matchCard = MatchupCard(
           match: match,
-          isEditable: isEditable,
+          isEditable: isEditable && roundIndex == 0,
           placeholderLabels: placeholderLabels,
           showResult: showResults,
           width: matchNodeSize.width,

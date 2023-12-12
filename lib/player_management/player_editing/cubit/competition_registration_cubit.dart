@@ -142,7 +142,7 @@ class CompetitionRegistrationCubit
   List<P> getParameterOptions<P extends Object>({bool inSelection = false}) {
     var selectedCompetitions = inSelection
         ? getSelectedCompetitions(ignore: [P])
-        : state.getCollection<Competition>();
+        : getRegisterableCompetitions(state.getCollection<Competition>());
     selectedCompetitions.removeWhere(
       (c) => registrations.map((r) => r.competition).contains(c),
     );
@@ -183,7 +183,8 @@ class CompetitionRegistrationCubit
   /// In order to successfully submit the competition registration form the list
   /// needs to be of length 1.
   List<Competition> getSelectedCompetitions({List<Type> ignore = const []}) {
-    return state.getCollection<Competition>().where((competition) {
+    return getRegisterableCompetitions(state.getCollection<Competition>())
+        .where((competition) {
       var typeMatch = ignore.contains(CompetitionType) ||
           state.competitionType.value == null ||
           competition.type == state.competitionType.value;
@@ -291,5 +292,16 @@ class CompetitionRegistrationCubit
   /// the given [formStep]
   List<Type> getFormStepParameterTypes(int formStep) {
     return allFormSteps[formStep];
+  }
+
+  /// Returns all [Competition]s that have not started yet.
+  ///
+  /// These are the competitions that players can still be registered for.
+  static List<Competition> getRegisterableCompetitions(
+    List<Competition> competitions,
+  ) {
+    return competitions
+        .where((competition) => competition.matches.isEmpty)
+        .toList();
   }
 }

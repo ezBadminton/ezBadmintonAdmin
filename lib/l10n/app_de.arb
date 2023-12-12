@@ -210,6 +210,7 @@
   "drawsWillBeOverridden": "Bestehende Auslosungen",
   "drawsWillBeOverriddenInfo": "Durch das Ändern des Turniermodus werden bestehende Auslosungen gelöscht.\n\nFortfahren?",
   "noCompetitionsRegistrationHint": "Erstelle eine Disziplin, um Meldungen machen zu können",
+  "allCompetitionsRunningHint": "Alle Disziplinen wurden gestartet oder bereits gemeldet",
   "noCompetitionsDrawHint": "Keine Disziplinen.\n\nErstelle eine Disziplin und melde Teilnehmer, um eine Auslosung machen zu können.",
   "noCompetitionsResultHint": "Keine Disziplinen.\n\nErstelle eine Disziplin und starte sie, um Ergebnisse sehen zu können.",
   "matchOperations": "Spielbetrieb",

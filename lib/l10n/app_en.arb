@@ -210,6 +210,7 @@
   "drawsWillBeOverridden": "Existing draws",
   "drawsWillBeOverriddenInfo": "By changing the tournament mode existing draws will be removed.\n\nContinue?",
   "noCompetitionsRegistrationHint": "Add a competition to become able to make registrations",
+  "allCompetitionsRunningHint": "All competitions are running or have been registered for",
   "noCompetitionsDrawHint": "No competitions.\n\nAdd a competition and register participants to make a draw.",
   "noCompetitionsResultHint": "Keine Disziplinen.\n\nAdd a competition and start it to see results.",
   "matchOperations": "Match operations",

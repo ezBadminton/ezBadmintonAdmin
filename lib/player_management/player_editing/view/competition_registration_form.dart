@@ -31,6 +31,18 @@ class CompetitionRegistrationForm extends StatelessWidget {
           previous.registrationFormShown != current.registrationFormShown ||
           previous.registrations != current.registrations,
       builder: (context, state) {
+        Set<Competition> registerable =
+            CompetitionRegistrationCubit.getRegisterableCompetitions(
+          state.getCollection<Competition>(),
+        ).toSet();
+
+        Set<Competition> registered = state.registrations.value
+            .map((registration) => registration.competition)
+            .toSet();
+
+        Set<Competition> availableForRegistration =
+            registerable.difference(registered);
+
         return Column(
           children: <Widget>[
             for (var registration in state.registrations.value)
@@ -49,13 +61,21 @@ class CompetitionRegistrationForm extends StatelessWidget {
             ],
             if (state.registrations.value.isNotEmpty)
               const SizedBox(height: 25),
-            if (state.getCollection<Competition>().length !=
-                    state.registrations.value.length &&
+            if (availableForRegistration.isNotEmpty &&
                 !state.registrationFormShown)
               const _RegistrationAddButton(),
             if (state.getCollection<Competition>().isEmpty)
               Text(
                 l10n.noCompetitionsRegistrationHint,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Theme.of(context).disabledColor,
+                ),
+              )
+            else if (availableForRegistration.isEmpty)
+              Text(
+                l10n.allCompetitionsRunningHint,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 18,
