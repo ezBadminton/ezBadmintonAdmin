@@ -30,6 +30,7 @@ class Competition extends Model with _$Competition {
     required List<Team> seeds,
     required List<Team> draw,
     required List<MatchData> matches,
+    required List<TieBreaker> tieBreakers,
     required int rngSeed,
   }) = _Competition;
 
@@ -55,6 +56,7 @@ class Competition extends Model with _$Competition {
       seeds: const [],
       draw: const [],
       matches: const [],
+      tieBreakers: const [],
       rngSeed: Random().nextInt(1 << 32),
     );
   }
@@ -114,6 +116,12 @@ class Competition extends Model with _$Competition {
     ExpandedField(
       model: MatchData,
       key: 'matches',
+      isRequired: true,
+      isSingle: false,
+    ),
+    ExpandedField(
+      model: TieBreaker,
+      key: 'tieBreakers',
       isRequired: true,
       isSingle: false,
     ),

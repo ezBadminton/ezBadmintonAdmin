@@ -11,3 +11,4 @@ export 'match_data.dart';
 export 'match_set.dart';
 export 'age_group.dart';
 export 'tournament_mode_settings.dart';
+export 'tie_breaker.dart';

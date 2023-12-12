@@ -94,7 +94,8 @@ class CollectionQuerier {
   /// fetchCollections([fetchCollection<Player>, fetchCollection<Team>]);
   /// ```
   Future<List<List<Model>?>> fetchCollections(
-      Iterable<FetcherFunction> fetcherFunctions) async {
+    Iterable<FetcherFunction> fetcherFunctions,
+  ) async {
     var fetchResults =
         await Future.wait([for (var fetcher in fetcherFunctions) fetcher()]);
     return fetchResults;

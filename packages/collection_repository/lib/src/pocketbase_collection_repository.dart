@@ -192,4 +192,5 @@ const Map<Type, String> _collectionNames = {
   Team: 'teams',
   TournamentModeSettings: 'tournament_mode_settings',
   Tournament: 'tournaments',
+  TieBreaker: 'tie_breakers',
 };
