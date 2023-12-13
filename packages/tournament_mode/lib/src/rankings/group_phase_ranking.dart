@@ -52,10 +52,10 @@ class GroupPhaseRanking<P, S, M extends TournamentMatch<P, S>>
   }
 }
 
-/// A [Placement] for a [MatchRanking].
+/// A [Placement] for a [TieableMatchRanking].
 ///
 /// It holds back the placement ([getPlacement] returns null) while the matches
-/// are not all completed.
+/// are not all completed or while there is an unbroken tie.
 ///
 /// It also replaces any placed participants that withdrew from the matches with
 /// a [MatchParticipant.bye]. This way no withdrawn players can pass this
@@ -67,13 +67,15 @@ class GroupPhaseRanking<P, S, M extends TournamentMatch<P, S>>
 /// round, instead giving the would be opponent of the 2nd place a bye round.
 class _GroupPhasePlacement<P> extends Placement<P> {
   _GroupPhasePlacement({
-    required MatchRanking<P, dynamic, TournamentMatch<P, dynamic>> ranking,
+    required TieableMatchRanking<P, dynamic, TournamentMatch<P, dynamic>>
+        ranking,
     required super.place,
   }) : super(ranking: ranking);
 
   @override
-  MatchRanking<P, dynamic, TournamentMatch<P, dynamic>> get ranking =>
-      super.ranking as MatchRanking<P, dynamic, TournamentMatch<P, dynamic>>;
+  TieableMatchRanking<P, dynamic, TournamentMatch<P, dynamic>> get ranking =>
+      super.ranking
+          as TieableMatchRanking<P, dynamic, TournamentMatch<P, dynamic>>;
 
   @override
   MatchParticipant<P>? getPlacement() {
@@ -84,6 +86,14 @@ class _GroupPhasePlacement<P> extends Placement<P> {
     MatchParticipant<P>? placement = super.getPlacement();
 
     P? player = placement?.resolvePlayer();
+
+    Iterable<P> tiedPlayers = ranking.ties
+        .expand((tie) => tie.map((participant) => participant.resolvePlayer()))
+        .whereType<P>();
+
+    if (tiedPlayers.contains(player)) {
+      return null;
+    }
 
     if (player != null && _getWithdrawnPlayers().contains(player)) {
       return MatchParticipant<P>.bye();

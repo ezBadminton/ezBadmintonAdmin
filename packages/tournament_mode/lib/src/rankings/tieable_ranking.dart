@@ -9,11 +9,17 @@ mixin TieableRanking<P> implements Ranking<P> {
 
   List<List<MatchParticipant<P>>>? _frozenTiedRanks;
 
+  List<List<MatchParticipant<P>>>? _frozenUnbrokenTiedRanks;
+
   List<List<MatchParticipant<P>>> get tiedRanks =>
       _frozenTiedRanks ?? createTieBrokenRanks();
 
+  List<List<MatchParticipant<P>>> get unbrokenTiedRanks =>
+      _frozenUnbrokenTiedRanks ?? createTiedRanks();
+
   @override
   void freezeRanks() {
+    _frozenUnbrokenTiedRanks = createTiedRanks();
     _frozenTiedRanks = createTieBrokenRanks();
   }
 
@@ -25,16 +31,16 @@ mixin TieableRanking<P> implements Ranking<P> {
 
   @override
   List<MatchParticipant<P>> createRanks() {
-    return createTieBrokenRanks().flattened.toList();
+    return tiedRanks.flattened.toList();
   }
 
-  /// Returns the ranks from [createTiedRanks] but with the [tieBreakers]
+  /// Returns the ranks from [unbrokenTiedRanks] but with the [tieBreakers]
   /// applied.
   ///
   /// This does not guarantee no ties as the [tieBreakers] could be empty
   /// or do not contain breakers for all ties.
   List<List<MatchParticipant<P>>> createTieBrokenRanks() {
-    return createTiedRanks().expand((tie) => _tryTieBreak(tie)).toList();
+    return unbrokenTiedRanks.expand((tie) => _tryTieBreak(tie)).toList();
   }
 
   /// Add [Ranking]s to this list that rank the participants who are tied.
@@ -56,7 +62,7 @@ mixin TieableRanking<P> implements Ranking<P> {
 
   /// Returns the ties that need to be broken in order to fulfill
   /// [requiredUntiedRanks].
-  List<List<MatchParticipant<P>>> get blockingTies => createTieBrokenRanks()
+  List<List<MatchParticipant<P>>> get blockingTies => tiedRanks
       .whereIndexed(
           (index, tie) => tie.length > 1 && index < requiredUntiedRanks)
       .toList();
@@ -97,12 +103,12 @@ mixin TieableRanking<P> implements Ranking<P> {
 
   /// Returns a list of all current unbroken ties
   List<List<MatchParticipant<P>>> get ties =>
-      createTieBrokenRanks().where((tie) => tie.length > 1).toList();
+      tiedRanks.where((tie) => tie.length > 1).toList();
 
   /// Is true while at least one rank is occupied by more than one participant
   /// because they are tied and none of the [tieBreakers] apply.
   bool get hasTies =>
-      createTieBrokenRanks().firstWhereOrNull((tie) => tie.length > 1) != null;
+      tiedRanks.firstWhereOrNull((tie) => tie.length > 1) != null;
 
   /// See [hasTies]
   bool get hasNoTies => !hasTies;
