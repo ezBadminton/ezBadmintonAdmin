@@ -52,6 +52,7 @@ class PocketbaseCollectionRepository<M extends Model>
   static final Map<Type, ExpansionTree> _defaultExpansions = {
     Player: ExpansionTree(Player.expandedFields),
     Competition: ExpansionTree(Competition.expandedFields)
+      ..expandWith(TieBreaker, TieBreaker.expandedFields)
       ..expandWith(Team, Team.expandedFields)
       ..expandWith(Player, Player.expandedFields)
       ..expandWith(MatchData, MatchData.expandedFields)
@@ -61,6 +62,9 @@ class PocketbaseCollectionRepository<M extends Model>
     Court: ExpansionTree(Court.expandedFields),
     MatchData: ExpansionTree(MatchData.expandedFields)
       ..expandWith(Court, Court.expandedFields),
+    TieBreaker: ExpansionTree(TieBreaker.expandedFields)
+      ..expandWith(Team, Team.expandedFields)
+      ..expandWith(Player, Player.expandedFields),
   };
 
   @override

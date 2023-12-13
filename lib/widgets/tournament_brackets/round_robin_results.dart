@@ -5,6 +5,7 @@ import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tourna
 import 'package:ez_badminton_admin_app/widgets/leaderboard/leaderboard.dart';
 import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
 import 'package:ez_badminton_admin_app/widgets/mouse_hover_builder/mouse_hover_builder.dart';
+import 'package:ez_badminton_admin_app/widgets/tie_breaker_menu/tie_breaker_menu.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section_subtree.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';
 import 'package:flutter/material.dart';
@@ -114,6 +115,53 @@ class _RoundRobinLeaderboard extends StatelessWidget {
         );
 
         leaderboardEntries.add(row);
+      }
+
+      if (tournament.isCompleted() && rank.length > 1) {
+        List<Team> tiedTeams =
+            rank.map((participant) => participant.resolvePlayer()!).toList();
+
+        TableRow tieBreakerRow = TableRow(
+          children: [
+            const SizedBox(),
+            SizedBox(
+              height: 35,
+              child: ElevatedButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: true,
+                    builder: (context) {
+                      return TieBreakerMenu(
+                        competition: tournament.competition,
+                        tie: tiedTeams,
+                      );
+                    },
+                  );
+                },
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      l10n.nthPlace('${rankIndex + 1}'),
+                      style: const TextStyle(fontSize: 10),
+                    ),
+                    Text(
+                      l10n.breakTie,
+                      style: const TextStyle(fontSize: 13),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(),
+            const SizedBox(),
+            const SizedBox(),
+            const SizedBox(),
+          ],
+        );
+
+        leaderboardEntries.add(tieBreakerRow);
       }
     }
 

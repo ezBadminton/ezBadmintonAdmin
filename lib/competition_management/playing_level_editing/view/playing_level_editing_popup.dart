@@ -47,7 +47,7 @@ class PlayingLevelEditingPopup extends StatelessWidget {
                         style: const TextStyle(fontSize: 22),
                       ),
                       const Divider(height: 25, indent: 20, endIndent: 20),
-                      _PlayingLevelForm(),
+                      const _PlayingLevelForm(),
                       const Divider(height: 35, indent: 20, endIndent: 20),
                       const _PlayingLevelList(),
                     ],
@@ -63,24 +63,13 @@ class PlayingLevelEditingPopup extends StatelessWidget {
 }
 
 class _PlayingLevelForm extends StatelessWidget {
-  _PlayingLevelForm();
-
-  final FocusNode _focus = FocusNode();
-  final TextEditingController _controller = TextEditingController();
+  const _PlayingLevelForm();
 
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
     var cubit = context.read<PlayingLevelEditingCubit>();
-    return BlocConsumer<PlayingLevelEditingCubit, PlayingLevelEditingState>(
-      listenWhen: (previous, current) =>
-          previous.displayPlayingLevels.length <
-          current.displayPlayingLevels.length,
-      listener: (context, state) {
-        cubit.playingLevelNameChanged('');
-        _controller.text = '';
-        _focus.requestFocus();
-      },
+    return BlocBuilder<PlayingLevelEditingCubit, PlayingLevelEditingState>(
       builder: (context, state) {
         bool areAllCompetitionsNotRunning = state
                 .getCollection<Competition>()
@@ -108,8 +97,8 @@ class _PlayingLevelForm extends StatelessWidget {
                   inputFormatters: [
                     LengthLimitingTextInputFormatter(playingLevelNameMaxLength),
                   ],
-                  controller: _controller,
-                  focusNode: _focus,
+                  controller: cubit.controller,
+                  focusNode: cubit.focusNode,
                 ),
               ),
               const SizedBox(width: 15),

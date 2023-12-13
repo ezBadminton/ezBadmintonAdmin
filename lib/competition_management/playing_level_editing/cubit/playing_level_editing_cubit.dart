@@ -2,10 +2,12 @@ import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/competition_management/utils/competition_queries.dart';
+import 'package:ez_badminton_admin_app/utils/list_extension/list_extension.dart';
 import 'package:ez_badminton_admin_app/utils/sorting.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
+import 'package:flutter/material.dart';
 import 'package:formz/formz.dart';
 
 part 'playing_level_editing_state.dart';
@@ -30,6 +32,9 @@ class PlayingLevelEditingCubit
         ) {
     loadPlayingLevels();
   }
+
+  final FocusNode focusNode = FocusNode();
+  final TextEditingController controller = TextEditingController();
 
   void loadPlayingLevels() {
     if (state.loadingStatus != LoadingStatus.loading) {
@@ -142,6 +147,10 @@ class PlayingLevelEditingCubit
     }
 
     emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+
+    controller.text = '';
+    focusNode.requestFocus();
+
     loadPlayingLevels();
   }
 
@@ -151,16 +160,9 @@ class PlayingLevelEditingCubit
     }
     // Update order of display PlayingLevels
     List<PlayingLevel> currentPlayingLevels = state.displayPlayingLevels;
-    PlayingLevel reordered = currentPlayingLevels[from];
-    if (to > from) {
-      to += 1;
-    }
-    List<PlayingLevel> reorderedPlayingLevels = List.of(currentPlayingLevels)
-      ..insert(to, reordered);
-    if (to < from) {
-      from += 1;
-    }
-    reorderedPlayingLevels.removeAt(from);
+
+    List<PlayingLevel> reorderedPlayingLevels =
+        currentPlayingLevels.moveItem(from, to);
 
     reorderedPlayingLevels = _syncPlayingLevelIndices(reorderedPlayingLevels);
 

@@ -20,6 +20,13 @@ class TieBreaker extends Model with _$TieBreaker {
   factory TieBreaker.fromJson(Map<String, dynamic> json) =>
       _$TieBreakerFromJson(json..cleanUpExpansions(expandedFields));
 
+  factory TieBreaker.newTiebreaker(List<Team> tieBreakerRanking) => TieBreaker(
+        id: '',
+        created: DateTime.now().toUtc(),
+        updated: DateTime.now().toUtc(),
+        tieBreakerRanking: tieBreakerRanking,
+      );
+
   static const List<ExpandedField> expandedFields = [
     ExpandedField(
       model: Team,

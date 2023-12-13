@@ -1,5 +1,6 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
+import 'package:ez_badminton_admin_app/utils/list_extension/list_extension.dart';
 import 'package:formz/formz.dart';
 
 part 'seeding_state.dart';
@@ -44,16 +45,7 @@ class SeedingCubit extends CollectionQuerierCubit<SeedingState> {
     }
     emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
-    Team reordered = state.competition.seeds[from];
-    if (to > from) {
-      to += 1;
-    }
-    List<Team> reorderedSeeds = List.of(state.competition.seeds)
-      ..insert(to, reordered);
-    if (to < from) {
-      from += 1;
-    }
-    reorderedSeeds.removeAt(from);
+    List<Team> reorderedSeeds = state.competition.seeds.moveItem(from, to);
 
     FormzSubmissionStatus formStatus = await _updateSeeds(reorderedSeeds);
 

@@ -6,7 +6,7 @@ class ReorderableItemGap extends StatelessWidget {
   const ReorderableItemGap({
     super.key,
     required this.elementIndex,
-    this.hoveringIndex,
+    required this.hoveringIndex,
     required this.top,
     this.height = 8,
     this.indicatorIndent = 2,

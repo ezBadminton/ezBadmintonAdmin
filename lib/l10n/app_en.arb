@@ -311,5 +311,8 @@
   "point": "{count, plural, =1{Point} other{Points}}",
   "walkover": "Walkover",
   "leaderboard": "Leaderboard",
-  "provisionalLeaderboardInfo": "The competition has not yet been completed. The current provisional status of the leaderboard is displayed."
+  "provisionalLeaderboardInfo": "The competition has not yet been completed. The current provisional status of the leaderboard is displayed.",
+  "nthPlace": "{place}. Place",
+  "breakTie": "Break tie",
+  "breakTieInfo": "Break the tie of these participants. Order the list using drag & drop."
 }

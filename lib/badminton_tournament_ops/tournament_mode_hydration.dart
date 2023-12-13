@@ -67,4 +67,31 @@ void hydrateTournament(
   for (BadmintonMatch match in byes) {
     match.hydrateMatch(competition, null);
   }
+
+  _applyTieBreakers(competition, tournamentMode);
+}
+
+void _applyTieBreakers(
+  Competition competition,
+  BadmintonTournamentMode tournamentMode,
+) {
+  if (competition.tieBreakers.isEmpty) {
+    return;
+  }
+
+  List<Ranking<Team>> tieBreakerRankings = competition.tieBreakers
+      .map((tieBreaker) => DrawSeeds<Team>(tieBreaker.tieBreakerRanking))
+      .toList();
+
+  switch (tournamentMode) {
+    case BadmintonRoundRobin roundRobin:
+      roundRobin.finalRanking.tieBreakers = tieBreakerRankings;
+      break;
+    case BadmintonGroupKnockout groupKnockout:
+      for (BadmintonRoundRobin group
+          in groupKnockout.groupPhase.groupRoundRobins) {
+        group.finalRanking.tieBreakers = tieBreakerRankings;
+      }
+      break;
+  }
 }

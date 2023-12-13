@@ -17,6 +17,7 @@ class ImplicitAnimatedList<T extends Object> extends StatelessWidget {
     required this.itemBuilder,
     this.duration,
     this.elementsEqual,
+    this.shrinkWrap = false,
   });
 
   final List<T> elements;
@@ -29,6 +30,8 @@ class ImplicitAnimatedList<T extends Object> extends StatelessWidget {
   /// If omitted the [Object.==] operator is used.
   final bool Function(T element1, T element2)? elementsEqual;
 
+  final bool shrinkWrap;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -38,6 +41,7 @@ class ImplicitAnimatedList<T extends Object> extends StatelessWidget {
         itemBuilder: itemBuilder,
         duration: duration ?? const Duration(milliseconds: 200),
         elementsEqual: elementsEqual,
+        shrinkWrap: shrinkWrap,
       ),
     );
   }
@@ -54,12 +58,14 @@ class ImplicitAnimatedListBuilder<T extends Object> extends StatelessWidget {
     required this.itemBuilder,
     required this.duration,
     this.elementsEqual,
+    required this.shrinkWrap,
   });
 
   final List<T> elements;
   final AnimatedObjectItemBuilder<T> itemBuilder;
   final Duration duration;
   final bool Function(T element1, T element2)? elementsEqual;
+  final bool shrinkWrap;
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +84,7 @@ class ImplicitAnimatedListBuilder<T extends Object> extends StatelessWidget {
         }
         return AnimatedList(
           key: state.animatedListKey,
+          shrinkWrap: shrinkWrap,
           itemBuilder: (context, index, animation) {
             return itemBuilder(
               context,

@@ -66,6 +66,7 @@ class ReorderableImplicitAnimatedList<T extends Object>
     this.draggingEnabled = true,
     this.duration,
     this.elementsEqual,
+    this.shrinkWrap = false,
     this.reorderTooltip,
   });
 
@@ -115,6 +116,8 @@ class ReorderableImplicitAnimatedList<T extends Object>
 
   final bool Function(T element1, T element2)? elementsEqual;
 
+  final bool shrinkWrap;
+
   final String? reorderTooltip;
 
   @override
@@ -143,6 +146,7 @@ class ReorderableImplicitAnimatedList<T extends Object>
       itemBuilder: reorderableItemBuilder,
       duration: duration,
       elementsEqual: elementsEqual,
+      shrinkWrap: shrinkWrap,
     );
   }
 }
@@ -157,6 +161,7 @@ class _ReorderableImplicitAnimatedList<T extends Object>
     required super.itemBuilder,
     super.duration,
     super.elementsEqual,
+    super.shrinkWrap,
   });
 
   @override
