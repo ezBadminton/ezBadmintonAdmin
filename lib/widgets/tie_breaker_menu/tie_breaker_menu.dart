@@ -237,7 +237,12 @@ class _TeamItem extends StatelessWidget {
             leadingIcon,
             color: Theme.of(context).disabledColor,
           ),
-          const SizedBox(width: 10),
+          SizedBox(
+            width: 10,
+            height: 20,
+            // Put invisible container into the gap to make the area draggable
+            child: Container(color: Colors.transparent),
+          ),
           playerNames,
         ],
       ),

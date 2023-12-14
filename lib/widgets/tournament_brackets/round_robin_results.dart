@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_round_robin_ranking.dart';
@@ -21,7 +22,7 @@ class RoundRobinResults extends StatelessWidget {
 
   final BadmintonRoundRobin tournament;
 
-  final GroupKnockout? parentTournament;
+  final BadmintonGroupKnockout? parentTournament;
 
   @override
   Widget build(BuildContext context) {
@@ -43,14 +44,18 @@ class RoundRobinResults extends StatelessWidget {
 }
 
 class _RoundRobinLeaderboard extends StatelessWidget {
-  const _RoundRobinLeaderboard({
+  _RoundRobinLeaderboard({
     required this.tournament,
     this.parentTournament,
-  });
+  }) : _brokenTieMap = _mapBrokenTies(
+          tournament.finalRanking as BadmintonRoundRobinRanking,
+        );
 
   final BadmintonRoundRobin tournament;
 
-  final GroupKnockout? parentTournament;
+  final BadmintonGroupKnockout? parentTournament;
+
+  final Map<List<Team>, List<List<Team>>> _brokenTieMap;
 
   @override
   Widget build(BuildContext context) {
@@ -117,50 +122,16 @@ class _RoundRobinLeaderboard extends StatelessWidget {
         leaderboardEntries.add(row);
       }
 
-      if (tournament.isCompleted() && rank.length > 1) {
-        List<Team> tiedTeams =
-            rank.map((participant) => participant.resolvePlayer()!).toList();
+      List<Team> tiedTeams =
+          rank.map((participant) => participant.resolvePlayer()!).toList();
 
-        TableRow tieBreakerRow = TableRow(
-          children: [
-            const SizedBox(),
-            SizedBox(
-              height: 35,
-              child: ElevatedButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    barrierDismissible: true,
-                    builder: (context) {
-                      return TieBreakerMenu(
-                        competition: tournament.competition,
-                        tie: tiedTeams,
-                      );
-                    },
-                  );
-                },
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      l10n.nthPlace('${rankIndex + 1}'),
-                      style: const TextStyle(fontSize: 10),
-                    ),
-                    Text(
-                      l10n.breakTie,
-                      style: const TextStyle(fontSize: 13),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(),
-            const SizedBox(),
-            const SizedBox(),
-            const SizedBox(),
-          ],
-        );
+      TableRow? tieBreakerRow = _buildTieBreakerRow(
+        context,
+        tiedTeams,
+        rankIndex,
+      );
 
+      if (tieBreakerRow != null) {
         leaderboardEntries.add(tieBreakerRow);
       }
     }
@@ -216,6 +187,152 @@ class _RoundRobinLeaderboard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  TableRow? _buildTieBreakerRow(
+    BuildContext context,
+    List<Team> tiedTeams,
+    int rankIndex,
+  ) {
+    if (!tournament.isCompleted()) {
+      return null;
+    }
+
+    List<Team>? tieOfRank = _brokenTieMap.entries
+        .firstWhereOrNull(
+          (tieMapEntry) => tieMapEntry.value.last.equals(tiedTeams),
+        )
+        ?.key;
+
+    if (tieOfRank == null || tieOfRank.length == 1) {
+      return null;
+    }
+
+    if (parentTournament != null && parentTournament!.hasKnockoutStarted) {
+      // Do not allow editing of the tie breaker when the tied teams are
+      // already playing in the knock out matches that they qualified for
+      // because of the tie breaker.
+
+      Set<Team> teamsInKnockout = parentTournament!.knockoutPhase.matches
+          .where((m) => m.startTime != null)
+          .expand((m) => [m.a.resolvePlayer()!, m.b.resolvePlayer()!])
+          .toSet();
+
+      bool isTieInKnockOut =
+          teamsInKnockout.intersection(tieOfRank.toSet()).isNotEmpty;
+
+      if (isTieInKnockOut) {
+        return null;
+      }
+    }
+
+    var l10n = AppLocalizations.of(context)!;
+
+    bool isTieBroken = tiedTeams.length == 1;
+
+    String tieBreakerButtonLabel;
+    String tieRankLabel;
+
+    if (isTieBroken) {
+      int firstRank = rankIndex - tieOfRank.length + 1;
+
+      tieRankLabel = l10n.nthPlace('${(firstRank + 1)}-${(rankIndex + 1)}');
+
+      tieBreakerButtonLabel = l10n.editTieBreaker;
+    } else {
+      tieRankLabel = l10n.nthPlace('${rankIndex + 1}');
+
+      tieBreakerButtonLabel = l10n.breakTie;
+    }
+
+    TableRow tieBreakerRow = TableRow(
+      children: [
+        const SizedBox(),
+        SizedBox(
+          height: 35,
+          child: ElevatedButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                barrierDismissible: true,
+                builder: (context) {
+                  return TieBreakerMenu(
+                    competition: tournament.competition,
+                    tie: tieOfRank,
+                  );
+                },
+              );
+            },
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  tieRankLabel,
+                  style: const TextStyle(fontSize: 10),
+                ),
+                Text(
+                  tieBreakerButtonLabel,
+                  style: const TextStyle(fontSize: 13),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(),
+        const SizedBox(),
+        const SizedBox(),
+        const SizedBox(),
+      ],
+    );
+
+    return tieBreakerRow;
+  }
+
+  /// Maps the ties in this [ranking] to their tie broken forms.
+  ///
+  /// If a tie is not broken it is mapped to itself wrapped in a
+  /// one-element list.
+  static Map<List<Team>, List<List<Team>>> _mapBrokenTies(
+    BadmintonRoundRobinRanking ranking,
+  ) {
+    List<List<Team>> unbrokenTiedTanks = ranking.unbrokenTiedRanks
+        .map(
+          (rank) => rank
+              .map((participant) => participant.resolvePlayer())
+              .whereType<Team>()
+              .toList(),
+        )
+        .toList();
+
+    List<List<Team>> tiedRanks = ranking.tiedRanks
+        .map(
+          (rank) => rank
+              .map((participant) => participant.resolvePlayer())
+              .whereType<Team>()
+              .toList(),
+        )
+        .toList();
+
+    Map<List<Team>, List<List<Team>>> brokenTieMap = {};
+
+    int offset = 0;
+    for (List<Team> tie in unbrokenTiedTanks) {
+      int tieSize = tie.length;
+
+      List<List<Team>> brokenTie = [];
+
+      while (brokenTie.flattened.length < tieSize) {
+        List<Team> brokenTieEntry = tiedRanks[offset];
+        brokenTie.add(brokenTieEntry);
+        offset += 1;
+      }
+
+      assert(brokenTie.flattened.length == tieSize);
+
+      brokenTieMap.putIfAbsent(tie, () => brokenTie);
+    }
+
+    return brokenTieMap;
   }
 }
 

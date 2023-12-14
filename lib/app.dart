@@ -29,12 +29,12 @@ class _AppState extends State<App> {
   late final CollectionRepository<Court> _courtRepository;
   late final CollectionRepository<MatchSet> _matchSetRepository;
   late final CollectionRepository<MatchData> _matchDataRepository;
+  late final CollectionRepository<TieBreaker> _tieBreakerRepository;
   late final CollectionRepository<Competition> _competitionRepository;
   late final CollectionRepository<Team> _teamRepository;
   late final CollectionRepository<Club> _clubRepository;
   late final CollectionRepository<TournamentModeSettings>
       _tournamentModeSettingsRepository;
-  late final CollectionRepository<TieBreaker> _tieBreakerRepository;
 
   @override
   void initState() {
@@ -113,11 +113,18 @@ class _AppState extends State<App> {
         pocketBaseProvider: _pocketBaseProvider,
       ),
     );
+    _tieBreakerRepository = CachedCollectionRepository(
+      PocketbaseCollectionRepository(
+        modelConstructor: TieBreaker.fromJson,
+        pocketBaseProvider: _pocketBaseProvider,
+      ),
+    );
     _competitionRepository = CachedCollectionRepository(
       relationRepositories: [
         _playingLevelRepository,
         _teamRepository,
         _matchDataRepository,
+        _tieBreakerRepository,
       ],
       relationUpdateHandler: onCompetitionRelationUpdate,
       PocketbaseCollectionRepository(
@@ -137,12 +144,6 @@ class _AppState extends State<App> {
         pocketBaseProvider: _pocketBaseProvider,
       ),
     );
-    _tieBreakerRepository = CachedCollectionRepository(
-      PocketbaseCollectionRepository(
-        modelConstructor: TieBreaker.fromJson,
-        pocketBaseProvider: _pocketBaseProvider,
-      ),
-    );
   }
 
   @override
@@ -157,10 +158,10 @@ class _AppState extends State<App> {
     _courtRepository.dispose();
     _matchSetRepository.dispose();
     _matchDataRepository.dispose();
+    _tieBreakerRepository.dispose();
     _competitionRepository.dispose();
     _clubRepository.dispose();
     _tournamentModeSettingsRepository.dispose();
-    _tieBreakerRepository.dispose();
     super.dispose();
   }
 
@@ -178,10 +179,10 @@ class _AppState extends State<App> {
         RepositoryProvider.value(value: _courtRepository),
         RepositoryProvider.value(value: _matchSetRepository),
         RepositoryProvider.value(value: _matchDataRepository),
+        RepositoryProvider.value(value: _tieBreakerRepository),
         RepositoryProvider.value(value: _competitionRepository),
         RepositoryProvider.value(value: _clubRepository),
         RepositoryProvider.value(value: _tournamentModeSettingsRepository),
-        RepositoryProvider.value(value: _tieBreakerRepository),
       ],
       child: BlocProvider(
         create: (_) => AuthenticationBloc(

@@ -314,5 +314,6 @@
   "provisionalLeaderboardInfo": "Die Disziplin ist noch nicht abgeschlossen. Es wird der aktuelle vorläufige Stand der Rangliste angezeigt.",
   "nthPlace": "{place}. Platz",
   "breakTie": "Gleichstand auflösen",
-  "breakTieInfo": "Lege die Platzierung dieser Teilnehmer innherhalb ihres Gleichstands fest. Sortiere die Liste mit drag & drop."
+  "breakTieInfo": "Lege die Platzierung dieser Teilnehmer innherhalb ihres Gleichstands fest. Sortiere die Liste mit drag & drop.",
+  "editTieBreaker": "Gleichstandslösung bearbeiten"
 }

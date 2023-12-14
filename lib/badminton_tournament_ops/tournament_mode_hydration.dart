@@ -56,6 +56,8 @@ void hydrateTournament(
       tournamentMode.matches.where((match) => !match.isDrawnBye).toList();
   assert(matchDataList == null || matchDataList.length == matches.length);
 
+  _applyTieBreakers(competition, tournamentMode);
+
   for (int i = 0; i < matches.length; i += 1) {
     matches[i].hydrateMatch(competition, matchDataList?[i]);
   }
@@ -67,8 +69,6 @@ void hydrateTournament(
   for (BadmintonMatch match in byes) {
     match.hydrateMatch(competition, null);
   }
-
-  _applyTieBreakers(competition, tournamentMode);
 }
 
 void _applyTieBreakers(

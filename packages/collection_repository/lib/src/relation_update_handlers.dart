@@ -2,7 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 
 /// Updates the cached competitions when their [PlayingLevel] or a [Team] that
-/// is registered or the [MatchData] of a match is updated.
+/// is registered or the [MatchData] of a match or a [TieBreaker] is updated.
 List<Competition> onCompetitionRelationUpdate(
   List<Competition> competitions,
   CollectionUpdateEvent updateEvent,
@@ -66,6 +66,28 @@ List<Competition> onCompetitionRelationUpdate(
       replaceInList(matches, updatedMatchData.id, replacement);
 
       updatedCompetitions.add(competition.copyWith(matches: matches));
+    }
+
+    return updatedCompetitions;
+  }
+
+  if (updateEvent.model is TieBreaker) {
+    TieBreaker updatedTieBreaker = updateEvent.model as TieBreaker;
+
+    TieBreaker? replacement = _getReplacement(updatedTieBreaker, updateEvent);
+
+    List<Competition> containingCompetitions = competitions
+        .where((c) => c.tieBreakers.contains(updatedTieBreaker))
+        .toList();
+
+    List<Competition> updatedCompetitions = [];
+
+    for (Competition competition in containingCompetitions) {
+      List<TieBreaker> tieBreakers = List.of(competition.tieBreakers);
+
+      replaceInList(tieBreakers, updatedTieBreaker.id, replacement);
+
+      updatedCompetitions.add(competition.copyWith(tieBreakers: tieBreakers));
     }
 
     return updatedCompetitions;

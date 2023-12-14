@@ -147,8 +147,7 @@ class BadmintonGroupKnockout extends GroupKnockout<
         .toSet();
 
     Set<Team> teamsInKnockout = knockoutPhase.matches
-        .where((m) => !m.isBye && !m.isWalkover)
-        .where((m) => m.inProgress || m.hasWinner)
+        .where((m) => m.startTime != null)
         .expand((m) => [m.a.resolvePlayer()!, m.b.resolvePlayer()!])
         .toSet();
 
