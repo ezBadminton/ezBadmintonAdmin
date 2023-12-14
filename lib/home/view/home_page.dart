@@ -7,6 +7,7 @@ import 'package:ez_badminton_admin_app/draw_management/view/draw_management_page
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_state.dart';
 import 'package:ez_badminton_admin_app/home/widgets/navigation_tab.dart';
+import 'package:ez_badminton_admin_app/home/widgets/result_navigation_tab_icon.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/match_court_assignment_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/result_entering/widgets/match_scan_listener.dart';
 import 'package:ez_badminton_admin_app/match_management/view/match_management_page.dart';
@@ -14,7 +15,6 @@ import 'package:ez_badminton_admin_app/player_management/view/player_list_page.d
 import 'package:ez_badminton_admin_app/result_management/view/result_management_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HomePage extends StatefulWidget {
@@ -105,6 +105,10 @@ class _HomePageState extends State<HomePage>
           root: const ResultManagementPage(),
           unselectedIcon: Icons.emoji_events_outlined,
           selectedIcon: Icons.emoji_events,
+          iconBuilder: (icon, selected) => ResultNavigationTabIcon(
+            icon: icon,
+            isTabSelected: selected,
+          ),
         ),
       ];
 
@@ -174,8 +178,9 @@ class _HomePageState extends State<HomePage>
                       context.read<TabNavigationCubit>().tabChanged(index),
                   destinations: tabs
                       .map((tab) => NavigationRailDestination(
-                            icon: FaIcon(tab.unselectedIcon),
-                            selectedIcon: FaIcon(tab.selectedIcon),
+                            icon: tab.iconBuilder(tab.unselectedIcon, false),
+                            selectedIcon:
+                                tab.iconBuilder(tab.selectedIcon, true),
                             label: Text(tab.label),
                           ))
                       .toList(),

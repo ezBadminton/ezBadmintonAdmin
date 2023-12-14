@@ -316,5 +316,7 @@
   "breakTie": "Break tie",
   "breakTieInfo": "Break the tie of these participants. Order the list using drag & drop.",
   "editTieBreaker": "Edit tie breaker",
-  "deleteTieBreaker": "Delete tie breaker"
+  "deleteTieBreaker": "Delete tie breaker",
+  "tournamentProgressBlocked": "Tournament progress blocked.",
+  "tieBreakerRequired": "Tie breaker required!"
 }

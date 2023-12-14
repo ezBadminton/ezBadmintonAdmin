@@ -316,5 +316,7 @@
   "breakTie": "Gleichstand auflösen",
   "breakTieInfo": "Lege die Platzierung dieser Teilnehmer innherhalb ihres Gleichstands fest. Sortiere die Liste mit drag & drop.",
   "editTieBreaker": "Gleichstandslösung bearbeiten",
-  "deleteTieBreaker": "Gleichstandslösung löschen"
+  "deleteTieBreaker": "Gleichstandslösung löschen",
+  "tournamentProgressBlocked": "Turnierfortschritt blockiert.",
+  "tieBreakerRequired": "Gleichstand muss aufgelöst werden!"
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class NavigationTab {
   const NavigationTab({
@@ -7,6 +8,7 @@ class NavigationTab {
     required this.root,
     required this.unselectedIcon,
     required this.selectedIcon,
+    this.iconBuilder = _defaultBuilder,
   });
 
   final int index;
@@ -14,6 +16,10 @@ class NavigationTab {
   final Widget root;
   final IconData unselectedIcon;
   final IconData selectedIcon;
+
+  final Widget Function(IconData icon, bool isSelected) iconBuilder;
+
+  static Widget _defaultBuilder(IconData icon, _) => FaIcon(icon);
 }
 
 class NavigationTabView extends StatelessWidget {
