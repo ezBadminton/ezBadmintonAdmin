@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
@@ -105,6 +106,10 @@ class _MatchQueueLists extends StatelessWidget {
 
     return BlocBuilder<MatchQueueCubit, MatchQueueState>(
       builder: (context, state) {
+        bool isMatchPageEmpty = state.schedule.values.flattened.isEmpty &&
+            state.calloutWaitList.isEmpty &&
+            state.inProgressList.isEmpty;
+
         return LoadingScreen(
           loadingStatus: state.loadingStatus,
           builder: (context) =>
@@ -132,14 +137,34 @@ class _MatchQueueLists extends StatelessWidget {
                       const MatchQueueSettings(),
                     ],
                   ),
-                  sublists: _buildWaitList(
-                    context,
-                    state.schedule,
-                    (match, waitingStatus) => WaitingMatch(
-                      match: match,
-                      waitingStatus: waitingStatus,
-                    ),
-                  ),
+                  list: isMatchPageEmpty
+                      ? [
+                          const SizedBox(height: 150),
+                          Center(
+                            child: Text(
+                              l10n.noMatchesHint,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withOpacity(.25),
+                                fontSize: 21,
+                              ),
+                            ),
+                          ),
+                        ]
+                      : null,
+                  sublists: isMatchPageEmpty
+                      ? null
+                      : _buildWaitList(
+                          context,
+                          state.schedule,
+                          (match, waitingStatus) => WaitingMatch(
+                            match: match,
+                            waitingStatus: waitingStatus,
+                          ),
+                        ),
                 ),
                 const SizedBox(width: 5),
                 MatchQueueList(

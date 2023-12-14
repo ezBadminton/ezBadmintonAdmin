@@ -318,5 +318,6 @@
   "editTieBreaker": "Gleichstandslösung bearbeiten",
   "deleteTieBreaker": "Gleichstandslösung löschen",
   "tournamentProgressBlocked": "Turnierfortschritt blockiert.",
-  "tieBreakerRequired": "Gleichstand muss aufgelöst werden!"
+  "tieBreakerRequired": "Gleichstand muss aufgelöst werden!",
+  "noMatchesHint": "Starte im 'Disziplinen' Tab eine Disziplin, die eine Auslosung hat, um die Spiele hier zu sehen"
 }
