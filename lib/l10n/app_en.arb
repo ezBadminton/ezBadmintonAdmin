@@ -315,5 +315,6 @@
   "nthPlace": "{place}. Place",
   "breakTie": "Break tie",
   "breakTieInfo": "Break the tie of these participants. Order the list using drag & drop.",
-  "editTieBreaker": "Edit tie breaker"
+  "editTieBreaker": "Edit tie breaker",
+  "deleteTieBreaker": "Delete tie breaker"
 }

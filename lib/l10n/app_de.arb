@@ -315,5 +315,6 @@
   "nthPlace": "{place}. Platz",
   "breakTie": "Gleichstand auflösen",
   "breakTieInfo": "Lege die Platzierung dieser Teilnehmer innherhalb ihres Gleichstands fest. Sortiere die Liste mit drag & drop.",
-  "editTieBreaker": "Gleichstandslösung bearbeiten"
+  "editTieBreaker": "Gleichstandslösung bearbeiten",
+  "deleteTieBreaker": "Gleichstandslösung löschen"
 }

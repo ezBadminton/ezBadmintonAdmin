@@ -40,6 +40,9 @@ class _TieBreakerDialog extends StatelessWidget {
       ),
     );
 
+    String dialogTitle =
+        cubit.existingTieBreaker == null ? l10n.breakTie : l10n.editTieBreaker;
+
     return BlocListener<TieBreakerCubit, TieBreakerState>(
       listenWhen: (previous, current) =>
           previous.formStatus != FormzSubmissionStatus.success &&
@@ -48,16 +51,33 @@ class _TieBreakerDialog extends StatelessWidget {
         Navigator.of(context).pop();
       },
       child: AlertDialog(
-        title: Text(l10n.breakTie),
+        title: Text(dialogTitle),
         content: dialogContent,
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(l10n.cancel),
-          ),
-          TextButton(
-            onPressed: cubit.tieBreakerSubmitted,
-            child: Text(l10n.save),
+          Row(
+            children: [
+              if (cubit.existingTieBreaker != null)
+                TextButton(
+                  onPressed: cubit.existingTieBreakerDeleted,
+                  child: Text(
+                    l10n.deleteTieBreaker,
+                    style: TextStyle(
+                      color:
+                          Theme.of(context).colorScheme.error.withOpacity(.7),
+                    ),
+                  ),
+                ),
+              const Expanded(child: SizedBox()),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(l10n.cancel),
+              ),
+              const SizedBox(width: 15),
+              TextButton(
+                onPressed: cubit.tieBreakerSubmitted,
+                child: Text(l10n.save),
+              ),
+            ],
           ),
         ],
       ),

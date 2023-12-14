@@ -72,6 +72,25 @@ class TieBreakerCubit extends CollectionQuerierCubit<TieBreakerState> {
     emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
   }
 
+  void existingTieBreakerDeleted() async {
+    if (existingTieBreaker == null) {
+      return;
+    }
+
+    if (state.formStatus == FormzSubmissionStatus.inProgress) {
+      return;
+    }
+    emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
+
+    bool tieBreakerDeleted = await querier.deleteModel(existingTieBreaker!);
+    if (!tieBreakerDeleted) {
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      return;
+    }
+
+    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+  }
+
   /// Returns the tie breaker that handles the [tie] in the [competition].
   ///
   /// Returns null when the [competition] does not have a fitting tie breaker.
