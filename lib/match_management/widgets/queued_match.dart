@@ -451,13 +451,10 @@ class _RestBlockingInfo extends StatelessWidget {
             ))
         .toList();
 
-    DateTime now = DateTime.now().toUtc();
     List<Widget> restTimes = restingDeadlines.values.map((t) {
-      int restTime = t.difference(now).inMinutes + 1;
-
-      return Text(
-        l10n.nMinutes(restTime),
-        style: tooltipStyle,
+      return Countdown(
+        timestamp: t,
+        textStyle: tooltipStyle,
       );
     }).toList();
 

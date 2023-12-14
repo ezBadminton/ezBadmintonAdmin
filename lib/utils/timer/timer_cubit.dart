@@ -28,7 +28,12 @@ class TimerCubit extends Cubit<TimerState> {
       seconds: duration.inSeconds - duration.inMinutes * 60,
     ));
 
-    await Future.delayed(const Duration(seconds: 1));
+    final int millisecondsUntilNextFullSecond =
+        duration.inMilliseconds - duration.inSeconds * 1000;
+
+    await Future.delayed(
+      Duration(milliseconds: millisecondsUntilNextFullSecond),
+    );
 
     return !isClosed && !timerEnded;
   }
