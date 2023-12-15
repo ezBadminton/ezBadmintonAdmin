@@ -65,7 +65,7 @@ class ScoringSettingsWidget<C extends TournamentModeSettingsCubit<S>,
                   initialValue: settingsState.settings.winningSets,
                   onChanged: settingsCubit.winningSetsChanged,
                   minValue: 1,
-                  maxValue: 9,
+                  maxValue: 3,
                 ),
               ),
               SettingCard(
