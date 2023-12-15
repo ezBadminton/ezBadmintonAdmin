@@ -185,6 +185,8 @@ String tournamentMode(
       return tournamentModeFromType(l10n, SingleEliminationSettings);
     case GroupKnockoutSettings _:
       return tournamentModeFromType(l10n, GroupKnockoutSettings);
+    case DoubleEliminationSettings _:
+      return tournamentModeFromType(l10n, DoubleEliminationSettings);
   }
 }
 
@@ -199,6 +201,8 @@ String tournamentModeFromType(
       return l10n.singleElimination;
     case GroupKnockoutSettings:
       return l10n.groupKnockout;
+    case DoubleEliminationSettings:
+      return l10n.doubleElimination;
     default:
       return 'OTHER';
   }
@@ -215,6 +219,8 @@ String tournamentModeTooltip(
       return l10n.singleEliminationHelp;
     case GroupKnockoutSettings:
       return l10n.groupKnockoutHelp;
+    case DoubleEliminationSettings:
+      return l10n.doubleEliminationHelp;
     default:
       return 'OTHER';
   }
@@ -230,6 +236,7 @@ List<String> tournamentModeSettingsList(
       settingsStrings.add('${l10n.passes}: $passes');
       break;
     case SingleEliminationSettings _:
+    case DoubleEliminationSettings _:
       break;
     case GroupKnockoutSettings(
         numGroups: int numGroups,

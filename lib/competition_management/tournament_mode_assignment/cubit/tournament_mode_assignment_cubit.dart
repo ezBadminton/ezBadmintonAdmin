@@ -127,6 +127,8 @@ class TournamentModeAssignmentCubit
         return SingleEliminationSettings;
       case GroupKnockoutSettings _:
         return GroupKnockoutSettings;
+      case DoubleEliminationSettings _:
+        return DoubleEliminationSettings;
     }
   }
 
@@ -176,8 +178,19 @@ class TournamentModeAssignmentCubit
           maxPoints: maxPoints,
           twoPointMargin: twoPointMargin,
         );
+      case DoubleEliminationSettings:
+        return DoubleEliminationSettings(
+          id: '',
+          created: DateTime.now().toUtc(),
+          updated: DateTime.now().toUtc(),
+          seedingMode: SeedingMode.tiered,
+          winningPoints: winningPoints,
+          winningSets: winningSets,
+          maxPoints: maxPoints,
+          twoPointMargin: twoPointMargin,
+        );
       default:
-        return null;
+        throw Exception('No default settings for this mode!');
     }
   }
 

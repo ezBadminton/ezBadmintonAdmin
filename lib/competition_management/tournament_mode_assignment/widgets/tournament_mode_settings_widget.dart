@@ -2,7 +2,7 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/cubit/tournament_mode_assignment_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/widgets/group_knockout_settings_widget.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/widgets/round_robin_settings_widget.dart';
-import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/widgets/single_elimination_settings_widget.dart';
+import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/widgets/basic_settings_widget.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/widgets/tournament_mode_selector.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
 import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
@@ -22,9 +22,12 @@ class TournamentModeSettingsWidget extends StatelessWidget {
       builder: (context, state) {
         Widget modeSettingsWidget = switch (state.modeType.value) {
           RoundRobinSettings => const RoundRobinSettingsWidget(),
-          SingleEliminationSettings => const SingleEliminationSettingsWidget(),
+          SingleEliminationSettings =>
+            const BasicSettingsWidget<SingleEliminationSettings>(),
           GroupKnockoutSettings => const GroupKnockoutSettingsWidget(),
-          _ => const SizedBox(),
+          DoubleEliminationSettings =>
+            const BasicSettingsWidget<DoubleEliminationSettings>(),
+          _ => throw Exception('No settings widget for this mode!'),
         };
 
         return DialogListener<TournamentModeAssignmentCubit,

@@ -73,6 +73,7 @@ dependencies:
   url_launcher: ^6.2.1
   open_file: ^3.3.2
   vector_math: ^2.1.4
+  dart_numerics: ^0.0.6
 
 dev_dependencies:
   flutter_test:

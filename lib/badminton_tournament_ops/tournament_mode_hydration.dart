@@ -30,6 +30,10 @@ BadmintonTournamentMode createTournamentMode(Competition competition) {
         entries: entries,
         competition: competition,
       ),
+    DoubleEliminationSettings _ => BadmintonDoubleElimination(
+        seededEntries: entries,
+        competition: competition,
+      ),
   };
 
   return tournament;

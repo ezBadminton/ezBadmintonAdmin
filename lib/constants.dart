@@ -33,6 +33,7 @@ const List<Type> tournamentModes = [
   RoundRobinSettings,
   SingleEliminationSettings,
   GroupKnockoutSettings,
+  DoubleEliminationSettings,
 ];
 
 final String fontDirPath = p.join(Directory.current.path, 'fonts');

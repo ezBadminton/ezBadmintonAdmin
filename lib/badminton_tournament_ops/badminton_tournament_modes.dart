@@ -166,3 +166,18 @@ class BadmintonGroupKnockout extends GroupKnockout<
     }
   }
 }
+
+class BadmintonDoubleElimination extends DoubleElimination<Team, List<MatchSet>,
+    BadmintonMatch, BadmintonSingleElimination> with BadmintonTournamentMode {
+  BadmintonDoubleElimination({
+    required super.seededEntries,
+    required Competition competition,
+  }) : super(
+          singleEliminationBuilder: (entries) => BadmintonSingleElimination(
+            seededEntries: seededEntries,
+            competition: competition,
+          ),
+        ) {
+    this.competition = competition;
+  }
+}

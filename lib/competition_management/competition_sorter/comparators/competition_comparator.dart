@@ -120,6 +120,8 @@ class CompetitionComparator<C extends Object>
         return constants.tournamentModes.indexOf(SingleEliminationSettings);
       case GroupKnockoutSettings _:
         return constants.tournamentModes.indexOf(GroupKnockoutSettings);
+      case DoubleEliminationSettings _:
+        return constants.tournamentModes.indexOf(DoubleEliminationSettings);
       case null:
         return 9999;
     }

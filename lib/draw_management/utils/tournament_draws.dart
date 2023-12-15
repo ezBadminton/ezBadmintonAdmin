@@ -9,5 +9,7 @@ int minDrawParticipants(TournamentModeSettings modeSettings) {
       return 2;
     case GroupKnockoutSettings settings:
       return settings.numGroups * settings.qualificationsPerGroup;
+    case DoubleEliminationSettings _:
+      return 3;
   }
 }

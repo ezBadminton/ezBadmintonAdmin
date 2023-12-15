@@ -51,6 +51,18 @@ sealed class TournamentModeSettings extends Model
     required bool twoPointMargin,
   }) = GroupKnockoutSettings;
 
+  @FreezedUnionValue('DoubleElimination')
+  const factory TournamentModeSettings.doubleElimination({
+    required String id,
+    required DateTime created,
+    required DateTime updated,
+    required SeedingMode seedingMode,
+    required int winningPoints,
+    required int winningSets,
+    required int maxPoints,
+    required bool twoPointMargin,
+  }) = DoubleEliminationSettings;
+
   factory TournamentModeSettings.fromJson(Map<String, dynamic> json) =>
       _$TournamentModeSettingsFromJson(json);
 
