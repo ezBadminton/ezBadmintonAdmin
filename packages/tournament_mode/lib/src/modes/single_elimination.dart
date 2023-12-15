@@ -69,10 +69,10 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
       if (round == 0) {
         roundMatches = _createSeededEliminationRound(roundParticipants);
       } else {
-        roundMatches = _createEliminationRound(roundParticipants);
+        roundMatches = createEliminationRound(roundParticipants);
       }
 
-      roundParticipants = _createNextRoundParticipants(roundMatches);
+      roundParticipants = createNextRoundParticipants(roundMatches);
 
       eliminationMatches.add(roundMatches);
     }
@@ -89,7 +89,7 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
 
   /// Takes a list of [roundParticipants] and matches them pair-wise in the
   /// list's order (1st vs 2nd, 3rd vs 4th, ...).
-  List<M> _createEliminationRound(
+  List<M> createEliminationRound(
     List<MatchParticipant<P>> roundParticipants,
   ) {
     List<M> roundMatches = [];
@@ -162,9 +162,9 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
     return seedMatchups;
   }
 
-  /// Creates the match list of the round coming
+  /// Creates the match participant list of the round coming
   /// after the given [roundMatches].
-  List<MatchParticipant<P>> _createNextRoundParticipants(
+  List<MatchParticipant<P>> createNextRoundParticipants(
     List<TournamentMatch<P, S>> roundMatches,
   ) {
     // The winners are determined by placement in a WinnerRanking
@@ -208,16 +208,23 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
   List<M> withdrawPlayer(P player) {
     M? walkoverMatch = getMatchesOfPlayer(player).firstWhereOrNull(
       (m) {
+        if (!m.hasWinner) {
+          return true;
+        }
+
+        if (m.isDrawnBye || !(m.isBye || m.isWalkover)) {
+          return false;
+        }
+
+        // A player can withdraw from a match that is already a walkover
+        // when the next matches of the walkover have not started yet.
+
         M? nextMatch = getNextPlayableMatch(m);
 
-        bool walkoverNotInEffect = !m.isDrawnBye &&
-            (m.isWalkover || m.isBye) &&
-            nextMatch != null &&
-            nextMatch.startTime == null;
+        bool walkoverNotInEffect =
+            nextMatch != null && nextMatch.startTime == null;
 
-        bool incompleteMatch = !m.hasWinner;
-
-        return walkoverNotInEffect || incompleteMatch;
+        return walkoverNotInEffect;
       },
     );
 
@@ -247,7 +254,7 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
 
     M? nextMatch = getNextPlayableMatch(withdrawnMatchesOfPlayer.single);
 
-    bool canReenter = nextMatch == null || !nextMatch.inProgress;
+    bool canReenter = nextMatch == null || nextMatch.startTime == null;
 
     if (canReenter) {
       return withdrawnMatchesOfPlayer;
