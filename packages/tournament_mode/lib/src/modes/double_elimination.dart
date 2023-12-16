@@ -418,9 +418,9 @@ class DoubleElimination<P, S, M extends TournamentMatch<P, S>,
         (nextRound.loserRound ?? nextRound.winnerRound!).matches;
 
     return nextRoundMatches.firstWhere(
-      (match) =>
-          (match.a.placement!.ranking as WinnerRanking).match == match ||
-          (match.b.placement!.ranking as WinnerRanking).match == match,
+      (m) =>
+          (m.a.placement!.ranking as WinnerRanking).match == match ||
+          (m.b.placement!.ranking as WinnerRanking).match == match,
     );
   }
 }

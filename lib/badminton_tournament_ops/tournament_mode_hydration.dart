@@ -45,7 +45,7 @@ List<MatchData> createMatchesFromTournament(
   BadmintonTournamentMode tournamentMode,
 ) {
   return tournamentMode.matches
-      .where((match) => !match.isBye)
+      .where((match) => !match.isDrawnBye)
       .map((_) => MatchData.newMatch())
       .toList();
 }

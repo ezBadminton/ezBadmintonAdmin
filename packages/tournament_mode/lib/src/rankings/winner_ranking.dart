@@ -16,6 +16,10 @@ class WinnerRanking<P, S> extends Ranking<P> {
           hasWinner: true,
         ):
         MatchParticipant<P>? loser = match.getLoser();
+        if (loser != null && loser.isDrawnBye) {
+          // Convert a drawn bye to a normal bye
+          loser = const MatchParticipant.bye(isDrawnBye: false);
+        }
         return [
           match.getWinner()!,
           if (loser != null) loser,

@@ -1,8 +1,11 @@
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:dart_numerics/dart_numerics.dart';
 import 'package:ez_badminton_admin_app/widgets/bent_line/bent_line.dart';
 import 'package:flutter/material.dart';
+
+part 'double_elimination_tree_layout.dart';
 
 /// This widget arranges the match nodes of an elimination tournament in a
 /// left-to-right flowing tree layout.
@@ -84,8 +87,10 @@ class EliminationTreeLayout extends StatelessWidget {
   }
 
   static List<List<_TreeEdge>> _createTreeEdges(
-    List<List<Widget>> matchWidgets,
-  ) {
+    List<List<Widget>> matchWidgets, {
+    Widget Function(_TreeEdgeType type, int roundIndex, int indexInRound)?
+        edgeBuilder,
+  }) {
     int numRounds = matchWidgets.length;
 
     List<List<_TreeEdge>> treeEdges = [];
@@ -103,6 +108,7 @@ class EliminationTreeLayout extends StatelessWidget {
             roundIndex: roundIndex,
             indexInRound: indexInRound,
             type: _TreeEdgeType.incoming,
+            builder: edgeBuilder,
           ),
         );
 
@@ -166,12 +172,11 @@ class _ElimiationTreeLayoutDelegate extends MultiChildLayoutDelegate {
   }
 
   void layoutMatchNodes() {
-    for (_MatchNode matchNodePart in matchNodes.flattened) {
-      Size matchNodeSize =
-          layoutChild(matchNodePart.id, const BoxConstraints());
+    for (_MatchNode matchNode in matchNodes.flattened) {
+      Size matchNodeSize = layoutChild(matchNode.id, const BoxConstraints());
 
       assert(
-        matchNodePart == matchNodes.flattened.first ||
+        matchNode == matchNodes.flattened.first ||
             _matchNodeSize == matchNodeSize,
         "All match nodes have to be the same size!",
       );
@@ -299,9 +304,12 @@ class _TreeEdge extends LayoutId {
     required this.roundIndex,
     required this.indexInRound,
     required this.type,
+    Widget Function(_TreeEdgeType type, int roundIndex, int indexInRound)?
+        builder,
   }) : super(
           id: (roundIndex, indexInRound, type),
-          child: _TreeEdgeWidget(type: type, indexInRound: indexInRound),
+          child:
+              (builder ?? _defaultBuilder).call(type, roundIndex, indexInRound),
         );
 
   final int roundIndex;
@@ -310,6 +318,17 @@ class _TreeEdge extends LayoutId {
   final _TreeEdgeType type;
 
   bool get goesDown => indexInRound.isEven;
+
+  static Widget _defaultBuilder(
+    _TreeEdgeType type,
+    int roundIndex,
+    int indexInRound,
+  ) {
+    return _TreeEdgeWidget(
+      type: type,
+      indexInRound: indexInRound,
+    );
+  }
 }
 
 class _TreeEdgeWidget extends StatelessWidget {
