@@ -319,5 +319,7 @@
   "deleteTieBreaker": "Delete tie breaker",
   "tournamentProgressBlocked": "Tournament progress blocked.",
   "tieBreakerRequired": "Tie breaker required!",
-  "noMatchesHint": "Start a competition that has a draw on the 'Competitions' tab to see the matches here"
+  "noMatchesHint": "Start a competition that has a draw on the 'Competitions' tab to see the matches here",
+  "losersBracket": "Losers Bracket",
+  "upperFinal": "Upper Final"
 }

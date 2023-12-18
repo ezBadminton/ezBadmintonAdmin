@@ -34,3 +34,41 @@ extension GroupPhaseRoundNames on GroupPhaseRound<BadmintonMatch> {
     return l10n.groupNMatchN(groupNumber + 1, roundNumber + 1);
   }
 }
+
+extension DoubleEliminationRoundNames on DoubleEliminationRound {
+  String getDoubleEliminationRoundName(
+    AppLocalizations l10n,
+    BadmintonMatch match,
+  ) {
+    bool isInWinnerBracket = winnerRound?.matches.contains(match) ?? false;
+
+    if (isInWinnerBracket) {
+      bool isUpperFinal =
+          winnerRound!.roundSize == 2 && this.loserRound != null;
+
+      if (isUpperFinal) {
+        return l10n.upperFinal;
+      }
+
+      return winnerRound!.getEliminationRoundName(l10n, match);
+    }
+
+    EliminationRound loserRound = this.loserRound!;
+
+    String losersBracket = l10n.losersBracket;
+    String roundName = l10n.roundOfN('${loserRound.roundSize}');
+
+    int loserBracketRoundStage = winnerRound != null ? 1 : 2;
+
+    String roundNumber;
+    if (loserRound.roundSize == 2) {
+      roundNumber = '$loserBracketRoundStage';
+    } else {
+      int matchIndex = loserRound.matches.indexOf(match);
+
+      roundNumber = '$loserBracketRoundStage.${matchIndex + 1}';
+    }
+
+    return '$losersBracket\n$roundName $roundNumber';
+  }
+}

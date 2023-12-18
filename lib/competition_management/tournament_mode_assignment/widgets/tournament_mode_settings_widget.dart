@@ -27,6 +27,7 @@ class TournamentModeSettingsWidget extends StatelessWidget {
           GroupKnockoutSettings => const GroupKnockoutSettingsWidget(),
           DoubleEliminationSettings =>
             const BasicSettingsWidget<DoubleEliminationSettings>(),
+          null => const SizedBox(),
           _ => throw Exception('No settings widget for this mode!'),
         };
 

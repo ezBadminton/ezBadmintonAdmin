@@ -319,5 +319,7 @@
   "deleteTieBreaker": "Gleichstandslösung löschen",
   "tournamentProgressBlocked": "Turnierfortschritt blockiert.",
   "tieBreakerRequired": "Gleichstand muss aufgelöst werden!",
-  "noMatchesHint": "Starte im 'Disziplinen' Tab eine Disziplin, die eine Auslosung hat, um die Spiele hier zu sehen"
+  "noMatchesHint": "Starte im 'Disziplinen' Tab eine Disziplin, die eine Auslosung hat, um die Spiele hier zu sehen",
+  "losersBracket": "Losers Bracket",
+  "upperFinal": "Oberes Finale"
 }
