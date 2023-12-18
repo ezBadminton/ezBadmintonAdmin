@@ -79,7 +79,10 @@ class _MatchRanking<P, M extends TournamentMatch<P, dynamic>> {
         ):
         // Double walkover case
         winner = [];
-        loser = [match.a, match.b];
+        loser = [
+          if (!match.a.isBye) match.a,
+          if (!match.b.isBye) match.b,
+        ];
         break;
 
       default:
