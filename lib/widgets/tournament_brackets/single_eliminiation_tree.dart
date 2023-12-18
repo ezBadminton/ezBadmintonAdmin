@@ -19,7 +19,10 @@ class SingleEliminationTree extends StatelessWidget
     this.isEditable = false,
     this.showResults = false,
     this.placeholderLabels = const {},
-  }) : _sections = _getSections(rounds);
+  }) : _sections = _getSections(rounds) {
+    matchNodeSize = getMatchNodeSize(competition.teamSize);
+    layoutSize = _getLayoutSize();
+  }
 
   final List<EliminationRound<BadmintonMatch>> rounds;
   final Competition competition;
@@ -29,6 +32,9 @@ class SingleEliminationTree extends StatelessWidget
 
   final Map<MatchParticipant, String> placeholderLabels;
 
+  late final Size matchNodeSize;
+  late final Size layoutSize;
+
   final List<BracketSection> _sections;
   @override
   List<BracketSection> get sections => _sections;
@@ -36,11 +42,6 @@ class SingleEliminationTree extends StatelessWidget
   @override
   Widget build(BuildContext context) {
     List<List<Widget>> matchNodes = [];
-
-    Size matchNodeSize = Size(
-      bracket_widths.singleEliminationNodeWidth,
-      competition.teamSize == 1 ? 80 : 118,
-    );
 
     for ((int, EliminationRound<BadmintonMatch>) roundEntry in rounds.indexed) {
       int roundIndex = roundEntry.$1;
@@ -65,7 +66,26 @@ class SingleEliminationTree extends StatelessWidget
     return EliminationTreeLayout(
       matchNodes: matchNodes,
       matchNodeSize: matchNodeSize,
+      layoutSize: layoutSize,
       roundGapWidth: bracket_widths.singleEliminationRoundGap,
+    );
+  }
+
+  static Size getMatchNodeSize(int teamSize) {
+    return Size(
+      bracket_widths.singleEliminationNodeWidth,
+      teamSize == 1 ? 90 : 128,
+    );
+  }
+
+  Size _getLayoutSize() {
+    int numRounds = rounds.length;
+    int firstRoundLength = rounds.first.length;
+
+    return Size(
+      numRounds * matchNodeSize.width +
+          (numRounds - 1) * bracket_widths.singleEliminationRoundGap,
+      firstRoundLength * matchNodeSize.height,
     );
   }
 

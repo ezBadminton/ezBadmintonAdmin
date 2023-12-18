@@ -7,3 +7,5 @@ const double singleEliminationRoundGap = 25;
 
 const double groupKnockoutGroupGap = 30;
 const double groupKnockoutEliminationGap = 50;
+
+const double relativeIntakeRoundOffset = 0.2;

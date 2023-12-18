@@ -162,6 +162,10 @@ class MatchupCard extends StatelessWidget {
   Widget build(BuildContext context) {
     MatchParticipant? winner = showResult ? match.getWinner() : null;
 
+    EdgeInsets padding = isEditable
+        ? const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10)
+        : const EdgeInsets.symmetric(vertical: 10.5, horizontal: 10);
+
     Widget matchupCard = Card(
       elevation: 0,
       clipBehavior: Clip.antiAlias,
@@ -193,6 +197,7 @@ class MatchupCard extends StatelessWidget {
                       match.a,
                       teamSize: match.competition.teamSize,
                       isEditable: isEditable,
+                      padding: padding,
                       placeholderLabel: placeholderLabels.containsKey(match.a)
                           ? Text(placeholderLabels[match.a]!)
                           : null,
@@ -211,6 +216,7 @@ class MatchupCard extends StatelessWidget {
                       match.b,
                       teamSize: match.competition.teamSize,
                       isEditable: isEditable,
+                      padding: padding,
                       placeholderLabel: placeholderLabels.containsKey(match.b)
                           ? Text(placeholderLabels[match.b]!)
                           : null,

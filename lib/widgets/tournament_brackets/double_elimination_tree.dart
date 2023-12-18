@@ -9,19 +9,26 @@ import 'package:tournament_mode/tournament_mode.dart';
 import 'bracket_widths.dart' as bracket_widths;
 
 class DoubleEliminationTree extends StatelessWidget {
-  const DoubleEliminationTree({
+  DoubleEliminationTree({
     super.key,
     required this.tournament,
     required this.competition,
     this.isEditable = false,
     this.showResults = false,
-  });
+  }) {
+    matchNodeSize =
+        SingleEliminationTree.getMatchNodeSize(competition.teamSize);
+    layoutSize = _getLayoutSize();
+  }
 
   final BadmintonDoubleElimination tournament;
   final Competition competition;
 
   final bool isEditable;
   final bool showResults;
+
+  late final Size matchNodeSize;
+  late final Size layoutSize;
 
   @override
   Widget build(BuildContext context) {
@@ -33,11 +40,6 @@ class DoubleEliminationTree extends StatelessWidget {
     );
 
     List<List<Widget>> matchNodes = [];
-
-    Size matchNodeSize = Size(
-      bracket_widths.singleEliminationNodeWidth,
-      competition.teamSize == 1 ? 80 : 118,
-    );
 
     List<EliminationRound<BadmintonMatch>> rounds = tournament.rounds
         .map((round) => round.loserRound)
@@ -62,8 +64,22 @@ class DoubleEliminationTree extends StatelessWidget {
 
     return DoubleEliminationTreeLayout(
       winnerBracket: winnerBracket,
+      winnerBracketSize: winnerBracket.layoutSize,
       matchNodes: matchNodes,
+      layoutSize: layoutSize,
       matchNodeSize: matchNodeSize,
+    );
+  }
+
+  Size _getLayoutSize() {
+    int numRounds = tournament.rounds.length - 1;
+    int firstRoundSize = tournament.rounds[1].loserRound!.length;
+
+    return Size(
+      numRounds * matchNodeSize.width +
+          (numRounds - 1) * bracket_widths.singleEliminationRoundGap,
+      firstRoundSize * matchNodeSize.height +
+          matchNodeSize.height * bracket_widths.relativeIntakeRoundOffset,
     );
   }
 }

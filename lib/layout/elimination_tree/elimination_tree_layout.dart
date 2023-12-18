@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:dart_numerics/dart_numerics.dart';
 import 'package:ez_badminton_admin_app/widgets/bent_line/bent_line.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/bracket_widths.dart'
+    as bracket_widths;
 import 'package:flutter/material.dart';
 
 part 'double_elimination_tree_layout.dart';
@@ -19,6 +21,7 @@ class EliminationTreeLayout extends StatelessWidget {
   EliminationTreeLayout({
     super.key,
     required List<List<Widget>> matchNodes,
+    required this.layoutSize,
     required this.matchNodeSize,
     this.roundGapWidth = 25,
   })  : _matchNodes = _createMatchNodes(matchNodes),
@@ -30,6 +33,8 @@ class EliminationTreeLayout extends StatelessWidget {
   ///
   /// The [matchNodes] have to take this size when they are layed out.
   final Size matchNodeSize;
+
+  final Size layoutSize;
 
   final List<List<_MatchNode>> _matchNodes;
 
@@ -48,6 +53,7 @@ class EliminationTreeLayout extends StatelessWidget {
         matchNodes: _matchNodes,
         treeEdges: _treeEdges,
         matchNodeSize: matchNodeSize,
+        layoutSize: layoutSize,
         roundGapWidth: roundGapWidth,
       ),
       children: [
@@ -63,7 +69,7 @@ class EliminationTreeLayout extends StatelessWidget {
   /// [_ElimiationTreeLayoutDelegate] so it can position it at the appropriate
   /// location.
   static List<List<_MatchNode>> _createMatchNodes(
-      List<List<Widget>> matchWidgets) {
+      Iterable<List<Widget>> matchWidgets) {
     List<List<_MatchNode>> matchNodes = [];
 
     for ((int, List<Widget>) roundEntry in matchWidgets.indexed) {
@@ -87,7 +93,7 @@ class EliminationTreeLayout extends StatelessWidget {
   }
 
   static List<List<_TreeEdge>> _createTreeEdges(
-    List<List<Widget>> matchWidgets, {
+    Iterable<List<Widget>> matchWidgets, {
     Widget Function(_TreeEdgeType type, int roundIndex, int indexInRound)?
         edgeBuilder,
   }) {
@@ -122,6 +128,7 @@ class EliminationTreeLayout extends StatelessWidget {
             roundIndex: roundIndex,
             indexInRound: indexInRound,
             type: _TreeEdgeType.outgoing,
+            builder: edgeBuilder,
           ),
         );
 
@@ -140,6 +147,7 @@ class _ElimiationTreeLayoutDelegate extends MultiChildLayoutDelegate {
     required this.matchNodes,
     required this.treeEdges,
     required this.matchNodeSize,
+    required this.layoutSize,
     required this.roundGapWidth,
   }) : numRounds = matchNodes.length;
 
@@ -150,17 +158,17 @@ class _ElimiationTreeLayoutDelegate extends MultiChildLayoutDelegate {
   final int numRounds;
 
   final Size matchNodeSize;
+
+  final Size layoutSize;
+
   final double roundGapWidth;
 
   late Size _matchNodeSize;
 
+  final Map<(int, int), Offset> _nodePositions = {};
+
   @override
-  Size getSize(BoxConstraints constraints) {
-    return Size(
-      numRounds * matchNodeSize.width + (numRounds - 1) * roundGapWidth,
-      matchNodes.first.length * matchNodeSize.height,
-    );
-  }
+  Size getSize(BoxConstraints constraints) => layoutSize;
 
   @override
   void performLayout(Size size) {
@@ -187,23 +195,26 @@ class _ElimiationTreeLayoutDelegate extends MultiChildLayoutDelegate {
 
   void positionMatchNodes() {
     for (int round = 0; round < numRounds; round += 1) {
-      int relativeNodeMargin = getRelativeNodeMargin(round);
-      double nodeMargin = relativeNodeMargin * _matchNodeSize.height * 0.5;
+      double nodeMargin = getVerticalNodeMargin(round);
 
       double horizontalPostition = getHorizontalNodePosition(round);
 
       List<_MatchNode> roundMatchNodes = matchNodes[round];
 
-      for ((int, _MatchNode) matchNodeEntry in roundMatchNodes.indexed) {
-        int indexInRound = matchNodeEntry.$1;
-        _MatchNode matchNode = matchNodeEntry.$2;
-
+      for (_MatchNode matchNode in roundMatchNodes) {
         double verticalPostition =
-            getVerticalNodePosition(nodeMargin, indexInRound);
+            getVerticalNodePosition(nodeMargin, matchNode);
+
+        Offset nodePosition = Offset(horizontalPostition, verticalPostition);
 
         positionChild(
           matchNode.id,
-          Offset(horizontalPostition, verticalPostition),
+          nodePosition,
+        );
+
+        _nodePositions.putIfAbsent(
+          (matchNode.roundIndex, matchNode.indexInRound),
+          () => nodePosition,
         );
       }
     }
@@ -211,8 +222,7 @@ class _ElimiationTreeLayoutDelegate extends MultiChildLayoutDelegate {
 
   void layoutTreeEdges() {
     for (int round = 0; round < numRounds; round += 1) {
-      int relativeNodeMargin = getRelativeNodeMargin(round);
-      double nodeMargin = relativeNodeMargin * _matchNodeSize.height * 0.5;
+      double nodeMargin = getVerticalNodeMargin(round);
 
       List<_TreeEdge> roundTreeEdges = treeEdges[round];
 
@@ -233,19 +243,13 @@ class _ElimiationTreeLayoutDelegate extends MultiChildLayoutDelegate {
 
   void positionTreeEdges() {
     for (int round = 0; round < numRounds; round += 1) {
-      int relativeNodeMargin = getRelativeNodeMargin(round);
-      double nodeMargin = relativeNodeMargin * _matchNodeSize.height * 0.5;
-
-      double horizontalNodePostition = getHorizontalNodePosition(round);
+      double nodeMargin = getVerticalNodeMargin(round);
 
       List<_TreeEdge> roundTreeEdges = treeEdges[round];
 
       for (_TreeEdge edge in roundTreeEdges) {
-        double verticalNodePostition =
-            getVerticalNodePosition(nodeMargin, edge.indexInRound);
-
         Offset nodePosition =
-            Offset(horizontalNodePostition, verticalNodePostition);
+            _nodePositions[(edge.roundIndex, edge.indexInRound)]!;
 
         Offset edgePosition =
             nodePositionToEdgePosition(nodePosition, edge, nodeMargin);
@@ -255,19 +259,46 @@ class _ElimiationTreeLayoutDelegate extends MultiChildLayoutDelegate {
     }
   }
 
+  /// Returns the vertical position (x-coordiante) of a match node that is
+  /// part of the [round]. The first round is round 0.
   double getHorizontalNodePosition(int round) {
-    return round * (_matchNodeSize.width + roundGapWidth);
+    double totalNodeWidth = _matchNodeSize.width + roundGapWidth;
+
+    double horizontalPosition = round * totalNodeWidth;
+
+    return horizontalPosition;
   }
 
-  double getVerticalNodePosition(double nodeMargin, int indexInRound) {
-    return 0.5 * nodeMargin +
-        indexInRound * (nodeMargin + _matchNodeSize.height);
+  /// Returns the horizontal position (y-coordinate) of a match node that
+  /// is in the [treePosition].
+  double getVerticalNodePosition(
+    double nodeMargin,
+    _TournamentTreePosition treePosition,
+  ) {
+    double topMargin = nodeMargin * 0.5;
+
+    double totalNodeHeight = nodeMargin + _matchNodeSize.height;
+
+    double verticalPosition =
+        topMargin + treePosition.indexInRound * totalNodeHeight;
+
+    return verticalPosition;
   }
 
-  int getRelativeNodeMargin(int round) {
-    return (pow(2, round + 1) as int) - 2;
+  /// Returns the total vertical margin of the match nodes of a given [round].
+  ///
+  /// That is each node has half this space in the top and bottom direction from
+  /// its edges.
+  double getVerticalNodeMargin(int round) {
+    int relativeNodeMargin = (pow(2, round) as int) - 1;
+
+    double absoluteNodeMargin = relativeNodeMargin * _matchNodeSize.height;
+
+    return absoluteNodeMargin;
   }
 
+  /// Converts the [nodePosition] to the position where the given
+  /// [edge] should be placed.
   Offset nodePositionToEdgePosition(
     Offset nodePosition,
     _TreeEdge edge,
@@ -291,15 +322,25 @@ class _ElimiationTreeLayoutDelegate extends MultiChildLayoutDelegate {
   }
 }
 
-class _MatchNode extends LayoutId {
-  _MatchNode({
-    required int roundIndex,
-    required int indexInRound,
-    required super.child,
-  }) : super(id: (roundIndex, indexInRound));
+abstract class _TournamentTreePosition {
+  int get roundIndex;
+  int get indexInRound;
 }
 
-class _TreeEdge extends LayoutId {
+class _MatchNode extends LayoutId implements _TournamentTreePosition {
+  _MatchNode({
+    required this.roundIndex,
+    required this.indexInRound,
+    required super.child,
+  }) : super(id: (roundIndex, indexInRound));
+
+  @override
+  final int roundIndex;
+  @override
+  final int indexInRound;
+}
+
+class _TreeEdge extends LayoutId implements _TournamentTreePosition {
   _TreeEdge({
     required this.roundIndex,
     required this.indexInRound,
@@ -311,8 +352,9 @@ class _TreeEdge extends LayoutId {
           child:
               (builder ?? _defaultBuilder).call(type, roundIndex, indexInRound),
         );
-
+  @override
   final int roundIndex;
+  @override
   final int indexInRound;
 
   final _TreeEdgeType type;
