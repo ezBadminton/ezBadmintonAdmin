@@ -19,7 +19,7 @@ class SingleEliminationTree extends StatelessWidget
     this.isEditable = false,
     this.showResults = false,
     this.placeholderLabels = const {},
-  }) : _sections = _getSections(rounds) {
+  }) : _sections = getSections(rounds) {
     matchNodeSize = getMatchNodeSize(competition.teamSize);
     layoutSize = _getLayoutSize();
   }
@@ -89,8 +89,9 @@ class SingleEliminationTree extends StatelessWidget
     );
   }
 
-  static List<BracketSection> _getSections(
-      List<EliminationRound<BadmintonMatch>> rounds) {
+  static List<BracketSection> getSections(
+    List<EliminationRound<BadmintonMatch>> rounds,
+  ) {
     return rounds.map((round) {
       return BracketSection(
         tournamentDataObjects: round.matches,

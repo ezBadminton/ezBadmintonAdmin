@@ -3,19 +3,23 @@ import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
 import 'package:ez_badminton_admin_app/layout/elimination_tree/elimination_tree_layout.dart';
 import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bracket.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
 import 'package:flutter/material.dart';
 import 'package:tournament_mode/tournament_mode.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'bracket_widths.dart' as bracket_widths;
 
-class DoubleEliminationTree extends StatelessWidget {
+class DoubleEliminationTree extends StatelessWidget
+    implements SectionedBracket {
   DoubleEliminationTree({
     super.key,
     required this.tournament,
     required this.competition,
     this.isEditable = false,
     this.showResults = false,
-  }) {
+  }) : _sections = getSections(tournament) {
     matchNodeSize =
         SingleEliminationTree.getMatchNodeSize(competition.teamSize);
     layoutSize = _getLayoutSize();
@@ -29,6 +33,10 @@ class DoubleEliminationTree extends StatelessWidget {
 
   late final Size matchNodeSize;
   late final Size layoutSize;
+
+  final List<BracketSection> _sections;
+  @override
+  List<BracketSection> get sections => _sections;
 
   @override
   Widget build(BuildContext context) {
@@ -81,5 +89,30 @@ class DoubleEliminationTree extends StatelessWidget {
       firstRoundSize * matchNodeSize.height +
           matchNodeSize.height * bracket_widths.relativeIntakeRoundOffset,
     );
+  }
+
+  static List<BracketSection> getSections(
+    BadmintonDoubleElimination tournament,
+  ) {
+    List<BracketSection> sections =
+        SingleEliminationTree.getSections(tournament.winnerBracket.rounds);
+
+    BracketSection upperFinalSection = sections.removeLast();
+    upperFinalSection = BracketSection(
+      tournamentDataObjects: upperFinalSection.tournamentDataObjects,
+      labelBuilder: (context) => AppLocalizations.of(context)!.upperFinal,
+    );
+
+    BadmintonMatch finalMatch = tournament.matches.last;
+
+    BracketSection finalSection = BracketSection(
+      tournamentDataObjects: [finalMatch],
+      labelBuilder: (context) => AppLocalizations.of(context)!.roundOfN('2'),
+    );
+
+    sections.add(upperFinalSection);
+    sections.add(finalSection);
+
+    return sections;
   }
 }
