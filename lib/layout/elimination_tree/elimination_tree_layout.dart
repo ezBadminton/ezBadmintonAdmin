@@ -2,7 +2,8 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:dart_numerics/dart_numerics.dart';
-import 'package:ez_badminton_admin_app/widgets/bent_line/bent_line.dart';
+import 'package:ez_badminton_admin_app/widgets/line_painters/bent_line.dart';
+import 'package:ez_badminton_admin_app/widgets/line_painters/s_line.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/bracket_widths.dart'
     as bracket_widths;
 import 'package:flutter/material.dart';

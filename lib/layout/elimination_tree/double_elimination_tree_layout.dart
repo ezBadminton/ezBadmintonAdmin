@@ -16,6 +16,7 @@ class DoubleEliminationTreeLayout extends StatelessWidget {
           edgeBuilder: _treeEdgeBuilder,
         ),
         _finalTreeEdges = _createFinalTreeEdges(matchNodes),
+        _loserEdges = _createLoserEdges(matchNodes),
         layoutSize = Size(
           max(layoutSize.width, winnerBracketSize.width),
           layoutSize.height +
@@ -39,6 +40,8 @@ class DoubleEliminationTreeLayout extends StatelessWidget {
 
   final List<_TreeEdge> _finalTreeEdges;
 
+  final List<_LoserEdge> _loserEdges;
+
   static const double _winnerLoserBracketMargin = 100;
 
   static const String _winnerBracketId = 'final';
@@ -56,6 +59,7 @@ class DoubleEliminationTreeLayout extends StatelessWidget {
         matchNodes: _matchNodes,
         treeEdges: _treeEdges,
         finalTreeEdges: _finalTreeEdges,
+        loserEdges: _loserEdges,
         matchNodeSize: matchNodeSize,
         layoutSize: layoutSize,
         roundGapWidth: roundGapWidth,
@@ -66,6 +70,7 @@ class DoubleEliminationTreeLayout extends StatelessWidget {
         ..._matchNodes.flattened,
         ..._treeEdges.flattened,
         ..._finalTreeEdges,
+        ..._loserEdges,
       ],
     );
   }
@@ -96,6 +101,14 @@ class DoubleEliminationTreeLayout extends StatelessWidget {
     return finalEdges;
   }
 
+  static List<_LoserEdge> _createLoserEdges(
+    Iterable<List<Widget>> matchWidgets,
+  ) {
+    int numEdges = matchWidgets.length ~/ 2 + 1;
+
+    return List.generate(numEdges, (index) => _LoserEdge(index: index));
+  }
+
   static Widget _treeEdgeBuilder(
     _TreeEdgeType type,
     int roundIndex,
@@ -115,6 +128,7 @@ class _DoubleEliminationTreeLayoutDelegate
   _DoubleEliminationTreeLayoutDelegate({
     required this.winnerBracketSize,
     required this.finalTreeEdges,
+    required this.loserEdges,
     required super.matchNodes,
     required super.treeEdges,
     required super.matchNodeSize,
@@ -126,6 +140,8 @@ class _DoubleEliminationTreeLayoutDelegate
   final Size winnerBracketSize;
 
   final List<_TreeEdge> finalTreeEdges;
+
+  final List<_LoserEdge> loserEdges;
 
   final int baseRoundSize;
 
@@ -145,6 +161,7 @@ class _DoubleEliminationTreeLayoutDelegate
 
     positionFinal();
     layoutAndPositionFinalTreeEdges();
+    layoutAndPositionLoserEdges();
   }
 
   @override
@@ -275,6 +292,43 @@ class _DoubleEliminationTreeLayoutDelegate
     }
   }
 
+  void layoutAndPositionLoserEdges() {
+    List<List<_MatchNode>> intakeRounds = matchNodes
+        .take(1)
+        .followedBy(matchNodes.whereIndexed((index, _) => index.isOdd))
+        .toList();
+
+    assert(intakeRounds.length == loserEdges.length);
+
+    double verticalBasePosition = winnerBracketSize.height;
+
+    for (_LoserEdge edge in loserEdges) {
+      double nodeMargin = super.getVerticalNodeMargin(edge.index);
+
+      double horizontalStartPosition =
+          super.getHorizontalNodePosition(edge.index) +
+              _matchNodeSize.width * 0.5;
+
+      double verticalStartPosition = verticalBasePosition - nodeMargin * 0.5;
+
+      Offset startPosition =
+          Offset(horizontalStartPosition, verticalStartPosition);
+
+      _MatchNode endNode = intakeRounds[edge.index].first;
+
+      Offset endNodePosition =
+          _nodePositions[(endNode.roundIndex, endNode.indexInRound)]!;
+
+      Offset endPosition =
+          endNodePosition + Offset(_matchNodeSize.width * 0.5, 0);
+
+      Rect loserEdgeRect = Rect.fromPoints(startPosition, endPosition);
+
+      layoutChild(edge.id, BoxConstraints.tight(loserEdgeRect.size));
+      positionChild(edge.id, loserEdgeRect.topLeft);
+    }
+  }
+
   @override
   void positionTreeEdges() {
     for (int round = 0; round < numRounds - 1; round += 1) {
@@ -363,4 +417,15 @@ class _DoubleEliminationTreeLayoutDelegate
   bool shouldRelayout(_DoubleEliminationTreeLayoutDelegate oldDelegate) {
     return true;
   }
+}
+
+class _LoserEdge extends LayoutId {
+  _LoserEdge({
+    required this.index,
+  }) : super(
+          child: const SLine(color: Colors.black26),
+          id: 'LoserEdge-$index',
+        );
+
+  final int index;
 }
