@@ -30,7 +30,7 @@ class SingleEliminationTree extends StatelessWidget
   final bool isEditable;
   final bool showResults;
 
-  final Map<MatchParticipant, String> placeholderLabels;
+  final Map<MatchParticipant, Widget> placeholderLabels;
 
   late final Size matchNodeSize;
   late final Size layoutSize;

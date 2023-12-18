@@ -321,5 +321,6 @@
   "tieBreakerRequired": "Gleichstand muss aufgelöst werden!",
   "noMatchesHint": "Starte im 'Disziplinen' Tab eine Disziplin, die eine Auslosung hat, um die Spiele hier zu sehen",
   "losersBracket": "Losers Bracket",
-  "upperFinal": "Oberes Finale"
+  "upperFinal": "Oberes Finale",
+  "loserOfMatch": "Verlierer {match}"
 }

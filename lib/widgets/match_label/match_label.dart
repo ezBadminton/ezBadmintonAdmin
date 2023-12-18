@@ -155,7 +155,7 @@ class MatchupCard extends StatelessWidget {
   final BadmintonMatch match;
   final bool isEditable;
   final double? width;
-  final Map<MatchParticipant, String> placeholderLabels;
+  final Map<MatchParticipant, Widget> placeholderLabels;
   final bool showResult;
 
   @override
@@ -199,7 +199,7 @@ class MatchupCard extends StatelessWidget {
                       isEditable: isEditable,
                       padding: padding,
                       placeholderLabel: placeholderLabels.containsKey(match.a)
-                          ? Text(placeholderLabels[match.a]!)
+                          ? placeholderLabels[match.a]!
                           : null,
                       textStyle: winner == match.a
                           ? TextStyle(
@@ -218,7 +218,7 @@ class MatchupCard extends StatelessWidget {
                       isEditable: isEditable,
                       padding: padding,
                       placeholderLabel: placeholderLabels.containsKey(match.b)
-                          ? Text(placeholderLabels[match.b]!)
+                          ? placeholderLabels[match.b]!
                           : null,
                       textStyle: winner == match.b
                           ? TextStyle(

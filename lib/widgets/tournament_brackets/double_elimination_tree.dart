@@ -1,6 +1,7 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/tournament_round_names.dart';
 import 'package:ez_badminton_admin_app/layout/elimination_tree/elimination_tree_layout.dart';
 import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section.dart';
@@ -40,6 +41,9 @@ class DoubleEliminationTree extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
+    Map<MatchParticipant, Widget> placeholderLabels =
+        _createPlaceholderLabels(context);
+
     SingleEliminationTree winnerBracket = SingleEliminationTree(
       rounds: tournament.winnerBracket.rounds,
       competition: competition,
@@ -62,6 +66,7 @@ class DoubleEliminationTree extends StatelessWidget
           match: match,
           showResult: showResults,
           width: matchNodeSize.width,
+          placeholderLabels: placeholderLabels,
         );
 
         return matchCard;
@@ -89,6 +94,38 @@ class DoubleEliminationTree extends StatelessWidget
       firstRoundSize * matchNodeSize.height +
           matchNodeSize.height * bracket_widths.relativeIntakeRoundOffset,
     );
+  }
+
+  Map<MatchParticipant, Widget> _createPlaceholderLabels(
+    BuildContext context,
+  ) {
+    var l10n = AppLocalizations.of(context)!;
+
+    TextStyle placeholderStyle =
+        TextStyle(color: Theme.of(context).disabledColor);
+
+    Iterable<MatchParticipant> loserParticipants = tournament.matches
+        .expand((match) => [match.a, match.b])
+        .where((participant) => participant.placement?.place == 1);
+
+    Map<MatchParticipant, Widget> participantLabels = {};
+
+    for (MatchParticipant loser in loserParticipants) {
+      BadmintonMatch lostMatch =
+          (loser.placement!.ranking as WinnerRanking).match as BadmintonMatch;
+
+      String matchName = (lostMatch.round as DoubleEliminationRound)
+          .getDoubleEliminationRoundName(l10n, lostMatch);
+
+      Widget label = Text(
+        l10n.loserOfMatch(matchName),
+        style: placeholderStyle,
+      );
+
+      participantLabels.putIfAbsent(loser, () => label);
+    }
+
+    return participantLabels;
   }
 
   static List<BracketSection> getSections(

@@ -57,7 +57,7 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
     );
   }
 
-  static Map<MatchParticipant, String> createQualificationPlaceholders(
+  static Map<MatchParticipant, Widget> createQualificationPlaceholders(
     BuildContext context,
     BadmintonGroupKnockout tournament,
   ) {
@@ -65,11 +65,11 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
     List<MatchParticipant> finalGroupRanking =
         tournament.groupPhase.finalRanking.ranks;
 
-    Map<MatchParticipant, String> placeholders = {
+    Map<MatchParticipant, Widget> placeholders = {
       for (int place = 0; place < tournament.qualificationsPerGroup; place += 1)
         for (int group = 0; group < tournament.numGroups; group += 1)
           finalGroupRanking[place * tournament.numGroups + group]:
-              l10n.groupQualification(group + 1, place + 1),
+              Text(l10n.groupQualification(group + 1, place + 1)),
     };
 
     return placeholders;
