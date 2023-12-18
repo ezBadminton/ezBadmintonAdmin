@@ -172,6 +172,8 @@ class _ElimiationTreeLayoutDelegate extends MultiChildLayoutDelegate {
 
   @override
   void performLayout(Size size) {
+    _nodePositions.clear();
+
     layoutMatchNodes();
     positionMatchNodes();
 
