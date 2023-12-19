@@ -7,6 +7,7 @@ class EliminationRound<M extends TournamentMatch> extends TournamentRound<M> {
     required super.tournament,
     required this.roundSize,
     this.roundDepth = 0,
+    super.nestedRounds,
   });
 
   /// The round size is the number of participants in this [EliminationRound].

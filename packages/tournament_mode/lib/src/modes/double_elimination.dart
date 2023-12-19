@@ -9,6 +9,7 @@ import 'package:tournament_mode/src/round_types/double_elimination_round.dart';
 import 'package:tournament_mode/src/round_types/elimination_round.dart';
 import 'package:tournament_mode/src/tournament_match.dart';
 import 'package:tournament_mode/src/tournament_mode.dart';
+import 'package:tournament_mode/src/utils.dart' as utils;
 
 class DoubleElimination<P, S, M extends TournamentMatch<P, S>,
     E extends SingleElimination<P, S, M>> extends TournamentMode<P, S, M> {
@@ -348,22 +349,10 @@ class DoubleElimination<P, S, M extends TournamentMatch<P, S>,
   /// Returns the matches in the qualification chain of the given [matches] that
   /// are not a bye or a walkover.
   Set<M> getNextPlayableMatches(Iterable<M> matches) {
-    if (matches.isEmpty) {
-      return const {};
-    }
-
-    Set<M> nextMatches = matches.expand((m) => getNextMatches(m)).toSet();
-
-    Set<M> unplayableMatches =
-        nextMatches.where((m) => m.isBye || m.isWalkover).toSet();
-
-    Set<M> nextMatchesOfUnplayableMatches =
-        getNextPlayableMatches(unplayableMatches);
-
-    nextMatches.removeAll(unplayableMatches);
-    nextMatches.addAll(nextMatchesOfUnplayableMatches);
-
-    return nextMatches;
+    return utils.getNextPlayableMatches(
+      matches,
+      getNextMatches: getNextMatches,
+    );
   }
 
   /// Returns the next match in the winner bracket.
