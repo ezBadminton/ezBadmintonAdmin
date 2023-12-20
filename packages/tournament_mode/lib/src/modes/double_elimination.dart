@@ -1,6 +1,6 @@
-import 'package:collection/collection.dart';
 import 'package:dart_numerics/dart_numerics.dart';
 import 'package:tournament_mode/src/match_participant.dart';
+import 'package:tournament_mode/src/modes/qualification_chain.dart';
 import 'package:tournament_mode/src/modes/single_elimination.dart';
 import 'package:tournament_mode/src/ranking.dart';
 import 'package:tournament_mode/src/rankings/double_elimination_ranking.dart';
@@ -9,10 +9,10 @@ import 'package:tournament_mode/src/round_types/double_elimination_round.dart';
 import 'package:tournament_mode/src/round_types/elimination_round.dart';
 import 'package:tournament_mode/src/tournament_match.dart';
 import 'package:tournament_mode/src/tournament_mode.dart';
-import 'package:tournament_mode/src/utils.dart' as utils;
 
 class DoubleElimination<P, S, M extends TournamentMatch<P, S>,
-    E extends SingleElimination<P, S, M>> extends TournamentMode<P, S, M> {
+        E extends SingleElimination<P, S, M>> extends TournamentMode<P, S, M>
+    with EliminationChain<P, S, M> {
   DoubleElimination({
     required Ranking<P> seededEntries,
     required this.singleEliminationBuilder,
@@ -165,10 +165,10 @@ class DoubleElimination<P, S, M extends TournamentMatch<P, S>,
   /// losers who come down from the winner bracket.
   /// Also called the "minor loser round".
   List<M> _createIntakeMatches(
-    List<M> previousEliminationRound,
+    List<M> previousLoserRound,
     List<M> winnerRound,
   ) {
-    assert(previousEliminationRound.length == winnerRound.length);
+    assert(previousLoserRound.length == winnerRound.length);
 
     // The first intake round has half as many participants as the first round
     // of the winner bracket (because it takes in all losers).
@@ -191,22 +191,23 @@ class DoubleElimination<P, S, M extends TournamentMatch<P, S>,
 
     List<M> intakeRound = [];
     for (int i = 0; i < winnerRound.length; i += 1) {
-      M eliminationMatch = previousEliminationRound[i];
+      M loserMatch = previousLoserRound[i];
       M winnerMatch = winnerRoundMatches.elementAt(i);
 
-      WinnerRanking<P, S> eliminationMatchRanking =
-          WinnerRanking(eliminationMatch);
+      WinnerRanking<P, S> loserMatchRanking = WinnerRanking(loserMatch);
       WinnerRanking<P, S> winnerMatchRanking = WinnerRanking(winnerMatch);
 
-      MatchParticipant<P> eliminationMatchWinner =
-          MatchParticipant.fromPlacement(
-        Placement(ranking: eliminationMatchRanking, place: 0),
+      MatchParticipant<P> loserMatchWinner = MatchParticipant.fromPlacement(
+        Placement(ranking: loserMatchRanking, place: 0),
       );
       MatchParticipant<P> winnerMatchLoser = MatchParticipant.fromPlacement(
         Placement(ranking: winnerMatchRanking, place: 1),
       );
 
-      M intakeMatch = matcher(winnerMatchLoser, eliminationMatchWinner);
+      M intakeMatch = matcher(winnerMatchLoser, loserMatchWinner);
+
+      loserMatch.nextMatches.add(intakeMatch);
+      winnerMatch.nextMatches.add(intakeMatch);
 
       intakeRound.add(intakeMatch);
     }
@@ -223,12 +224,15 @@ class DoubleElimination<P, S, M extends TournamentMatch<P, S>,
     List<M> eliminationRound =
         winnerBracket.createEliminationRound(intakeRoundWinners);
 
+    SingleElimination.chainMatches(intakeRound, eliminationRound);
+
     return eliminationRound;
   }
 
   M _createFinal(M loserFinal) {
-    WinnerRanking<P, S> winnerFinalRanking =
-        WinnerRanking(winnerBracket.matches.last);
+    M winnerFinal = winnerBracket.matches.last;
+
+    WinnerRanking<P, S> winnerFinalRanking = WinnerRanking(winnerFinal);
     WinnerRanking<P, S> loserFinalRanking = WinnerRanking(loserFinal);
 
     MatchParticipant<P> winnerFinalist = MatchParticipant.fromPlacement(
@@ -238,178 +242,11 @@ class DoubleElimination<P, S, M extends TournamentMatch<P, S>,
       Placement(ranking: loserFinalRanking, place: 0),
     );
 
-    return matcher(winnerFinalist, loserFinalist);
-  }
+    M finalFinal = matcher(winnerFinalist, loserFinalist);
 
-  @override
-  List<M> getEditableMatches() {
-    List<M> editableMatches = matches
-        .where((match) => match.hasWinner && !match.isWalkover && !match.isBye)
-        .where((match) {
-      Set<M> nextMatches = getNextPlayableMatches([match]);
+    winnerFinal.nextMatches.add(finalFinal);
+    loserFinal.nextMatches.add(finalFinal);
 
-      bool doNextMatchesAllowEditing = nextMatches.fold(
-        true,
-        (allowEditing, match) => allowEditing && !match.hasWinner,
-      );
-
-      return doNextMatchesAllowEditing;
-    }).toList();
-
-    return editableMatches;
-  }
-
-  @override
-  List<M> withdrawPlayer(P player) {
-    M? walkoverMatch = getMatchesOfPlayer(player).firstWhereOrNull(
-      (m) {
-        if (!m.hasWinner) {
-          return true;
-        }
-
-        if (m.isDrawnBye || !(m.isBye || m.isWalkover)) {
-          return false;
-        }
-
-        // A player can withdraw from a match that is already a walkover
-        // when the next matches of the walkover have not started yet.
-
-        Set<M> nextMatches = getNextPlayableMatches([m]);
-
-        bool haveNextMatchesStarted = nextMatches.fold(
-          false,
-          (haveStarted, match) => haveStarted || match.startTime != null,
-        );
-
-        bool walkoverNotInEffect =
-            nextMatches.isNotEmpty && !haveNextMatchesStarted;
-
-        return walkoverNotInEffect;
-      },
-    );
-
-    if (walkoverMatch == null) {
-      return [];
-    }
-
-    return [walkoverMatch];
-  }
-
-  @override
-  List<M> reenterPlayer(P player) {
-    List<M> withdrawnMatchesOfPlayer = matches
-        .where((m) => m.isWalkover)
-        .where(
-          (m) => m.withdrawnParticipants!
-              .map((p) => p.resolvePlayer())
-              .contains(player),
-        )
-        .toList();
-
-    assert(withdrawnMatchesOfPlayer.length <= 1);
-
-    if (withdrawnMatchesOfPlayer.isEmpty) {
-      return [];
-    }
-
-    Set<M> nextMatches = getNextPlayableMatches(withdrawnMatchesOfPlayer);
-
-    bool areNextMatchesInProgress = nextMatches.fold(
-      false,
-      (inProgress, match) => inProgress || match.startTime != null,
-    );
-
-    if (areNextMatchesInProgress) {
-      return [];
-    } else {
-      return withdrawnMatchesOfPlayer;
-    }
-  }
-
-  /// Returns the matches that the winner/loser of the [match] qualify for.
-  ///
-  /// When the returned List contains 2 matches, the first one is the match
-  /// that the winner qualifies for and the second is the one that the loser
-  /// qualifies for.
-  /// If it is only one match then the loser of the [match] is out.
-  /// When the returned list is empty, the given [match] was the final.
-  List<M> getNextMatches(M match) {
-    DoubleEliminationRound<M> roundOfMatch =
-        rounds.firstWhere((r) => r.matches.contains(match));
-
-    M? nextWinnerBracketMatch = _getNextWinnerBracketMatch(match, roundOfMatch);
-    M? nextLoserBracketMatch = _getNextLoserBracketMatch(match, roundOfMatch);
-
-    return [
-      if (nextWinnerBracketMatch != null) nextWinnerBracketMatch,
-      if (nextLoserBracketMatch != null) nextLoserBracketMatch,
-    ];
-  }
-
-  /// Returns the matches in the qualification chain of the given [matches] that
-  /// are not a bye or a walkover.
-  Set<M> getNextPlayableMatches(Iterable<M> matches) {
-    return utils.getNextPlayableMatches(
-      matches,
-      getNextMatches: getNextMatches,
-    );
-  }
-
-  /// Returns the next match in the winner bracket.
-  M? _getNextWinnerBracketMatch(
-    M match,
-    DoubleEliminationRound<M> roundOfMatch,
-  ) {
-    bool isWinnerBracketMatch =
-        roundOfMatch.winnerRound?.matches.contains(match) ?? false;
-
-    if (!isWinnerBracketMatch) {
-      return null;
-    }
-
-    bool isFinal = roundOfMatch.winnerRound!.roundSize == 2 &&
-        roundOfMatch.loserRound == null;
-
-    if (isFinal) {
-      return null;
-    }
-
-    bool isWinnerBracketFinal = roundOfMatch.winnerRound!.roundSize == 2;
-
-    if (isWinnerBracketFinal) {
-      return matches.last;
-    }
-
-    return winnerBracket.getNextMatch(match);
-  }
-
-  /// Returns the next match in the loser bracket.
-  ///
-  /// If the given [match] is from the loser bracket it returns the match that
-  /// the winner advances to. When it is from the winner bracket, the returned
-  /// match is the match that the loser goes to.
-  M? _getNextLoserBracketMatch(
-    M match,
-    DoubleEliminationRound<M> roundOfMatch,
-  ) {
-    bool isFinal = roundOfMatch.winnerRound?.roundSize == 2 &&
-        roundOfMatch.loserRound == null;
-
-    if (isFinal) {
-      return null;
-    }
-
-    int roundIndex = rounds.indexOf(roundOfMatch);
-
-    DoubleEliminationRound<M> nextRound = rounds[roundIndex + 1];
-
-    List<M> nextRoundMatches =
-        (nextRound.loserRound ?? nextRound.winnerRound!).matches;
-
-    return nextRoundMatches.firstWhere(
-      (m) =>
-          (m.a.placement!.ranking as WinnerRanking).match == match ||
-          (m.b.placement!.ranking as WinnerRanking).match == match,
-    );
+    return finalFinal;
   }
 }

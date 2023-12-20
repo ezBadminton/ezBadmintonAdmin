@@ -5,7 +5,7 @@ import 'package:ez_badminton_admin_app/widgets/tournament_brackets/round_robin_r
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bracket.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
 import 'package:flutter/material.dart';
-import 'bracket_widths.dart' as bracket_widths;
+import 'bracket_sizes.dart' as bracket_sizes;
 
 class GroupKnockoutResults extends StatelessWidget implements SectionedBracket {
   GroupKnockoutResults({
@@ -44,9 +44,9 @@ class GroupKnockoutResults extends StatelessWidget implements SectionedBracket {
       children: [
         for (Widget groupResult in groupResults) ...[
           groupResult,
-          const SizedBox(width: bracket_widths.groupKnockoutGroupGap),
+          const SizedBox(width: bracket_sizes.groupKnockoutGroupGap),
         ],
-        const SizedBox(width: bracket_widths.groupKnockoutEliminationGap),
+        const SizedBox(width: bracket_sizes.groupKnockoutEliminationGap),
         eliminationTree,
       ],
     );

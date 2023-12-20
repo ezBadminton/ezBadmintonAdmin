@@ -13,6 +13,19 @@ abstract class TournamentMatch<P, S> {
 
   TournamentRound<TournamentMatch<P, S>>? round;
 
+  /// The next matches in the qualification chain of this match.
+  ///
+  /// This should be set by the tournament mode creating this match.
+  ///
+  /// It might be an empty list when the match is part of a tournament that has
+  /// no qualification chain (e.g. round robin) or on a final match.
+  ///
+  /// When the list contains 2 matches, the first one is the match
+  /// that the winner qualifies for and the second is the one that the loser
+  /// qualifies for.
+  /// If it is only one match then the loser of the match is out.
+  List<TournamentMatch<P, S>> nextMatches = [];
+
   S? get score => _score;
 
   S? _score;

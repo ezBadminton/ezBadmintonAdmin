@@ -8,7 +8,7 @@ import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bra
 import 'package:flutter/material.dart';
 import 'package:tournament_mode/tournament_mode.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'bracket_widths.dart' as bracket_widths;
+import 'bracket_sizes.dart' as bracket_sizes;
 
 class SingleEliminationTree extends StatelessWidget
     implements SectionedBracket {
@@ -67,14 +67,16 @@ class SingleEliminationTree extends StatelessWidget
       matchNodes: matchNodes,
       matchNodeSize: matchNodeSize,
       layoutSize: layoutSize,
-      roundGapWidth: bracket_widths.singleEliminationRoundGap,
+      roundGapWidth: bracket_sizes.singleEliminationRoundGap,
     );
   }
 
   static Size getMatchNodeSize(int teamSize) {
     return Size(
-      bracket_widths.singleEliminationNodeWidth,
-      teamSize == 1 ? 90 : 128,
+      bracket_sizes.singleEliminationNodeWidth,
+      teamSize == 1
+          ? bracket_sizes.singlesMatchCardHeight
+          : bracket_sizes.doublesMatchCardHeight,
     );
   }
 
@@ -84,7 +86,7 @@ class SingleEliminationTree extends StatelessWidget
 
     return Size(
       numRounds * matchNodeSize.width +
-          (numRounds - 1) * bracket_widths.singleEliminationRoundGap,
+          (numRounds - 1) * bracket_sizes.singleEliminationRoundGap,
       firstRoundLength * matchNodeSize.height,
     );
   }

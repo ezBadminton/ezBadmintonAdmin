@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:tournament_mode/src/match_participant.dart';
+import 'package:tournament_mode/src/modes/qualification_chain.dart';
 import 'package:tournament_mode/src/ranking.dart';
 import 'package:tournament_mode/src/rankings/elimination_ranking.dart';
 import 'package:tournament_mode/src/rankings/match_ranking.dart';
@@ -13,7 +14,7 @@ import 'package:tournament_mode/src/tournament_mode.dart';
 /// Single elimination mode. All players are entered into a tournament
 /// tree where each winner progresses to the next round until the finals.
 class SingleElimination<P, S, M extends TournamentMatch<P, S>>
-    extends TournamentMode<P, S, M> {
+    extends TournamentMode<P, S, M> with EliminationChain<P, S, M> {
   /// Creates a [SingleElimination] tournament with the given [seededEntries].
   ///
   /// If no seeding is needed a random ranking can be used aswell.
@@ -73,6 +74,10 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
       }
 
       roundParticipants = createNextRoundParticipants(roundMatches);
+
+      if (eliminationMatches.isNotEmpty) {
+        chainMatches(eliminationMatches.last, roundMatches);
+      }
 
       eliminationMatches.add(roundMatches);
     }
@@ -191,115 +196,24 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
     return rounds;
   }
 
-  @override
-  List<M> getEditableMatches() {
-    List<M> editableMatches = matches
-        .where((match) => match.hasWinner && !match.isWalkover && !match.isBye)
-        .where((match) {
-      M? nextMatch = getNextPlayableMatch(match);
+  /// Populate the [TournamentMatch.nextMatches] list of the given [round]
+  /// with the matches of the [followingRound], forming a qualification chain.
+  static void chainMatches<M extends TournamentMatch>(
+    List<M> round,
+    List<M> followingRound,
+  ) {
+    List<List<M>> matchPairs = round.slices(2).toList();
 
-      return nextMatch == null || !nextMatch.hasWinner;
-    }).toList();
+    assert(matchPairs.length == followingRound.length);
 
-    return editableMatches;
-  }
+    for (int i = 0; i < matchPairs.length; i += 1) {
+      List<M> pair = matchPairs[i];
+      M followingMatch = followingRound[i];
 
-  @override
-  List<M> withdrawPlayer(P player) {
-    M? walkoverMatch = getMatchesOfPlayer(player).firstWhereOrNull(
-      (m) {
-        if (!m.hasWinner) {
-          return true;
-        }
-
-        if (m.isDrawnBye || !(m.isBye || m.isWalkover)) {
-          return false;
-        }
-
-        // A player can withdraw from a match that is already a walkover
-        // when the next matches of the walkover have not started yet.
-
-        M? nextMatch = getNextPlayableMatch(m);
-
-        bool walkoverNotInEffect =
-            nextMatch != null && nextMatch.startTime == null;
-
-        return walkoverNotInEffect;
-      },
-    );
-
-    if (walkoverMatch == null) {
-      return [];
+      for (M match in pair) {
+        match.nextMatches.add(followingMatch);
+      }
     }
-
-    return [walkoverMatch];
-  }
-
-  @override
-  List<M> reenterPlayer(P player) {
-    List<M> withdrawnMatchesOfPlayer = matches
-        .where((m) => m.isWalkover)
-        .where(
-          (m) => m.withdrawnParticipants!
-              .map((p) => p.resolvePlayer())
-              .contains(player),
-        )
-        .toList();
-
-    assert(withdrawnMatchesOfPlayer.length <= 1);
-
-    if (withdrawnMatchesOfPlayer.isEmpty) {
-      return [];
-    }
-
-    M? nextMatch = getNextPlayableMatch(withdrawnMatchesOfPlayer.single);
-
-    bool canReenter = nextMatch == null || nextMatch.startTime == null;
-
-    if (canReenter) {
-      return withdrawnMatchesOfPlayer;
-    } else {
-      return [];
-    }
-  }
-
-  /// For the given [match] of this [SingleElimination], returns the match that
-  /// the winner qualifies for.
-  ///
-  /// For example the next match of both semi finals is the final.
-  ///
-  /// The final has no next match. The return value is null in this case.
-  M? getNextMatch(M match) {
-    EliminationRound<M> round =
-        rounds.firstWhere((r) => r.matches.contains(match));
-
-    if (round.roundSize == 2) {
-      /// There is no match after the final
-      return null;
-    }
-
-    int matchIndex = round.matches.indexOf(match);
-
-    EliminationRound<M> nextRound = rounds.firstWhere(
-      (r) => r.roundSize == round.roundSize ~/ 2,
-    );
-
-    return nextRound.matches[matchIndex ~/ 2];
-  }
-
-  /// For the given [match] of this [SingleElimination], returns the next match
-  /// in the qualification chain that is not a bye or walkover.
-  ///
-  /// For example when the semi-final is a walkover then the next playable match
-  /// of the quarter-final is the final.
-  M? getNextPlayableMatch(M match) {
-    M? nextMatch = getNextMatch(match);
-
-    while (nextMatch != null && (nextMatch.isBye || nextMatch.isWalkover)) {
-      nextMatch = getNextMatch(nextMatch);
-    }
-
-    return nextMatch;
   }
 }
 

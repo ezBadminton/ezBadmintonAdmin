@@ -7,7 +7,7 @@ import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_elimin
 import 'package:flutter/material.dart';
 import 'package:tournament_mode/tournament_mode.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'bracket_widths.dart' as bracket_widths;
+import 'bracket_sizes.dart' as bracket_sizes;
 
 class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
   GroupKnockoutPlan({
@@ -49,9 +49,9 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
       children: [
         for (Widget groupPlan in groupPlans) ...[
           groupPlan,
-          const SizedBox(width: bracket_widths.groupKnockoutGroupGap),
+          const SizedBox(width: bracket_sizes.groupKnockoutGroupGap),
         ],
-        const SizedBox(width: bracket_widths.groupKnockoutEliminationGap),
+        const SizedBox(width: bracket_sizes.groupKnockoutEliminationGap),
         eliminationTree,
       ],
     );

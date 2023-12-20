@@ -10,7 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_scroll_shadow/flutter_scroll_shadow.dart';
 import 'package:tournament_mode/tournament_mode.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'bracket_widths.dart' as bracket_widths;
+import 'bracket_sizes.dart' as bracket_sizes;
 
 class RoundRobinPlan extends StatelessWidget {
   const RoundRobinPlan({
@@ -71,7 +71,7 @@ class _RoundRobinTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double width = bracket_widths.roundRobinTableWidth;
+    double width = bracket_sizes.roundRobinTableWidth;
 
     return Card(
       elevation: 0,
@@ -168,7 +168,7 @@ class _RoundRobinMatchListState extends State<_RoundRobinMatchList> {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
     var interactionBlockerCubit = context.read<InteractiveViewBlockerCubit>();
-    double width = bracket_widths.roundRobinTableWidth;
+    double width = bracket_sizes.roundRobinTableWidth;
 
     return SizedBox(
       width: width,

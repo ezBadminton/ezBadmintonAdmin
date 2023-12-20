@@ -10,7 +10,7 @@ import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_elimin
 import 'package:flutter/material.dart';
 import 'package:tournament_mode/tournament_mode.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'bracket_widths.dart' as bracket_widths;
+import 'bracket_sizes.dart' as bracket_sizes;
 
 class DoubleEliminationTree extends StatelessWidget
     implements SectionedBracket {
@@ -90,9 +90,9 @@ class DoubleEliminationTree extends StatelessWidget
 
     return Size(
       numRounds * matchNodeSize.width +
-          (numRounds - 1) * bracket_widths.singleEliminationRoundGap,
+          (numRounds - 1) * bracket_sizes.singleEliminationRoundGap,
       firstRoundSize * matchNodeSize.height +
-          matchNodeSize.height * bracket_widths.relativeIntakeRoundOffset,
+          matchNodeSize.height * bracket_sizes.relativeIntakeRoundOffset,
     );
   }
 

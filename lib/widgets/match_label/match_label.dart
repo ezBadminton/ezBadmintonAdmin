@@ -6,6 +6,8 @@ import 'package:ez_badminton_admin_app/widgets/competition_label/competition_lab
 import 'package:ez_badminton_admin_app/widgets/help_tooltip_icon/help_tooltip_icon.dart';
 import 'package:ez_badminton_admin_app/widgets/match_info/match_info.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section_subtree.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/bracket_sizes.dart'
+    as bracket_sizes;
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -162,23 +164,22 @@ class MatchupCard extends StatelessWidget {
   Widget build(BuildContext context) {
     MatchParticipant? winner = showResult ? match.getWinner() : null;
 
-    EdgeInsets padding = isEditable
-        ? const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10)
-        : const EdgeInsets.symmetric(vertical: 10.5, horizontal: 10);
-
-    Widget matchupCard = Card(
-      elevation: 0,
-      clipBehavior: Clip.antiAlias,
-      margin: const EdgeInsets.symmetric(vertical: 5.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.onSurface.withOpacity(.3),
-          width: 2,
+    Widget matchupCard = SizedBox(
+      width: width,
+      height: match.competition.teamSize == 1
+          ? bracket_sizes.singlesMatchCardHeight
+          : bracket_sizes.doublesMatchCardHeight,
+      child: Card(
+        elevation: 0,
+        clipBehavior: Clip.antiAlias,
+        margin: const EdgeInsets.symmetric(vertical: 5.0),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          side: BorderSide(
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(.3),
+            width: 2,
+          ),
         ),
-      ),
-      child: SizedBox(
-        width: width,
         child: IntrinsicHeight(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -192,12 +193,12 @@ class MatchupCard extends StatelessWidget {
                   crossAxisAlignment: showResult
                       ? CrossAxisAlignment.end
                       : CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     MatchParticipantLabel(
                       match.a,
                       teamSize: match.competition.teamSize,
                       isEditable: isEditable,
-                      padding: padding,
                       placeholderLabel: placeholderLabels.containsKey(match.a)
                           ? placeholderLabels[match.a]!
                           : null,
@@ -216,7 +217,6 @@ class MatchupCard extends StatelessWidget {
                       match.b,
                       teamSize: match.competition.teamSize,
                       isEditable: isEditable,
-                      padding: padding,
                       placeholderLabel: placeholderLabels.containsKey(match.b)
                           ? placeholderLabels[match.b]!
                           : null,

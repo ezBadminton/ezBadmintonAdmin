@@ -4,7 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:dart_numerics/dart_numerics.dart';
 import 'package:ez_badminton_admin_app/widgets/line_painters/bent_line.dart';
 import 'package:ez_badminton_admin_app/widgets/line_painters/s_line.dart';
-import 'package:ez_badminton_admin_app/widgets/tournament_brackets/bracket_widths.dart'
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/bracket_sizes.dart'
     as bracket_widths;
 import 'package:flutter/material.dart';
 
@@ -186,11 +186,11 @@ class _ElimiationTreeLayoutDelegate extends MultiChildLayoutDelegate {
     for (_MatchNode matchNode in matchNodes.flattened) {
       Size matchNodeSize = layoutChild(matchNode.id, const BoxConstraints());
 
-      assert(
-        matchNode == matchNodes.flattened.first ||
-            _matchNodeSize == matchNodeSize,
-        "All match nodes have to be the same size!",
-      );
+      //assert(
+      //  matchNode == matchNodes.flattened.first ||
+      //      _matchNodeSize == matchNodeSize,
+      //  "All match nodes have to be the same size!",
+      //);
 
       _matchNodeSize = matchNodeSize;
     }

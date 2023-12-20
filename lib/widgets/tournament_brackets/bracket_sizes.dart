@@ -9,3 +9,6 @@ const double groupKnockoutGroupGap = 30;
 const double groupKnockoutEliminationGap = 50;
 
 const double relativeIntakeRoundOffset = 0.2;
+
+const double singlesMatchCardHeight = 90;
+const double doublesMatchCardHeight = 128;

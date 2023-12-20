@@ -67,30 +67,3 @@ List<List<MatchParticipant<P>>> filterHighestRanks<P>(
 
   return filteredRanks;
 }
-
-/// Returns the next matches in the qualification chain of the given [matches]
-/// that are not a bye or a walkover.
-///
-/// The next matches in the qualification chain are obtained by calling the
-/// given [getNextMatches] function.
-Set<M> getNextPlayableMatches<M extends TournamentMatch>(
-  Iterable<M> matches, {
-  required List<M> Function(M match) getNextMatches,
-}) {
-  if (matches.isEmpty) {
-    return const {};
-  }
-
-  Set<M> nextMatches = matches.expand((m) => getNextMatches(m)).toSet();
-
-  Set<M> unplayableMatches =
-      nextMatches.where((m) => m.isBye || m.isWalkover).toSet();
-
-  Set<M> nextMatchesOfUnplayableMatches =
-      getNextPlayableMatches(unplayableMatches, getNextMatches: getNextMatches);
-
-  nextMatches.removeAll(unplayableMatches);
-  nextMatches.addAll(nextMatchesOfUnplayableMatches);
-
-  return nextMatches;
-}

@@ -1,11 +1,12 @@
 import 'dart:math';
 
+import 'package:tournament_mode/src/modes/qualification_chain.dart';
 import 'package:tournament_mode/src/rankings/consolation_ranking.dart';
 import 'package:tournament_mode/tournament_mode.dart';
-import 'package:tournament_mode/src/utils.dart' as utils;
 
 class SingleEliminationWithConsolation<P, S, M extends TournamentMatch<P, S>,
-    E extends SingleElimination<P, S, M>> extends TournamentMode<P, S, M> {
+        E extends SingleElimination<P, S, M>> extends TournamentMode<P, S, M>
+    with EliminationChain<P, S, M> {
   SingleEliminationWithConsolation({
     required Ranking<P> seededEntries,
     required this.singleEliminationBuilder,
@@ -137,10 +138,10 @@ class SingleEliminationWithConsolation<P, S, M extends TournamentMatch<P, S>,
   }
 
   /// Recursively creates the consolation brackets until [numConsolationRounds]
-  /// is reached.
+  /// is reached and [placesToPlayOut] is satisfied.
   ///
   /// If the [winnerBracket] only has one match then the recursion quietly stops
-  /// even if [numConsolationRounds] has not been reached.
+  /// even if [numConsolationRounds] or [placesToPlayOut] has not been reached.
   List<BracketWithConsolation<P, S, M, E>> _createConsolationBrackets(
     E winnerBracket,
     int depth,
@@ -171,6 +172,11 @@ class SingleEliminationWithConsolation<P, S, M extends TournamentMatch<P, S>,
       skipConsolations = max(1, skipConsolations);
     }
 
+    // Iterate in reverse round order to go from the highest level consolation
+    // round (match for 3rd place) to the lowest (losers of first round).
+    // This needs to be done to be able to keep count of the played out places
+    // via the [allBrackets] list since those are counted from the highest
+    // places downwards.
     Iterable<EliminationRound<M>> roundsToConsole =
         winnerBracket.rounds.skip(skipConsolations).toList().reversed;
 
@@ -197,7 +203,7 @@ class SingleEliminationWithConsolation<P, S, M extends TournamentMatch<P, S>,
     return consolationRounds;
   }
 
-  /// Make an elimination tournament that is derived from the given
+  /// Make a consolation elimination tournament that is derived from the given
   /// [round] in the winner bracket.
   ///
   /// For example when the given [round] is the semi-final round of the winner
@@ -223,7 +229,16 @@ class SingleEliminationWithConsolation<P, S, M extends TournamentMatch<P, S>,
 
     Ranking<P> loserRoundEntries = ConsolationRanking(losers);
 
-    return singleEliminationBuilder(loserRoundEntries);
+    E consolationTournament = singleEliminationBuilder(loserRoundEntries);
+
+    int roundIndex = round.tournament.rounds.indexOf(round);
+    TournamentRound<M> previousRound = round.tournament.rounds[roundIndex - 1];
+    SingleElimination.chainMatches(
+      previousRound.matches,
+      consolationTournament.rounds.first.matches,
+    );
+
+    return consolationTournament;
   }
 
   void _initFinalRanking() {
@@ -235,90 +250,6 @@ class SingleEliminationWithConsolation<P, S, M extends TournamentMatch<P, S>,
         .toList();
 
     finalRanking.initRounds(roundMatches);
-  }
-
-  @override
-  List<M> getEditableMatches() {
-    List<M> editableMatches = matches
-        .where((match) => match.hasWinner && !match.isWalkover && !match.isBye)
-        .where((match) {
-      Set<M> nextMatches = getNextPlayableMatches([match]);
-
-      bool areNextMatchesFinished = nextMatches.fold(
-        false,
-        (finished, match) => finished || match.hasWinner,
-      );
-
-      return !areNextMatchesFinished;
-    }).toList();
-
-    return editableMatches;
-  }
-
-  @override
-  List<M> withdrawPlayer(P player) {
-    return allBrackets
-        .expand((bracket) => bracket.bracket.withdrawPlayer(player))
-        .toList();
-  }
-
-  @override
-  List<M> reenterPlayer(P player) {
-    List<M> reenteringMatches = allBrackets
-        .expand((bracket) => bracket.bracket.reenterPlayer(player))
-        .toList();
-
-    List<M> validReenteringMatches = reenteringMatches.where(
-      (match) {
-        Set<M> nextMatches = getNextPlayableMatches([match]);
-
-        bool areNextMatchesInProgress = nextMatches.fold(
-          false,
-          (inProgress, match) => inProgress || match.startTime != null,
-        );
-
-        return !areNextMatchesInProgress;
-      },
-    ).toList();
-
-    return validReenteringMatches;
-  }
-
-  /// Returns the matches that the winner/loser of the [match] qualify for.
-  ///
-  /// When the returned List contains 2 matches, the first one is the match
-  /// that the winner qualifies for and the second is the one that the loser
-  /// qualifies for.
-  /// If it is only one match then the loser of the [match] is out.
-  /// When the returned list is empty, the given [match] was a final.
-  List<M> getNextMatches(M match) {
-    EliminationRound<M> roundOfMatch = match.round as EliminationRound<M>;
-
-    int roundIndex = rounds.indexOf(roundOfMatch);
-
-    EliminationRound<M>? nextRound = rounds.elementAtOrNull(roundIndex + 1);
-    if (nextRound == null) {
-      return [];
-    }
-
-    List<M> nextMatches = nextRound.matches
-        .where(
-          (m) =>
-              (m.a.placement!.ranking as WinnerRanking).match == match ||
-              (m.b.placement!.ranking as WinnerRanking).match == match,
-        )
-        .toList();
-
-    return nextMatches;
-  }
-
-  /// Returns the matches in the qualification chain of the given [matches] that
-  /// are not a bye or a walkover.
-  Set<M> getNextPlayableMatches(Iterable<M> matches) {
-    return utils.getNextPlayableMatches(
-      matches,
-      getNextMatches: getNextMatches,
-    );
   }
 
   /// Calculates the amount of brackets that need to be played with full
