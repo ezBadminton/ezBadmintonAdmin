@@ -180,62 +180,60 @@ class MatchupCard extends StatelessWidget {
             width: 2,
           ),
         ),
-        child: IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _WalkoverInfo(match: match),
-              _ScoreEditButton(match: match),
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: showResult
-                      ? CrossAxisAlignment.end
-                      : CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    MatchParticipantLabel(
-                      match.a,
-                      teamSize: match.competition.teamSize,
-                      isEditable: isEditable,
-                      placeholderLabel: placeholderLabels.containsKey(match.a)
-                          ? placeholderLabels[match.a]!
-                          : null,
-                      textStyle: winner == match.a
-                          ? TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            )
-                          : null,
-                      alignment: showResult
-                          ? CrossAxisAlignment.end
-                          : CrossAxisAlignment.start,
-                    ),
-                    const Divider(height: 0, thickness: 1),
-                    MatchParticipantLabel(
-                      match.b,
-                      teamSize: match.competition.teamSize,
-                      isEditable: isEditable,
-                      placeholderLabel: placeholderLabels.containsKey(match.b)
-                          ? placeholderLabels[match.b]!
-                          : null,
-                      textStyle: winner == match.b
-                          ? TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            )
-                          : null,
-                      alignment: showResult
-                          ? CrossAxisAlignment.end
-                          : CrossAxisAlignment.start,
-                    ),
-                  ],
-                ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _WalkoverInfo(match: match),
+            _ScoreEditButton(match: match),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: showResult
+                    ? CrossAxisAlignment.end
+                    : CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  MatchParticipantLabel(
+                    match.a,
+                    teamSize: match.competition.teamSize,
+                    isEditable: isEditable,
+                    placeholderLabel: placeholderLabels.containsKey(match.a)
+                        ? placeholderLabels[match.a]!
+                        : null,
+                    textStyle: winner == match.a
+                        ? TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          )
+                        : null,
+                    alignment: showResult
+                        ? CrossAxisAlignment.end
+                        : CrossAxisAlignment.start,
+                  ),
+                  const Divider(height: 0, thickness: 1),
+                  MatchParticipantLabel(
+                    match.b,
+                    teamSize: match.competition.teamSize,
+                    isEditable: isEditable,
+                    placeholderLabel: placeholderLabels.containsKey(match.b)
+                        ? placeholderLabels[match.b]!
+                        : null,
+                    textStyle: winner == match.b
+                        ? TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          )
+                        : null,
+                    alignment: showResult
+                        ? CrossAxisAlignment.end
+                        : CrossAxisAlignment.start,
+                  ),
+                ],
               ),
-              if (showResult) _Scoreline(match: match),
-            ],
-          ),
+            ),
+            if (showResult) _Scoreline(match: match),
+          ],
         ),
       ),
     );
@@ -297,19 +295,15 @@ class _Scoreline extends StatelessWidget {
         return _ScoreContainer(
           isWalkover: match.isWalkover,
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Expanded(
-                child: Center(child: score1),
-              ),
+              score1,
               Divider(
                 height: 0,
                 thickness: 1,
                 color: dividerColor,
               ),
-              Expanded(
-                child: Center(child: score2),
-              ),
+              score2,
             ],
           ),
         );
