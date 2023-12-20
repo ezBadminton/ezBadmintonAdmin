@@ -129,6 +129,8 @@ class TournamentModeAssignmentCubit
         return GroupKnockoutSettings;
       case DoubleEliminationSettings _:
         return DoubleEliminationSettings;
+      case SingleEliminationWithConsolationSettings _:
+        return SingleEliminationWithConsolationSettings;
     }
   }
 
@@ -184,6 +186,19 @@ class TournamentModeAssignmentCubit
           created: DateTime.now().toUtc(),
           updated: DateTime.now().toUtc(),
           seedingMode: SeedingMode.tiered,
+          winningPoints: winningPoints,
+          winningSets: winningSets,
+          maxPoints: maxPoints,
+          twoPointMargin: twoPointMargin,
+        );
+      case SingleEliminationWithConsolationSettings:
+        return SingleEliminationWithConsolationSettings(
+          id: '',
+          created: DateTime.now().toUtc(),
+          updated: DateTime.now().toUtc(),
+          seedingMode: SeedingMode.tiered,
+          numConsolationRounds: 0,
+          placesToPlayOut: 2,
           winningPoints: winningPoints,
           winningSets: winningSets,
           maxPoints: maxPoints,

@@ -34,6 +34,11 @@ BadmintonTournamentMode createTournamentMode(Competition competition) {
         seededEntries: entries,
         competition: competition,
       ),
+    SingleEliminationWithConsolationSettings _ =>
+      BadmintonSingleEliminationWithConsolation.fromCompetition(
+        seededEntries: entries,
+        competition: competition,
+      ),
   };
 
   return tournament;

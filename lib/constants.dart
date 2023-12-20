@@ -34,6 +34,7 @@ const List<Type> tournamentModes = [
   SingleEliminationSettings,
   GroupKnockoutSettings,
   DoubleEliminationSettings,
+  SingleEliminationWithConsolationSettings,
 ];
 
 final String fontDirPath = p.join(Directory.current.path, 'fonts');

@@ -63,6 +63,20 @@ sealed class TournamentModeSettings extends Model
     required bool twoPointMargin,
   }) = DoubleEliminationSettings;
 
+  @FreezedUnionValue('SingleEliminationWithConsolation')
+  const factory TournamentModeSettings.singleEliminationWithConsolation({
+    required String id,
+    required DateTime created,
+    required DateTime updated,
+    required SeedingMode seedingMode,
+    required int numConsolationRounds,
+    required int placesToPlayOut,
+    required int winningPoints,
+    required int winningSets,
+    required int maxPoints,
+    required bool twoPointMargin,
+  }) = SingleEliminationWithConsolationSettings;
+
   factory TournamentModeSettings.fromJson(Map<String, dynamic> json) =>
       _$TournamentModeSettingsFromJson(json);
 

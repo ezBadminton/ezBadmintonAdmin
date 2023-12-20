@@ -163,12 +163,12 @@
   "roundRobin": "Round robin",
   "singleElimination": "Single elimination",
   "doubleElimination": "Double elimination",
-  "classificationElimination": "Elimination with classification",
+  "consolationElimination": "Elimination with consolation rounds",
   "groupKnockout": "Group tournament",
   "roundRobinHelp": "Each participant plays everyone else. How often is determined by the configurable number of rounds.",
-  "singleEliminationHelp": "A tournament bracket that ends in a final. To make a match for 3rd place or play out more ranks use the \"elimination with classification\" mode.",
+  "singleEliminationHelp": "A tournament bracket that ends in a final. To make a match for 3rd place or play out more ranks use the \"elimination with consolation rounds\" mode.",
   "doubleEliminationHelp": "In a double elimination participants go into a \"lower\" bracket after their first loss. Another loss eliminates the participant. The final is played between the last unbeaten participant and the winner of the lower bracket.",
-  "classificationEliminationHelp": "This mode makes the amount of played out ranks configurable. Placements will be played in extra classification rounds, which will be filled by the losers of the main round.",
+  "consolationEliminationHelp": "In this elimination format, additional consolation rounds can be scheduled for the losers of the main round. A minimum number of matches per participant can be guaranteed and/or a certain number of final placements can be played out.",
   "groupKnockoutHelp": "The group stage consists of a round robin in each group. The top ranked participants of each group advance to an elimination stage.",
   "pleaseChoose": "Please choose",
   "tournamentMode": "Tournament mode",
@@ -322,5 +322,10 @@
   "noMatchesHint": "Start a competition that has a draw on the 'Competitions' tab to see the matches here",
   "losersBracket": "Losers Bracket",
   "upperFinal": "Upper Final",
-  "loserOfMatch": "Loser {match}"
+  "loserOfMatch": "Loser {match}",
+  "numConsolationRounds": "Guaranteed matches",
+  "numConsolationRoundsHelp": "Each player is allowed to lose at least {matches} before being eliminated. The required number of consolation rounds will be added automatically.",
+  "placesToPlayOut": "Placements to play out",
+  "placesToPlayOutHelp": "The tournament bracket will produce at least {numPlaces} untied top placements. The required consolation rounds will be added automatically.",
+  "tooFewPlacesToPlayOut": "At least 2 places have to be played out"
 }

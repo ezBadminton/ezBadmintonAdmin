@@ -1,5 +1,6 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/cubit/tournament_mode_assignment_cubit.dart';
+import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/widgets/consolation_settings_widget.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/widgets/group_knockout_settings_widget.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/widgets/round_robin_settings_widget.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/widgets/basic_settings_widget.dart';
@@ -27,6 +28,8 @@ class TournamentModeSettingsWidget extends StatelessWidget {
           GroupKnockoutSettings => const GroupKnockoutSettingsWidget(),
           DoubleEliminationSettings =>
             const BasicSettingsWidget<DoubleEliminationSettings>(),
+          SingleEliminationWithConsolationSettings =>
+            const ConsolationSettingsWidget(),
           null => const SizedBox(),
           _ => throw Exception('No settings widget for this mode!'),
         };

@@ -163,12 +163,12 @@
   "roundRobin": "Jeder gegen Jeden",
   "singleElimination": "KO-System",
   "doubleElimination": "Doppeltes KO-System",
-  "classificationElimination": "KO-System mit Plätze ausspielen",
+  "consolationElimination": "KO-System mit Trostrunden",
   "groupKnockout": "Gruppensystem",
   "roundRobinHelp": "Jeder Teilnehmer spielt gegen jeden Anderen. Die einstellbare Anzahl der Durchgänge bestimmt, wie oft.",
-  "singleEliminationHelp": "Ein Turnierbaum, der in einem Finale gipfelt. Um ein Spiel um Platz 3 zu bekommen oder noch mehr Plätze auszuspielen, nutze das \"KO-System mit Plätze ausspielen\".",
+  "singleEliminationHelp": "Ein Turnierbaum, der in einem Finale gipfelt. Um ein Spiel um Platz 3 zu bekommen oder noch mehr Plätze auszuspielen, nutze das \"KO-System mit Trostrunden\".",
   "doubleEliminationHelp": "Bei einem doppelten KO-System kommen Teilnehmer nach der ersten Niederlage in einen \"unteren\" Turnierbaum. Eine weitere Niederlage führt zum Ausscheiden. Das Finale findet zwischen dem letzten ungeschlagenen Spieler und dem Gewinner des unteren Turniernaums statt.",
-  "classificationEliminationHelp": "Dieser Modus erlaubt es einzustellen, wie viele Plätze ausgespielt werden sollen. Die Plätze werden in Extrarunden ausgespielt, die durch die Verlierer der Hauptrunde besetzt werden.",
+  "consolationEliminationHelp": "In diesem KO-Modus können zusätzliche Trostrunden für die Verlierer der Hauptrunde angesetzt werden. Es kann eine minimale Anzahl Spiele pro Teilnehmer garantiert werden und/oder eine bestimmte Anzahl an Endplatzierungen ausgespielt werden.",
   "groupKnockoutHelp": "In einer Gruppenphase spielen alle Gruppen jeweils ein Jeder-gegen-Jeden. Die Besten jeder Gruppe qualifizieren sich für die KO-Runde.",
   "pleaseChoose": "Bitte wählen",
   "tournamentMode": "Turniermodus",
@@ -322,5 +322,10 @@
   "noMatchesHint": "Starte im 'Disziplinen' Tab eine Disziplin, die eine Auslosung hat, um die Spiele hier zu sehen",
   "losersBracket": "Losers Bracket",
   "upperFinal": "Oberes Finale",
-  "loserOfMatch": "Verlierer {match}"
+  "loserOfMatch": "Verlierer {match}",
+  "numConsolationRounds": "Trostrunden",
+  "numConsolationRoundsHelp": "Jeder Spieler darf mindestens {matches} verlieren, bevor er ausscheidet. Es werden automatisch entsprechend viele Trostrunden hinzugefügt.",
+  "placesToPlayOut": "Ausgespielte Platzierungen",
+  "placesToPlayOutHelp": "Der Turnierbaum bringt mindestens {numPlaces} eindeutige Spitzenplatzierungen hervor. Die entsprechenden Trostrunden werden automatisch hinzugefügt.",
+  "tooFewPlacesToPlayOut": "Min. 2 Plätze müssen ausgespielt werden"
 }

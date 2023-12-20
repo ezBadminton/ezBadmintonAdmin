@@ -181,3 +181,40 @@ class BadmintonDoubleElimination extends DoubleElimination<Team, List<MatchSet>,
     this.competition = competition;
   }
 }
+
+class BadmintonSingleEliminationWithConsolation
+    extends SingleEliminationWithConsolation<
+        Team,
+        List<MatchSet>,
+        BadmintonMatch,
+        BadmintonSingleElimination> with BadmintonTournamentMode {
+  BadmintonSingleEliminationWithConsolation({
+    required super.seededEntries,
+    required Competition competition,
+    required super.numConsolationRounds,
+    required super.placesToPlayOut,
+  }) : super(
+          singleEliminationBuilder: (entries) => BadmintonSingleElimination(
+            seededEntries: seededEntries,
+            competition: competition,
+          ),
+        ) {
+    this.competition = competition;
+  }
+
+  BadmintonSingleEliminationWithConsolation.fromCompetition({
+    required Ranking<Team> seededEntries,
+    required Competition competition,
+  }) : this(
+          seededEntries: seededEntries,
+          competition: competition,
+          numConsolationRounds:
+              _getTournamentSettings<SingleEliminationWithConsolationSettings>(
+            competition,
+          ).numConsolationRounds,
+          placesToPlayOut:
+              _getTournamentSettings<SingleEliminationWithConsolationSettings>(
+            competition,
+          ).placesToPlayOut,
+        );
+}
