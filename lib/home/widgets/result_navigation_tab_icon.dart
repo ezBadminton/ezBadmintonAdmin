@@ -98,7 +98,8 @@ class _ResultNavigationTabIconState extends State<ResultNavigationTabIcon> {
 
       Object? groupWithTies =
           tournament.groupPhase.groupRoundRobins.firstWhereOrNull(
-        (group) => group.finalRanking.blockingTies.isNotEmpty,
+        (group) =>
+            group.isCompleted() && group.finalRanking.blockingTies.isNotEmpty,
       );
 
       return groupWithTies != null;
