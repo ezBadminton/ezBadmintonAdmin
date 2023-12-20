@@ -149,10 +149,16 @@ class DoubleElimination<P, S, M extends TournamentMatch<P, S>,
   List<M> _createFirstIntakeMatches(List<M> secondWinnerRound) {
     List<M> firstLoserRound = secondWinnerRound.map((match) {
       MatchParticipant<P> loser1 = MatchParticipant.fromPlacement(
-        Placement(ranking: match.a.placement!.ranking, place: 1),
+        WinnerPlacement(
+          ranking: match.a.placement!.ranking as WinnerRanking<P, S>,
+          place: 1,
+        ),
       );
       MatchParticipant<P> loser2 = MatchParticipant.fromPlacement(
-        Placement(ranking: match.b.placement!.ranking, place: 1),
+        WinnerPlacement(
+          ranking: match.b.placement!.ranking as WinnerRanking<P, S>,
+          place: 1,
+        ),
       );
 
       return matcher(loser1, loser2);
@@ -198,10 +204,10 @@ class DoubleElimination<P, S, M extends TournamentMatch<P, S>,
       WinnerRanking<P, S> winnerMatchRanking = WinnerRanking(winnerMatch);
 
       MatchParticipant<P> loserMatchWinner = MatchParticipant.fromPlacement(
-        Placement(ranking: loserMatchRanking, place: 0),
+        WinnerPlacement(ranking: loserMatchRanking, place: 0),
       );
       MatchParticipant<P> winnerMatchLoser = MatchParticipant.fromPlacement(
-        Placement(ranking: winnerMatchRanking, place: 1),
+        WinnerPlacement(ranking: winnerMatchRanking, place: 1),
       );
 
       M intakeMatch = matcher(winnerMatchLoser, loserMatchWinner);
@@ -236,10 +242,10 @@ class DoubleElimination<P, S, M extends TournamentMatch<P, S>,
     WinnerRanking<P, S> loserFinalRanking = WinnerRanking(loserFinal);
 
     MatchParticipant<P> winnerFinalist = MatchParticipant.fromPlacement(
-      Placement(ranking: winnerFinalRanking, place: 0),
+      WinnerPlacement(ranking: winnerFinalRanking, place: 0),
     );
     MatchParticipant<P> loserFinalist = MatchParticipant.fromPlacement(
-      Placement(ranking: loserFinalRanking, place: 0),
+      WinnerPlacement(ranking: loserFinalRanking, place: 0),
     );
 
     M finalFinal = matcher(winnerFinalist, loserFinalist);

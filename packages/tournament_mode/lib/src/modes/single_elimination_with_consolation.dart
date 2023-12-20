@@ -221,7 +221,7 @@ class SingleEliminationWithConsolation<P, S, M extends TournamentMatch<P, S>,
         WinnerRanking<P, S> winnerRanking = ranking as WinnerRanking<P, S>;
 
         Placement<P> loserPlacement =
-            Placement(ranking: winnerRanking, place: 1);
+            WinnerPlacement(ranking: winnerRanking, place: 1);
 
         return MatchParticipant.fromPlacement(loserPlacement);
       },

@@ -177,7 +177,7 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
       (match) {
         WinnerRanking<P, S> winnerRanking = WinnerRanking(match);
         return MatchParticipant.fromPlacement(
-          Placement(ranking: winnerRanking, place: 0),
+          WinnerPlacement(ranking: winnerRanking, place: 0),
         );
       },
     ).toList();

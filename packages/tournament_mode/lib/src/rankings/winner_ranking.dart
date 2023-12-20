@@ -30,3 +30,41 @@ class WinnerRanking<P, S> extends Ranking<P> {
     }
   }
 }
+
+/// A [Placement] for a [WinnerRanking].
+///
+/// It replaces any placed participants that withdrew from the match with
+/// a [MatchParticipant.bye]. This way no withdrawn players can pass this
+/// placement.
+class WinnerPlacement<P> extends Placement<P> {
+  WinnerPlacement({
+    required WinnerRanking<P, dynamic> ranking,
+    required super.place,
+  }) : super(ranking: ranking);
+
+  @override
+  WinnerRanking<P, dynamic> get ranking =>
+      super.ranking as WinnerRanking<P, dynamic>;
+
+  @override
+  MatchParticipant<P>? getPlacement() {
+    MatchParticipant<P>? placement = super.getPlacement();
+
+    if (placement == null) {
+      return null;
+    }
+
+    List<P> withdrawnPlayers = (ranking.match.withdrawnParticipants ?? [])
+        .map((participant) => participant.resolvePlayer())
+        .whereType<P>()
+        .toList();
+
+    P? player = placement.resolvePlayer();
+
+    if (withdrawnPlayers.contains(player)) {
+      return MatchParticipant<P>.bye();
+    }
+
+    return placement;
+  }
+}
