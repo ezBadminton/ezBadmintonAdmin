@@ -174,7 +174,7 @@ class BadmintonDoubleElimination extends DoubleElimination<Team, List<MatchSet>,
     required Competition competition,
   }) : super(
           singleEliminationBuilder: (entries) => BadmintonSingleElimination(
-            seededEntries: seededEntries,
+            seededEntries: entries,
             competition: competition,
           ),
         ) {
@@ -195,7 +195,7 @@ class BadmintonSingleEliminationWithConsolation
     required super.placesToPlayOut,
   }) : super(
           singleEliminationBuilder: (entries) => BadmintonSingleElimination(
-            seededEntries: seededEntries,
+            seededEntries: entries,
             competition: competition,
           ),
         ) {
