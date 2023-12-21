@@ -1,6 +1,6 @@
 import 'package:tournament_mode/tournament_mode.dart';
 
-/// Filter the duplicate ranks of the match rankings.
+/// Filter the duplicate ranks of the rankings.
 ///
 /// Explanatory example: Each elimination round can be ranked independently.
 /// The ranking of a semi-final round would look something like this:

@@ -13,6 +13,7 @@ import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.d
 import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/tournament_bracket_explorer_controller_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/tournament_bracket_explorer.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/consolation_elimination_tree.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/double_elimination_tree.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/group_knockout_plan.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/round_robin_plan.dart';
@@ -128,6 +129,11 @@ class _InteractiveDraw extends StatelessWidget {
       BadmintonDoubleElimination tournament => DoubleEliminationTree(
           tournament: tournament,
           competition: competition,
+          isEditable: !hasCompetitionStarted,
+        ),
+      BadmintonSingleEliminationWithConsolation tournament =>
+        ConsolationEliminationTree(
+          tournament: tournament,
           isEditable: !hasCompetitionStarted,
         ),
       _ => const Text('No View implemented yet'),

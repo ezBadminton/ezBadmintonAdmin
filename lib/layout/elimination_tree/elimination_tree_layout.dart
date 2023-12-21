@@ -70,7 +70,8 @@ class EliminationTreeLayout extends StatelessWidget {
   /// [_ElimiationTreeLayoutDelegate] so it can position it at the appropriate
   /// location.
   static List<List<_MatchNode>> _createMatchNodes(
-      Iterable<List<Widget>> matchWidgets) {
+    Iterable<List<Widget>> matchWidgets,
+  ) {
     List<List<_MatchNode>> matchNodes = [];
 
     for ((int, List<Widget>) roundEntry in matchWidgets.indexed) {
