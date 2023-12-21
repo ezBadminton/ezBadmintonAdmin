@@ -79,8 +79,8 @@ class _BracketSectionNavigatorState extends State<BracketSectionNavigator> {
       return const SizedBox(height: _height + _indicatorHeigt);
     }
 
-    double totalSectionWidth = _getTotalSectionWidth();
-    double widthScale = widget._navigatorWidth / totalSectionWidth;
+    double totalWidth = widget.viewController.sceneSize.width;
+    double widthScale = widget._navigatorWidth / totalWidth;
 
     return Column(
       children: [
@@ -151,19 +151,6 @@ class _BracketSectionNavigatorState extends State<BracketSectionNavigator> {
     );
 
     return sectionRects;
-  }
-
-  double _getTotalSectionWidth() {
-    Iterable<Rect> sectionRects = _sectionRects!.values;
-
-    if (sectionRects.isEmpty) {
-      return widget._navigatorWidth;
-    }
-
-    double leftMost = sectionRects.first.left;
-    double rightMost = sectionRects.last.right;
-
-    return rightMost - leftMost;
   }
 
   double? _getDistanceToNextSection(BracketSection section) {
