@@ -198,42 +198,37 @@ class _ConsolationEliminationTreeLayoutDelegate
     double childrenVerticalPosition =
         position.dy + node.bracket.layoutSize.height + verticalMargin;
 
-    node.children.fold(
-      (horizontalPosition: position.dx, index: 0),
-      (siblingData, child) {
-        int bracketOffset = log2(
-          node.tournamentSize ~/ (2 * child.tournamentSize),
-        );
-        // The consolation brackets are underneath the round where the losers
-        // come from or to the right if other brackets already took more width.
-        double minHorizontalPosition = bracketOffset *
-            (node.bracket.matchNodeSize.width +
-                bracket_sizes.groupKnockoutGroupGap);
-        double horizontalPosition =
-            max(siblingData.horizontalPosition, minHorizontalPosition);
+    double childHorizontalPosition = position.dx;
+    for ((int, _TreeNode) childEntry in node.children.indexed) {
+      _TreeNode child = childEntry.$2;
+      int childIndex = childEntry.$1;
 
-        int siblingIndex = siblingData.index;
-        int nextSiblingIndex = siblingIndex + 1;
+      int bracketOffset = log2(
+        node.tournamentSize ~/ (2 * child.tournamentSize),
+      );
+      // The consolation brackets are underneath the round where the losers
+      // come from or to the right if other brackets already took more width.
+      double minHorizontalPosition = bracketOffset *
+          (node.bracket.matchNodeSize.width +
+              bracket_sizes.groupKnockoutGroupGap);
+      double horizontalPosition =
+          max(childHorizontalPosition, minHorizontalPosition);
 
-        Offset childPosition =
-            Offset(horizontalPosition, childrenVerticalPosition);
+      Offset childPosition =
+          Offset(horizontalPosition, childrenVerticalPosition);
 
-        positionBrackets(
-          node: child,
-          position: childPosition,
-          rightHandSiblings: node.children.skip(nextSiblingIndex),
-        );
+      positionBrackets(
+        node: child,
+        position: childPosition,
+        rightHandSiblings: node.children.skip(childIndex + 1),
+      );
 
-        double nextSiblingHorizontalPosition = horizontalPosition +
-            child.bracket.layoutSize.width +
-            bracket_sizes.singleEliminationRoundGap;
+      double nextSiblingHorizontalPosition = horizontalPosition +
+          child.bracket.layoutSize.width +
+          bracket_sizes.singleEliminationRoundGap;
 
-        return (
-          horizontalPosition: nextSiblingHorizontalPosition,
-          index: nextSiblingIndex,
-        );
-      },
-    );
+      childHorizontalPosition = nextSiblingHorizontalPosition;
+    }
   }
 
   @override
