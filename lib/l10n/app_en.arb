@@ -327,5 +327,7 @@
   "numConsolationRoundsHelp": "Each player is allowed to lose at least {matches} before being eliminated. The required number of consolation rounds will be added automatically.",
   "placesToPlayOut": "Placements to play out",
   "placesToPlayOutHelp": "The tournament bracket will produce at least {numPlaces} untied top placements. The required consolation rounds will be added automatically.",
-  "tooFewPlacesToPlayOut": "At least 2 places have to be played out"
+  "tooFewPlacesToPlayOut": "At least 2 places have to be played out",
+  "upperToLowerRank": "Rank {upper} – {lower}",
+  "matchForThrid": "Match for 3rd place"
 }

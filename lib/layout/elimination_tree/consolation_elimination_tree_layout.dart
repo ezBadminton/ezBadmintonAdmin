@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:dart_numerics/dart_numerics.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/bracket_sizes.dart'
     as bracket_sizes;
 
@@ -14,9 +15,12 @@ class ConsolationEliminationTreeLayout extends StatelessWidget {
     _allTreeNodes = [];
     _layoutTreeRoot = _createLayoutTree(
       node: consolationTreeRoot,
-      parent: null,
       allNodes: _allTreeNodes,
     );
+    _bracketLabels = _allTreeNodes
+        .map((node) => node.bracketLabel)
+        .whereType<_ConsolationBracketLabel>()
+        .toList();
     layoutSize = _getLayoutSize(_layoutTreeRoot);
   }
 
@@ -27,6 +31,8 @@ class ConsolationEliminationTreeLayout extends StatelessWidget {
   late final _TreeNode _layoutTreeRoot;
   late final List<_TreeNode> _allTreeNodes;
 
+  late final List<_ConsolationBracketLabel> _bracketLabels;
+
   @override
   Widget build(BuildContext context) {
     return CustomMultiChildLayout(
@@ -34,31 +40,35 @@ class ConsolationEliminationTreeLayout extends StatelessWidget {
         layoutTreeRoot: _layoutTreeRoot,
         layoutSize: layoutSize,
       ),
-      children: _allTreeNodes,
+      children: [
+        ..._allTreeNodes,
+        ..._bracketLabels,
+      ],
     );
   }
 
   static _TreeNode _createLayoutTree({
     required ConsolationTreeNode node,
-    required ConsolationTreeNode? parent,
     required List<_TreeNode> allNodes,
   }) {
-    int tournamentSize = node.mainBracket.rounds.first.roundSize;
-
     List<_TreeNode> children = node.consolationBrackets
         .map(
           (child) => _createLayoutTree(
             node: child,
-            parent: node,
             allNodes: allNodes,
           ),
         )
         .toList();
 
+    _ConsolationBracketLabel? label;
+    if (node.parent != null) {
+      label = _ConsolationBracketLabel(node: node);
+    }
+
     _TreeNode layoutNode = _TreeNode(
+      node: node,
       children: children,
-      parent: parent,
-      tournamentSize: tournamentSize,
+      bracketLabel: label,
       child: node.mainBracket,
     );
 
@@ -174,6 +184,9 @@ class _ConsolationEliminationTreeLayoutDelegate
 
   void layoutBrackets(_TreeNode node) {
     layoutChild(node.id, BoxConstraints.tight(node.bracket.layoutSize));
+    if (node.bracketLabel != null) {
+      layoutChild(node.bracketLabel!.id, const BoxConstraints());
+    }
 
     for (_TreeNode child in node.children) {
       layoutBrackets(child);
@@ -186,6 +199,13 @@ class _ConsolationEliminationTreeLayoutDelegate
     required Iterable<_TreeNode> rightHandSiblings,
   }) {
     positionChild(node.id, position);
+
+    if (node.bracketLabel != null) {
+      Offset labelPosition = position - const Offset(0, 48);
+      positionChild(node.bracketLabel!.id, labelPosition);
+    }
+
+    int tournamentSize = node.bracket.rounds.first.length;
 
     int siblingDepth = rightHandSiblings.fold(
       1,
@@ -203,9 +223,9 @@ class _ConsolationEliminationTreeLayoutDelegate
       _TreeNode child = childEntry.$2;
       int childIndex = childEntry.$1;
 
-      int bracketOffset = log2(
-        node.tournamentSize ~/ (2 * child.tournamentSize),
-      );
+      int childTournamentSize = child.bracket.rounds.first.length;
+
+      int bracketOffset = log2(tournamentSize ~/ (2 * childTournamentSize));
       // The consolation brackets are underneath the round where the losers
       // come from or to the right if other brackets already took more width.
       double minHorizontalPosition = bracketOffset *
@@ -240,7 +260,7 @@ class _ConsolationEliminationTreeLayoutDelegate
 /// The consolation tree is a tree of tournament trees.
 ///
 /// The children of the nodes are the consolation tournaments where the losers
-/// of the tournament qualify for.
+/// of the main bracket qualify for.
 class ConsolationTreeNode {
   ConsolationTreeNode({
     required this.mainBracket,
@@ -249,26 +269,87 @@ class ConsolationTreeNode {
 
   final SingleEliminationTree mainBracket;
 
+  ConsolationTreeNode? parent;
   final List<ConsolationTreeNode> consolationBrackets;
+
+  /// Returns the best rank that is attainable in this consolation bracket
+  int getBestRank() {
+    int bestRank = 0;
+    ConsolationTreeNode currentNode = this;
+    while (currentNode.parent != null) {
+      bestRank += currentNode.mainBracket.rounds.first.length * 2;
+      currentNode = currentNode.parent!;
+    }
+
+    return bestRank;
+  }
 }
 
 class _TreeNode extends LayoutId {
   _TreeNode({
+    required this.node,
     required this.children,
-    required this.parent,
-    required this.tournamentSize,
     required SingleEliminationTree child,
+    required this.bracketLabel,
   }) : super(
-          id: (parent, tournamentSize),
+          id: node,
           child: child,
         );
 
+  final ConsolationTreeNode node;
+
   final List<_TreeNode> children;
 
-  final ConsolationTreeNode? parent;
-  final int tournamentSize;
+  final _ConsolationBracketLabel? bracketLabel;
 
   SingleEliminationTree get bracket => super.child as SingleEliminationTree;
+}
+
+class _ConsolationBracketLabel extends LayoutId {
+  _ConsolationBracketLabel({
+    required ConsolationTreeNode node,
+  }) : super(
+          id: ('bracketLabel', node),
+          child: _buildPlacementText(node),
+        );
+
+  static _PlacementText _buildPlacementText(ConsolationTreeNode node) {
+    int bracketSize = node.mainBracket.rounds.first.length;
+
+    int upperBound = node.getBestRank();
+    int lowerBound = upperBound + 2 * bracketSize;
+
+    return _PlacementText(upperBound: upperBound + 1, lowerBound: lowerBound);
+  }
+}
+
+class _PlacementText extends StatelessWidget {
+  const _PlacementText({
+    required this.upperBound,
+    required this.lowerBound,
+  });
+
+  final int upperBound;
+  final int lowerBound;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+
+    TextStyle style = const TextStyle(fontSize: 32);
+
+    if (upperBound == 3 && lowerBound == 4) {
+      return Text(
+        l10n.matchForThrid,
+        style: style,
+      );
+    }
+
+    return Text(
+      l10n.upperToLowerRank(lowerBound, upperBound),
+      style: style,
+    );
+  }
 }
 
 int _getTreeDepth(_TreeNode node, int depth) {

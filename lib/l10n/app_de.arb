@@ -327,5 +327,7 @@
   "numConsolationRoundsHelp": "Jeder Spieler darf mindestens {matches} verlieren, bevor er ausscheidet. Es werden automatisch entsprechend viele Trostrunden hinzugefügt.",
   "placesToPlayOut": "Ausgespielte Platzierungen",
   "placesToPlayOutHelp": "Der Turnierbaum bringt mindestens {numPlaces} eindeutige Spitzenplatzierungen hervor. Die entsprechenden Trostrunden werden automatisch hinzugefügt.",
-  "tooFewPlacesToPlayOut": "Min. 2 Plätze müssen ausgespielt werden"
+  "tooFewPlacesToPlayOut": "Min. 2 Plätze müssen ausgespielt werden",
+  "upperToLowerRank": "Platz {upper} – {lower}",
+  "matchForThrid": "Spiel um Platz 3"
 }

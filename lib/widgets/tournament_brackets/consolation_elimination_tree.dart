@@ -53,9 +53,15 @@ class ConsolationEliminationTree extends StatelessWidget
         .map((consolationBracket) => _buildBracketTree(consolationBracket))
         .toList();
 
-    return ConsolationTreeNode(
+    ConsolationTreeNode node = ConsolationTreeNode(
       mainBracket: tree,
       consolationBrackets: consolationTrees,
     );
+
+    for (ConsolationTreeNode child in consolationTrees) {
+      child.parent = node;
+    }
+
+    return node;
   }
 }
