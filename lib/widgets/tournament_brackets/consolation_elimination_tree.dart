@@ -28,7 +28,7 @@ class ConsolationEliminationTree extends StatelessWidget
   late final ConsolationTreeNode consolationTreeRoot;
 
   @override
-  List<BracketSection> get sections => consolationTreeRoot.mainBracket.sections;
+  List<BracketSection> get sections => consolationTreeRoot.treeWidget.sections;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +54,8 @@ class ConsolationEliminationTree extends StatelessWidget
         .toList();
 
     ConsolationTreeNode node = ConsolationTreeNode(
-      mainBracket: tree,
+      bracket: bracket,
+      treeWidget: tree,
       consolationBrackets: consolationTrees,
     );
 

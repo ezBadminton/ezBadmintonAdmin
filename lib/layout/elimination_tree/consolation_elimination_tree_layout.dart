@@ -9,6 +9,7 @@ import 'package:ez_badminton_admin_app/layout/elimination_tree/utils.dart'
     as utils;
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/bracket_sizes.dart'
     as bracket_sizes;
+import 'package:tournament_mode/tournament_mode.dart';
 
 class ConsolationEliminationTreeLayout extends StatelessWidget {
   ConsolationEliminationTreeLayout({
@@ -84,7 +85,7 @@ class ConsolationEliminationTreeLayout extends StatelessWidget {
       children: children,
       bracketLabel: label,
       loserEdge: loserEdge,
-      child: node.mainBracket,
+      child: node.treeWidget,
     );
 
     allNodes.add(layoutNode);
@@ -283,7 +284,7 @@ class _ConsolationEliminationTreeLayoutDelegate
 
     int bracketSize = node.bracket.rounds.first.length;
     int parentBracketSize =
-        node.sourceNode.parent!.mainBracket.rounds.first.length;
+        node.sourceNode.parent!.treeWidget.rounds.first.length;
 
     // The round from where the losers for this consolation bracket come from
     int parentRoundIndex = log2(parentBracketSize ~/ bracketSize) - 1;
@@ -292,7 +293,7 @@ class _ConsolationEliminationTreeLayoutDelegate
         parentRoundIndex *
             (nodeSize.width + bracket_sizes.singleEliminationRoundGap);
 
-    Size parentSize = node.sourceNode.parent!.mainBracket.layoutSize;
+    Size parentSize = node.sourceNode.parent!.treeWidget.layoutSize;
 
     double parentVerticalMargin =
         utils.getVerticalNodeMargin(parentRoundIndex, nodeSize.height);
@@ -323,26 +324,17 @@ class _ConsolationEliminationTreeLayoutDelegate
 /// of the main bracket qualify for.
 class ConsolationTreeNode {
   ConsolationTreeNode({
-    required this.mainBracket,
+    required this.bracket,
+    required this.treeWidget,
     required this.consolationBrackets,
   });
 
-  final SingleEliminationTree mainBracket;
+  final BracketWithConsolation bracket;
+
+  final SingleEliminationTree treeWidget;
 
   ConsolationTreeNode? parent;
   final List<ConsolationTreeNode> consolationBrackets;
-
-  /// Returns the best rank that is attainable in this consolation bracket
-  int getBestRank() {
-    int bestRank = 0;
-    ConsolationTreeNode currentNode = this;
-    while (currentNode.parent != null) {
-      bestRank += currentNode.mainBracket.rounds.first.length * 2;
-      currentNode = currentNode.parent!;
-    }
-
-    return bestRank;
-  }
 }
 
 /// A wrapper node for [ConsolationTreeNode] that identifies it to the
@@ -379,12 +371,12 @@ class _ConsolationBracketLabel extends LayoutId {
         );
 
   static _PlacementText _buildPlacementText(ConsolationTreeNode node) {
-    int bracketSize = node.mainBracket.rounds.first.length;
+    (int, int) rankRange = node.bracket.getRankRange();
 
-    int upperBound = node.getBestRank();
-    int lowerBound = upperBound + 2 * bracketSize;
-
-    return _PlacementText(upperBound: upperBound + 1, lowerBound: lowerBound);
+    return _PlacementText(
+      upperBound: rankRange.$1 + 1,
+      lowerBound: rankRange.$2 + 1,
+    );
   }
 }
 

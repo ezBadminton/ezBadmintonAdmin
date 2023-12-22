@@ -1,6 +1,6 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
-import 'package:ez_badminton_admin_app/badminton_tournament_ops/tournament_round_names.dart';
+import 'package:ez_badminton_admin_app/display_strings/match_names.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate_producers.dart';
 import 'package:ez_badminton_admin_app/utils/powers_of_two.dart';
@@ -301,11 +301,11 @@ String seedLabel(int seed, SeedingMode seedingMode) {
 String? matchRoundName(AppLocalizations l10n, BadmintonMatch match) {
   return switch (match.round) {
     GroupPhaseRound<BadmintonMatch> round =>
-      round.getGroupRoundName(l10n, match),
-    RoundRobinRound round => round.getRoundRobinRoundName(l10n),
-    EliminationRound round => round.getEliminationRoundName(l10n, match),
+      round.getGroupMatchName(l10n, match),
+    RoundRobinRound round => round.getRoundRobinMatchName(l10n),
+    EliminationRound round => round.getEliminationMatchName(l10n, match),
     DoubleEliminationRound round =>
-      round.getDoubleEliminationRoundName(l10n, match),
+      round.getDoubleEliminationMatchName(l10n, match),
     _ => null,
   };
 }

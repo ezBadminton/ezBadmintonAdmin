@@ -1,7 +1,7 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
-import 'package:ez_badminton_admin_app/badminton_tournament_ops/tournament_round_names.dart';
+import 'package:ez_badminton_admin_app/display_strings/match_names.dart';
 import 'package:ez_badminton_admin_app/layout/elimination_tree/elimination_tree_layout.dart';
 import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section.dart';
@@ -115,7 +115,7 @@ class DoubleEliminationTree extends StatelessWidget
           (loser.placement!.ranking as WinnerRanking).match as BadmintonMatch;
 
       String matchName = (lostMatch.round as DoubleEliminationRound)
-          .getDoubleEliminationRoundName(l10n, lostMatch);
+          .getDoubleEliminationMatchName(l10n, lostMatch);
 
       Widget label = Text(
         l10n.loserOfMatch(matchName),

@@ -71,6 +71,10 @@ class SingleEliminationWithConsolation<P, S, M extends TournamentMatch<P, S>,
       consolationBrackets: consolationRounds,
     );
 
+    for (BracketWithConsolation child in consolationRounds) {
+      child._parent = mainBracket;
+    }
+
     allBrackets.add(mainBracket);
 
     this.allBrackets = allBrackets.reversed.toList();
@@ -196,6 +200,11 @@ class SingleEliminationWithConsolation<P, S, M extends TournamentMatch<P, S>,
         consolationBrackets: nestedConsolationBrackes,
       );
 
+      for (BracketWithConsolation<P, S, M, E> child
+          in nestedConsolationBrackes) {
+        child._parent = consolationBracket;
+      }
+
       allBrackets.add(consolationBracket);
       consolationRounds.insert(0, consolationBracket);
     }
@@ -306,5 +315,34 @@ class BracketWithConsolation<P, S, M extends TournamentMatch<P, S>,
 
   final E bracket;
 
+  BracketWithConsolation<P, S, M, E>? _parent;
+  BracketWithConsolation<P, S, M, E>? get parent => _parent;
+
   final List<BracketWithConsolation<P, S, M, E>> consolationBrackets;
+
+  /// Returns the best rank that is attainable in this consolation bracket
+  int getBestRank() {
+    int bestRank = 0;
+    BracketWithConsolation currentBracket = this;
+    while (currentBracket.parent != null) {
+      bestRank += currentBracket.bracket.rounds.first.length * 2;
+      currentBracket = currentBracket.parent!;
+    }
+
+    return bestRank;
+  }
+
+  /// Returns the range of ranks that the participants of this bracket will
+  /// land on.
+  ///
+  /// This is regardless of how many participants might be byes.
+  (int, int) getRankRange() {
+    int bracketSize = bracket.rounds.first.roundSize;
+
+    int bestRank = getBestRank();
+
+    int lowestRank = bestRank + bracketSize - 1;
+
+    return (bestRank, lowestRank);
+  }
 }
