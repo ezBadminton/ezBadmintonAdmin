@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:dart_numerics/dart_numerics.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
 import 'package:flutter/material.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/bracket_sizes.dart'
@@ -199,9 +200,19 @@ class _ConsolationEliminationTreeLayoutDelegate
 
     node.children.fold(
       (horizontalPosition: position.dx, index: 0),
-      (sibling, child) {
-        double horizontalPosition = sibling.horizontalPosition;
-        int siblingIndex = sibling.index;
+      (siblingData, child) {
+        int bracketOffset = log2(
+          node.tournamentSize ~/ (2 * child.tournamentSize),
+        );
+        // The consolation brackets are underneath the round where the losers
+        // come from or to the right if other brackets already took more width.
+        double minHorizontalPosition = bracketOffset *
+            (node.bracket.matchNodeSize.width +
+                bracket_sizes.groupKnockoutGroupGap);
+        double horizontalPosition =
+            max(siblingData.horizontalPosition, minHorizontalPosition);
+
+        int siblingIndex = siblingData.index;
         int nextSiblingIndex = siblingIndex + 1;
 
         Offset childPosition =
