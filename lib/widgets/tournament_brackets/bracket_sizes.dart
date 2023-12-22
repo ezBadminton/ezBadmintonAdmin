@@ -12,3 +12,5 @@ const double relativeIntakeRoundOffset = 0.2;
 
 const double singlesMatchCardHeight = 90;
 const double doublesMatchCardHeight = 128;
+
+const double consolationBracketVerticalMargin = 100;

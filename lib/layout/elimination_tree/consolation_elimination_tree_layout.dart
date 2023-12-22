@@ -3,24 +3,25 @@ import 'dart:math';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
 import 'package:flutter/material.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/bracket_sizes.dart'
-    as bracket_widths;
+    as bracket_sizes;
 
 class ConsolationEliminationTreeLayout extends StatelessWidget {
   ConsolationEliminationTreeLayout({
     super.key,
     required this.consolationTreeRoot,
-  }) : layoutSize = _getLayoutSize(consolationTreeRoot) {
+  }) {
     _allTreeNodes = [];
     _layoutTreeRoot = _createLayoutTree(
       node: consolationTreeRoot,
       parent: null,
       allNodes: _allTreeNodes,
     );
+    layoutSize = _getLayoutSize(_layoutTreeRoot);
   }
 
   final ConsolationTreeNode consolationTreeRoot;
 
-  final Size layoutSize;
+  late final Size layoutSize;
 
   late final _TreeNode _layoutTreeRoot;
   late final List<_TreeNode> _allTreeNodes;
@@ -65,13 +66,14 @@ class ConsolationEliminationTreeLayout extends StatelessWidget {
     return layoutNode;
   }
 
-  static Size _getLayoutSize(ConsolationTreeNode consolationTreeRoot) {
+  static Size _getLayoutSize(_TreeNode layoutTreeRoot) {
     double height = _getLayoutHeight(
-      node: consolationTreeRoot,
+      node: layoutTreeRoot,
+      rightHandSiblings: [],
       result: 0,
     );
     double width = _getLayoutWidth(
-      node: consolationTreeRoot,
+      node: layoutTreeRoot,
       rightHandSiblings: [],
       result: 0,
     );
@@ -80,30 +82,51 @@ class ConsolationEliminationTreeLayout extends StatelessWidget {
   }
 
   static double _getLayoutHeight({
-    required ConsolationTreeNode node,
+    required _TreeNode node,
+    required Iterable<_TreeNode> rightHandSiblings,
     required double result,
   }) {
-    double localResult = result + node.mainBracket.layoutSize.height;
+    double verticalMargin = 0;
+    if (node.children.isNotEmpty) {
+      int siblingDepth = rightHandSiblings.fold(
+        1,
+        (maxDepth, sibling) => max(maxDepth, _getTreeDepth(sibling, 0)),
+      );
 
-    ConsolationTreeNode? firstChild = node.consolationBrackets.firstOrNull;
+      verticalMargin =
+          siblingDepth * bracket_sizes.consolationBracketVerticalMargin;
+    }
+
+    double localResult =
+        result + node.bracket.layoutSize.height + verticalMargin;
+
+    _TreeNode? firstChild = node.children.firstOrNull;
 
     if (firstChild != null) {
-      localResult = _getLayoutHeight(node: firstChild, result: localResult);
+      localResult = _getLayoutHeight(
+        node: firstChild,
+        result: localResult,
+        rightHandSiblings: node.children.skip(1),
+      );
     }
 
     return localResult;
   }
 
   static double _getLayoutWidth({
-    required ConsolationTreeNode node,
-    required Iterable<ConsolationTreeNode> rightHandSiblings,
+    required _TreeNode node,
+    required Iterable<_TreeNode> rightHandSiblings,
     required double result,
   }) {
-    double siblingWidth = result +
-        node.mainBracket.layoutSize.width +
-        bracket_widths.singleEliminationRoundGap;
+    double horizontalMargin = 0;
     if (rightHandSiblings.isNotEmpty) {
-      ConsolationTreeNode nextSibling = rightHandSiblings.first;
+      horizontalMargin = bracket_sizes.singleEliminationRoundGap;
+    }
+
+    double siblingWidth =
+        result + node.bracket.layoutSize.width + horizontalMargin;
+    if (rightHandSiblings.isNotEmpty) {
+      _TreeNode nextSibling = rightHandSiblings.first;
       siblingWidth = _getLayoutWidth(
         node: nextSibling,
         rightHandSiblings: rightHandSiblings.skip(1),
@@ -112,10 +135,10 @@ class ConsolationEliminationTreeLayout extends StatelessWidget {
     }
 
     double childWidth = 0;
-    if (node.consolationBrackets.isNotEmpty) {
+    if (node.children.isNotEmpty) {
       childWidth = _getLayoutWidth(
-        node: node.consolationBrackets.first,
-        rightHandSiblings: node.consolationBrackets.skip(1),
+        node: node.children.first,
+        rightHandSiblings: node.children.skip(1),
         result: result,
       );
     }
@@ -141,7 +164,11 @@ class _ConsolationEliminationTreeLayoutDelegate
   @override
   void performLayout(Size size) {
     layoutBrackets(layoutTreeRoot);
-    positionBrackets(layoutTreeRoot, Offset.zero);
+    positionBrackets(
+      node: layoutTreeRoot,
+      position: Offset.zero,
+      rightHandSiblings: [],
+    );
   }
 
   void layoutBrackets(_TreeNode node) {
@@ -152,26 +179,48 @@ class _ConsolationEliminationTreeLayoutDelegate
     }
   }
 
-  void positionBrackets(
-    _TreeNode node,
-    Offset position,
-  ) {
+  void positionBrackets({
+    required _TreeNode node,
+    required Offset position,
+    required Iterable<_TreeNode> rightHandSiblings,
+  }) {
     positionChild(node.id, position);
 
+    int siblingDepth = rightHandSiblings.fold(
+      1,
+      (maxDepth, sibling) => max(maxDepth, _getTreeDepth(sibling, 0)),
+    );
+
+    double verticalMargin =
+        siblingDepth * bracket_sizes.consolationBracketVerticalMargin;
+
     double childrenVerticalPosition =
-        position.dy + node.bracket.layoutSize.height;
+        position.dy + node.bracket.layoutSize.height + verticalMargin;
 
     node.children.fold(
-      position.dx,
-      (siblingsHorizontalPosition, child) {
+      (horizontalPosition: position.dx, index: 0),
+      (sibling, child) {
+        double horizontalPosition = sibling.horizontalPosition;
+        int siblingIndex = sibling.index;
+        int nextSiblingIndex = siblingIndex + 1;
+
         Offset childPosition =
-            Offset(siblingsHorizontalPosition, childrenVerticalPosition);
+            Offset(horizontalPosition, childrenVerticalPosition);
 
-        positionBrackets(child, childPosition);
+        positionBrackets(
+          node: child,
+          position: childPosition,
+          rightHandSiblings: node.children.skip(nextSiblingIndex),
+        );
 
-        return siblingsHorizontalPosition +
+        double nextSiblingHorizontalPosition = horizontalPosition +
             child.bracket.layoutSize.width +
-            bracket_widths.singleEliminationRoundGap;
+            bracket_sizes.singleEliminationRoundGap;
+
+        return (
+          horizontalPosition: nextSiblingHorizontalPosition,
+          index: nextSiblingIndex,
+        );
       },
     );
   }
@@ -214,4 +263,18 @@ class _TreeNode extends LayoutId {
   final int tournamentSize;
 
   SingleEliminationTree get bracket => super.child as SingleEliminationTree;
+}
+
+int _getTreeDepth(_TreeNode node, int depth) {
+  int localDepth = depth + 1;
+
+  int deepestChild = node.children.fold(
+    localDepth,
+    (deepestDepth, child) => max(
+      deepestDepth,
+      _getTreeDepth(child, localDepth),
+    ),
+  );
+
+  return deepestChild;
 }
