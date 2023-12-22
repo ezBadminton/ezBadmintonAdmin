@@ -1,9 +1,12 @@
 import 'dart:math';
 
 import 'package:dart_numerics/dart_numerics.dart';
+import 'package:ez_badminton_admin_app/widgets/line_painters/s_line.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ez_badminton_admin_app/layout/elimination_tree/utils.dart'
+    as utils;
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/bracket_sizes.dart'
     as bracket_sizes;
 
@@ -21,6 +24,10 @@ class ConsolationEliminationTreeLayout extends StatelessWidget {
         .map((node) => node.bracketLabel)
         .whereType<_ConsolationBracketLabel>()
         .toList();
+    _loserEdges = _allTreeNodes
+        .map((node) => node.loserEdge)
+        .whereType<_LoserEdge>()
+        .toList();
     layoutSize = _getLayoutSize(_layoutTreeRoot);
   }
 
@@ -32,6 +39,7 @@ class ConsolationEliminationTreeLayout extends StatelessWidget {
   late final List<_TreeNode> _allTreeNodes;
 
   late final List<_ConsolationBracketLabel> _bracketLabels;
+  late final List<_LoserEdge> _loserEdges;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +49,7 @@ class ConsolationEliminationTreeLayout extends StatelessWidget {
         layoutSize: layoutSize,
       ),
       children: [
+        ..._loserEdges,
         ..._allTreeNodes,
         ..._bracketLabels,
       ],
@@ -65,10 +74,16 @@ class ConsolationEliminationTreeLayout extends StatelessWidget {
       label = _ConsolationBracketLabel(node: node);
     }
 
+    _LoserEdge? loserEdge;
+    if (node.parent != null) {
+      loserEdge = _LoserEdge(node: node);
+    }
+
     _TreeNode layoutNode = _TreeNode(
-      node: node,
+      sourceNode: node,
       children: children,
       bracketLabel: label,
+      loserEdge: loserEdge,
       child: node.mainBracket,
     );
 
@@ -243,6 +258,12 @@ class _ConsolationEliminationTreeLayoutDelegate
         rightHandSiblings: node.children.skip(childIndex + 1),
       );
 
+      layoutAndPositionLoserEdge(
+        node: child,
+        nodePosition: childPosition,
+        parentPosition: position,
+      );
+
       double nextSiblingHorizontalPosition = horizontalPosition +
           child.bracket.layoutSize.width +
           bracket_sizes.singleEliminationRoundGap;
@@ -251,13 +272,52 @@ class _ConsolationEliminationTreeLayoutDelegate
     }
   }
 
+  /// Draws the loser edge so it connects the [node] with the round in its
+  /// parent where the losers come from.
+  void layoutAndPositionLoserEdge({
+    required _TreeNode node,
+    required Offset nodePosition,
+    required Offset parentPosition,
+  }) {
+    Size nodeSize = node.bracket.matchNodeSize;
+
+    int bracketSize = node.bracket.rounds.first.length;
+    int parentBracketSize =
+        node.sourceNode.parent!.mainBracket.rounds.first.length;
+
+    // The round from where the losers for this consolation bracket come from
+    int parentRoundIndex = log2(parentBracketSize ~/ bracketSize) - 1;
+
+    double horizontalEndPositionOffset = 0.5 * nodeSize.width +
+        parentRoundIndex *
+            (nodeSize.width + bracket_sizes.singleEliminationRoundGap);
+
+    Size parentSize = node.sourceNode.parent!.mainBracket.layoutSize;
+
+    double parentVerticalMargin =
+        utils.getVerticalNodeMargin(parentRoundIndex, nodeSize.height);
+
+    // Position on the node
+    Offset startPosition = nodePosition + Offset(0.5 * nodeSize.width, 0);
+
+    // Position at the parent round
+    Offset endPosition = parentPosition +
+        Offset(horizontalEndPositionOffset,
+            parentSize.height - 0.5 * parentVerticalMargin);
+
+    Rect loserEdgeRect = Rect.fromPoints(startPosition, endPosition);
+
+    layoutChild(node.loserEdge!.id, BoxConstraints.tight(loserEdgeRect.size));
+    positionChild(node.loserEdge!.id, loserEdgeRect.topLeft);
+  }
+
   @override
   bool shouldRelayout(covariant MultiChildLayoutDelegate oldDelegate) {
     return true;
   }
 }
 
-/// The consolation tree is a tree of tournament trees.
+/// The consolation tree is a tree of [SingleEliminationTree]s.
 ///
 /// The children of the nodes are the consolation tournaments where the losers
 /// of the main bracket qualify for.
@@ -285,22 +345,27 @@ class ConsolationTreeNode {
   }
 }
 
+/// A wrapper node for [ConsolationTreeNode] that identifies it to the
+/// layout delegate and holds the bracket label and loser edge widgets.
 class _TreeNode extends LayoutId {
   _TreeNode({
-    required this.node,
+    required this.sourceNode,
     required this.children,
     required SingleEliminationTree child,
     required this.bracketLabel,
+    required this.loserEdge,
   }) : super(
-          id: node,
+          id: sourceNode,
           child: child,
         );
 
-  final ConsolationTreeNode node;
+  final ConsolationTreeNode sourceNode;
 
   final List<_TreeNode> children;
 
   final _ConsolationBracketLabel? bracketLabel;
+
+  final _LoserEdge? loserEdge;
 
   SingleEliminationTree get bracket => super.child as SingleEliminationTree;
 }
@@ -350,6 +415,17 @@ class _PlacementText extends StatelessWidget {
       style: style,
     );
   }
+}
+
+class _LoserEdge extends LayoutId {
+  _LoserEdge({
+    required this.node,
+  }) : super(
+          child: const SLine(color: Colors.black26),
+          id: ('loserEdge', node),
+        );
+
+  final ConsolationTreeNode node;
 }
 
 int _getTreeDepth(_TreeNode node, int depth) {

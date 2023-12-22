@@ -4,8 +4,8 @@ import 'package:path_drawing/path_drawing.dart';
 /// Draws a line from the top left corner of it's parent to the diagonal one in
 /// an S-shaped swing.
 ///
-/// It uses a cubic bezier segment with the control points at half the parent's
-/// height.
+/// It uses a cubic bezier segment with the control points at a thrid of the
+/// parent's height.
 class SLine extends StatelessWidget {
   const SLine({
     super.key,
@@ -37,9 +37,9 @@ class _SLinePainter extends CustomPainter {
 
     path.cubicTo(
       0,
-      size.height * 0.5,
+      size.height * 2 / 3,
       size.width,
-      size.height * 0.5,
+      size.height * 1 / 3,
       size.width,
       size.height,
     );

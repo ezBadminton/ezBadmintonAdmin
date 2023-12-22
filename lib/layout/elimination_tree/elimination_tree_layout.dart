@@ -7,6 +7,8 @@ import 'package:ez_badminton_admin_app/widgets/line_painters/s_line.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/bracket_sizes.dart'
     as bracket_widths;
 import 'package:flutter/material.dart';
+import 'package:ez_badminton_admin_app/layout/elimination_tree/utils.dart'
+    as utils;
 
 part 'double_elimination_tree_layout.dart';
 
@@ -294,11 +296,9 @@ class _ElimiationTreeLayoutDelegate extends MultiChildLayoutDelegate {
   /// That is each node has half this space in the top and bottom direction from
   /// its edges.
   double getVerticalNodeMargin(int round) {
-    int relativeNodeMargin = (pow(2, round) as int) - 1;
+    double matchNodeHeight = _matchNodeSize.height;
 
-    double absoluteNodeMargin = relativeNodeMargin * _matchNodeSize.height;
-
-    return absoluteNodeMargin;
+    return utils.getVerticalNodeMargin(round, matchNodeHeight);
   }
 
   /// Converts the [nodePosition] to the position where the given
