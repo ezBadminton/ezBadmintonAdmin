@@ -324,7 +324,7 @@
   "upperFinal": "Upper Final",
   "loserOfMatch": "Loser {match}",
   "numConsolationRounds": "Guaranteed matches",
-  "numConsolationRoundsHelp": "Each player is allowed to lose at least {matches} before being eliminated. The required number of consolation rounds will be added automatically.",
+  "numConsolationRoundsHelp": "Each player is allowed to lose at least {matches} before being eliminated. The required number of consolation rounds will be added automatically.\n\nNote: With certain odd numbers of participants, it may happen that a player finishes last after losing the first game despite a consolation round being present.",
   "placesToPlayOut": "Placements to play out",
   "placesToPlayOutHelp": "The tournament bracket will produce at least {numPlaces} untied top placements. The required consolation rounds will be added automatically.",
   "tooFewPlacesToPlayOut": "At least 2 places have to be played out",

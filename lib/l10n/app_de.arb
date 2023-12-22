@@ -324,7 +324,7 @@
   "upperFinal": "Oberes Finale",
   "loserOfMatch": "Verlierer {match}",
   "numConsolationRounds": "Trostrunden",
-  "numConsolationRoundsHelp": "Jeder Spieler darf mindestens {matches} verlieren, bevor er ausscheidet. Es werden automatisch entsprechend viele Trostrunden hinzugefügt.",
+  "numConsolationRoundsHelp": "Jeder Spieler darf mindestens {matches} verlieren, bevor er ausscheidet. Es werden automatisch entsprechend viele Trostrunden hinzugefügt.\n\nHinweis: Bei bestimmten ungeraden Teilnehmerzahlen kann es passieren, dass ein Spieler trotz Trostrunde nach einer Niederlage im ersten Spiel den letzten Platz belegt.",
   "placesToPlayOut": "Ausgespielte Platzierungen",
   "placesToPlayOutHelp": "Der Turnierbaum bringt mindestens {numPlaces} eindeutige Spitzenplatzierungen hervor. Die entsprechenden Trostrunden werden automatisch hinzugefügt.",
   "tooFewPlacesToPlayOut": "Min. 2 Plätze müssen ausgespielt werden",
