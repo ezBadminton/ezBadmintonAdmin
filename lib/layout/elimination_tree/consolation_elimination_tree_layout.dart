@@ -246,7 +246,7 @@ class _ConsolationEliminationTreeLayoutDelegate
       // come from or to the right if other brackets already took more width.
       double minHorizontalPosition = bracketOffset *
           (node.bracket.matchNodeSize.width +
-              bracket_sizes.groupKnockoutGroupGap);
+              bracket_sizes.singleEliminationRoundGap);
       double horizontalPosition =
           max(childHorizontalPosition, minHorizontalPosition);
 
