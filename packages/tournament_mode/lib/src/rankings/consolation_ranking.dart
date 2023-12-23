@@ -17,15 +17,29 @@ class ConsolationRanking<P> extends Ranking<P> {
       'The participant list has to have a length that is a power of 2',
     );
 
+    List<MatchParticipant<P>> realParticipants =
+        _participants.where((participant) => !participant.isBye).toList();
+
+    List<MatchParticipant<P>> byes =
+        _participants.where((participant) => participant.isBye).toList();
+
+    if (realParticipants.length.isOdd) {
+      assert(byes.isNotEmpty);
+      MatchParticipant<P> paddingParticipant = byes.removeAt(0);
+      realParticipants.add(paddingParticipant);
+    }
+
     List<MatchParticipant<P>> ranks = [];
 
     Iterable<List<MatchParticipant<P>>> pairs =
-        _participants.slices(2).toList().reversed;
+        realParticipants.slices(2).toList().reversed;
 
     for (List<MatchParticipant<P>> pair in pairs) {
       ranks.add(pair[1]);
       ranks.insert(0, pair[0]);
     }
+
+    ranks.addAll(byes);
 
     return ranks;
   }
