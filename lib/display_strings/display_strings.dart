@@ -298,7 +298,7 @@ String seedLabel(int seed, SeedingMode seedingMode) {
   return '${prevPowOf2 + 1}/$nextPowOf2';
 }
 
-String? matchRoundName(AppLocalizations l10n, BadmintonMatch match) {
+String? matchName(AppLocalizations l10n, TournamentMatch match) {
   return switch (match.round) {
     GroupPhaseRound<BadmintonMatch> round =>
       round.getGroupMatchName(l10n, match),

@@ -23,7 +23,7 @@ class MatchInfo extends pw.StatelessWidget {
       l10n: l10n,
     );
 
-    String? roundName = display_strings.matchRoundName(l10n, match);
+    String? roundName = display_strings.matchName(l10n, match);
     pw.Widget roundWidget = pw.SizedBox(
       height: 20,
       child: roundName != null ? pw.Text(roundName) : null,

@@ -181,7 +181,7 @@ class _MatchInfo extends StatelessWidget {
     return Row(
       children: [
         Text(
-          display_strings.matchRoundName(l10n, match) ?? '',
+          display_strings.matchName(l10n, match) ?? '',
           style: const TextStyle(fontSize: 14),
         ),
         MatchupLabel(

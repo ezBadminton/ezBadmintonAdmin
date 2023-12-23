@@ -105,7 +105,7 @@ class _CallOutLines extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
-    String? roundName = display_strings.matchRoundName(l10n, match);
+    String? roundName = display_strings.matchName(l10n, match);
 
     return Column(
       mainAxisSize: MainAxisSize.min,

@@ -1,10 +1,12 @@
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
+import 'package:ez_badminton_admin_app/display_strings/match_names.dart';
 import 'package:ez_badminton_admin_app/layout/elimination_tree/consolation_elimination_tree_layout.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bracket.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
 import 'package:flutter/material.dart';
 import 'package:tournament_mode/tournament_mode.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ConsolationEliminationTree extends StatelessWidget
     implements SectionedBracket {
@@ -14,9 +16,9 @@ class ConsolationEliminationTree extends StatelessWidget
     this.isEditable = false,
     this.showResults = false,
     this.placeholderLabels = const {},
-  }) {
-    consolationTreeRoot = _buildBracketTree(tournament.mainBracket);
-  }
+  }) : sections = SingleEliminationTree.getSections(
+          tournament.mainBracket.bracket.rounds,
+        );
 
   final BadmintonSingleEliminationWithConsolation tournament;
 
@@ -25,22 +27,27 @@ class ConsolationEliminationTree extends StatelessWidget
 
   final Map<MatchParticipant, Widget> placeholderLabels;
 
-  late final ConsolationTreeNode consolationTreeRoot;
-
   @override
-  List<BracketSection> get sections => consolationTreeRoot.treeWidget.sections;
+  final List<BracketSection> sections;
 
   @override
   Widget build(BuildContext context) {
     ConsolationTreeNode consolationTreeRoot =
-        _buildBracketTree(tournament.mainBracket);
+        _buildBracketTree(context, tournament.mainBracket);
 
     return ConsolationEliminationTreeLayout(
       consolationTreeRoot: consolationTreeRoot,
     );
   }
 
-  ConsolationTreeNode _buildBracketTree(BracketWithConsolation bracket) {
+  ConsolationTreeNode _buildBracketTree(
+    BuildContext context,
+    BracketWithConsolation bracket,
+  ) {
+    Map<MatchParticipant, Widget> placeholderLabels =
+        Map.of(this.placeholderLabels)
+          ..addAll(_createPlaceholderLabels(context, bracket));
+
     SingleEliminationTree tree = SingleEliminationTree(
       rounds: bracket.bracket.rounds.cast(),
       competition: (bracket.bracket as BadmintonSingleElimination).competition,
@@ -50,7 +57,10 @@ class ConsolationEliminationTree extends StatelessWidget
     );
 
     List<ConsolationTreeNode> consolationTrees = bracket.consolationBrackets
-        .map((consolationBracket) => _buildBracketTree(consolationBracket))
+        .map((consolationBracket) => _buildBracketTree(
+              context,
+              consolationBracket,
+            ))
         .toList();
 
     ConsolationTreeNode node = ConsolationTreeNode(
@@ -64,5 +74,47 @@ class ConsolationEliminationTree extends StatelessWidget
     }
 
     return node;
+  }
+
+  Map<MatchParticipant, Widget> _createPlaceholderLabels(
+    BuildContext context,
+    BracketWithConsolation bracket,
+  ) {
+    if (bracket.parent == null) {
+      return const {};
+    }
+
+    var l10n = AppLocalizations.of(context)!;
+
+    List<TournamentMatch> firstRoundMatches =
+        bracket.bracket.rounds.first.matches;
+
+    Map<MatchParticipant, Widget> labels = Map.fromEntries(
+      firstRoundMatches
+          .expand((match) => [match.a, match.b])
+          .where((participant) => !participant.isBye)
+          .map((participant) {
+        TextStyle placeholderStyle =
+            TextStyle(color: Theme.of(context).disabledColor);
+
+        WinnerRanking winnerRanking =
+            participant.placement!.ranking as WinnerRanking;
+        TournamentMatch sourceMatch = winnerRanking.match;
+
+        String matchName = (sourceMatch.round as EliminationRound)
+            .getSingleEliminationMatchName(l10n, sourceMatch);
+
+        String loserLabel = l10n.loserOfMatch(matchName);
+
+        Text labelText = Text(
+          loserLabel,
+          style: placeholderStyle,
+        );
+
+        return MapEntry(participant, labelText);
+      }),
+    );
+
+    return labels;
   }
 }

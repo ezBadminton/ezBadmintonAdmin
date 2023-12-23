@@ -30,7 +30,7 @@ class MatchInfo extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
     var navigationCubit = context.read<TabNavigationCubit>();
 
-    String? roundName = display_strings.matchRoundName(l10n, match);
+    String? roundName = display_strings.matchName(l10n, match);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,7 +88,7 @@ class RunningMatchInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    String? roundName = display_strings.matchRoundName(l10n, match);
+    String? roundName = display_strings.matchName(l10n, match);
 
     return IntrinsicHeight(
       child: Row(

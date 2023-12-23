@@ -1,15 +1,13 @@
-import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
-import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
 import 'package:tournament_mode/tournament_mode.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 extension EliminationMatchNames on EliminationRound {
-  String getEliminationMatchName(AppLocalizations l10n, BadmintonMatch match) {
+  String getEliminationMatchName(AppLocalizations l10n, TournamentMatch match) {
     switch (tournament) {
-      case BadmintonSingleElimination _:
-        return _getSingleEliminationMatchName(l10n, match);
-      case BadmintonSingleEliminationWithConsolation _:
-        return _getConsolationMatchName(l10n, match);
+      case SingleElimination _:
+        return getSingleEliminationMatchName(l10n, match);
+      case SingleEliminationWithConsolation _:
+        return getConsolationMatchName(l10n, match);
       default:
         throw Exception(
           'This EliminationRound has no match naming implemented',
@@ -17,9 +15,9 @@ extension EliminationMatchNames on EliminationRound {
     }
   }
 
-  String _getSingleEliminationMatchName(
+  String getSingleEliminationMatchName(
     AppLocalizations l10n,
-    BadmintonMatch match,
+    TournamentMatch match,
   ) {
     String roundName = l10n.roundOfN('$roundSize');
 
@@ -33,17 +31,17 @@ extension EliminationMatchNames on EliminationRound {
     return l10n.roundN(roundName, '${roundIndex + 1}');
   }
 
-  String _getConsolationMatchName(
+  String getConsolationMatchName(
     AppLocalizations l10n,
-    BadmintonMatch match,
+    TournamentMatch match,
   ) {
-    BadmintonSingleEliminationWithConsolation tournament =
-        this.tournament as BadmintonSingleEliminationWithConsolation;
+    SingleEliminationWithConsolation tournament =
+        this.tournament as SingleEliminationWithConsolation;
 
     BracketWithConsolation consolationBracket = tournament.allBrackets
         .firstWhere((bracket) => bracket.bracket.matches.contains(match));
 
-    String eliminationMatchName = _getSingleEliminationMatchName(l10n, match);
+    String eliminationMatchName = getSingleEliminationMatchName(l10n, match);
 
     if (consolationBracket.parent == null) {
       /// The main bracket has no consolation round name
@@ -70,9 +68,9 @@ extension RoundRobinMatchNames on RoundRobinRound {
   }
 }
 
-extension GroupPhaseMatchNames on GroupPhaseRound<BadmintonMatch> {
-  String getGroupMatchName(AppLocalizations l10n, BadmintonMatch match) {
-    RoundRobinRound<BadmintonMatch> groupRound = nestedRounds.firstWhere(
+extension GroupPhaseMatchNames on GroupPhaseRound {
+  String getGroupMatchName(AppLocalizations l10n, TournamentMatch match) {
+    RoundRobinRound groupRound = nestedRounds.firstWhere(
       (roundRobin) => roundRobin.matches.contains(match),
     );
 
@@ -85,7 +83,7 @@ extension GroupPhaseMatchNames on GroupPhaseRound<BadmintonMatch> {
 extension DoubleEliminationMatchNames on DoubleEliminationRound {
   String getDoubleEliminationMatchName(
     AppLocalizations l10n,
-    BadmintonMatch match,
+    TournamentMatch match,
   ) {
     bool isInWinnerBracket = winnerRound?.matches.contains(match) ?? false;
 
