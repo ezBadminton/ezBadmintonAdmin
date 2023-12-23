@@ -187,6 +187,7 @@ class SingleEliminationWithConsolation<P, S, M extends TournamentMatch<P, S>,
 
     for (EliminationRound<M> round in roundsToConsole) {
       E consolationElimination = _createConsolationTournament(round);
+      consolationElimination.freezeRankings();
       if (_isFullBye(consolationElimination)) {
         break;
       }
