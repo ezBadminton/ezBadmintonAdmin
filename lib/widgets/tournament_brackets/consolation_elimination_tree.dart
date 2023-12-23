@@ -97,8 +97,10 @@ class ConsolationEliminationTree extends StatelessWidget
         TextStyle placeholderStyle =
             TextStyle(color: Theme.of(context).disabledColor);
 
-        WinnerRanking winnerRanking =
-            participant.placement!.ranking as WinnerRanking;
+        WinnerRanking winnerRanking = participant.placement!
+            .getPlacement()!
+            .placement!
+            .ranking as WinnerRanking;
         TournamentMatch sourceMatch = winnerRanking.match;
 
         String matchName = (sourceMatch.round as EliminationRound)

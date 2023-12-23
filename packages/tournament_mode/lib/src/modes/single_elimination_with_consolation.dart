@@ -240,9 +240,9 @@ class SingleEliminationWithConsolation<P, S, M extends TournamentMatch<P, S>,
       },
     ).toList();
 
-    Ranking<P> loserRoundEntries = ConsolationRanking(losers);
+    Ranking<P> consolationRanking = ConsolationRanking(losers);
 
-    E consolationTournament = singleEliminationBuilder(loserRoundEntries);
+    E consolationTournament = singleEliminationBuilder(consolationRanking);
 
     int roundIndex = round.tournament.rounds.indexOf(round);
     TournamentRound<M> previousRound = round.tournament.rounds[roundIndex - 1];
@@ -317,6 +317,13 @@ class SingleEliminationWithConsolation<P, S, M extends TournamentMatch<P, S>,
     }
 
     return numBrackets;
+  }
+
+  @override
+  void freezeRankings() {
+    for (BracketWithConsolation bracket in allBrackets) {
+      bracket.bracket.freezeRankings();
+    }
   }
 }
 
