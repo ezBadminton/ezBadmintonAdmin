@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:tournament_mode/src/modes/qualification_chain.dart';
 import 'package:tournament_mode/src/rankings/consolation_ranking.dart';
 import 'package:tournament_mode/tournament_mode.dart';
@@ -186,6 +187,9 @@ class SingleEliminationWithConsolation<P, S, M extends TournamentMatch<P, S>,
 
     for (EliminationRound<M> round in roundsToConsole) {
       E consolationElimination = _createConsolationTournament(round);
+      if (_isFullBye(consolationElimination)) {
+        break;
+      }
 
       List<BracketWithConsolation<P, S, M, E>> nestedConsolationBrackes =
           _createConsolationBrackets(
@@ -248,6 +252,16 @@ class SingleEliminationWithConsolation<P, S, M extends TournamentMatch<P, S>,
     );
 
     return consolationTournament;
+  }
+
+  /// Returns if a tournament has a full list if entries that are byes.
+  bool _isFullBye(E tournament) {
+    bool isFullBye = tournament.entries.ranks.firstWhereOrNull(
+          (participant) => !participant.isBye,
+        ) ==
+        null;
+
+    return isFullBye;
   }
 
   void _initFinalRanking() {
