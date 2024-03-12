@@ -1,8 +1,7 @@
 import 'dart:math';
 
-import 'package:collection/collection.dart';
 import 'package:tournament_mode/src/modes/qualification_chain.dart';
-import 'package:tournament_mode/src/rankings/consolation_ranking.dart';
+import 'package:tournament_mode/src/rankings/ordered_ranking.dart';
 import 'package:tournament_mode/tournament_mode.dart';
 
 class SingleEliminationWithConsolation<P, S, M extends TournamentMatch<P, S>,
@@ -62,6 +61,7 @@ class SingleEliminationWithConsolation<P, S, M extends TournamentMatch<P, S>,
 
   void _createMatches() {
     mainElimination = singleEliminationBuilder(entries);
+    mainElimination.freezeRankings();
 
     List<BracketWithConsolation<P, S, M, E>> allBrackets = [];
     List<BracketWithConsolation<P, S, M, E>> consolationRounds =
@@ -77,6 +77,10 @@ class SingleEliminationWithConsolation<P, S, M extends TournamentMatch<P, S>,
     }
 
     allBrackets.add(mainBracket);
+
+    for (BracketWithConsolation bracket in allBrackets) {
+      bracket.bracket.unfreezeRankings();
+    }
 
     this.allBrackets = allBrackets.reversed.toList();
     _arrangeRounds();
@@ -241,7 +245,7 @@ class SingleEliminationWithConsolation<P, S, M extends TournamentMatch<P, S>,
       },
     ).toList();
 
-    Ranking<P> consolationRanking = ConsolationRanking(losers);
+    Ranking<P> consolationRanking = OrderedRanking(losers);
 
     E consolationTournament = singleEliminationBuilder(consolationRanking);
 
@@ -255,12 +259,15 @@ class SingleEliminationWithConsolation<P, S, M extends TournamentMatch<P, S>,
     return consolationTournament;
   }
 
-  /// Returns if a tournament has a full list if entries that are byes.
+  /// Returns true when a [tournament]'s entries contain less than 2 real
+  /// participants who are not byes.
   bool _isFullBye(E tournament) {
-    bool isFullBye = tournament.entries.ranks.firstWhereOrNull(
-          (participant) => !participant.isBye,
-        ) ==
-        null;
+    bool isFullBye = tournament.entries.ranks
+            .where(
+              (participant) => !participant.isBye,
+            )
+            .length <
+        2;
 
     return isFullBye;
   }

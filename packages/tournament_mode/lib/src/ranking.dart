@@ -20,6 +20,10 @@ abstract class Ranking<P> {
   void freezeRanks() {
     _frozenRanks = createRanks();
   }
+
+  void unfreezeRanks() {
+    _frozenRanks = null;
+  }
 }
 
 /// A simple index getter into a [Ranking].

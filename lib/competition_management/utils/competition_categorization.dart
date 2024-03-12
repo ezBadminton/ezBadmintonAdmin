@@ -37,7 +37,7 @@ List<PlayingCategory> getPossiblePlayingCategories(
 /// Groups the [competitions] into lists containing only competitions of the
 /// same [CompetitionDiscipline].
 ///
-/// Futhermore they are grouped into those of equal [PlayingCategory] but
+/// Furthermore they are grouped into those of equal [PlayingCategory] but
 /// with [ignoreAgeGroups] and [ignorePlayingLevels] applied.
 List<List<Competition>> groupCompetitions(
   List<Competition> competitions, {

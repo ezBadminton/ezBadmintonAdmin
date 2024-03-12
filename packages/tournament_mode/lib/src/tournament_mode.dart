@@ -92,6 +92,19 @@ abstract class TournamentMode<P, S, M extends TournamentMatch<P, S>> {
   /// the tournament mode is being displayed and every participant potentially
   /// needs to be resolved multiple times.
   void freezeRankings() {
+    for (Ranking ranking in _getRankings()) {
+      ranking.freezeRanks();
+    }
+  }
+
+  /// Unfreeze all rankings after they were frozen by calling [freezeRankings].
+  void unfreezeRankings() {
+    for (Ranking ranking in _getRankings()) {
+      ranking.unfreezeRanks();
+    }
+  }
+
+  Set<Ranking> _getRankings() {
     Set<Ranking> rankings = matches
         .expand(
             (match) => [match.a.placement?.ranking, match.b.placement?.ranking])
@@ -101,8 +114,6 @@ abstract class TournamentMode<P, S, M extends TournamentMatch<P, S>> {
     rankings.add(entries);
     rankings.add(finalRanking);
 
-    for (Ranking ranking in rankings) {
-      ranking.freezeRanks();
-    }
+    return rankings;
   }
 }
