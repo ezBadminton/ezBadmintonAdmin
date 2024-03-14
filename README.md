@@ -30,7 +30,7 @@ Everyone is welcome to fork and/or make pull requests!
 
 ezBadminton uses [Pocketbase](https://pocketbase.io) as its backend. It bundles database, data storage, authentication and REST-API.
 
-- Download the newest prebuilt archive for your platform from https://pocketbase.io/docs (0.19.4 as of writing).
+- Download the newest prebuilt archive for your platform from https://pocketbase.io/docs (0.22.4 as of writing).
 - Create a directory called `pocketbase` in your working directory and unpack the archive's contents there.
 - Start the service
     ```console
@@ -60,7 +60,7 @@ ezBadminton uses [Pocketbase](https://pocketbase.io) as its backend. It bundles 
 
 The ezBadminton Admin App is a desktop app built with [Flutter](flutter.dev).
 
-- [Install](https://docs.flutter.dev/get-started/install) the Flutter development tools on your system (Flutter 3.16.1 as of writing)
+- [Install](https://docs.flutter.dev/get-started/install) the Flutter development tools on your system (Flutter 3.19.3 as of writing)
 	- Note on Windows: Make sure to complete [this step](https://docs.flutter.dev/get-started/install/windows#additional-windows-requirements) to be able to build the flutter app for Windows
 	- You can ignore Android and web related setup steps as this is not a mobile/web app
 
@@ -78,7 +78,7 @@ The ezBadminton Admin App is a desktop app built with [Flutter](flutter.dev).
     ```console
 	you@yourdevice:~/ez_badminton/ezBadmintonAdmin/packages/collection_repository$ dart run build_runner build
     ```
-- Press `F5` to build and run a debug session! This takes about 2-3 minutes on the first run. Make sure your pocketbase service is still running.
+- Press `F5` to build and run a debug session! Select a desktop target device. This takes about 2-3 minutes on the first run. Make sure your pocketbase service is still running.
 	If the hotkey does not work, try
     ```console
 	you@yourdevice:~/ez_badminton/ezBadmintonAdmin$ flutter run --debug
