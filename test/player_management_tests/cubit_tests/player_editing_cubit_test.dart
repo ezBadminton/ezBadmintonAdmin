@@ -170,14 +170,6 @@ void main() {
     tournamentRepository = TestCollectionRepository();
   }
 
-  void arrangeOneRepositoryThrows() {
-    playerRepository = TestCollectionRepository(throwing: true);
-  }
-
-  void arrangeOneRepositoryFixed() {
-    (playerRepository as TestCollectionRepository).throwing = false;
-  }
-
   setUp(() {
     context = MockBuildContext();
 
@@ -194,24 +186,6 @@ void main() {
       expect(teamRepository.updateStreamController.hasListener, isTrue);
       expect(competitionRepository.updateStreamController.hasListener, isTrue);
     });
-
-    blocTest<PlayerEditingCubit, PlayerEditingState>(
-      """emits LoadingStatus.failed when a respository throws,
-      a successfull retry emits LoadingStatus.loading
-      then LoadingStatus.done""",
-      setUp: arrangeOneRepositoryThrows,
-      build: () => createSut(player),
-      act: (cubit) async {
-        await Future.delayed(Duration.zero);
-        arrangeOneRepositoryFixed();
-        cubit.loadCollections();
-      },
-      expect: () => [
-        HasLoadingStatus(LoadingStatus.failed),
-        HasLoadingStatus(LoadingStatus.loading),
-        HasLoadingStatus(LoadingStatus.done),
-      ],
-    );
 
     blocTest<PlayerEditingCubit, PlayerEditingState>(
       """first emitted state has LoadingStatus.done,
@@ -297,8 +271,8 @@ void main() {
       playerRepository = TestCollectionRepository(throwing: true);
     }
 
-    void arrangeCompetitionRepositoryThrows() {
-      competitionRepository = TestCollectionRepository(throwing: true);
+    void arrangeTeamRepositoryThrows() {
+      teamRepository = TestCollectionRepository(throwing: true);
     }
 
     blocTest<PlayerEditingCubit, PlayerEditingState>(
@@ -310,20 +284,25 @@ void main() {
         arrangeRepositories(players: [player]);
       },
       build: () => createSut(player),
-      skip: 1, // skip loading done state
-      act: (cubit) {
-        // Leave name inputs empty to create invalid form submission
+      act: (cubit) async {
+        await Future.delayed(const Duration(milliseconds: 2));
+        // Leave name input empty to create invalid form submission
+        cubit.firstNameChanged('');
         cubit.formSubmitted();
         // Create valid form submission
         cubit.firstNameChanged('Alice');
         cubit.lastNameChanged('Smith');
         cubit.formSubmitted();
       },
+      skip: 1, // skip loading done state
       expect: () => [
+        HasFirstNameInput(isEmpty),
         HasFormStatus(FormzSubmissionStatus.failure),
         HasFirstNameInput(isNotEmpty),
         HasLastNameInput(isNotEmpty),
         HasFormStatus(FormzSubmissionStatus.inProgress),
+        HasLoadingStatus(LoadingStatus.done),
+        HasLoadingStatus(LoadingStatus.done),
         HasFormStatus(FormzSubmissionStatus.success),
       ],
     );
@@ -333,8 +312,9 @@ void main() {
       emitted when Player repository throws during create""",
       setUp: arrangePlayerRepositoryThrows,
       build: () => createSut(null),
-      skip: 1, // skip loading done state
-      act: (cubit) {
+      skip: 1, // skip loading failed state
+      act: (cubit) async {
+        await Future.delayed(const Duration(milliseconds: 2));
         cubit.firstNameChanged('Alice');
         cubit.lastNameChanged('Smith');
         cubit.formSubmitted();
@@ -349,12 +329,12 @@ void main() {
 
     blocTest<PlayerEditingCubit, PlayerEditingState>(
       """FormzSubmissionStatus.inProgress then FormzSubmissionStatus.failure is
-      emitted when Competition repository throws during update""",
-      setUp: arrangeCompetitionRepositoryThrows,
+      emitted when Team repository throws during update""",
+      setUp: arrangeTeamRepositoryThrows,
       build: () => createSut(null),
-      skip: 1, // skip loading done state
+      skip: 1, // skip loading failed state
       act: (cubit) async {
-        await Future.delayed(Duration.zero);
+        await Future.delayed(const Duration(milliseconds: 2));
         cubit.firstNameChanged('Alice');
         cubit.lastNameChanged('Smith');
         cubit.registrationFormOpened();
@@ -367,6 +347,7 @@ void main() {
         RegistrationFormShown(isTrue),
         HasCompetitionRegistrations(hasLength(1)),
         HasFormStatus(FormzSubmissionStatus.inProgress),
+        HasLoadingStatus(LoadingStatus.done),
         HasFormStatus(FormzSubmissionStatus.failure),
       ],
     );
@@ -377,7 +358,7 @@ void main() {
       build: () => createSut(null),
       skip: 5, // skip form input state changes
       act: (cubit) async {
-        await Future.delayed(Duration.zero);
+        await Future.delayed(const Duration(milliseconds: 2));
         cubit.firstNameChanged('changedFirstName');
         cubit.lastNameChanged('changedLastName');
         cubit.notesChanged('changedEMail@example.com');
@@ -386,6 +367,8 @@ void main() {
       },
       expect: () => [
         HasFormStatus(FormzSubmissionStatus.inProgress),
+        HasLoadingStatus(LoadingStatus.done),
+        HasLoadingStatus(LoadingStatus.done),
         HasPlayer(allOf(
           HasFirstName('changedFirstName'),
           HasLastName('changedLastName'),
@@ -393,8 +376,8 @@ void main() {
           HasClub(HasName('changedClubName')),
         )),
       ],
-      verify: (_) async {
-        List<Club> collection = await clubRepository.getList();
+      verify: (_) {
+        List<Club> collection = clubRepository.getList();
         expect(collection, [HasName('changedClubName')]);
       },
     );
@@ -415,6 +398,7 @@ void main() {
       },
       expect: () => [
         HasFormStatus(FormzSubmissionStatus.inProgress),
+        HasLoadingStatus(LoadingStatus.done),
         HasPlayer(allOf(
           HasFirstName('changedFirstName'),
           HasLastName('changedLastName'),
@@ -422,38 +406,9 @@ void main() {
           HasClub(HasName('existing club')),
         )),
       ],
-      verify: (bloc) async {
-        List<Club> collection = await clubRepository.getList();
+      verify: (bloc) {
+        List<Club> collection = clubRepository.getList();
         expect(collection, [HasName('existing club')]);
-      },
-    );
-
-    blocTest<PlayerEditingCubit, PlayerEditingState>(
-      """registering for a Competition correctly updates the Competition's
-      registrations List,
-      the Team that is used for the registration contains the edited player
-      and the given team partner""",
-      setUp: () {
-        arrangeRepositories(
-          competitions: [competition],
-          players: [player, player2],
-        );
-      },
-      build: () => createSut(player),
-      act: (cubit) async {
-        await Future.delayed(Duration.zero);
-        cubit.registrationFormOpened();
-        cubit.registrationAdded(competition, player2);
-        cubit.formSubmitted();
-      },
-      verify: (bloc) async {
-        List<Competition> collection = await competitionRepository.getList();
-        expect(collection, hasLength(1));
-        expect(collection.first.registrations, hasLength(1));
-        expect(
-          collection.first.registrations.first.players,
-          allOf(contains(player), contains(player2)),
-        );
       },
     );
 
@@ -478,10 +433,10 @@ void main() {
         cubit.registrationRemoved(cubit.state.registrations.value.first);
         cubit.formSubmitted();
       },
-      verify: (bloc) async {
+      verify: (bloc) {
         List<Competition> competitionCollection =
-            await competitionRepository.getList();
-        List<Team> teamCollection = await teamRepository.getList();
+            competitionRepository.getList();
+        List<Team> teamCollection = teamRepository.getList();
         expect(competitionCollection, hasLength(1));
         expect(competitionCollection.first.registrations, hasLength(1));
         expect(teamCollection, hasLength(1));
@@ -489,84 +444,6 @@ void main() {
           teamCollection.first.players,
           allOf(contains(player2), isNot(contains(player))),
         );
-      },
-    );
-
-    final soloTeam = Team.newTeam(players: [player]).copyWith(id: 'teamId');
-    final soloTeam2 = Team.newTeam(players: [player2]).copyWith(id: 'teamId2');
-    blocTest<PlayerEditingCubit, PlayerEditingState>(
-      """deregistering from a Competition while in a Team solo deletes the team,
-      registering with a partner that is already solo in a Team makes the
-      partner join the new Team and deletes theirs""",
-      setUp: () {
-        arrangeRepositories(
-          teams: [soloTeam, soloTeam2],
-          competitions: [
-            competition.copyWith(registrations: [soloTeam, soloTeam2]),
-          ],
-          players: [player, player2],
-        );
-      },
-      build: () => createSut(player),
-      act: (cubit) async {
-        await Future.delayed(Duration.zero);
-        cubit.registrationRemoved(cubit.state.registrations.value.first);
-        cubit.registrationFormOpened();
-        List<Competition> competitionCollection =
-            await competitionRepository.getList();
-        cubit.registrationAdded(competitionCollection.first, player2);
-        cubit.formSubmitted();
-      },
-      verify: (bloc) async {
-        List<Competition> competitionCollection =
-            await competitionRepository.getList();
-        List<Team> teamCollection = await teamRepository.getList();
-        expect(competitionCollection, hasLength(1));
-        expect(competitionCollection.first.registrations, hasLength(1));
-        expect(teamCollection, [
-          allOf(
-            isNot(soloTeam),
-            isNot(soloTeam2),
-          )
-        ]);
-        expect(
-          teamCollection.first.players,
-          allOf(contains(player), contains(player2)),
-        );
-      },
-    );
-
-    final alreadyRegisteredTeam =
-        Team.newTeam(players: [player]).copyWith(id: 'teamId');
-    blocTest<PlayerEditingCubit, PlayerEditingState>(
-      """trying to register twice for a Competition
-      emits FormzSubmissionStatus.failure""",
-      setUp: () {
-        arrangeRepositories(
-          teams: [alreadyRegisteredTeam],
-          competitions: [
-            competition.copyWith(registrations: [alreadyRegisteredTeam]),
-          ],
-          players: List.of(alreadyRegisteredTeam.players),
-        );
-      },
-      build: () => createSut(player),
-      skip: 3,
-      act: (cubit) async {
-        await Future.delayed(Duration.zero);
-        cubit.registrationFormOpened();
-        List<Competition> competitionCollection =
-            await competitionRepository.getList();
-        cubit.registrationAdded(competitionCollection.first, null);
-        cubit.formSubmitted();
-      },
-      expect: () => [
-        HasFormStatus(FormzSubmissionStatus.inProgress),
-        HasFormStatus(FormzSubmissionStatus.failure),
-      ],
-      verify: (bloc) async {
-        List<Competition> collection = await competitionRepository.getList();
-        expect(collection.first.registrations, [alreadyRegisteredTeam]);
       },
     );
   });

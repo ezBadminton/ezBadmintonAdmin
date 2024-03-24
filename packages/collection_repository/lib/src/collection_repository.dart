@@ -7,86 +7,86 @@ abstract class CollectionRepository<M extends Model> {
   /// Streams a [M] object whenever it is updated
   ///
   /// This happens when the [M] object was created, updated or deleted.
-  Stream<CollectionUpdateEvent<M>> get updateStream;
-
-  /// This stream emits events whenever anything changed in the collection.
-  ///
-  /// The difference to [updateStream] is that the [updateNotificationStream]
-  /// does not carry the updated object, only reacts to updates
-  /// (as opposed to creates and deletes) and only fires once when multiple
-  /// objects have been updated at once.
-  Stream<void> get updateNotificationStream;
+  Stream<List<CollectionUpdateEvent<M>>> get updateStream;
 
   @protected
-  StreamController<CollectionUpdateEvent<M>> get updateStreamController;
+  StreamController<List<CollectionUpdateEvent<M>>> get updateStreamController;
 
-  @protected
-  StreamController<void> get updateNotificationStreamController;
+  /// The load completer completes its future when the initial fetch of the
+  /// collection was successful
+  Completer<void> get loadCompleter;
+  bool get isLoaded => loadCompleter.isCompleted;
 
-  /// Fetches a single collection member by [id]
+  /// Returns a single collection member by [id].
   ///
-  /// Relations are expanded as defined by the [expand] `ExpansionTree`.
-  Future<M> getModel(String id, {ExpansionTree? expand});
-
-  /// Fetches the full list of [M] objects from their database collection.
+  /// An exception is thrown when this method is called before [isLoaded]
+  /// becomes true.
   ///
-  /// Relations are expanded as defined by the [expand] `ExpansionTree`.
-  Future<List<M>> getList({ExpansionTree? expand});
+  /// Returns null if the [id] cannot be found.
+  M? getModel(String id);
+
+  /// Returns the full collection of [M] objects.
+  ///
+  /// An exception is thrown when this method is called before [isLoaded]
+  /// becomes true.
+  ///
+  /// The FutureOr is a Future when the [loadCompleter] is not completed yet.
+  List<M> getList();
 
   /// Adds a new instance of [M] to the [M]-collection.
   ///
-  /// The returned created model has its relations [expand]ed
-  Future<M> create(M newModel, {ExpansionTree? expand});
+  /// The created model is returned.
+  Future<M> create(
+    M newModel, {
+    Map<String, dynamic> query = const {},
+  });
 
-  /// Updates an existing instance of [M] identified by its 'id'.
+  /// Updates an existing instance of [M].
   ///
-  /// The returned updated model has its relations [expand]ed
+  /// Optionally [query] parameters can be set.
   ///
-  /// When the update is part of a bigger update of mutliple models, then
-  /// [isMulti] should be set to true. When the last of those updates occurs,
-  /// additionally set [isFinalMulti] to true.
-  /// This causes the [updateNotificationStream] to only emit one event when the
-  /// final update happens instead of one norification event per single update.
+  /// The updated model is returned.
   Future<M> update(
     M updatedModel, {
-    ExpansionTree? expand,
-    bool isMulti = false,
-    bool isFinalMulti = false,
+    Map<String, dynamic> query = const {},
   });
 
   /// Deletes an existing instance of [M] identified by its 'id'.
-  Future<void> delete(M deletedModel);
+  ///
+  /// Optionally [query] parameters can be set.
+  Future<void> delete(
+    M deletedModel, {
+    Map<String, dynamic> query = const {},
+  });
+
+  /// Sends a request to a collection-specific base route concatenated with the
+  /// given [route].
+  ///
+  /// The [data] body and [query] parameters are the playload.
+  ///
+  /// For example the Person collection might have a base route of
+  /// "/api/persons". When giving "/johndoe" as [route] the request will be
+  /// made to "/api/persons/johndoe".
+  ///
+  /// Returns true when the response code is 200/OK.
+  Future<bool> route({
+    String route,
+    String method,
+    Map<String, dynamic> data = const {},
+    Map<String, dynamic> query = const {},
+  });
 
   /// Closes the update stream
   Future<void> dispose();
-
-  void emitUpdateNotification() {
-    updateNotificationStreamController.add(null);
-  }
 }
 
 class CollectionUpdateEvent<M extends Model> {
-  CollectionUpdateEvent.create(
-    this.model, {
-    this.isMulti = false,
-    this.isFinalMulti = false,
-  }) : updateType = UpdateType.create;
-  CollectionUpdateEvent.update(
-    this.model, {
-    this.isMulti = false,
-    this.isFinalMulti = false,
-  }) : updateType = UpdateType.update;
-  CollectionUpdateEvent.delete(
-    this.model, {
-    this.isMulti = false,
-    this.isFinalMulti = false,
-  }) : updateType = UpdateType.delete;
+  CollectionUpdateEvent.create(this.model) : updateType = UpdateType.create;
+  CollectionUpdateEvent.update(this.model) : updateType = UpdateType.update;
+  CollectionUpdateEvent.delete(this.model) : updateType = UpdateType.delete;
 
   final M model;
   final UpdateType updateType;
-
-  final bool isMulti;
-  final bool isFinalMulti;
 }
 
 enum UpdateType { create, update, delete }

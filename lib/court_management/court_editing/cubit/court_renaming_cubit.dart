@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
@@ -44,14 +45,7 @@ class CourtRenamingCubit extends CollectionQuerierCubit<CourtRenamingState> {
 
     emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
-    List<Court>? courts = await querier.fetchCollection<Court>();
-    if (courts == null) {
-      emit(state.copyWith(
-        formStatus: FormzSubmissionStatus.failure,
-        isFormOpen: false,
-      ));
-      return;
-    }
+    List<Court> courts = querier.getCollection<Court>();
 
     // Don't allow duplicate names in the same gym
     List<String> otherNames = courts
@@ -85,9 +79,18 @@ class CourtRenamingCubit extends CollectionQuerierCubit<CourtRenamingState> {
     ));
   }
 
-  void _onCourtCollectionUpdate(CollectionUpdateEvent<Court> event) {
-    if (event.updateType == UpdateType.update && event.model == state.court) {
-      emit(state.copyWith(court: event.model));
+  void _onCourtCollectionUpdate(List<CollectionUpdateEvent<Court>> events) {
+    CollectionUpdateEvent<Court>? updateEvent =
+        events.reversed.firstWhereOrNull((e) => e.model == state.court);
+
+    if (updateEvent == null || updateEvent.updateType != UpdateType.update) {
+      return;
     }
+
+    emit(state.copyWith(court: updateEvent.model));
   }
+
+  @override
+  void onCollectionUpdate(List<List<Model>> collections,
+      List<CollectionUpdateEvent<Model>> updateEvents) {}
 }

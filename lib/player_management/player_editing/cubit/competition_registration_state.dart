@@ -5,11 +5,9 @@ import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialo
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:formz/formz.dart';
 
-class CompetitionRegistrationState
-    extends CollectionFetcherState<CompetitionRegistrationState>
+class CompetitionRegistrationState extends CollectionQuerierState
     implements DialogState {
   CompetitionRegistrationState({
-    super.collections = const {},
     this.loadingStatus = LoadingStatus.loading,
     this.formStep = 0,
     this.competition = const SelectionInput.dirty(value: null),
@@ -23,8 +21,10 @@ class CompetitionRegistrationState
     this.playingLevel =
         const SelectionInput.dirty(emptyAllowed: true, value: null),
     this.dialog = const CubitDialog(),
+    this.collections = const [],
   });
 
+  @override
   final LoadingStatus loadingStatus;
 
   final int formStep;
@@ -38,8 +38,10 @@ class CompetitionRegistrationState
   @override
   final CubitDialog dialog;
 
+  @override
+  final List<List<Model>> collections;
+
   CompetitionRegistrationState copyWith({
-    Map<Type, List<Model>>? collections,
     LoadingStatus? loadingStatus,
     int? formStep,
     SelectionInput<Competition>? competition,
@@ -49,6 +51,7 @@ class CompetitionRegistrationState
     SelectionInput<AgeGroup>? ageGroup,
     SelectionInput<PlayingLevel>? playingLevel,
     CubitDialog? dialog,
+    List<List<Model>>? collections,
   }) =>
       CompetitionRegistrationState(
         collections: collections ?? this.collections,

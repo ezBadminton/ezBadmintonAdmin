@@ -13,10 +13,9 @@ import 'package:formz/formz.dart';
 part 'playing_level_editing_state.dart';
 
 class PlayingLevelEditingCubit
-    extends CollectionFetcherCubit<PlayingLevelEditingState>
+    extends CollectionQuerierCubit<PlayingLevelEditingState>
     with
         DialogCubit<PlayingLevelEditingState>,
-        CompetitionDeletionQueries,
         RemovedCategoryCompetitionManagement<PlayingLevelEditingState> {
   PlayingLevelEditingCubit({
     required CollectionRepository<PlayingLevel> playingLevelRepository,
@@ -29,43 +28,36 @@ class PlayingLevelEditingCubit
             teamRepository,
           ],
           PlayingLevelEditingState(),
-        ) {
-    loadPlayingLevels();
-  }
+        );
 
   final FocusNode focusNode = FocusNode();
   final TextEditingController controller = TextEditingController();
 
-  void loadPlayingLevels() {
-    if (state.loadingStatus != LoadingStatus.loading) {
-      emit(state.copyWith(loadingStatus: LoadingStatus.loading));
-    }
-    fetchCollectionsAndUpdateState(
-      [
-        collectionFetcher<PlayingLevel>(),
-        collectionFetcher<Competition>(),
-        collectionFetcher<Team>(),
-      ],
-      onSuccess: (updatedState) {
-        updatedState = updatedState.copyWithPlayingLevelSorting();
-
-        updatedState = updatedState.copyWith(
-          loadingStatus: LoadingStatus.done,
-          displayPlayingLevels: updatedState.getCollection<PlayingLevel>(),
-          renamingPlayingLevel: const SelectionInput.pure(),
-          playingLevelRename: const NonEmptyInput.pure(),
-        );
-
-        emit(updatedState);
-      },
-      onFailure: () {
-        emit(state.copyWith(loadingStatus: LoadingStatus.failed));
-      },
+  @override
+  void onCollectionUpdate(
+    List<List<Model>> collections,
+    List<CollectionUpdateEvent<Model>> updateEvents,
+  ) {
+    PlayingLevelEditingState updatedState = state.copyWith(
+      collections: collections,
+      loadingStatus: LoadingStatus.done,
+      renamingPlayingLevel: const SelectionInput.pure(),
+      playingLevelRename: const NonEmptyInput.pure(),
     );
+
+    List<PlayingLevel> sortedPlayingLevels =
+        updatedState.getCollection<PlayingLevel>().sorted(comparePlayingLevels);
+    updatedState.overrideCollection(sortedPlayingLevels);
+
+    updatedState = updatedState.copyWith(
+      displayPlayingLevels: updatedState.getCollection<PlayingLevel>(),
+    );
+
+    _emit(updatedState);
   }
 
   void playingLevelNameChanged(String playingLevelName) {
-    emit(state.copyWith(
+    _emit(state.copyWith(
       playingLevelName: NonEmptyInput.dirty(playingLevelName),
     ));
   }
@@ -91,21 +83,32 @@ class PlayingLevelEditingCubit
     if (state.formStatus == FormzSubmissionStatus.inProgress) {
       return;
     }
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
+    _emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
-    FormzSubmissionStatus competitionsManaged =
-        await manageCompetitionsOfRemovedCategory(removedPlayingLevel);
-    if (competitionsManaged != FormzSubmissionStatus.success) {
-      emit(state.copyWith(formStatus: competitionsManaged));
+    (FormzSubmissionStatus, Model?) replacementConfirmation =
+        await askForReplacementCategory(removedPlayingLevel);
+    FormzSubmissionStatus confirmation = replacementConfirmation.$1;
+    Model? replacementCateogry = replacementConfirmation.$2;
+
+    if (confirmation != FormzSubmissionStatus.success) {
+      _emit(state.copyWith(formStatus: confirmation));
       return;
     }
 
-    bool playingLevelDeleted = await querier.deleteModel(removedPlayingLevel);
+    Map<String, dynamic> query = {};
+    if (replacementCateogry != null) {
+      query["replacement"] = replacementCateogry.id;
+    }
+
+    bool playingLevelDeleted = await querier.deleteModel(
+      removedPlayingLevel,
+      query: query,
+    );
     if (isClosed) {
       return;
     }
     if (!playingLevelDeleted) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      _emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
       return;
     }
 
@@ -121,19 +124,18 @@ class PlayingLevelEditingCubit
       return;
     }
     if (!indicesUpdated) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      _emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
       return;
     }
 
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
-    loadPlayingLevels();
+    _emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
   }
 
   void _addPlayingLevel(PlayingLevel newPlayingLevel) async {
     if (state.formStatus == FormzSubmissionStatus.inProgress) {
       return;
     }
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
+    _emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
     PlayingLevel? newPlayingLevelFromDB =
         await querier.createModel(newPlayingLevel);
@@ -142,16 +144,14 @@ class PlayingLevelEditingCubit
       return;
     }
     if (newPlayingLevelFromDB == null) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      _emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
       return;
     }
 
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+    _emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
 
     controller.text = '';
     focusNode.requestFocus();
-
-    loadPlayingLevels();
   }
 
   void playingLevelsReordered(int from, int to) async {
@@ -166,7 +166,7 @@ class PlayingLevelEditingCubit
 
     reorderedPlayingLevels = _syncPlayingLevelIndices(reorderedPlayingLevels);
 
-    emit(state.copyWith(
+    _emit(state.copyWith(
       formStatus: FormzSubmissionStatus.inProgress,
       displayPlayingLevels: reorderedPlayingLevels,
     ));
@@ -178,12 +178,11 @@ class PlayingLevelEditingCubit
       return;
     }
     if (!indicesUpdated) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      _emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
       return;
     }
 
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
-    loadPlayingLevels();
+    _emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
   }
 
   /// Returns a copy of [reorderedPlayingLevels] with the [PlayingLevel]s
@@ -234,7 +233,7 @@ class PlayingLevelEditingCubit
 
   void playingLevelRenameFormOpened(PlayingLevel playingLevel) {
     assert(state.renamingPlayingLevel.value == null);
-    emit(state.copyWith(
+    _emit(state.copyWith(
       renamingPlayingLevel: SelectionInput.dirty(value: playingLevel),
       playingLevelRename: NonEmptyInput.pure(playingLevel.name),
     ));
@@ -245,7 +244,7 @@ class PlayingLevelEditingCubit
     if (_doSubmitRename()) {
       _submitRename();
     } else {
-      emit(state.copyWith(
+      _emit(state.copyWith(
         renamingPlayingLevel: const SelectionInput.pure(),
         playingLevelRename: const NonEmptyInput.pure(),
       ));
@@ -254,14 +253,14 @@ class PlayingLevelEditingCubit
 
   void playingLevelRenameChanged(String name) {
     assert(state.renamingPlayingLevel.value != null);
-    emit(state.copyWith(playingLevelRename: NonEmptyInput.dirty(name)));
+    _emit(state.copyWith(playingLevelRename: NonEmptyInput.dirty(name)));
   }
 
   void _submitRename() async {
     if (state.formStatus == FormzSubmissionStatus.inProgress) {
       return;
     }
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
+    _emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
     PlayingLevel renamedPlayingLevel = state.renamingPlayingLevel.value!
         .copyWith(name: state.playingLevelRename.value);
@@ -273,12 +272,11 @@ class PlayingLevelEditingCubit
       return;
     }
     if (updatedPlayingLevel == null) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      _emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
       return;
     }
 
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
-    loadPlayingLevels();
+    _emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
   }
 
   bool _doSubmitRename() {
@@ -297,5 +295,38 @@ class PlayingLevelEditingCubit
     }
 
     return true;
+  }
+
+  void _emit(PlayingLevelEditingState state) {
+    bool isInteractable = _isFormInteractable(state);
+    bool isSubmittable = _isFormSubmittable(state);
+
+    emit(state.copyWith(
+      formInteractable: isInteractable,
+      formSubmittable: isSubmittable,
+    ));
+  }
+
+  static bool _isFormInteractable(PlayingLevelEditingState state) {
+    return state.loadingStatus == LoadingStatus.done &&
+        state.formStatus != FormzSubmissionStatus.inProgress &&
+        state.renamingPlayingLevel.value == null;
+  }
+
+  static bool _isFormSubmittable(PlayingLevelEditingState state) {
+    if (!_isFormInteractable(state) || state.playingLevelName.isNotValid) {
+      return false;
+    }
+
+    PlayingLevel? existingPlayingLevel = state
+        .getCollection<PlayingLevel>()
+        .where(
+          (level) =>
+              level.name.toLowerCase() ==
+              state.playingLevelName.value.toLowerCase(),
+        )
+        .firstOrNull;
+
+    return existingPlayingLevel == null;
   }
 }

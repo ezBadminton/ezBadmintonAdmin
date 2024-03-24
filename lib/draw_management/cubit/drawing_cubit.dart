@@ -152,10 +152,19 @@ class DrawingCubit extends CollectionQuerierCubit<DrawingState>
   }
 
   void _onCompetitionCollectionUpdate(
-    CollectionUpdateEvent<Competition> event,
+    List<CollectionUpdateEvent<Competition>> events,
   ) {
-    if (event.model.id == state.competition.id) {
-      emit(state.copyWith(competition: event.model));
+    CollectionUpdateEvent<Competition>? updateEvent =
+        events.reversed.firstWhereOrNull((e) => e.model == state.competition);
+
+    if (updateEvent == null) {
+      return;
     }
+
+    emit(state.copyWith(competition: updateEvent.model));
   }
+
+  @override
+  void onCollectionUpdate(List<List<Model>> collections,
+      List<CollectionUpdateEvent<Model>> updateEvents) {}
 }

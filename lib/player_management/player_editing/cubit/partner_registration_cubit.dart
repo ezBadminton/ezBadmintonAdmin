@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
@@ -7,7 +8,7 @@ import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dar
 import 'package:formz/formz.dart';
 
 class PartnerRegistrationCubit
-    extends CollectionFetcherCubit<PartnerRegistrationState> {
+    extends CollectionQuerierCubit<PartnerRegistrationState> {
   PartnerRegistrationCubit({
     required CompetitionRegistration registration,
     required CollectionRepository<Player> playerRepository,
@@ -28,7 +29,6 @@ class PartnerRegistrationCubit
       registration.team.players.length < registration.competition.teamSize,
       'There is no space for registering a partner Player on this team',
     );
-    loadPlayerData();
     subscribeToCollectionUpdates(
       teamRepository,
       _onTeamCollectionUpdate,
@@ -43,21 +43,26 @@ class PartnerRegistrationCubit
     );
   }
 
-  void loadPlayerData() {
-    if (state.loadingStatus != LoadingStatus.loading) {
-      emit(state.copyWith(loadingStatus: LoadingStatus.loading));
+  @override
+  void onCollectionUpdate(
+    List<List<Model>> collections,
+    List<CollectionUpdateEvent<Model>> updateEvents,
+  ) {
+    bool doUpdate = updateEvents.isEmpty ||
+        updateEvents
+                .firstWhereOrNull((e) => e is CollectionUpdateEvent<Player>) !=
+            null;
+
+    if (!doUpdate) {
+      return;
     }
-    fetchCollectionsAndUpdateState(
-      [collectionFetcher<Player>()],
-      onSuccess: (updatedState) {
-        updatedState = updatedState.copyWith(
-          loadingStatus: LoadingStatus.done,
-        );
-        emit(updatedState);
-      },
-      onFailure: () =>
-          emit(state.copyWith(loadingStatus: LoadingStatus.failed)),
+
+    PartnerRegistrationState updatedState = state.copyWith(
+      collections: collections,
+      loadingStatus: LoadingStatus.done,
     );
+
+    emit(updatedState);
   }
 
   void partnerInputVisibilityChanged(bool showPartnerInput) {
@@ -112,36 +117,49 @@ class PartnerRegistrationCubit
 
   // If the currently selected partner is registered to another team
   // remove the selection to avoid double registrations
-  void _onTeamCollectionUpdate(CollectionUpdateEvent<Team> event) {
-    Team updatedTeam = event.model;
-    if (state.partner.value != null &&
-        updatedTeam.players.contains(state.partner.value)) {
+  void _onTeamCollectionUpdate(List<CollectionUpdateEvent<Team>> events) {
+    if (state.partner.value == null) {
+      return;
+    }
+
+    bool partnerWasUpdated = events.firstWhereOrNull(
+          (e) => e.model.players.contains(state.partner.value),
+        ) !=
+        null;
+
+    if (partnerWasUpdated) {
       partnerChanged(null);
     }
   }
 
-  void _onPlayerCollectionUpdate(CollectionUpdateEvent<Player> event) {
-    Player updatedPlayer = event.model;
-    switch (event.updateType) {
-      case UpdateType.create:
-      case UpdateType.delete:
-        if (state.partner.value == updatedPlayer) {
-          partnerChanged(null);
-        }
-        loadPlayerData();
-        break;
-      default:
-        break;
+  void _onPlayerCollectionUpdate(List<CollectionUpdateEvent<Player>> events) {
+    if (state.partner.value == null) {
+      return;
     }
+
+    CollectionUpdateEvent<Player>? updateEvent =
+        events.reversed.firstWhereOrNull((e) => e.model == state.partner.value);
+
+    if (updateEvent == null) {
+      return;
+    }
+
+    partnerChanged(null);
   }
 
   void _onCompetitionCollectionUpdate(
-      CollectionUpdateEvent<Competition> event) {
-    if (event.model.id == state.registration.competition.id) {
-      CompetitionRegistration newRegistration =
-          state.registration.copyWith(competition: event.model);
+    List<CollectionUpdateEvent<Competition>> events,
+  ) {
+    CollectionUpdateEvent<Competition>? updateEvent = events.reversed
+        .firstWhereOrNull((e) => e.model == state.registration.competition);
 
-      emit(state.copyWith(registration: newRegistration));
+    if (updateEvent == null) {
+      return;
     }
+
+    CompetitionRegistration newRegistration =
+        state.registration.copyWith(competition: updateEvent.model);
+
+    emit(state.copyWith(registration: newRegistration));
   }
 }

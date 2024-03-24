@@ -12,7 +12,10 @@ class TestCollectionRepository<M extends Model>
     List<M> initialCollection = const [],
     this.throwing = false,
     this.responseDelay,
-  }) : collection = List.of(initialCollection);
+    this.loadTime = Duration.zero,
+  }) {
+    _loadTime(initialCollection);
+  }
 
   /// If any calls to the repository should throw
   bool throwing;
@@ -21,37 +24,30 @@ class TestCollectionRepository<M extends Model>
   /// (to simulate network delay for example)
   final Duration? responseDelay;
 
-  List<M> collection;
+  /// The duration after which the [loadCompleter] will be completed.
+  final Duration loadTime;
 
   @override
-  Stream<CollectionUpdateEvent<M>> get updateStream async* {
+  final Completer<void> loadCompleter = Completer();
+
+  List<M> collection = [];
+
+  @override
+  Stream<List<CollectionUpdateEvent<M>>> get updateStream async* {
     yield* updateStreamController.stream;
   }
 
   @override
-  Stream<void> get updateNotificationStream async* {
-    yield* updateNotificationStreamController.stream;
+  final StreamController<List<CollectionUpdateEvent<M>>>
+      updateStreamController = StreamController.broadcast();
+
+  @override
+  List<M> getList() {
+    return List.unmodifiable(collection);
   }
 
   @override
-  final StreamController<CollectionUpdateEvent<M>> updateStreamController =
-      StreamController.broadcast();
-
-  @override
-  final StreamController<void> updateNotificationStreamController =
-      StreamController.broadcast();
-
-  @override
-  Future<List<M>> getList({ExpansionTree? expand}) async {
-    _testThrow();
-    await _delayResponse();
-    return List.of(collection);
-  }
-
-  @override
-  Future<M> getModel(String id, {ExpansionTree? expand}) async {
-    _testThrow();
-    await _delayResponse();
+  M getModel(String id) {
     M? model = collection.firstWhereOrNull((m) => m.id == id);
     if (model == null) {
       throw Exception("Tried to get non-existent model by id");
@@ -60,7 +56,10 @@ class TestCollectionRepository<M extends Model>
   }
 
   @override
-  Future<M> create(M newModel, {ExpansionTree? expand}) async {
+  Future<M> create(
+    M newModel, {
+    Map<String, dynamic> query = const {},
+  }) async {
     _testThrow();
     await _delayResponse();
     if (collection.contains(newModel)) {
@@ -68,16 +67,14 @@ class TestCollectionRepository<M extends Model>
     }
     M createdModel = (newModel as dynamic).copyWith(id: _createId());
     collection.add(createdModel);
-    updateStreamController.add(CollectionUpdateEvent.create(createdModel));
+    updateStreamController.add([CollectionUpdateEvent.create(createdModel)]);
     return createdModel;
   }
 
   @override
   Future<M> update(
     M updatedModel, {
-    ExpansionTree? expand,
-    bool isMulti = false,
-    bool isFinalMulti = false,
+    Map<String, dynamic> query = const {},
   }) async {
     _testThrow();
     await _delayResponse();
@@ -86,22 +83,22 @@ class TestCollectionRepository<M extends Model>
     }
     collection.removeWhere((m) => m.id == updatedModel.id);
     collection.add(updatedModel);
-    updateStreamController.add(CollectionUpdateEvent.update(updatedModel));
-    if (!isMulti || isFinalMulti) {
-      updateNotificationStreamController.add(null);
-    }
+    updateStreamController.add([CollectionUpdateEvent.update(updatedModel)]);
     return updatedModel;
   }
 
   @override
-  Future<void> delete(M deletedModel) async {
+  Future<void> delete(
+    M deletedModel, {
+    Map<String, dynamic> query = const {},
+  }) async {
     _testThrow();
     await _delayResponse();
     if (!collection.contains(deletedModel)) {
       throw Exception("Tried to delete non-existent model");
     }
     collection.remove(deletedModel);
-    updateStreamController.add(CollectionUpdateEvent.delete(deletedModel));
+    updateStreamController.add([CollectionUpdateEvent.delete(deletedModel)]);
   }
 
   @override
@@ -127,7 +124,7 @@ class TestCollectionRepository<M extends Model>
 
   void _testThrow() {
     if (throwing) {
-      throw CollectionQueryException('errorMessage');
+      throw CollectionQueryException('Test error message');
     }
   }
 
@@ -135,5 +132,25 @@ class TestCollectionRepository<M extends Model>
     if (responseDelay != null) {
       return Future.delayed(responseDelay!);
     }
+  }
+
+  void _loadTime(List<M> initialCollection) async {
+    await Future.delayed(loadTime);
+    if (throwing) {
+      loadCompleter.completeError("Test error message");
+    } else {
+      collection = List.of(initialCollection);
+      loadCompleter.complete();
+    }
+  }
+
+  @override
+  Future<bool> route({
+    String route = "",
+    String method = "GET",
+    Map<String, dynamic> data = const {},
+    Map<String, dynamic> query = const {},
+  }) {
+    throw UnimplementedError();
   }
 }

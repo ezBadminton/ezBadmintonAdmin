@@ -6,7 +6,7 @@ import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dar
 
 part 'court_list_state.dart';
 
-class CourtListCubit extends CollectionFetcherCubit<CourtListState> {
+class CourtListCubit extends CollectionQuerierCubit<CourtListState> {
   CourtListCubit({
     required CollectionRepository<Court> courtRepository,
     required CollectionRepository<Gymnasium> gymnasiumRepository,
@@ -16,46 +16,31 @@ class CourtListCubit extends CollectionFetcherCubit<CourtListState> {
             gymnasiumRepository,
           ],
           CourtListState(),
-        ) {
-    loadCollections();
-    subscribeToCollectionUpdates(
-      courtRepository,
-      (_) => loadCollections(),
-    );
-    subscribeToCollectionUpdates(
-      gymnasiumRepository,
-      (_) => loadCollections(),
-    );
-  }
+        );
 
-  void loadCollections() {
-    if (state.loadingStatus != LoadingStatus.loading) {
-      emit(state.copyWith(loadingStatus: LoadingStatus.loading));
-    }
-    fetchCollectionsAndUpdateState(
-      [
-        collectionFetcher<Court>(),
-        collectionFetcher<Gymnasium>(),
-      ],
-      onSuccess: (updatedState) {
-        List<Gymnasium> gymnasiums = updatedState
-            .getCollection<Gymnasium>()
-            .sortedBy((g) => NumberedString(g.name));
-        List<Court> courts = updatedState.getCollection<Court>();
-
-        Map<Gymnasium, List<Court>> courtMap = {
-          for (Gymnasium gymnasium in gymnasiums)
-            gymnasium: courts
-                .where((c) => c.gymnasium == gymnasium)
-                .sortedBy((c) => NumberedString(c.name)),
-        };
-        updatedState = updatedState.copyWith(courtMap: courtMap);
-
-        emit(updatedState.copyWith(loadingStatus: LoadingStatus.done));
-      },
-      onFailure: () {
-        emit(state.copyWith(loadingStatus: LoadingStatus.failed));
-      },
+  @override
+  void onCollectionUpdate(
+    List<List<Model>> collections,
+    List<CollectionUpdateEvent<Model>> updateEvents,
+  ) {
+    CourtListState updatedState = state.copyWith(
+      collections: collections,
+      loadingStatus: LoadingStatus.done,
     );
+
+    List<Gymnasium> gymnasiums = updatedState
+        .getCollection<Gymnasium>()
+        .sortedBy((g) => NumberedString(g.name));
+    List<Court> courts = updatedState.getCollection<Court>();
+
+    Map<Gymnasium, List<Court>> courtMap = {
+      for (Gymnasium gymnasium in gymnasiums)
+        gymnasium: courts
+            .where((c) => c.gymnasium == gymnasium)
+            .sortedBy((c) => NumberedString(c.name)),
+    };
+    updatedState = updatedState.copyWith(courtMap: courtMap);
+
+    emit(updatedState);
   }
 }

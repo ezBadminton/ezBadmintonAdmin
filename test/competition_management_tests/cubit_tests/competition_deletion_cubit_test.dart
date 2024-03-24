@@ -28,19 +28,13 @@ Competition competitionWithTeam = Competition.newCompetition(
 
 void main() {
   late CollectionRepository<Competition> competitionRepository;
-  late CollectionRepository<Team> teamRepository;
 
   void arrangeRepositories({
     bool throwing = false,
     List<Competition> competitions = const [],
-    List<Team> teams = const [],
   }) {
     competitionRepository = TestCollectionRepository(
       initialCollection: competitions,
-      throwing: throwing,
-    );
-    teamRepository = TestCollectionRepository(
-      initialCollection: teams,
       throwing: throwing,
     );
   }
@@ -48,7 +42,6 @@ void main() {
   CompetitionDeletionCubit createSut() {
     return CompetitionDeletionCubit(
       competitionRepository: competitionRepository,
-      teamRepository: teamRepository,
     );
   }
 
@@ -97,8 +90,8 @@ void main() {
         )),
         HasFormStatus(FormzSubmissionStatus.canceled),
       ],
-      verify: (_) async {
-        List<Competition> collection = await competitionRepository.getList();
+      verify: (_) {
+        List<Competition> collection = competitionRepository.getList();
         expect(collection, containsAll(competitions));
       },
     );
@@ -108,11 +101,12 @@ void main() {
       setUp: () {
         arrangeRepositories(
           competitions: [...competitions, competitionWithTeam],
-          teams: [team],
         );
       },
       build: createSut,
       act: (cubit) async {
+        await Future.delayed(const Duration(milliseconds: 2));
+
         cubit.selectedCompetitionsChanged(competitions);
         cubit.deleteSelectedCompetitions();
         cubit.state.dialog.decisionCompleter!.complete(true);
@@ -139,13 +133,10 @@ void main() {
         )),
         HasFormStatus(FormzSubmissionStatus.success),
       ],
-      verify: (_) async {
+      verify: (_) {
         List<Competition> competitionCollection =
-            await competitionRepository.getList();
+            competitionRepository.getList();
         expect(competitionCollection, isEmpty);
-
-        List<Team> teamCollection = await teamRepository.getList();
-        expect(teamCollection, isEmpty);
       },
     );
   });

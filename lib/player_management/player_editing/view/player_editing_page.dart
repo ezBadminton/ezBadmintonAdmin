@@ -92,7 +92,6 @@ class _PlayerEditingPageContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var cubit = context.read<PlayerEditingCubit>();
     return BlocBuilder<PlayerEditingCubit, PlayerEditingState>(
       buildWhen: (previous, current) =>
           previous.loadingStatus != current.loadingStatus ||
@@ -102,7 +101,6 @@ class _PlayerEditingPageContent extends StatelessWidget {
           formState: state,
           child: LoadingScreen(
             loadingStatus: state.loadingStatus,
-            onRetry: () => cubit.loadCollections(),
             builder: (_) => Align(
               alignment: Alignment.topCenter,
               child: SizedBox(

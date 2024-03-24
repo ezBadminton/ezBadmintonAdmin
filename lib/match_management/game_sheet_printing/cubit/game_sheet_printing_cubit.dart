@@ -134,11 +134,10 @@ class GameSheetPrintingCubit
           .toList(),
     };
 
-    Tournament? tournament =
-        (await querier.fetchCollection<Tournament>())?.first;
+    Tournament tournament = querier.getCollection<Tournament>().first;
 
-    bool excludePrinted = tournament?.dontReprintGameSheets ?? true;
-    bool qrCodeEnabled = tournament?.printQrCodes ?? true;
+    bool excludePrinted = tournament.dontReprintGameSheets;
+    bool qrCodeEnabled = tournament.printQrCodes;
 
     List<BadmintonMatch> matchPrintSelection = switch (state.printSelection) {
       PrintSelection.custom => matches,
@@ -291,4 +290,8 @@ class GameSheetPrintingCubit
 
     return gameSheetDir;
   }
+
+  @override
+  void onCollectionUpdate(List<List<Model>> collections,
+      List<CollectionUpdateEvent<Model>> updateEvents) {}
 }

@@ -47,6 +47,7 @@ class _CompetitionEditingPageScaffold extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
     return BlocConsumer<CompetitionAddingCubit, CompetitionAddingState>(
       listenWhen: (previous, current) =>
+          previous.formStatus != FormzSubmissionStatus.success &&
           current.formStatus == FormzSubmissionStatus.success,
       listener: (context, state) {
         Navigator.of(context).pop();
@@ -69,7 +70,7 @@ class _CompetitionEditingPageScaffold extends StatelessWidget {
           ),
           floatingActionButtonAnimator:
               FabTranslationAnimator(speedFactor: 2.5),
-          floatingActionButtonLocation: state.submittable
+          floatingActionButtonLocation: state.formSubmittable
               ? FloatingActionButtonLocation.endFloat
               : const EndOffscreenFabLocation(),
           body: Align(

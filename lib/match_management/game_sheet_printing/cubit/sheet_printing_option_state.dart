@@ -1,17 +1,20 @@
 part of 'sheet_printing_option_cubit.dart';
 
-class SheetPrintingOptionState
-    extends CollectionFetcherState<SheetPrintingOptionState> {
+class SheetPrintingOptionState extends CollectionQuerierState {
   SheetPrintingOptionState({
     this.loadingStatus = LoadingStatus.loading,
     this.formStatus = FormzSubmissionStatus.initial,
-    super.collections = const {},
+    this.collections = const [],
   });
 
+  @override
   final LoadingStatus loadingStatus;
   final FormzSubmissionStatus formStatus;
 
-  Tournament get _tournament => collections[Tournament]!.first as Tournament;
+  @override
+  final List<List<Model>> collections;
+
+  Tournament get _tournament => getCollection<Tournament>().first;
 
   bool get dontReprintGameSheets => _tournament.dontReprintGameSheets;
   bool get printQrCodes => _tournament.printQrCodes;
@@ -19,7 +22,7 @@ class SheetPrintingOptionState
   SheetPrintingOptionState copyWith({
     LoadingStatus? loadingStatus,
     FormzSubmissionStatus? formStatus,
-    Map<Type, List<Model>>? collections,
+    List<List<Model>>? collections,
   }) {
     return SheetPrintingOptionState(
       loadingStatus: loadingStatus ?? this.loadingStatus,

@@ -22,7 +22,6 @@ class CompetitionSelectionOptions extends StatelessWidget {
       create: (context) => CompetitionDeletionCubit(
         competitionRepository:
             context.read<CollectionRepository<Competition>>(),
-        teamRepository: context.read<CollectionRepository<Team>>(),
       ),
       child: BlocConsumer<CompetitionSelectionCubit, CompetitionSelectionState>(
         listener: (context, state) {

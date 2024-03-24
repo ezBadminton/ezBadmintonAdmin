@@ -41,17 +41,9 @@ class CourtNumberingCubit extends CollectionQuerierCubit<CourtNumberingState>
       return;
     }
 
-    List<Court>? courts = await querier.fetchCollection<Court>();
-    if (courts == null) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-      return;
-    }
+    List<Court> courts = querier.getCollection<Court>();
 
-    List<Gymnasium>? gymnasiums = await querier.fetchCollection<Gymnasium>();
-    if (gymnasiums == null) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-      return;
-    }
+    List<Gymnasium> gymnasiums = querier.getCollection<Gymnasium>();
 
     Map<Court, String> numberedCourts = _numberCourts(
       courts,
@@ -168,4 +160,8 @@ class CourtNumberingCubit extends CollectionQuerierCubit<CourtNumberingState>
 
     return FormzSubmissionStatus.success;
   }
+
+  @override
+  void onCollectionUpdate(List<List<Model>> collections,
+      List<CollectionUpdateEvent<Model>> updateEvents) {}
 }

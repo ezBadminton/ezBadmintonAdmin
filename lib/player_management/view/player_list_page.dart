@@ -150,15 +150,6 @@ class _PlayerListWithFilter extends StatelessWidget {
                     [listState.loadingStatus, filterState.loadingStatus],
                   ),
                   errorMessage: l10n.playerListLoadingError,
-                  retryButtonLabel: l10n.retry,
-                  onRetry: () {
-                    if (listState.loadingStatus == LoadingStatus.failed) {
-                      context.read<PlayerListCubit>().loadPlayerData();
-                    }
-                    if (filterState.loadingStatus == LoadingStatus.failed) {
-                      context.read<PlayerFilterCubit>().loadCollections();
-                    }
-                  },
                   builder: (_) => const Column(
                     children: [
                       PlayerFilter(),

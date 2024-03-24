@@ -74,22 +74,6 @@ class CompetitionStartStopCubit
       return;
     }
 
-    List<MatchData> stoppedMatches = competition.matches;
-    List<MatchSet> setsOfStoppedMatches =
-        stoppedMatches.expand((match) => match.sets).toList();
-
-    bool matchesDeleted = await querier.deleteModels(stoppedMatches);
-    if (!matchesDeleted) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-      return;
-    }
-
-    bool setsDeleted = await querier.deleteModels(setsOfStoppedMatches);
-    if (!setsDeleted) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-      return;
-    }
-
     emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
   }
 
@@ -105,20 +89,17 @@ class CompetitionStartStopCubit
 
     BadmintonTournamentMode tournamentMode = createTournamentMode(competition);
 
-    List<MatchData> matches = createMatchesFromTournament(tournamentMode);
+    int numMatches = numMatchesFromTournament(tournamentMode);
 
-    List<MatchData?> createdMatches = await querier.createModels(matches);
-    if (createdMatches.contains(null)) {
-      return FormzSubmissionStatus.failure;
-    }
-
-    Competition competitionWithMatches = competition.copyWith(
-      matches: createdMatches.whereType<MatchData>().toList(),
+    bool competitionStarted = await querier.getRepository<Competition>().route(
+      method: "POST",
+      data: {
+        "competition": competition.id,
+        "numMatches": numMatches,
+      },
     );
 
-    Competition? updatedCompetition =
-        await querier.updateModel(competitionWithMatches);
-    if (updatedCompetition == null) {
+    if (!competitionStarted) {
       return FormzSubmissionStatus.failure;
     }
 
@@ -138,4 +119,9 @@ class CompetitionStartStopCubit
         ) ==
         null;
   }
+
+  @override
+  void onCollectionUpdate(List<List<Model>> collections,
+          List<CollectionUpdateEvent<Model>> updateEvents) =>
+      {};
 }

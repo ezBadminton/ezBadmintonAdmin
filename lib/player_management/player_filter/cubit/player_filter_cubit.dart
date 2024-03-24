@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/utils/sorting.dart';
@@ -13,7 +14,7 @@ import 'package:meta/meta.dart';
 
 part 'player_filter_state.dart';
 
-class PlayerFilterCubit extends CollectionFetcherCubit<PlayerFilterState>
+class PlayerFilterCubit extends CollectionQuerierCubit<PlayerFilterState>
     with PredicateConsumer
     implements PredicateConsumerCubit<PlayerFilterState> {
   PlayerFilterCubit({
@@ -42,19 +43,6 @@ class PlayerFilterCubit extends CollectionFetcherCubit<PlayerFilterState>
       statusPredicateProducer,
       searchPredicateProducer,
     ]);
-    loadCollections();
-    subscribeToCollectionUpdates(
-      ageGroupRepository,
-      (_) => loadCollections(),
-    );
-    subscribeToCollectionUpdates(
-      playingLevelRepository,
-      (_) => loadCollections(),
-    );
-    subscribeToCollectionUpdates(
-      tournamentRepository,
-      (_) => loadCollections(),
-    );
   }
 
   @override
@@ -62,25 +50,24 @@ class PlayerFilterCubit extends CollectionFetcherCubit<PlayerFilterState>
     emit(state.copyWithPredicate(filterPredicate: predicate));
   }
 
-  void loadCollections() async {
-    if (state.loadingStatus != LoadingStatus.loading) {
-      emit(state.copyWith(loadingStatus: LoadingStatus.loading));
-    }
-    fetchCollectionsAndUpdateState(
-      [
-        collectionFetcher<PlayingLevel>(),
-        collectionFetcher<AgeGroup>(),
-        collectionFetcher<Tournament>(),
-      ],
-      onSuccess: (updatedState) {
-        updatedState = updatedState.copyWithAgeGroupSorting();
-        updatedState = updatedState.copyWithPlayingLevelSorting();
-        emit(updatedState.copyWith(loadingStatus: LoadingStatus.done));
-      },
-      onFailure: () {
-        emit(state.copyWith(loadingStatus: LoadingStatus.failed));
-      },
+  @override
+  void onCollectionUpdate(
+    List<List<Model>> collections,
+    List<CollectionUpdateEvent<Model>> updateEvents,
+  ) {
+    PlayerFilterState updatedState = state.copyWith(
+      collections: collections,
+      loadingStatus: LoadingStatus.done,
     );
+
+    List<AgeGroup> sortedAgeGroups =
+        updatedState.getCollection<AgeGroup>().sorted(compareAgeGroups);
+    List<PlayingLevel> sortedPlayingLevels =
+        updatedState.getCollection<PlayingLevel>().sorted(comparePlayingLevels);
+    updatedState.overrideCollection(sortedAgeGroups);
+    updatedState.overrideCollection(sortedPlayingLevels);
+
+    emit(updatedState);
   }
 
   @override

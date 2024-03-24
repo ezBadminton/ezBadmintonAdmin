@@ -1,6 +1,6 @@
 part of 'age_group_editing_cubit.dart';
 
-class AgeGroupEditingState extends CollectionFetcherState<AgeGroupEditingState>
+class AgeGroupEditingState extends CollectionQuerierState
     implements DialogState {
   AgeGroupEditingState({
     this.ageGroupType = const SelectionInput.pure(emptyAllowed: true),
@@ -8,22 +8,15 @@ class AgeGroupEditingState extends CollectionFetcherState<AgeGroupEditingState>
     this.loadingStatus = LoadingStatus.loading,
     this.formStatus = FormzSubmissionStatus.initial,
     this.dialog = const CubitDialog(),
-    super.collections = const {},
-  })  : formSubmittable = _isSubmittable(
-          loadingStatus,
-          formStatus,
-          ageGroupType.value,
-          age.value,
-          (collections[AgeGroup] as List<AgeGroup>?) ?? [],
-        ),
-        isDeletable = _isDeletable(
-          loadingStatus,
-          formStatus,
-        );
+    this.collections = const [],
+    this.formSubmittable = false,
+    this.isDeletable = false,
+  });
 
   final SelectionInput<AgeGroupType> ageGroupType;
   final NoValidationInput age;
 
+  @override
   final LoadingStatus loadingStatus;
   final FormzSubmissionStatus formStatus;
 
@@ -33,13 +26,18 @@ class AgeGroupEditingState extends CollectionFetcherState<AgeGroupEditingState>
   @override
   final CubitDialog dialog;
 
+  @override
+  final List<List<Model>> collections;
+
   AgeGroupEditingState copyWith({
     SelectionInput<AgeGroupType>? ageGroupType,
     NoValidationInput? age,
     LoadingStatus? loadingStatus,
     FormzSubmissionStatus? formStatus,
     CubitDialog? dialog,
-    Map<Type, List<Model>>? collections,
+    List<List<Model>>? collections,
+    bool? formSubmittable,
+    bool? isDeletable,
   }) {
     return AgeGroupEditingState(
       ageGroupType: ageGroupType ?? this.ageGroupType,
@@ -48,36 +46,8 @@ class AgeGroupEditingState extends CollectionFetcherState<AgeGroupEditingState>
       formStatus: formStatus ?? this.formStatus,
       dialog: dialog ?? this.dialog,
       collections: collections ?? this.collections,
+      formSubmittable: formSubmittable ?? this.formSubmittable,
+      isDeletable: isDeletable ?? this.isDeletable,
     );
-  }
-
-  static bool _isSubmittable(
-    LoadingStatus loadingStatus,
-    FormzSubmissionStatus formStatus,
-    AgeGroupType? ageGroupType,
-    String age,
-    List<AgeGroup> ageGroupCollection,
-  ) {
-    if (loadingStatus != LoadingStatus.done ||
-        formStatus == FormzSubmissionStatus.inProgress ||
-        ageGroupType == null ||
-        age.isEmpty) {
-      return false;
-    }
-
-    int parsedAge = int.parse(age);
-    AgeGroup? existingAgeGroup = ageGroupCollection
-        .where((g) => g.type == ageGroupType && g.age == parsedAge)
-        .firstOrNull;
-
-    return existingAgeGroup == null;
-  }
-
-  static bool _isDeletable(
-    LoadingStatus loadingStatus,
-    FormzSubmissionStatus formStatus,
-  ) {
-    return loadingStatus == LoadingStatus.done &&
-        formStatus != FormzSubmissionStatus.inProgress;
   }
 }

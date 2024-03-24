@@ -1,8 +1,6 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_delete_state.dart';
-import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
-import 'package:ez_badminton_admin_app/player_management/utils/competition_registration.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
 import 'package:formz/formz.dart';
 
@@ -11,14 +9,8 @@ class PlayerDeleteCubit extends CollectionQuerierCubit<PlayerDeleteState>
   PlayerDeleteCubit({
     required Player player,
     required CollectionRepository<Player> playerRepository,
-    required CollectionRepository<Competition> competitionRepository,
-    required CollectionRepository<Team> teamRepository,
   }) : super(
-          collectionRepositories: [
-            playerRepository,
-            competitionRepository,
-            teamRepository,
-          ],
+          collectionRepositories: [playerRepository],
           PlayerDeleteState(player: player),
         );
 
@@ -34,29 +26,7 @@ class PlayerDeleteCubit extends CollectionQuerierCubit<PlayerDeleteState>
       return;
     }
 
-    List<Competition>? competitions =
-        await querier.fetchCollection<Competition>();
-
-    if (competitions == null) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-      return;
-    }
-
     Player player = state.player;
-    Iterable<CompetitionRegistration> registrations = registrationsOfPlayer(
-      player,
-      competitions,
-    );
-
-    for (CompetitionRegistration registration in registrations) {
-      Competition? updatedCompetition =
-          await deregisterCompetition(registration, querier);
-
-      if (updatedCompetition == null) {
-        emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-        return;
-      }
-    }
 
     bool deletionSuccessful = await querier.deleteModel(player);
     if (!deletionSuccessful) {
@@ -65,4 +35,8 @@ class PlayerDeleteCubit extends CollectionQuerierCubit<PlayerDeleteState>
     }
     emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
   }
+
+  @override
+  void onCollectionUpdate(List<List<Model>> collections,
+      List<CollectionUpdateEvent<Model>> updateEvents) {}
 }

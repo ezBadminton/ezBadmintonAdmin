@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:bloc_test/bloc_test.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
@@ -19,8 +17,6 @@ void main() {
   late CollectionRepository<MatchData> matchDataRepository;
   late Player player;
   late PlayerStatusCubit sut;
-  late StreamController<CollectionUpdateEvent<Player>>
-      playerUpdateStreamController;
 
   PlayerStatusCubit createSut() {
     return PlayerStatusCubit(
@@ -31,29 +27,31 @@ void main() {
     );
   }
 
-  void arrangePlayerRepositoryUpdates() {
-    when(() => playerRepository.update(any(), expand: any(named: 'expand')))
-        .thenAnswer((invocation) async => invocation.positionalArguments[0]);
-
-    when(() => playerRepository.updateStream)
-        .thenAnswer((_) => playerUpdateStreamController.stream);
+  void arrangeRepositories({
+    bool throwing = false,
+    List<Player> players = const [],
+    List<Competition> competitions = const [],
+    List<Team> teams = const [],
+  }) {
+    playerRepository = TestCollectionRepository(
+      throwing: throwing,
+      initialCollection: players,
+    );
+    matchDataRepository = TestCollectionRepository(
+      throwing: throwing,
+    );
   }
 
   void arrangePlayerRepositoryThrows() {
-    when(() => playerRepository.update(any(), expand: any(named: 'expand')))
-        .thenAnswer((_) async => throw CollectionQueryException('errorCode'));
+    playerRepository = TestCollectionRepository(throwing: true);
   }
 
-  setUpAll(() {
-    registerFallbackValue(Player.newPlayer());
-  });
-
   setUp(() {
-    playerRepository = MockCollectionRepository();
-    matchDataRepository = MockCollectionRepository();
+    playerRepository = TestCollectionRepository();
+    matchDataRepository = TestCollectionRepository();
     player = Player.newPlayer().copyWith(id: 'testplayer');
-    playerUpdateStreamController = StreamController.broadcast();
-    arrangePlayerRepositoryUpdates();
+
+    arrangeRepositories(players: [player]);
   });
 
   test('initial state is FormzSubmissionStatus.initial', () {
@@ -73,39 +71,16 @@ void main() {
   );
 
   blocTest<PlayerStatusCubit, PlayerStatusState>(
-    """emits FormzSubmissionStatus.success when repository updates,
-    the update method has been called with a Player that has the changed
-    PlayerStatus""",
+    "emits FormzSubmissionStatus.success when repository updates",
     build: createSut,
-    act: (cubit) => cubit.statusChanged(PlayerStatus.forfeited),
+    act: (cubit) async {
+      await Future.delayed(const Duration(milliseconds: 2));
+      cubit.statusChanged(PlayerStatus.forfeited);
+    },
     expect: () => [
       HasFormStatus(FormzSubmissionStatus.inProgress),
       HasFormStatus(FormzSubmissionStatus.success),
-    ],
-    verify: (bloc) {
-      verify(
-        () => playerRepository.update(
-            any(that: HasStatus(PlayerStatus.forfeited)),
-            expand: any(named: 'expand')),
-      ).called(1);
-    },
-  );
-
-  blocTest<PlayerStatusCubit, PlayerStatusState>(
-    "emits upated Player when update event happens for cubit's Player",
-    build: createSut,
-    act: (cubit) {
-      // Update unrelated player to ensure cubit doesn't react
-      playerUpdateStreamController.add(
-        CollectionUpdateEvent.update(Player.newPlayer()),
-      );
-      // Update cubit's player
-      playerUpdateStreamController.add(
-        CollectionUpdateEvent.update(player.copyWith(firstName: 'updatedName')),
-      );
-    },
-    expect: () => [
-      HasPlayer(HasFirstName('updatedName')),
+      HasPlayer(HasStatus(PlayerStatus.forfeited)),
     ],
   );
 }

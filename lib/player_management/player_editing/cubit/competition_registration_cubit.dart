@@ -10,7 +10,7 @@ import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialo
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 
 class CompetitionRegistrationCubit
-    extends CollectionFetcherCubit<CompetitionRegistrationState>
+    extends CollectionQuerierCubit<CompetitionRegistrationState>
     with DialogCubit<CompetitionRegistrationState> {
   CompetitionRegistrationCubit({
     required this.player,
@@ -25,51 +25,41 @@ class CompetitionRegistrationCubit
             competitionRepository,
             ageGroupRepository,
           ],
-        ) {
-    loadCollections();
-  }
+        );
 
   final Player player;
   final List<CompetitionRegistration> registrations;
 
   late List<List<Type>> allFormSteps;
 
-  void loadCollections() {
-    if (state.loadingStatus != LoadingStatus.loading) {
-      emit(state.copyWith(loadingStatus: LoadingStatus.loading));
-    }
-    fetchCollectionsAndUpdateState(
-      [
-        collectionFetcher<Player>(),
-        collectionFetcher<Competition>(),
-        collectionFetcher<AgeGroup>(),
-      ],
-      onSuccess: (updatedState) {
-        updatedState = updatedState.copyWith(
-          loadingStatus: LoadingStatus.done,
-        );
-
-        emit(updatedState);
-        var baseFormSteps = [
-          [PlayingLevel],
-          [AgeGroup],
-          [GenderCategory, CompetitionType],
-          [Player],
-        ];
-        if (getParameterOptions<PlayingLevel>().isEmpty) {
-          baseFormSteps.removeWhere((step) => step.contains(PlayingLevel));
-        }
-        if (getParameterOptions<AgeGroup>().isEmpty) {
-          baseFormSteps.removeWhere((step) => step.contains(AgeGroup));
-        }
-        allFormSteps = baseFormSteps;
-      },
-      onFailure: () =>
-          emit(state.copyWith(loadingStatus: LoadingStatus.failed)),
-    );
-  }
-
   int get lastFormStep => allFormSteps.length - 1;
+
+  @override
+  void onCollectionUpdate(
+    List<List<Model>> collections,
+    List<CollectionUpdateEvent<Model>> updateEvents,
+  ) {
+    CompetitionRegistrationState updatedState = state.copyWith(
+      collections: collections,
+      loadingStatus: LoadingStatus.done,
+    );
+
+    emit(updatedState);
+
+    var baseFormSteps = [
+      [PlayingLevel],
+      [AgeGroup],
+      [GenderCategory, CompetitionType],
+      [Player],
+    ];
+    if (getParameterOptions<PlayingLevel>().isEmpty) {
+      baseFormSteps.removeWhere((step) => step.contains(PlayingLevel));
+    }
+    if (getParameterOptions<AgeGroup>().isEmpty) {
+      baseFormSteps.removeWhere((step) => step.contains(AgeGroup));
+    }
+    allFormSteps = baseFormSteps;
+  }
 
   void formSubmitted() async {
     var selection = getSelectedCompetitions();

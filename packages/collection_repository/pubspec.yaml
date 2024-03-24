@@ -13,7 +13,7 @@ dependencies:
     sdk: flutter
   freezed_annotation: ^2.2.0
   json_annotation: ^4.8.1
-  pocketbase: ^0.16.0
+  pocketbase: ^0.18.0
   pocketbase_provider:
     path: ../pocketbase_provider
   recase: ^4.1.0

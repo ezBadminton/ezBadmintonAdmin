@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
@@ -14,7 +15,7 @@ part 'unique_competition_filter_state.dart';
 /// This causes the player list to sort the players by teams so the pairings
 /// become visible.
 class UniqueCompetitionFilterCubit
-    extends CollectionFetcherCubit<UniqueCompetitionFilterState> {
+    extends CollectionQuerierCubit<UniqueCompetitionFilterState> {
   UniqueCompetitionFilterCubit({
     required CollectionRepository<Tournament> tournamentRepository,
     required CollectionRepository<Competition> competitionRepository,
@@ -25,33 +26,23 @@ class UniqueCompetitionFilterCubit
           ],
           UniqueCompetitionFilterState(),
         ) {
-    loadCollections();
-    subscribeToCollectionUpdates(
-      tournamentRepository,
-      (_) => loadCollections(),
-    );
     subscribeToCollectionUpdates(
       competitionRepository,
       _onCompetitionCollectionUpdate,
     );
   }
 
-  void loadCollections() {
-    if (state.loadingStatus != LoadingStatus.loading) {
-      emit(state.copyWith(loadingStatus: LoadingStatus.loading));
-    }
-    fetchCollectionsAndUpdateState(
-      [
-        collectionFetcher<Tournament>(),
-        collectionFetcher<Competition>(),
-      ],
-      onSuccess: (updatedState) {
-        emit(updatedState.copyWith(loadingStatus: LoadingStatus.done));
-      },
-      onFailure: () {
-        emit(state.copyWith(loadingStatus: LoadingStatus.failed));
-      },
+  @override
+  void onCollectionUpdate(
+    List<List<Model>> collections,
+    List<CollectionUpdateEvent<Model>> updateEvents,
+  ) {
+    UniqueCompetitionFilterState updatedState = state.copyWith(
+      collections: collections,
+      loadingStatus: LoadingStatus.done,
     );
+
+    emit(updatedState);
   }
 
   void filterPredicatesChanged(
@@ -118,24 +109,27 @@ class UniqueCompetitionFilterCubit
   }
 
   void _onCompetitionCollectionUpdate(
-    CollectionUpdateEvent<Competition> event,
+    List<CollectionUpdateEvent<Competition>> events,
   ) {
-    if (event.model.id == state.competition.value?.id) {
-      switch (event.updateType) {
-        case UpdateType.update:
-          emit(state.copyWith(
-            competition: SelectionInput.dirty(value: event.model),
-          ));
-          break;
-        case UpdateType.delete:
-          _clearCompetition();
-          break;
-        default:
-          break;
-      }
+    CollectionUpdateEvent<Competition>? updateEvent = events.reversed
+        .firstWhereOrNull((e) => e.model == state.competition.value);
+
+    if (updateEvent == null) {
+      return;
     }
 
-    loadCollections();
+    switch (updateEvent.updateType) {
+      case UpdateType.update:
+        emit(state.copyWith(
+          competition: SelectionInput.dirty(value: updateEvent.model),
+        ));
+        break;
+      case UpdateType.delete:
+        _clearCompetition();
+        break;
+      default:
+        break;
+    }
   }
 
   static int _filterGroupCount(

@@ -26,26 +26,27 @@ Everyone is welcome to fork and/or make pull requests!
     you@yourdevice:~/ez_badminton$ git clone [your-forked-repository]
     ```
 
-### Set up Pocketbase locally
+### Set up the PocketBase server locally
 
-ezBadminton uses [Pocketbase](https://pocketbase.io) as its backend. It bundles database, data storage, authentication and REST-API.
+ezBadminton uses a custom extended [PocketBase](https://pocketbase.io) as its backend. It bundles database, data storage, authentication and REST-API.
 
-- Download the newest prebuilt archive for your platform from https://pocketbase.io/docs (0.22.4 as of writing).
-- Create a directory called `pocketbase` in your working directory and unpack the archive's contents there.
+- Download the newest prebuilt server executable from the [releases](https://github.com/ezBadminton/ezBadmintonServer/releases).
+	> **_NOTE:_** You can also compile the server yourself from the [repository](https://github.com/ezBadminton/ezBadmintonServer).
+- Create a directory called `pocketbase` in your working directory place the executable there.
 - Start the service
     ```console
-    you@yourdevice:~/ez_badminton/pocketbase$ ./pocketbase serve
+    you@yourdevice:~/ez_badminton/pocketbase$ ./ezBadmintonServer serve
     ```
     It will create the `pb_data` directory.
 - Stop the service (`Ctrl+C`)
 - Set up your admin access
     ```console
-	you@yourdevice:~/ez_badminton/pocketbase$ ./pocketbase admin create test@example.com your-password
+	you@yourdevice:~/ez_badminton/pocketbase$ ./ezBadmintonServer admin create test@example.com your-password
     ```
 	> **_NOTE:_** You can use a fake mail but don't forget your password ^^.
 - Start the service again
     ```console
-	you@yourdevice:~/ez_badminton/pocketbase$ ./pocketbase serve
+	you@yourdevice:~/ez_badminton/pocketbase$ ./ezBadmintonServer serve
     ```
 - Open the [pocketbase admin UI](http://127.0.0.1:8090/_/) in your browser and log in
 - Open the [pocketbase settings](http://127.0.0.1:8090/_/#/settings/import-collections) and import the ezBadminton database schema from [pb_schema.json](https://gist.githubusercontent.com/Snonky/1a596069391fb06eb3d916934e8c140b/raw/pb_schema.json).

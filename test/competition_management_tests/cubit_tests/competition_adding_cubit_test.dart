@@ -336,7 +336,7 @@ void main() {
       'submit form',
       build: createSut,
       act: (cubit) async {
-        await Future.delayed(Duration.zero);
+        await Future.delayed(const Duration(milliseconds: 2));
         cubit.competitionDisciplineToggled(CompetitionDiscipline.mensSingles);
         cubit.competitionDisciplineToggled(CompetitionDiscipline.womensSingles);
         cubit.ageGroupToggled(ageGroups[0]);
@@ -344,13 +344,13 @@ void main() {
         cubit.playingLevelToggled(playingLevels[0]);
         cubit.formSubmitted();
       },
-      skip: 6,
+      skip: 11,
       expect: () => [
         HasFormStatus(FormzSubmissionStatus.inProgress),
         HasFormStatus(FormzSubmissionStatus.success),
       ],
-      verify: (_) async {
-        List<Competition> collection = await competitionRepository.getList();
+      verify: (_) {
+        List<Competition> collection = competitionRepository.getList();
         Set<CompetitionDiscipline> disciplinesInNew = collection
             .map((c) => CompetitionDiscipline.fromCompetition(c))
             .toSet();

@@ -109,10 +109,7 @@ class CourtAddingCubit extends CollectionQuerierCubit<CourtAddingState> {
   }
 
   Future<List<Court>?> _fetchCourtsOfGym() async {
-    List<Court>? courts = await querier.fetchCollection<Court>();
-    if (courts == null) {
-      return null;
-    }
+    List<Court> courts = querier.getCollection<Court>();
 
     List<Court> courtsOfGym =
         courts.where((c) => c.gymnasium == state.gymnasium).toList();
@@ -141,10 +138,20 @@ class CourtAddingCubit extends CollectionQuerierCubit<CourtAddingState> {
     }
   }
 
-  void _onGymnasiumCollectionUpdate(CollectionUpdateEvent<Gymnasium> event) {
-    if (event.updateType == UpdateType.update &&
-        state.gymnasium == event.model) {
-      emit(state.copyWith(gymnasium: event.model));
+  void _onGymnasiumCollectionUpdate(
+    List<CollectionUpdateEvent<Gymnasium>> events,
+  ) {
+    CollectionUpdateEvent<Gymnasium>? updateEvent = events.reversed
+        .firstWhereOrNull((e) => e.model.id == state.gymnasium.id);
+
+    if (updateEvent == null || updateEvent.updateType != UpdateType.update) {
+      return;
     }
+
+    emit(state.copyWith(gymnasium: updateEvent.model));
   }
+
+  @override
+  void onCollectionUpdate(List<List<Model>> collections,
+      List<CollectionUpdateEvent<Model>> updateEvents) {}
 }

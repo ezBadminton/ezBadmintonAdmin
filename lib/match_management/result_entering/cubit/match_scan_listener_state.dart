@@ -1,21 +1,24 @@
 part of 'match_scan_listener_cubit.dart';
 
-class MatchScanListenerState
-    extends CollectionFetcherState<MatchScanListenerState> {
+class MatchScanListenerState extends CollectionQuerierState {
   MatchScanListenerState({
     this.loadingStatus = LoadingStatus.loading,
     this.scannedMatch = const SelectionInput.dirty(),
-    super.collections = const {},
+    this.collections = const [],
   });
 
+  @override
   final LoadingStatus loadingStatus;
 
   final SelectionInput<MatchData> scannedMatch;
 
+  @override
+  final List<List<Model>> collections;
+
   MatchScanListenerState copyWith({
     LoadingStatus? loadingStatus,
     SelectionInput<MatchData>? scannedMatch,
-    Map<Type, List<Model>>? collections,
+    List<List<Model>>? collections,
   }) {
     return MatchScanListenerState(
       loadingStatus: loadingStatus ?? this.loadingStatus,

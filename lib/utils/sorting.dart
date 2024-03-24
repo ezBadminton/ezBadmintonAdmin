@@ -1,74 +1,6 @@
-import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
-import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_sorter/comparators/competition_comparator.dart';
 import 'package:ez_badminton_admin_app/court_management/court_list/utils/numbered_string.dart';
-
-extension CollectionSorting<S extends CollectionFetcherState<S>>
-    on CollectionFetcherState<S> {
-  /// Copies the [CollectionFetcherState] with the [AgeGroup]
-  /// collection sorted by [compareAgeGroups].
-  ///
-  /// Only works on a state that holds the [AgeGroup] collection.
-  S copyWithAgeGroupSorting() {
-    List<AgeGroup> ageGroups = getCollection<AgeGroup>();
-
-    ageGroups.sort(compareAgeGroups);
-    S updatedState = copyWithCollection(
-      modelType: AgeGroup,
-      collection: ageGroups,
-    );
-
-    return updatedState;
-  }
-
-  /// Copies the [CollectionFetcherState] with the [PlayingLevel]
-  /// collection sorted by the [PlayingLevel] index.
-  ///
-  /// Only works on a state that holds the [PlayingLevel] collection.
-  S copyWithPlayingLevelSorting() {
-    List<PlayingLevel> playingLevels = getCollection<PlayingLevel>();
-
-    playingLevels.sortBy<num>((element) => element.index);
-
-    S updatedState = copyWithCollection(
-      modelType: PlayingLevel,
-      collection: playingLevels,
-    );
-
-    return updatedState;
-  }
-
-  /// Copies the [CollectionFetcherState] with the [Competition]
-  /// collection sorted by the default [CompetitionComparator].
-  ///
-  /// Only works on a state that holds the [Competition] collection.
-  S copyWithCompetitionSorting() {
-    List<Competition> competitions = getCollection<Competition>();
-
-    competitions.sort(compareCompetitions);
-
-    S updatedState = copyWithCollection(
-      modelType: Competition,
-      collection: competitions,
-    );
-
-    return updatedState;
-  }
-
-  S copyWithCourtSorting() {
-    List<Court> courts = getCollection<Court>();
-
-    courts.sort(compareCourts);
-
-    S updatedState = copyWithCollection(
-      modelType: Court,
-      collection: courts,
-    );
-
-    return updatedState;
-  }
-}
 
 final Comparator<Competition> compareCompetitions =
     const CompetitionComparator().comparator;
@@ -86,6 +18,11 @@ int compareAgeGroups(AgeGroup ageGroup1, AgeGroup ageGroup2) {
   // Sort by age descending
   int ageComparison = ageGroup2.age.compareTo(ageGroup1.age);
   return ageComparison;
+}
+
+int comparePlayingLevels(
+    PlayingLevel playingLevel1, PlayingLevel playingLevel2) {
+  return playingLevel1.index.compareTo(playingLevel2.index);
 }
 
 int compareCourts(Court court1, Court court2) {

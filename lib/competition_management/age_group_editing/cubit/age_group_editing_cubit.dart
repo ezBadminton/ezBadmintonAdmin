@@ -10,10 +10,9 @@ import 'package:formz/formz.dart';
 
 part 'age_group_editing_state.dart';
 
-class AgeGroupEditingCubit extends CollectionFetcherCubit<AgeGroupEditingState>
+class AgeGroupEditingCubit extends CollectionQuerierCubit<AgeGroupEditingState>
     with
         DialogCubit<AgeGroupEditingState>,
-        CompetitionDeletionQueries,
         RemovedCategoryCompetitionManagement<AgeGroupEditingState> {
   AgeGroupEditingCubit({
     required CollectionRepository<AgeGroup> ageGroupRepository,
@@ -26,41 +25,27 @@ class AgeGroupEditingCubit extends CollectionFetcherCubit<AgeGroupEditingState>
             teamRepository,
           ],
           AgeGroupEditingState(),
-        ) {
-    loadCollections();
-    subscribeToCollectionUpdates(
-      competitionRepository,
-      (_) => loadCollections(),
-    );
-    subscribeToCollectionUpdates(
-      teamRepository,
-      (_) => loadCollections(),
-    );
-  }
+        );
 
-  void loadCollections() {
-    if (state.loadingStatus != LoadingStatus.loading) {
-      emit(state.copyWith(loadingStatus: LoadingStatus.loading));
-    }
-    fetchCollectionsAndUpdateState(
-      [
-        collectionFetcher<AgeGroup>(),
-        collectionFetcher<Competition>(),
-        collectionFetcher<Team>(),
-      ],
-      onSuccess: (updatedState) {
-        updatedState = updatedState.copyWithAgeGroupSorting();
-
-        emit(updatedState.copyWith(loadingStatus: LoadingStatus.done));
-      },
-      onFailure: () {
-        emit(state.copyWith(loadingStatus: LoadingStatus.failed));
-      },
+  @override
+  void onCollectionUpdate(
+    List<List<Model>> collections,
+    List<CollectionUpdateEvent<Model>> updateEvents,
+  ) {
+    AgeGroupEditingState updatedState = state.copyWith(
+      collections: collections,
+      loadingStatus: LoadingStatus.done,
     );
+
+    List<AgeGroup> sortedAgeGroups =
+        updatedState.getCollection<AgeGroup>().sorted(compareAgeGroups);
+    updatedState.overrideCollection(sortedAgeGroups);
+
+    _emit(updatedState);
   }
 
   void ageGroupTypeChanged(AgeGroupType? type) {
-    emit(
+    _emit(
       state.copyWith(
         ageGroupType: SelectionInput.dirty(
           emptyAllowed: true,
@@ -72,7 +57,7 @@ class AgeGroupEditingCubit extends CollectionFetcherCubit<AgeGroupEditingState>
 
   void ageChanged(String age) {
     assert(age.isEmpty || int.tryParse(age) != null);
-    emit(state.copyWith(age: NoValidationInput.dirty(age)));
+    _emit(state.copyWith(age: NoValidationInput.dirty(age)));
   }
 
   void ageGroupSubmitted() {
@@ -92,18 +77,17 @@ class AgeGroupEditingCubit extends CollectionFetcherCubit<AgeGroupEditingState>
     if (state.formStatus == FormzSubmissionStatus.inProgress) {
       return;
     }
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
+    _emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
     AgeGroup? newAgeGroupFromDB = await querier.createModel(newAgeGroup);
     if (isClosed) {
       return;
     }
     if (newAgeGroupFromDB == null) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      _emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
       return;
     }
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
-    loadCollections();
+    _emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
   }
 
   void ageGroupRemoved(AgeGroup removedAgeGroup) async {
@@ -114,24 +98,66 @@ class AgeGroupEditingCubit extends CollectionFetcherCubit<AgeGroupEditingState>
     if (state.formStatus == FormzSubmissionStatus.inProgress) {
       return;
     }
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
+    _emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
-    FormzSubmissionStatus competitionsManaged =
-        await manageCompetitionsOfRemovedCategory(removedAgeGroup);
-    if (competitionsManaged != FormzSubmissionStatus.success) {
-      emit(state.copyWith(formStatus: competitionsManaged));
+    (FormzSubmissionStatus, Model?) replacementConfirmation =
+        await askForReplacementCategory(removedAgeGroup);
+    FormzSubmissionStatus confirmation = replacementConfirmation.$1;
+    Model? replacementCateogry = replacementConfirmation.$2;
+
+    if (confirmation != FormzSubmissionStatus.success) {
+      _emit(state.copyWith(formStatus: confirmation));
       return;
     }
 
-    bool ageGroupDeleted = await querier.deleteModel(removedAgeGroup);
+    Map<String, dynamic> query = {};
+    if (replacementCateogry != null) {
+      query["replacement"] = replacementCateogry.id;
+    }
+
+    bool ageGroupDeleted = await querier.deleteModel(
+      removedAgeGroup,
+      query: query,
+    );
     if (isClosed) {
       return;
     }
     if (!ageGroupDeleted) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      _emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
       return;
     }
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
-    loadCollections();
+    _emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+  }
+
+  void _emit(AgeGroupEditingState state) {
+    bool isSubmittable = _isSubmittable(state);
+    bool isDeletable = _isDeletable(state);
+
+    emit(state.copyWith(
+      formSubmittable: isSubmittable,
+      isDeletable: isDeletable,
+    ));
+  }
+
+  static bool _isSubmittable(AgeGroupEditingState state) {
+    if (state.loadingStatus != LoadingStatus.done ||
+        state.formStatus == FormzSubmissionStatus.inProgress ||
+        state.ageGroupType.value == null ||
+        state.age.value.isEmpty) {
+      return false;
+    }
+
+    int parsedAge = int.parse(state.age.value);
+    AgeGroup? existingAgeGroup = state
+        .getCollection<AgeGroup>()
+        .where((g) => g.type == state.ageGroupType.value && g.age == parsedAge)
+        .firstOrNull;
+
+    return existingAgeGroup == null;
+  }
+
+  static bool _isDeletable(AgeGroupEditingState state) {
+    return state.loadingStatus == LoadingStatus.done &&
+        state.formStatus != FormzSubmissionStatus.inProgress;
   }
 }

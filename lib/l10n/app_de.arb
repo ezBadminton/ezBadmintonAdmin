@@ -329,5 +329,8 @@
   "placesToPlayOutHelp": "Der Turnierbaum bringt mindestens {numPlaces} eindeutige Spitzenplatzierungen hervor. Die entsprechenden Trostrunden werden automatisch hinzugefügt.",
   "tooFewPlacesToPlayOut": "Min. 2 Plätze müssen ausgespielt werden",
   "upperToLowerRank": "Platz {upper} – {lower}",
-  "matchForThrid": "Spiel um Platz 3"
+  "matchForThrid": "Spiel um Platz 3",
+  "noneOf": "Keine {subject}",
+  "noCategoryWarning": "Die {categorization} können nicht verwendet werden, weil keine {category} erstellt wurde.",
+  "close": "Schließen"
 }

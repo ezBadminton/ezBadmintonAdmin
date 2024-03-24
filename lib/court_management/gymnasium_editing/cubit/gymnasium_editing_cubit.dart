@@ -89,10 +89,7 @@ class GymnasiumEditingCubit
       return FormzSubmissionStatus.success;
     }
 
-    List<Court>? courts = await querier.fetchCollection<Court>();
-    if (courts == null) {
-      return FormzSubmissionStatus.failure;
-    }
+    List<Court> courts = querier.getCollection<Court>();
 
     List<Court> courtsOfGym =
         courts.where((c) => c.gymnasium == state.gymnasium).toList();
@@ -140,4 +137,8 @@ class GymnasiumEditingCubit
       columns: state.columns.value,
     );
   }
+
+  @override
+  void onCollectionUpdate(List<List<Model>> collections,
+      List<CollectionUpdateEvent<Model>> updateEvents) {}
 }

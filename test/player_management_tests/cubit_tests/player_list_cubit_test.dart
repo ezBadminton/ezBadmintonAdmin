@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:bloc_test/bloc_test.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_list_cubit.dart';
@@ -23,16 +21,12 @@ class HasFilteredPlayers extends CustomMatcher {
 }
 
 void main() {
-  late MockCollectionRepository<Player> playerRepository;
-  late MockCollectionRepository<Competition> competitionRepository;
-  late MockCollectionRepository<PlayingLevel> playingLevelRepository;
-  late MockCollectionRepository<AgeGroup> ageGroupRepository;
-  late MockCollectionRepository<Club> clubRepository;
+  late CollectionRepository<Player> playerRepository;
+  late CollectionRepository<Competition> competitionRepository;
+  late CollectionRepository<PlayingLevel> playingLevelRepository;
+  late CollectionRepository<AgeGroup> ageGroupRepository;
+  late CollectionRepository<Club> clubRepository;
   late PlayerListCubit sut;
-  late StreamController<CollectionUpdateEvent<Player>>
-      playerUpdateStreamController;
-  late StreamController<CollectionUpdateEvent<Competition>>
-      competitionUpdateStreamController;
 
   // Create some players and competitions with teams for testing
   var players = List<Player>.unmodifiable(
@@ -71,16 +65,32 @@ void main() {
     registrations: singlesTeams,
   );
 
+  void arrangeRepositories({
+    bool throwing = false,
+    List<Player> players = const [],
+    List<Competition> competitions = const [],
+    List<Team> teams = const [],
+  }) {
+    playerRepository = TestCollectionRepository(
+      throwing: throwing,
+      initialCollection: players,
+    );
+    competitionRepository = TestCollectionRepository(
+      throwing: throwing,
+      initialCollection: competitions,
+    );
+
+    playingLevelRepository = TestCollectionRepository();
+    ageGroupRepository = TestCollectionRepository();
+    clubRepository = TestCollectionRepository();
+  }
+
   void arrangePlayerFetchThrows() {
-    when(
-      () => playerRepository.getList(expand: any(named: 'expand')),
-    ).thenAnswer((_) async => throw CollectionQueryException('errorCode'));
+    playerRepository = TestCollectionRepository(throwing: true);
   }
 
   void arrangeCompetitionFetchThrows() {
-    when(
-      () => competitionRepository.getList(expand: any(named: 'expand')),
-    ).thenAnswer((_) async => throw CollectionQueryException('errorCode'));
+    competitionRepository = TestCollectionRepository(throwing: true);
   }
 
   PlayerListCubit createSut() {
@@ -94,39 +104,10 @@ void main() {
   }
 
   setUp(() {
-    playerRepository = MockCollectionRepository();
-    competitionRepository = MockCollectionRepository();
-    playingLevelRepository = MockCollectionRepository();
-    ageGroupRepository = MockCollectionRepository();
-    clubRepository = MockCollectionRepository();
-    playerUpdateStreamController = StreamController.broadcast();
-    competitionUpdateStreamController = StreamController.broadcast();
-
-    when(
-      () => playerRepository.getList(expand: any(named: 'expand')),
-    ).thenAnswer((invocation) async => players);
-
-    when(() => playerRepository.updateStream)
-        .thenAnswer((_) => playerUpdateStreamController.stream);
-
-    when(
-      () => competitionRepository.getList(expand: any(named: 'expand')),
-    ).thenAnswer((invocation) async => [mixedCompetition, singlesCompetition]);
-
-    when(() => competitionRepository.updateStream)
-        .thenAnswer((_) => competitionUpdateStreamController.stream);
-
-    when(
-      () => playingLevelRepository.getList(expand: any(named: 'expand')),
-    ).thenAnswer((invocation) async => []);
-
-    when(
-      () => ageGroupRepository.getList(expand: any(named: 'expand')),
-    ).thenAnswer((invocation) async => []);
-
-    when(
-      () => clubRepository.getList(expand: any(named: 'expand')),
-    ).thenAnswer((invocation) async => []);
+    arrangeRepositories(
+      players: players,
+      competitions: [mixedCompetition, singlesCompetition],
+    );
 
     sut = createSut();
   });
@@ -203,9 +184,12 @@ void main() {
       blocTest<PlayerListCubit, PlayerListState>(
         "players are filtered by player attributes",
         build: () => sut,
-        act: (cubit) => cubit.filterChanged({
-          Player: (o) => int.parse((o as Player).id) < 5,
-        }),
+        act: (cubit) async {
+          await Future.delayed(const Duration(milliseconds: 2));
+          cubit.filterChanged({
+            Player: (o) => int.parse((o as Player).id) < 5,
+          });
+        },
         verify: (cubit) {
           expect(
             cubit.state.filteredPlayers,
@@ -217,9 +201,13 @@ void main() {
       blocTest<PlayerListCubit, PlayerListState>(
         "players are filtered by competition attributes",
         build: () => sut,
-        act: (cubit) => cubit.filterChanged({
-          Competition: (o) => (o as Competition).type == CompetitionType.mixed,
-        }),
+        act: (cubit) async {
+          await Future.delayed(const Duration(milliseconds: 2));
+          cubit.filterChanged({
+            Competition: (o) =>
+                (o as Competition).type == CompetitionType.mixed,
+          });
+        },
         verify: (cubit) {
           expect(
             cubit.state.filteredPlayers,
@@ -232,11 +220,14 @@ void main() {
         """players are filtered by player attributes
         combined with competition attributes""",
         build: () => sut,
-        act: (cubit) => cubit.filterChanged({
-          Competition: (o) =>
-              (o as Competition).type == CompetitionType.singles,
-          Player: (o) => int.parse((o as Player).id) < 5,
-        }),
+        act: (cubit) async {
+          await Future.delayed(const Duration(milliseconds: 2));
+          cubit.filterChanged({
+            Competition: (o) =>
+                (o as Competition).type == CompetitionType.singles,
+            Player: (o) => int.parse((o as Player).id) < 5,
+          });
+        },
         verify: (cubit) {
           expect(
             cubit.state.filteredPlayers,
@@ -244,32 +235,6 @@ void main() {
                   (p) => players.sublist(0, 5).contains(p),
                 ),
           );
-        },
-      );
-
-      blocTest<PlayerListCubit, PlayerListState>(
-        'Reloads collections when Player or Competition collection updates',
-        build: () => sut,
-        act: (bloc) {
-          playerUpdateStreamController
-              .add(CollectionUpdateEvent.create(Player.newPlayer()));
-          competitionUpdateStreamController
-              .add(CollectionUpdateEvent.create(Competition.newCompetition(
-            teamSize: 2,
-            genderCategory: GenderCategory.any,
-          )));
-        },
-        expect: () => [
-          HasLoadingStatus(LoadingStatus.loading),
-          HasLoadingStatus(LoadingStatus.done),
-          HasFilteredPlayers(containsAll(players)),
-          HasLoadingStatus(LoadingStatus.done),
-          HasFilteredPlayers(containsAll(players)),
-        ],
-        verify: (bloc) {
-          verify(
-            () => playerRepository.getList(expand: any(named: 'expand')),
-          ).called(1 + 2); //Once on init, once for each of 2 update events
         },
       );
     },

@@ -1,15 +1,18 @@
 part of 'match_queue_settings_cubit.dart';
 
-class MatchQueueSettingsState
-    extends CollectionFetcherState<MatchQueueSettingsState> {
+class MatchQueueSettingsState extends CollectionQuerierState {
   MatchQueueSettingsState({
     this.loadingStatus = LoadingStatus.loading,
     this.formStatus = FormzSubmissionStatus.initial,
-    super.collections = const {},
+    this.collections = const [],
   });
 
+  @override
   final LoadingStatus loadingStatus;
   final FormzSubmissionStatus formStatus;
+
+  @override
+  final List<List<Model>> collections;
 
   Tournament get tournament => getCollection<Tournament>().first;
 
@@ -22,7 +25,7 @@ class MatchQueueSettingsState
   MatchQueueSettingsState copyWith({
     LoadingStatus? loadingStatus,
     FormzSubmissionStatus? formStatus,
-    Map<Type, List<Model>>? collections,
+    List<List<Model>>? collections,
   }) {
     return MatchQueueSettingsState(
       loadingStatus: loadingStatus ?? this.loadingStatus,

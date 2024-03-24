@@ -44,15 +44,11 @@ BadmintonTournamentMode createTournamentMode(Competition competition) {
   return tournament;
 }
 
-/// Creates a new [MatchData] object for each [BadmintonMatch] in the
-/// [tournamentMode].
-List<MatchData> createMatchesFromTournament(
+/// Returns how many non-bye matches are in the given [tournamentMode].
+int numMatchesFromTournament(
   BadmintonTournamentMode tournamentMode,
 ) {
-  return tournamentMode.matches
-      .where((match) => !match.isDrawnBye)
-      .map((_) => MatchData.newMatch())
-      .toList();
+  return tournamentMode.matches.where((match) => !match.isDrawnBye).length;
 }
 
 /// Hydrate the [tournamentMode]'s matches with the [matchDataList].

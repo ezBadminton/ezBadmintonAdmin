@@ -1,17 +1,17 @@
 part of 'competition_selection_cubit.dart';
 
-class CompetitionSelectionState
-    extends CollectionFetcherState<CompetitionSelectionState> {
+class CompetitionSelectionState extends CollectionQuerierState {
   CompetitionSelectionState({
     this.loadingStatus = LoadingStatus.loading,
     this.selectedCompetitions = const [],
     this.displayCompetitions = const [],
-    super.collections = const {},
+    this.collections = const [],
   }) : selectionTristate = _getSelectionTristate(
           selectedCompetitions,
           displayCompetitions,
         );
 
+  @override
   final LoadingStatus loadingStatus;
 
   final List<Competition> selectedCompetitions;
@@ -19,11 +19,14 @@ class CompetitionSelectionState
 
   final bool? selectionTristate;
 
+  @override
+  final List<List<Model>> collections;
+
   CompetitionSelectionState copyWith({
     LoadingStatus? loadingStatus,
     List<Competition>? selectedCompetitions,
     List<Competition>? displayCompetitions,
-    Map<Type, List<Model>>? collections,
+    List<List<Model>>? collections,
   }) {
     return CompetitionSelectionState(
       loadingStatus: loadingStatus ?? this.loadingStatus,

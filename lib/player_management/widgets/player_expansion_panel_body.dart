@@ -87,9 +87,6 @@ class _PlayerDeleteMenu extends StatelessWidget {
       create: (context) => PlayerDeleteCubit(
         player: player,
         playerRepository: context.read<CollectionRepository<Player>>(),
-        competitionRepository:
-            context.read<CollectionRepository<Competition>>(),
-        teamRepository: context.read<CollectionRepository<Team>>(),
       ),
       child: const _PlayerDeleteButton(),
     );

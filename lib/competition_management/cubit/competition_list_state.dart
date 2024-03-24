@@ -1,15 +1,16 @@
 part of 'competition_list_cubit.dart';
 
-class CompetitionListState extends CollectionFetcherState<CompetitionListState>
+class CompetitionListState extends CollectionQuerierState
     implements SortedListState<Competition> {
   CompetitionListState({
     this.loadingStatus = LoadingStatus.loading,
     this.displayCompetitionList = const [],
     this.filters = const {},
     this.sortingComparator = const CompetitionComparator(),
-    super.collections = const {},
+    this.collections = const [],
   });
 
+  @override
   final LoadingStatus loadingStatus;
 
   final List<Competition> displayCompetitionList;
@@ -19,12 +20,15 @@ class CompetitionListState extends CollectionFetcherState<CompetitionListState>
   @override
   final ListSortingComparator<Competition> sortingComparator;
 
+  @override
+  List<List<Model>> collections;
+
   CompetitionListState copyWith({
     LoadingStatus? loadingStatus,
     List<Competition>? displayCompetitionList,
     Map<Type, Predicate>? filters,
     ListSortingComparator<Competition>? sortingComparator,
-    Map<Type, List<Model>>? collections,
+    List<List<Model>>? collections,
   }) {
     return CompetitionListState(
       loadingStatus: loadingStatus ?? this.loadingStatus,

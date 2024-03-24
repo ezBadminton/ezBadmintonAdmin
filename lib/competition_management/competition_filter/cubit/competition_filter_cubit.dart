@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_filter/competition_filter.dart';
@@ -13,7 +14,7 @@ import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dar
 part 'competition_filter_state.dart';
 
 class CompetitionFilterCubit
-    extends CollectionFetcherCubit<CompetitionFilterState>
+    extends CollectionQuerierCubit<CompetitionFilterState>
     with PredicateConsumer
     implements PredicateConsumerCubit<CompetitionFilterState> {
   CompetitionFilterCubit({
@@ -41,44 +42,30 @@ class CompetitionFilterCubit
       competitionTypePredicateProducer,
       genderCategoryPredicateProducer,
     ]);
-    loadCollections();
-    subscribeToCollectionUpdates(
-      tournamentRepository,
-      (_) => loadCollections(),
+  }
+
+  @override
+  void onCollectionUpdate(
+    List<List<Model>> collections,
+    List<CollectionUpdateEvent<Model>> updateEvents,
+  ) {
+    CompetitionFilterState updatedState = state.copyWith(
+      collections: collections,
+      loadingStatus: LoadingStatus.done,
     );
-    subscribeToCollectionUpdates(
-      ageGroupRepository,
-      (_) => loadCollections(),
-    );
-    subscribeToCollectionUpdates(
-      playingLevelRepository,
-      (_) => loadCollections(),
-    );
+
+    List<AgeGroup> sortedAgeGroups =
+        updatedState.getCollection<AgeGroup>().sorted(compareAgeGroups);
+    List<PlayingLevel> sortedPlayingLevels =
+        updatedState.getCollection<PlayingLevel>().sorted(comparePlayingLevels);
+    updatedState.overrideCollection(sortedAgeGroups);
+    updatedState.overrideCollection(sortedPlayingLevels);
+
+    emit(updatedState);
   }
 
   @override
   void onPredicateProduced(FilterPredicate predicate) {
     emit(state.copyWithPredicate(filterPredicate: predicate));
-  }
-
-  void loadCollections() {
-    if (state.loadingStatus != LoadingStatus.loading) {
-      emit(state.copyWith(loadingStatus: LoadingStatus.loading));
-    }
-    fetchCollectionsAndUpdateState(
-      [
-        collectionFetcher<AgeGroup>(),
-        collectionFetcher<PlayingLevel>(),
-        collectionFetcher<Tournament>(),
-      ],
-      onSuccess: (updatedState) {
-        updatedState = updatedState.copyWithAgeGroupSorting();
-        updatedState = updatedState.copyWithPlayingLevelSorting();
-        emit(updatedState.copyWith(loadingStatus: LoadingStatus.done));
-      },
-      onFailure: () {
-        emit(state.copyWith(loadingStatus: LoadingStatus.failed));
-      },
-    );
   }
 }

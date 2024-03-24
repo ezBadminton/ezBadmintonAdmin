@@ -6,7 +6,7 @@ import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dar
 part 'gymnasium_selection_state.dart';
 
 class GymnasiumSelectionCubit
-    extends CollectionFetcherCubit<GymnasiumSelectionState> {
+    extends CollectionQuerierCubit<GymnasiumSelectionState> {
   GymnasiumSelectionCubit({
     required CollectionRepository<Gymnasium> gymnasiumRepository,
     required CollectionRepository<Court> courtRepository,
@@ -17,38 +17,26 @@ class GymnasiumSelectionCubit
           ],
           GymnasiumSelectionState(),
         ) {
-    loadCollections();
     subscribeToCollectionUpdates(
       gymnasiumRepository,
       _onGymnasiumCollectionUpdate,
     );
-    subscribeToCollectionUpdates(courtRepository, (_) => loadCollections());
   }
 
-  void loadCollections() {
-    if (state.loadingStatus != LoadingStatus.loading) {
-      emit(state.copyWith(loadingStatus: LoadingStatus.loading));
-    }
-    fetchCollectionsAndUpdateState(
-      [
-        collectionFetcher<Court>(),
-      ],
-      onSuccess: (updatedState) {
-        List<Court> courtCollection = updatedState.getCollection<Court>();
-        List<Court> courtsOfGym = _getCourtsOfGym(
-          courtCollection,
-          state.gymnasium.value,
-        );
-
-        emit(updatedState.copyWith(
-          courtsOfGym: courtsOfGym,
-          loadingStatus: LoadingStatus.done,
-        ));
-      },
-      onFailure: () {
-        emit(state.copyWith(loadingStatus: LoadingStatus.failed));
-      },
+  @override
+  void onCollectionUpdate(List<List<Model>> collections,
+      List<CollectionUpdateEvent<Model>> updateEvents) {
+    GymnasiumSelectionState updatedState = state.copyWith(
+      collections: collections,
+      loadingStatus: LoadingStatus.done,
     );
+
+    List<Court> courts = updatedState.getCollection<Court>();
+    List<Court> courtsOfGym = _getCourtsOfGym(courts, state.gymnasium.value);
+
+    updatedState = updatedState.copyWith(courtsOfGym: courtsOfGym);
+
+    emit(updatedState);
   }
 
   void gymnasiumToggled(Gymnasium gymnasium) {
@@ -92,23 +80,27 @@ class GymnasiumSelectionCubit
     return courtsOfGym;
   }
 
-  void _onGymnasiumCollectionUpdate(CollectionUpdateEvent<Gymnasium> event) {
-    Gymnasium updatedGymnasium = event.model;
+  void _onGymnasiumCollectionUpdate(
+    List<CollectionUpdateEvent<Gymnasium>> events,
+  ) {
+    for (CollectionUpdateEvent<Gymnasium> event in events) {
+      Gymnasium updatedGymnasium = event.model;
 
-    switch (event.updateType) {
-      case UpdateType.create:
-        _selectGymnasium(updatedGymnasium);
-        break;
-      case UpdateType.update:
-        if (updatedGymnasium == state.gymnasium.value) {
+      switch (event.updateType) {
+        case UpdateType.create:
           _selectGymnasium(updatedGymnasium);
-        }
-        break;
-      case UpdateType.delete:
-        if (updatedGymnasium == state.gymnasium.value) {
-          _unselectGymnasium();
-        }
-        break;
+          break;
+        case UpdateType.update:
+          if (updatedGymnasium == state.gymnasium.value) {
+            _selectGymnasium(updatedGymnasium);
+          }
+          break;
+        case UpdateType.delete:
+          if (updatedGymnasium == state.gymnasium.value) {
+            _unselectGymnasium();
+          }
+          break;
+      }
     }
   }
 }

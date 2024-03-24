@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:formz/formz.dart';
@@ -44,10 +45,19 @@ class DrawDeletionCubit extends CollectionQuerierCubit<DrawDeletionState> {
   }
 
   void _onCompetitionCollectionUpdate(
-    CollectionUpdateEvent<Competition> event,
+    List<CollectionUpdateEvent<Competition>> events,
   ) {
-    if (event.model.id == state.competition.id) {
-      emit(state.copyWith(competition: event.model));
+    CollectionUpdateEvent<Competition>? updateEvent =
+        events.reversed.firstWhereOrNull((e) => e.model == state.competition);
+
+    if (updateEvent == null) {
+      return;
     }
+
+    emit(state.copyWith(competition: updateEvent.model));
   }
+
+  @override
+  void onCollectionUpdate(List<List<Model>> collections,
+      List<CollectionUpdateEvent<Model>> updateEvents) {}
 }

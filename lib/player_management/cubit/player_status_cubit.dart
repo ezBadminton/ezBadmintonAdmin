@@ -328,11 +328,20 @@ class PlayerStatusCubit extends CollectionQuerierCubit<PlayerStatusState>
     return tournamentsOfPlayer;
   }
 
-  void _onPlayerUpdated(CollectionUpdateEvent<Player> event) {
-    if (event.model == state.player) {
-      emit(state.copyWith(player: event.model));
+  void _onPlayerUpdated(List<CollectionUpdateEvent<Player>> events) {
+    CollectionUpdateEvent<Player>? updateEvent =
+        events.reversed.firstWhereOrNull((e) => e.model == state.player);
+
+    if (updateEvent == null) {
+      return;
     }
+
+    emit(state.copyWith(player: updateEvent.model));
   }
+
+  @override
+  void onCollectionUpdate(List<List<Model>> collections,
+      List<CollectionUpdateEvent<Model>> updateEvents) {}
 }
 
 enum StatusChangeDirection {

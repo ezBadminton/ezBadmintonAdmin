@@ -13,7 +13,7 @@ import 'package:meta/meta.dart';
 
 part 'player_list_state.dart';
 
-class PlayerListCubit extends CollectionFetcherCubit<PlayerListState>
+class PlayerListCubit extends CollectionQuerierCubit<PlayerListState>
     implements SortedListCubit<Player, PlayerListState> {
   PlayerListCubit({
     required CollectionRepository<Player> playerRepository,
@@ -30,40 +30,37 @@ class PlayerListCubit extends CollectionFetcherCubit<PlayerListState>
             clubRepository,
           ],
           const PlayerListState(),
-        ) {
-    loadPlayerData();
-    subscribeToCollectionUpdates(playerRepository, _collectionUpdated);
-    subscribeToCollectionUpdates(competitionRepository, _collectionUpdated);
-  }
+        );
 
-  void loadPlayerData() {
-    if (state.loadingStatus != LoadingStatus.loading) {
-      emit(state.copyWith(loadingStatus: LoadingStatus.loading));
-    }
-    fetchCollectionsAndUpdateState(
-      [
-        collectionFetcher<Player>(),
-        collectionFetcher<Competition>(),
-        collectionFetcher<PlayingLevel>(),
-        collectionFetcher<AgeGroup>(),
-        collectionFetcher<Club>(),
-      ],
-      onSuccess: (updatedState) {
-        var playerCompetitions = mapCompetitionRegistrations(
-          updatedState.getCollection<Player>(),
-          updatedState.getCollection<Competition>(),
-        );
-        updatedState = updatedState.copyWith(
-          competitionRegistrations: playerCompetitions,
-          filteredPlayers: _sortPlayers(updatedState.getCollection<Player>()),
-          loadingStatus: LoadingStatus.done,
-        );
-        emit(updatedState);
-        filterChanged(null);
-      },
-      onFailure: () =>
-          emit(state.copyWith(loadingStatus: LoadingStatus.failed)),
+  @override
+  void onCollectionUpdate(
+    List<List<Model>> collections,
+    List<CollectionUpdateEvent<Model>> updateEvents,
+  ) {
+    bool doPlayerUpdate = updateEvents.firstWhereOrNull((e) =>
+                e is CollectionUpdateEvent<Player> ||
+                e is CollectionUpdateEvent<Competition>) !=
+            null ||
+        updateEvents.isEmpty;
+
+    PlayerListState updatedState = state.copyWith(
+      collections: collections,
+      loadingStatus: LoadingStatus.done,
     );
+
+    if (doPlayerUpdate) {
+      var playerCompetitions = mapCompetitionRegistrations(
+        updatedState.getCollection<Player>(),
+        updatedState.getCollection<Competition>(),
+      );
+      updatedState = updatedState.copyWith(
+        competitionRegistrations: playerCompetitions,
+        filteredPlayers: _sortPlayers(updatedState.getCollection<Player>()),
+      );
+    }
+
+    emit(updatedState);
+    filterChanged(null);
   }
 
   void filterChanged(Map<Type, Predicate>? filters) {
@@ -106,9 +103,5 @@ class PlayerListCubit extends CollectionFetcherCubit<PlayerListState>
   List<Player> _sortPlayers(List<Player> players) {
     Comparator<Player> comparator = state.sortingComparator.comparator;
     return players.sorted(comparator);
-  }
-
-  void _collectionUpdated(CollectionUpdateEvent event) {
-    loadPlayerData();
   }
 }

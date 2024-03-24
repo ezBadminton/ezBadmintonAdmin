@@ -74,23 +74,6 @@ List<Competition> competitions = [
   ).copyWith(id: 'test-competition2'),
 ];
 
-List<Player> players = List.generate(
-  5,
-  (index) => Player.newPlayer().copyWith(id: 'player-$index'),
-);
-
-List<Team> teams = [
-  Team.newTeam(
-    players: [players[0], players[1]],
-  ).copyWith(id: 'test-team-1'),
-  Team.newTeam(
-    players: [players[2], players[3]],
-  ).copyWith(id: 'test-team-2'),
-  Team.newTeam(
-    players: [players[3], players[4]],
-  ).copyWith(id: 'test-team-3'),
-];
-
 void main() {
   late CollectionRepository<PlayingLevel> playingLevelRepository;
   late CollectionRepository<Competition> competitionRepository;
@@ -114,10 +97,6 @@ void main() {
       initialCollection: teams,
       throwing: throwing,
     );
-  }
-
-  void arrangeRegistrations(Competition competition, List<Team> teams) {
-    competitionRepository.update(competition.copyWith(registrations: teams));
   }
 
   PlayingLevelEditingCubit createSut() {
@@ -158,16 +137,14 @@ void main() {
         HasPlayingLevelName('newPlayingLevel1'),
         HasFormStatus(FormzSubmissionStatus.inProgress),
         HasFormStatus(FormzSubmissionStatus.success),
-        HasLoadingStatus(LoadingStatus.loading),
         HasLoadingStatus(LoadingStatus.done),
         HasPlayingLevelName('newPlayingLevel2'),
         HasFormStatus(FormzSubmissionStatus.inProgress),
         HasFormStatus(FormzSubmissionStatus.success),
-        HasLoadingStatus(LoadingStatus.loading),
         HasLoadingStatus(LoadingStatus.done),
       ],
-      verify: (_) async {
-        List<PlayingLevel> collection = await playingLevelRepository.getList();
+      verify: (_) {
+        List<PlayingLevel> collection = playingLevelRepository.getList();
         expect(collection, hasLength(2));
         expect(
           collection,
@@ -215,15 +192,13 @@ void main() {
       skip: 1,
       expect: () => [
         HasFormStatus(FormzSubmissionStatus.inProgress),
+        HasLoadingStatus(LoadingStatus.done),
         HasFormStatus(FormzSubmissionStatus.success),
-        HasLoadingStatus(LoadingStatus.loading),
-        allOf(
-          HasLoadingStatus(LoadingStatus.done),
-          HasDisplayList([HasIndex(0), HasIndex(1)]),
-        ),
+        HasLoadingStatus(LoadingStatus.done),
+        HasDisplayList([HasIndex(0), HasIndex(1)]),
       ],
-      verify: (cubit) async {
-        List<PlayingLevel> collection = await playingLevelRepository.getList();
+      verify: (cubit) {
+        List<PlayingLevel> collection = playingLevelRepository.getList();
         expect(collection, hasLength(2));
         expect(
           collection,
@@ -232,49 +207,6 @@ void main() {
             allOf(HasId(playingLevels[1].id), HasIndex(0)),
             allOf(HasId(playingLevels[2].id), HasIndex(1)),
           ],
-        );
-      },
-    );
-
-    blocTest<PlayingLevelEditingCubit, PlayingLevelEditingState>(
-      'delete playing level with competition',
-      setUp: () => arrangeRepositories(
-        playingLevels: playingLevels,
-        competitions: competitions,
-      ),
-      build: createSut,
-      act: (cubit) async {
-        await Future.delayed(Duration.zero);
-        cubit.playingLevelRemoved(playingLevels[1]);
-        // Set dialog answer to true
-        cubit.state.dialog.decisionCompleter!.complete(true);
-      },
-      skip: 1,
-      expect: () => [
-        HasFormStatus(FormzSubmissionStatus.inProgress),
-        HasDialog(isA<CubitDialog<bool>>()),
-        HasFormStatus(FormzSubmissionStatus.success),
-        HasLoadingStatus(LoadingStatus.loading),
-        allOf(
-          HasLoadingStatus(LoadingStatus.done),
-          HasDisplayList([HasIndex(0), HasIndex(1)]),
-        ),
-      ],
-      verify: (cubit) async {
-        List<PlayingLevel> playingLevelCollection =
-            await playingLevelRepository.getList();
-        List<Competition> competitionCollection =
-            await competitionRepository.getList();
-        expect(
-          playingLevelCollection,
-          [
-            allOf(HasId(playingLevels[0].id), HasIndex(0)),
-            allOf(HasId(playingLevels[2].id), HasIndex(1)),
-          ],
-        );
-        expect(
-          competitionCollection,
-          everyElement(isNot(HasPlayingLevel(playingLevels[1]))),
         );
       },
     );
@@ -301,120 +233,6 @@ void main() {
     );
 
     blocTest<PlayingLevelEditingCubit, PlayingLevelEditingState>(
-      'merge registrations of deleted competition',
-      setUp: () {
-        arrangeRepositories(
-          playingLevels: playingLevels,
-          competitions: competitions,
-          teams: teams,
-        );
-        arrangeRegistrations(competitions[0], [teams[0], teams[1]]);
-        arrangeRegistrations(competitions[1], [teams[2]]);
-      },
-      build: createSut,
-      act: (cubit) async {
-        await Future.delayed(Duration.zero);
-        cubit.playingLevelRemoved(playingLevels[1]);
-        // Set dialog answer to merge with the playing level
-        cubit.state.dialog.decisionCompleter!.complete(playingLevels[2]);
-      },
-      skip: 1,
-      expect: () => [
-        HasFormStatus(FormzSubmissionStatus.inProgress),
-        HasDialog(isA<CubitDialog<PlayingLevel>>()),
-        HasFormStatus(FormzSubmissionStatus.success),
-        HasLoadingStatus(LoadingStatus.loading),
-        HasLoadingStatus(LoadingStatus.done),
-      ],
-      verify: (_) async {
-        List<Competition> competitionCollection =
-            await competitionRepository.getList();
-        List<List<Player>> previousTeamPlayers =
-            teams.map((t) => t.players).toList();
-        Set<Team> mergedTeams =
-            competitionCollection.expand((c) => c.registrations).toSet();
-        Set<Player> registeredPlayers =
-            mergedTeams.expand((r) => r.players).toSet();
-        expect(registeredPlayers, hasLength(5));
-        for (Team mergedTeam in mergedTeams) {
-          if (mergedTeam.players.length != 1) {
-            // Check that team partners didn't change
-            expect(
-              previousTeamPlayers,
-              contains(unorderedEquals(mergedTeam.players)),
-            );
-          }
-        }
-      },
-    );
-
-    blocTest<PlayingLevelEditingCubit, PlayingLevelEditingState>(
-      'deny merge of registrations of deleted competition',
-      setUp: () {
-        arrangeRepositories(
-          playingLevels: playingLevels,
-          competitions: competitions,
-          teams: teams,
-        );
-        arrangeRegistrations(competitions[0], [teams[0], teams[1]]);
-        arrangeRegistrations(competitions[1], [teams[2]]);
-      },
-      build: createSut,
-      act: (cubit) async {
-        await Future.delayed(Duration.zero);
-        cubit.playingLevelRemoved(playingLevels[1]);
-        // Set dialog answer to not merge and just delete
-        cubit.state.dialog.decisionCompleter!.complete(
-          PlayingLevel.newPlayingLevel('no-selection', -1),
-        );
-      },
-      skip: 1,
-      expect: () => [
-        HasFormStatus(FormzSubmissionStatus.inProgress),
-        HasDialog(isA<CubitDialog<PlayingLevel>>()),
-        HasFormStatus(FormzSubmissionStatus.success),
-        HasLoadingStatus(LoadingStatus.loading),
-        HasLoadingStatus(LoadingStatus.done),
-      ],
-      verify: (_) async {
-        List<Competition> competitionCollection =
-            await competitionRepository.getList();
-        Set<Team> allTeams =
-            competitionCollection.expand((c) => c.registrations).toSet();
-        Set<Player> registeredPlayers =
-            allTeams.expand((r) => r.players).toSet();
-        expect(allTeams, hasLength(1));
-        expect(registeredPlayers, unorderedEquals([players[3], players[4]]));
-      },
-    );
-
-    blocTest<PlayingLevelEditingCubit, PlayingLevelEditingState>(
-      'cancel delete of competition with merge',
-      setUp: () {
-        arrangeRepositories(
-          playingLevels: playingLevels,
-          competitions: competitions,
-          teams: teams,
-        );
-        arrangeRegistrations(competitions[0], [teams[0], teams[1]]);
-        arrangeRegistrations(competitions[1], [teams[2]]);
-      },
-      build: createSut,
-      act: (cubit) async {
-        await Future.delayed(Duration.zero);
-        cubit.playingLevelRemoved(playingLevels[1]);
-        // Set dialog answer cancel
-        cubit.state.dialog.decisionCompleter!.complete(null);
-      },
-      skip: 1,
-      expect: () => [
-        HasFormStatus(FormzSubmissionStatus.inProgress),
-        HasDialog(isA<CubitDialog<PlayingLevel>>()),
-        HasFormStatus(FormzSubmissionStatus.canceled),
-      ],
-    );
-
-    blocTest<PlayingLevelEditingCubit, PlayingLevelEditingState>(
       'rename playing level',
       setUp: () => arrangeRepositories(
         playingLevels: playingLevels,
@@ -432,11 +250,10 @@ void main() {
         HasPlayingLevelRename('new-name'),
         HasFormStatus(FormzSubmissionStatus.inProgress),
         HasFormStatus(FormzSubmissionStatus.success),
-        HasLoadingStatus(LoadingStatus.loading),
         HasLoadingStatus(LoadingStatus.done),
       ],
-      verify: (_) async {
-        List<PlayingLevel> collection = await playingLevelRepository.getList();
+      verify: (_) {
+        List<PlayingLevel> collection = playingLevelRepository.getList();
         expect(
           collection,
           contains(allOf(
@@ -489,18 +306,19 @@ void main() {
           HasDisplayList([HasIndex(0), HasIndex(1), HasIndex(2)]),
         ),
         HasFormStatus(FormzSubmissionStatus.success),
-        HasLoadingStatus(LoadingStatus.loading),
+        HasLoadingStatus(LoadingStatus.done),
+        HasLoadingStatus(LoadingStatus.done),
         HasLoadingStatus(LoadingStatus.done),
         allOf(
           HasFormStatus(FormzSubmissionStatus.inProgress),
           HasDisplayList([HasIndex(0), HasIndex(1), HasIndex(2)]),
         ),
         HasFormStatus(FormzSubmissionStatus.success),
-        HasLoadingStatus(LoadingStatus.loading),
+        HasLoadingStatus(LoadingStatus.done),
         HasLoadingStatus(LoadingStatus.done),
       ],
-      verify: (_) async {
-        List<PlayingLevel> collection = await playingLevelRepository.getList();
+      verify: (_) {
+        List<PlayingLevel> collection = playingLevelRepository.getList();
         expect(
           collection,
           unorderedEquals([

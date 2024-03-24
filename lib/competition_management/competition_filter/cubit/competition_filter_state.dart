@@ -1,22 +1,25 @@
 part of 'competition_filter_cubit.dart';
 
-class CompetitionFilterState
-    extends CollectionFetcherState<CompetitionFilterState>
+class CompetitionFilterState extends CollectionQuerierState
     implements PredicateConsumerState {
   CompetitionFilterState({
     this.loadingStatus = LoadingStatus.loading,
     this.filterPredicate,
-    super.collections = const {},
+    this.collections = const [],
   });
 
+  @override
   final LoadingStatus loadingStatus;
 
   @override
   final FilterPredicate? filterPredicate;
 
+  @override
+  final List<List<Model>> collections;
+
   CompetitionFilterState copyWith({
     LoadingStatus? loadingStatus,
-    Map<Type, List<Model>>? collections,
+    List<List<Model>>? collections,
   }) {
     return CompetitionFilterState(
       loadingStatus: loadingStatus ?? this.loadingStatus,

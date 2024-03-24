@@ -29,7 +29,7 @@ const _inputBufferSize = matchQrPrefix.length;
 /// The emission causes the match's result input dialog to pop up, making it
 /// easy to record the score from the game sheet into the system.
 class MatchScanListenerCubit
-    extends CollectionFetcherCubit<MatchScanListenerState> {
+    extends CollectionQuerierCubit<MatchScanListenerState> {
   MatchScanListenerCubit({
     required CollectionRepository<MatchData> matchDataRepository,
   })  : _inputBuffer = Queue(),
@@ -39,30 +39,23 @@ class MatchScanListenerCubit
             matchDataRepository,
           ],
           MatchScanListenerState(),
-        ) {
-    loadCollections();
-    subscribeToCollectionUpdates(matchDataRepository, (_) => loadCollections());
-  }
+        );
 
   final Queue<String> _inputBuffer;
 
   final MatchScanParser _parser;
 
-  void loadCollections() {
-    if (state.loadingStatus != LoadingStatus.loading) {
-      emit(state.copyWith(loadingStatus: LoadingStatus.loading));
-    }
-    fetchCollectionsAndUpdateState(
-      [
-        collectionFetcher<MatchData>(),
-      ],
-      onSuccess: (updatedState) {
-        emit(updatedState.copyWith(loadingStatus: LoadingStatus.done));
-      },
-      onFailure: () {
-        emit(state.copyWith(loadingStatus: LoadingStatus.failed));
-      },
+  @override
+  void onCollectionUpdate(
+    List<List<Model>> collections,
+    List<CollectionUpdateEvent<Model>> updateEvents,
+  ) {
+    MatchScanListenerState updatedState = state.copyWith(
+      collections: collections,
+      loadingStatus: LoadingStatus.done,
     );
+
+    emit(updatedState);
   }
 
   void onKeyEvent(RawKeyEvent event) {

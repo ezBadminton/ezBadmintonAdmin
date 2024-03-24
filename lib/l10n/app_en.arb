@@ -329,5 +329,8 @@
   "placesToPlayOutHelp": "The tournament bracket will produce at least {numPlaces} untied top placements. The required consolation rounds will be added automatically.",
   "tooFewPlacesToPlayOut": "At least 2 places have to be played out",
   "upperToLowerRank": "Rank {upper} – {lower}",
-  "matchForThrid": "Match for 3rd place"
+  "matchForThrid": "Match for 3rd place",
+  "noneOf": "No {subject}",
+  "noCategoryWarning": "The {categorization} can't be activated because no {category} has been created.",
+  "close": "Close"
 }

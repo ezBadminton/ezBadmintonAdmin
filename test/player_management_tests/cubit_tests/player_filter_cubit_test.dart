@@ -137,24 +137,6 @@ void main() {
           playingLevels,
         ),
       );
-
-      blocTest<PlayerFilterCubit, PlayerFilterState>(
-        'goes back to LoadingStatus.loading when collections are reloaded',
-        build: createSut,
-        act: (cubit) async {
-          await Future.delayed(Duration.zero);
-          cubit.loadCollections();
-        },
-        skip: 1,
-        expect: () => [
-          HasLoadingStatus(LoadingStatus.loading),
-          HasLoadingStatus(LoadingStatus.done),
-        ],
-        verify: (cubit) => expect(
-          cubit.state.getCollection<PlayingLevel>(),
-          playingLevels,
-        ),
-      );
     },
   );
 

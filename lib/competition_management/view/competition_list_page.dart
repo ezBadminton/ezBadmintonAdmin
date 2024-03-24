@@ -53,7 +53,6 @@ class CompetitionListPage extends StatelessWidget {
             ageGroupRepository: context.read<CollectionRepository<AgeGroup>>(),
             playingLevelRepository:
                 context.read<CollectionRepository<PlayingLevel>>(),
-            teamRepository: context.read<CollectionRepository<Team>>(),
           ),
         ),
         BlocProvider(
@@ -146,22 +145,6 @@ class _CompetitionListWithControls extends StatelessWidget {
                     ),
                     errorMessage: l10n.competitionListLoadingError,
                     retryButtonLabel: l10n.retry,
-                    onRetry: () {
-                      if (listState.loadingStatus == LoadingStatus.failed) {
-                        context.read<CompetitionListCubit>().loadCollections();
-                      }
-                      if (filterState.loadingStatus == LoadingStatus.failed) {
-                        context
-                            .read<CompetitionFilterCubit>()
-                            .loadCollections();
-                      }
-                      if (selectionState.loadingStatus ==
-                          LoadingStatus.failed) {
-                        context
-                            .read<CompetitionSelectionCubit>()
-                            .loadCollections();
-                      }
-                    },
                     builder: (context) => const SizedBox(
                       width: 1150,
                       child: Column(

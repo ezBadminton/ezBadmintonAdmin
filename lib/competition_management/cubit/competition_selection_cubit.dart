@@ -5,7 +5,7 @@ import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dar
 part 'competition_selection_state.dart';
 
 class CompetitionSelectionCubit
-    extends CollectionFetcherCubit<CompetitionSelectionState> {
+    extends CollectionQuerierCubit<CompetitionSelectionState> {
   CompetitionSelectionCubit({
     required CollectionRepository<Competition> competitionRepository,
   }) : super(
@@ -14,31 +14,27 @@ class CompetitionSelectionCubit
           ],
           CompetitionSelectionState(),
         ) {
-    loadCollections();
     subscribeToCollectionUpdates(
       competitionRepository,
       _onCompetitionCollectionUpdate,
     );
   }
 
-  void loadCollections() {
-    if (state.loadingStatus != LoadingStatus.loading) {
-      emit(state.copyWith(loadingStatus: LoadingStatus.loading));
+  @override
+  void onCollectionUpdate(
+    List<List<Model>> collections,
+    List<CollectionUpdateEvent<Model>> updateEvents,
+  ) {
+    if (updateEvents.isEmpty) {
+      List<Competition> competitions = collections
+          .firstWhere((c) => c is List<Competition>) as List<Competition>;
+      CompetitionSelectionState updatedState = state.copyWith(
+        displayCompetitions: competitions,
+        loadingStatus: LoadingStatus.done,
+      );
+
+      emit(updatedState);
     }
-    fetchCollectionsAndUpdateState(
-      [
-        collectionFetcher<Competition>(),
-      ],
-      onSuccess: (updatedState) {
-        emit(updatedState.copyWith(
-          loadingStatus: LoadingStatus.done,
-          displayCompetitions: updatedState.getCollection<Competition>(),
-        ));
-      },
-      onFailure: () {
-        emit(state.copyWith(loadingStatus: LoadingStatus.failed));
-      },
-    );
   }
 
   void displayCompetitionsChanged(List<Competition> displayCompetitions) {
@@ -85,14 +81,23 @@ class CompetitionSelectionCubit
   }
 
   void _onCompetitionCollectionUpdate(
-      CollectionUpdateEvent<Competition> event) {
-    Competition updated = event.model;
-    if (state.selectedCompetitions.contains(updated)) {
-      List<Competition> selected = List.of(state.selectedCompetitions);
-      selected.removeWhere((c) => c.id == updated.id);
-      selected.add(updated);
+    List<CollectionUpdateEvent<Competition>> events,
+  ) {
+    List<Competition> selected = List.of(state.selectedCompetitions);
 
-      emit(state.copyWith(selectedCompetitions: selected));
+    List<Competition> updated =
+        events.map((e) => e.model).where((c) => selected.contains(c)).toList();
+
+    if (updated.isEmpty) {
+      return;
     }
+
+    for (Competition u in updated) {
+      selected.removeWhere((c) => c.id == u.id);
+    }
+
+    selected.addAll(updated);
+
+    emit(state.copyWith(selectedCompetitions: selected));
   }
 }

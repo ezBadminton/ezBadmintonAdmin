@@ -11,7 +11,7 @@ import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dar
 part 'tournament_progress_state.dart';
 
 class TournamentProgressCubit
-    extends CollectionFetcherCubit<TournamentProgressState>
+    extends CollectionQuerierCubit<TournamentProgressState>
     with MatchCancelingMixin {
   TournamentProgressCubit({
     required CollectionRepository<Competition> competitionRepository,
@@ -24,36 +24,25 @@ class TournamentProgressCubit
             matchDataRepository,
           ],
           TournamentProgressState(),
-        ) {
-    loadCollections();
-    subscribeToCollectionUpdateNotifications(
-      competitionRepository,
-      loadCollections,
-    );
-    subscribeToCollectionUpdates(
-      courtRepository,
-      (_) => loadCollections(),
-    );
-  }
+        );
 
-  void loadCollections() {
-    if (state.loadingStatus != LoadingStatus.loading) {
-      emit(state.copyWith(loadingStatus: LoadingStatus.loading));
-    }
-    fetchCollectionsAndUpdateState(
-      [
-        collectionFetcher<Competition>(),
-        collectionFetcher<Court>(),
-      ],
-      onSuccess: (updatedState) {
-        updatedState = updatedState.copyWithCourtSorting();
-        updatedState = _createRunningTournamentState(updatedState);
-        emit(updatedState.copyWith(loadingStatus: LoadingStatus.done));
-      },
-      onFailure: () {
-        emit(state.copyWith(loadingStatus: LoadingStatus.failed));
-      },
+  @override
+  void onCollectionUpdate(
+    List<List<Model>> collections,
+    List<CollectionUpdateEvent<Model>> updateEvents,
+  ) {
+    TournamentProgressState updatedState = state.copyWith(
+      collections: collections,
+      loadingStatus: LoadingStatus.done,
     );
+
+    List<Court> sortedCourts =
+        updatedState.getCollection<Court>().sorted(compareCourts);
+    updatedState.overrideCollection(sortedCourts);
+
+    updatedState = _createRunningTournamentState(updatedState);
+
+    emit(updatedState);
   }
 
   TournamentProgressState _createRunningTournamentState(

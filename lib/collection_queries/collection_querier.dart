@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
-import 'package:flutter/foundation.dart';
+import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-typedef FetcherFunction<M extends Model> = Future<List<M>?> Function();
+typedef FetcherFunction<M extends Model> = FutureOr<List<M>> Function();
 
 class CollectionQuerier {
   /// A class that has functions to fetch and update collections from db.
@@ -37,68 +37,20 @@ class CollectionQuerier {
 
   final Iterable<CollectionRepository<Model>> collectionRepositories;
 
-  /// Fetches one model from collection of data objects of the model type [M]
+  /// Gets one model from the [M]-collection by [id].
   ///
-  /// The Future resolves to null if the collection db can't be reached.
-  /// Use an [ExpansionTree] as the [expand] parameter to also fetch the related
-  /// models of [M]. Some [Model]s have default expansions defined by the
-  /// repository.
-  Future<M?> fetchModel<M extends Model>(
-    String id, {
-    ExpansionTree? expand,
-  }) async {
-    assert(
-      collectionRepositories.whereType<CollectionRepository<M>>().isNotEmpty,
-      'The CollectionQuerier does not have the ${M.toString()} repository',
-    );
-    var collectionRepository =
-        collectionRepositories.whereType<CollectionRepository<M>>().first;
+  /// Returns `null` if that [id] doesn't exist
+  M? getModel<M extends Model>(String id) {
+    var collectionRepository = getRepository<M>();
 
-    try {
-      return await collectionRepository.getModel(id, expand: expand);
-    } on CollectionQueryException {
-      return null;
-    }
+    return collectionRepository.getModel(id);
   }
 
-  /// Fetches the full collection of data objects of the model type [M]
-  ///
-  /// The Future resolves to null if the collection db can't be reached.
-  /// Use an [ExpansionTree] as the [expand] parameter to also fetch the related
-  /// models of [M]. Some [Model]s have default expansions defined by the
-  /// repository.
-  Future<List<M>?> fetchCollection<M extends Model>({
-    ExpansionTree? expand,
-  }) async {
-    assert(
-      collectionRepositories.whereType<CollectionRepository<M>>().isNotEmpty,
-      'The CollectionQuerier does not have the ${M.toString()} repository',
-    );
-    var collectionRepository =
-        collectionRepositories.whereType<CollectionRepository<M>>().first;
-    try {
-      return await collectionRepository.getList(
-        expand: expand,
-      );
-    } on CollectionQueryException {
-      return null;
-    }
-  }
+  /// Gets the full [M]-collection
+  List<M> getCollection<M extends Model>() {
+    var collectionRepository = getRepository<M>();
 
-  /// Fetches multiple collections at once and returns them as a [List].
-  ///
-  /// The list contains null where the collection could not be fetched.
-  ///
-  /// Example:
-  /// ```dart
-  /// fetchCollections([fetchCollection<Player>, fetchCollection<Team>]);
-  /// ```
-  Future<List<List<Model>?>> fetchCollections(
-    Iterable<FetcherFunction> fetcherFunctions,
-  ) async {
-    var fetchResults =
-        await Future.wait([for (var fetcher in fetcherFunctions) fetcher()]);
-    return fetchResults;
+    return collectionRepository.getList();
   }
 
   /// Puts a newly created model into its collection on the DB.
@@ -108,18 +60,13 @@ class CollectionQuerier {
   /// Otherwise null if the collection db can't be reached.
   Future<M?> createModel<M extends Model>(
     M newModel, {
-    ExpansionTree? expand,
+    Map<String, dynamic> query = const {},
   }) async {
-    assert(
-      collectionRepositories.whereType<CollectionRepository<M>>().isNotEmpty,
-      'The CollectionQuerier does not have the ${M.toString()} repository',
-    );
     assert(newModel.id.isEmpty);
-    var collectionRepository =
-        collectionRepositories.whereType<CollectionRepository<M>>().first;
+    var collectionRepository = getRepository<M>();
 
     try {
-      return await collectionRepository.create(newModel, expand: expand);
+      return await collectionRepository.create(newModel, query: query);
     } on CollectionQueryException {
       return null;
     }
@@ -128,10 +75,7 @@ class CollectionQuerier {
   /// Creates a list of models
   ///
   /// Resolves to a list of the created models
-  Future<List<M?>> createModels<M extends Model>(
-    List<M> models, {
-    ExpansionTree? expand,
-  }) async {
+  Future<List<M?>> createModels<M extends Model>(List<M> models) async {
     Iterable<Future<M?>> modelCreations =
         models.map((model) => createModel(model));
     List<M?> createdModels = await Future.wait(modelCreations);
@@ -146,25 +90,13 @@ class CollectionQuerier {
   /// Otherwise `null` if the collection db can't be reached.
   Future<M?> updateModel<M extends Model>(
     M updatedModel, {
-    ExpansionTree? expand,
-    bool isMulti = false,
-    bool isFinalMulti = false,
+    Map<String, dynamic> query = const {},
   }) async {
-    assert(
-      collectionRepositories.whereType<CollectionRepository<M>>().isNotEmpty,
-      'The CollectionQuerier does not have the ${M.toString()} repository',
-    );
     assert(updatedModel.id.isNotEmpty);
-    var collectionRepository =
-        collectionRepositories.whereType<CollectionRepository<M>>().first;
+    var collectionRepository = getRepository<M>();
 
     try {
-      return await collectionRepository.update(
-        updatedModel,
-        expand: expand,
-        isMulti: isMulti,
-        isFinalMulti: isFinalMulti,
-      );
+      return await collectionRepository.update(updatedModel, query: query);
     } on CollectionQueryException {
       return null;
     }
@@ -173,42 +105,27 @@ class CollectionQuerier {
   /// Updates or creates the given model based on wether it already has an `id`.
   Future<M?> updateOrCreateModel<M extends Model>(
     M model, {
-    ExpansionTree? expand,
+    Map<String, dynamic> query = const {},
   }) {
     if (model.id.isEmpty) {
-      return createModel(model, expand: expand);
+      return createModel(model, query: query);
     } else {
-      return updateModel(model, expand: expand);
+      return updateModel(model, query: query);
     }
   }
 
   /// Updates a list of models
   ///
   /// Resolves to a list of the updated models
-  Future<List<M?>> updateModels<M extends Model>(
-    List<M> models, {
-    ExpansionTree? expand,
-  }) async {
+  Future<List<M?>> updateModels<M extends Model>(List<M> models) async {
     // This just calls [updateModel] for each list item. Sadly pocketbase
     // doesn't support transactional bulk operations yet. Keep an eye on
     // https://github.com/pocketbase/pocketbase/issues/48 where this will be
     // added.
     Iterable<Future<M?>> modelUpdates = models.mapIndexed((index, model) {
-      bool isFinal = index == (models.length - 1);
-
-      return updateModel(
-        model,
-        expand: expand,
-        isMulti: true,
-        isFinalMulti: isFinal,
-      );
+      return updateModel(model);
     });
     List<M?> updatedModels = await Future.wait(modelUpdates);
-
-    collectionRepositories
-        .whereType<CollectionRepository<M>>()
-        .first
-        .emitUpdateNotification();
 
     return updatedModels;
   }
@@ -216,7 +133,10 @@ class CollectionQuerier {
   /// Deletes a model from its collection on the DB.
   ///
   /// On success the future resolves to `true` otherwise `false`.
-  Future<bool> deleteModel<M extends Model>(M deletedModel) async {
+  Future<bool> deleteModel<M extends Model>(
+    M deletedModel, {
+    Map<String, dynamic> query = const {},
+  }) async {
     assert(
       collectionRepositories.whereType<CollectionRepository<M>>().isNotEmpty,
       'The CollectionQuerier does not have the ${M.toString()} repository',
@@ -225,7 +145,7 @@ class CollectionQuerier {
         collectionRepositories.whereType<CollectionRepository<M>>().first;
 
     try {
-      await collectionRepository.delete(deletedModel);
+      await collectionRepository.delete(deletedModel, query: query);
       return true;
     } on CollectionQueryException {
       return false;
@@ -242,9 +162,23 @@ class CollectionQuerier {
 
     return !modelsDeleted.contains(false);
   }
+
+  CollectionRepository<M> getRepository<M extends Model>() {
+    CollectionRepository<M>? repository = collectionRepositories
+            .firstWhereOrNull((r) => r is CollectionRepository<M>)
+        as CollectionRepository<M>?;
+
+    if (repository == null) {
+      throw Exception(
+        'The CollectionQuerier does not have the ${M.toString()} repository',
+      );
+    }
+
+    return repository;
+  }
 }
 
-class CollectionQuerierCubit<State> extends Cubit<State> {
+abstract class CollectionQuerierCubit<S> extends Cubit<S> {
   /// A Cubit that has a [CollectionQuerier] member.
   ///
   /// The [CollectionQuerier] is created with the given [collectionRepositories]
@@ -252,7 +186,12 @@ class CollectionQuerierCubit<State> extends Cubit<State> {
   CollectionQuerierCubit(
     super.initialState, {
     required Iterable<CollectionRepository<Model>> collectionRepositories,
-  }) : querier = CollectionQuerier(collectionRepositories);
+  }) : querier = CollectionQuerier(collectionRepositories) {
+    _waitForRepositoryLoading();
+    for (CollectionRepository<Model> repository in collectionRepositories) {
+      subscribeToCollectionUpdates(repository, _notifyCollectionUpdate);
+    }
+  }
 
   final CollectionQuerier querier;
 
@@ -260,26 +199,20 @@ class CollectionQuerierCubit<State> extends Cubit<State> {
 
   /// Listens to updates in the collection of [M] via the [repository].
   ///
-  /// The [listener] is called with a [CollectionUpdateEvent] whenever another
-  /// part of the app does an operation in the collection.
+  /// The [listener] is called with a list of [CollectionUpdateEvent]s
+  /// whenever the collection behind the repository changes.
+  ///
+  /// When the list contains multiple events that means the event debouncer
+  /// combined multiple updates that happened in a very short time.
   ///
   /// The resulting [StreamSubscription] is automatically closed when the
   /// cubit closes. This happens automatically when the cubit was created by a
   /// [BlocProvider].
   void subscribeToCollectionUpdates<M extends Model>(
     CollectionRepository<M> repository,
-    void Function(CollectionUpdateEvent<M> updateEvent)? listener,
+    void Function(List<CollectionUpdateEvent<M>> updateEvents)? listener,
   ) {
     StreamSubscription subscription = repository.updateStream.listen(listener);
-    collectionUpdateSubscriptions.add(subscription);
-  }
-
-  void subscribeToCollectionUpdateNotifications<M extends Model>(
-    CollectionRepository<M> repository,
-    VoidCallback? listener,
-  ) {
-    StreamSubscription subscription =
-        repository.updateNotificationStream.listen((_) => listener?.call());
     collectionUpdateSubscriptions.add(subscription);
   }
 
@@ -290,131 +223,85 @@ class CollectionQuerierCubit<State> extends Cubit<State> {
     }
     return super.close();
   }
-}
 
-class CollectionFetcherCubit<State extends CollectionFetcherState<State>>
-    extends CollectionQuerierCubit<State> {
-  /// A CollectionQuerierCubit that can update its [CollectionFetcherState]
-  /// with fetched collections.
-  CollectionFetcherCubit(
-    super.initialState, {
-    required super.collectionRepositories,
-  });
-
-  /// Returns a [CollectionFetcher] object.
-  CollectionFetcher collectionFetcher<M extends Model>({
-    ExpansionTree? expand,
-  }) {
-    return CollectionFetcher<M>(
-      fetcherFunction: () => querier.fetchCollection<M>(expand: expand),
-    );
-  }
-
-  /// Uses the given [fetchers] to fetch multiple collections and store
-  /// them as state.
+  /// Gets called when [querier] initially loads all collections and whenever
+  /// any of the collections from the [querier]'s
+  /// [CollectionQuerier.collectionRepositories] updates.
   ///
-  /// If all given fetchers were able to get the collection, the [onSuccess]
-  /// callback is called with the updated state. Otherwise [onFailure].
+  /// The [collections] list is always the full list of collections, not just
+  /// the updated ones.
   ///
-  /// Example usage:
-  /// ```dart
-  /// fetchCollectionsAndUpdateState(
-  ///   [
-  ///     // Fetch the collections of Player and Team data models
-  ///     collectionFetcher<Player>(),
-  ///     collectionFetcher<Team>(),
-  ///   ],
-  ///   onSuccess: (updatedState) {
-  ///     // Let state listeners know the data has been loaded
-  ///     emit(updatedState);
-  ///   },
-  ///   onFailure: () {
-  ///     // Emit some loading failure state
-  ///   },
-  /// );
-  /// ```
-  void fetchCollectionsAndUpdateState(
-    Iterable<CollectionFetcher> fetchers, {
-    void Function(State updatedState)? onSuccess,
-    void Function()? onFailure,
-  }) async {
-    var fetchResults =
-        await querier.fetchCollections(fetchers.map((f) => f.fetcherFunction));
-    if (fetchResults.contains(null)) {
-      if (onFailure != null && !isClosed) {
-        onFailure();
-      }
-    } else {
-      var updatedState = state;
-      int i = 0;
-      for (var collection in fetchResults) {
-        updatedState = updatedState.copyWithCollection(
-          modelType: fetchers.elementAt(i).modelType,
-          collection: collection!,
-        );
-        i += 1;
-      }
-      if (onSuccess != null && !isClosed) {
-        onSuccess(updatedState);
-      }
+  /// The [updateEvents] list contains the details about what was updated.
+  /// It is empty on the intial load.
+  ///
+  /// The implementation should emit a new state here that is derived from
+  /// the updates.
+  void onCollectionUpdate(
+    List<List<Model>> collections,
+    List<CollectionUpdateEvent<Model>> updateEvents,
+  );
+
+  /// Gets called when the initial collection load fails
+  void onLoadError() {
+    if (state is CollectionQuerierState) {
+      S failedState =
+          (state as dynamic).copyWith(loadingStatus: LoadingStatus.failed);
+
+      emit(failedState);
     }
   }
+
+  void _waitForRepositoryLoading() async {
+    Iterable<Completer> loadCompleters =
+        querier.collectionRepositories.map((r) => r.loadCompleter);
+
+    await Future.wait(loadCompleters.map((c) => c.future)).then(
+      (_) => _notifyCollectionUpdate(),
+      onError: (_) => onLoadError(),
+    );
+  }
+
+  void _notifyCollectionUpdate([
+    List<CollectionUpdateEvent<Model>>? updateEvents,
+  ]) {
+    List<List<Model>> collections =
+        querier.collectionRepositories.map((r) => r.getList()).toList();
+    onCollectionUpdate(collections, updateEvents ?? []);
+  }
 }
 
-/// A state object that holds the fetched collections of a
-/// [CollectionFetcherCubit].
-///
-/// The [copyWithCollection] method requires the inheriting class to have a
-/// `copyWith` method with a named `collections` parameter.
-abstract class CollectionFetcherState<I extends CollectionFetcherState<I>> {
-  const CollectionFetcherState({required this.collections});
+/// State class with a loading status and a list of collections.
+abstract class CollectionQuerierState {
+  const CollectionQuerierState();
 
-  /// The collections that have been fetched.
-  ///
-  /// Maps the specific [Model] subtypes to their collections.
-  final Map<Type, List<Model>> collections;
+  LoadingStatus get loadingStatus;
 
-  /// Returns the fetched collection of model type [M].
-  ///
-  /// Calling with a model type that this fetcher state does not hold results
-  /// in an error.
+  List<List<Model>> get collections;
+
   List<M> getCollection<M extends Model>() {
-    assert(
-      collections.keys.contains(M),
-      'The CollectionFetcherState does not hold the ${M.toString()} collection.',
-    );
-    return collections[M] as List<M>;
+    List<M>? collection =
+        collections.firstWhereOrNull((c) => c is List<M>) as List<M>?;
+
+    if (collection == null) {
+      throw Exception("The state does not hold the $M collection.");
+    }
+
+    return collection;
   }
 
-  /// Returns a copy with added [collection] of [modelType].
-  ///
-  /// Replaces possibly present collection of [modelType]
-  I copyWithCollection<M extends Model>({
-    required Type modelType,
-    required List<M> collection,
-  }) {
-    Map<Type, List<Model>> updatedCollections = Map.of(collections);
-    updatedCollections.remove(modelType);
-    updatedCollections.putIfAbsent(modelType, () => collection);
-    updatedCollections = Map.unmodifiable(updatedCollections);
-
-    // Assert existence of copyWith method. Done to be able to
-    // copy the members of the inheriting class [I].
-    assert(
-      (this as dynamic).copyWith(collections: updatedCollections) is I,
-      'Subclasses of CollectionFetcherState have to implement a copyWith method with a named `collections` parameter',
-    );
-    return (this as dynamic).copyWith(collections: updatedCollections);
+  List<M>? getCollectionOrNull<M extends Model>() {
+    List<M>? collection =
+        collections.firstWhereOrNull((c) => c is List<M>) as List<M>?;
+    return collection;
   }
-}
 
-class CollectionFetcher<M extends Model> {
-  /// A [CollectionFetcher] connects a [FetcherFunction] with a [Model] type [M].
-  ///
-  /// This way the [FetcherFunction]'s returned List of Models can still be
-  /// known by its specific [modelType] outside of the scope of the
-  /// [FetcherFunction]'s generic type parameter.
-  CollectionFetcher({required this.fetcherFunction});
-  final FetcherFunction fetcherFunction;
-  Type get modelType => M;
+  bool hasCollection<M extends Model>() {
+    return getCollectionOrNull() != null;
+  }
+
+  /// Replace the [M]-collection with the given [collection]
+  void overrideCollection<M extends Model>(List<M> collection) {
+    collections.removeWhere((c) => c is List<M>);
+    collections.add(collection);
+  }
 }

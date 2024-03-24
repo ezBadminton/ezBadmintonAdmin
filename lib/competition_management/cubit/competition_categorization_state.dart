@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
 import 'package:formz/formz.dart';
@@ -5,21 +6,24 @@ import 'package:formz/formz.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 
-class CompetitionCategorizationState
-    extends CollectionFetcherState<CompetitionCategorizationState>
+class CompetitionCategorizationState extends CollectionQuerierState
     implements DialogState {
   CompetitionCategorizationState({
     this.loadingStatus = LoadingStatus.loading,
     this.formStatus = FormzSubmissionStatus.initial,
     this.dialog = const CubitDialog(reason: Object()),
-    super.collections = const {},
+    this.collections = const [],
   });
 
+  @override
   final LoadingStatus loadingStatus;
   final FormzSubmissionStatus formStatus;
 
   @override
   final CubitDialog dialog;
+
+  @override
+  final List<List<Model>> collections;
 
   Tournament get tournament => getCollection<Tournament>().first;
 
@@ -27,7 +31,7 @@ class CompetitionCategorizationState
     LoadingStatus? loadingStatus,
     FormzSubmissionStatus? formStatus,
     CubitDialog? dialog,
-    Map<Type, List<Model>>? collections,
+    List<List<Model>>? collections,
   }) {
     assert(
       _debugOnlyOneTournament(collections),
@@ -41,8 +45,10 @@ class CompetitionCategorizationState
     );
   }
 
-  static bool _debugOnlyOneTournament(Map<Type, List<Model>>? collections) {
-    if (collections != null && collections[Tournament]!.length > 1) {
+  static bool _debugOnlyOneTournament(List<List<Model>>? collections) {
+    List<Tournament>? tournaments = collections
+        ?.firstWhereOrNull((c) => c is List<Tournament>) as List<Tournament>?;
+    if (tournaments != null && tournaments.length > 1) {
       return false;
     }
     return true;

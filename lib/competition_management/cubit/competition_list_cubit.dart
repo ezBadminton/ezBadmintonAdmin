@@ -9,7 +9,7 @@ import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dar
 
 part 'competition_list_state.dart';
 
-class CompetitionListCubit extends CollectionFetcherCubit<CompetitionListState>
+class CompetitionListCubit extends CollectionQuerierCubit<CompetitionListState>
     implements SortedListCubit<Competition, CompetitionListState> {
   CompetitionListCubit({
     required CollectionRepository<Competition> competitionRepository,
@@ -24,47 +24,27 @@ class CompetitionListCubit extends CollectionFetcherCubit<CompetitionListState>
             playingLevelRepository,
           ],
           CompetitionListState(),
-        ) {
-    loadCollections();
-    subscribeToCollectionUpdates(
-      competitionRepository,
-      (_) => loadCollections(),
+        );
+
+  @override
+  void onCollectionUpdate(
+    List<List<Model>> collections,
+    List<CollectionUpdateEvent<Model>> updateEvents,
+  ) {
+    CompetitionListState updatedState = state.copyWith(
+      collections: collections,
+      loadingStatus: LoadingStatus.done,
     );
-    subscribeToCollectionUpdates(
-      tournamentRepository,
-      (_) => loadCollections(),
-    );
-    subscribeToCollectionUpdates(
-      ageGroupRepository,
-      (_) => loadCollections(),
-    );
-    subscribeToCollectionUpdates(
-      playingLevelRepository,
-      (_) => loadCollections(),
-    );
+    emit(updatedState);
+
+    filterChanged(null);
   }
 
-  void loadCollections() {
-    if (state.loadingStatus != LoadingStatus.loading) {
-      emit(state.copyWith(loadingStatus: LoadingStatus.loading));
-    }
-    fetchCollectionsAndUpdateState(
-      [
-        collectionFetcher<Competition>(),
-        collectionFetcher<Tournament>(),
-        collectionFetcher<AgeGroup>(),
-        collectionFetcher<PlayingLevel>(),
-      ],
-      onSuccess: (updatedState) {
-        emit(updatedState.copyWith(loadingStatus: LoadingStatus.done));
-        filterChanged(null);
-      },
-      onFailure: () {
-        emit(state.copyWith(loadingStatus: LoadingStatus.failed));
-      },
-    );
-  }
-
+  /// Called when the filters for the list changed. The displayCompetitionList
+  /// is updated accordingly.
+  ///
+  /// Call with [filters] = `null` to update the displayCompetitionList while
+  /// keeping the same filters.
   void filterChanged(Map<Type, Predicate>? filters) {
     filters = filters ?? state.filters;
     List<Competition> filtered = state.getCollection<Competition>();

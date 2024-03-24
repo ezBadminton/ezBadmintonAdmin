@@ -5,23 +5,26 @@ import 'package:ez_badminton_admin_app/player_management/models/competition_regi
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:formz/formz.dart';
 
-class PartnerRegistrationState
-    extends CollectionFetcherState<PartnerRegistrationState> {
+class PartnerRegistrationState extends CollectionQuerierState {
   PartnerRegistrationState({
     required this.registration,
     this.loadingStatus = LoadingStatus.loading,
     this.formStatus = FormzSubmissionStatus.initial,
     this.showPartnerInput = false,
     this.partner = const SelectionInput.pure(),
-    super.collections = const {},
+    this.collections = const [],
   });
 
   final CompetitionRegistration registration;
 
+  @override
   final LoadingStatus loadingStatus;
   final FormzSubmissionStatus formStatus;
   final bool showPartnerInput;
   final SelectionInput<Player> partner;
+
+  @override
+  final List<List<Model>> collections;
 
   PartnerRegistrationState copyWith({
     CompetitionRegistration? registration,
@@ -29,7 +32,7 @@ class PartnerRegistrationState
     FormzSubmissionStatus? formStatus,
     bool? showPartnerInput,
     SelectionInput<Player>? partner,
-    Map<Type, List<Model>>? collections,
+    List<List<Model>>? collections,
   }) =>
       PartnerRegistrationState(
         registration: registration ?? this.registration,

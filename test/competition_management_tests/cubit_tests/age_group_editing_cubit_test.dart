@@ -101,17 +101,15 @@ void main() {
         HasAgeGroupAge('15'),
         HasFormStatus(FormzSubmissionStatus.inProgress),
         HasFormStatus(FormzSubmissionStatus.success),
-        HasLoadingStatus(LoadingStatus.loading),
         HasLoadingStatus(LoadingStatus.done),
         HasSelectedAgeGroupType(AgeGroupType.under),
         HasAgeGroupAge('25'),
         HasFormStatus(FormzSubmissionStatus.inProgress),
         HasFormStatus(FormzSubmissionStatus.success),
-        HasLoadingStatus(LoadingStatus.loading),
         HasLoadingStatus(LoadingStatus.done),
       ],
-      verify: (_) async {
-        List<AgeGroup> collection = await ageGroupRepository.getList();
+      verify: (_) {
+        List<AgeGroup> collection = ageGroupRepository.getList();
         expect(
           collection,
           containsAll([
@@ -158,11 +156,10 @@ void main() {
     expect: () => [
       HasFormStatus(FormzSubmissionStatus.inProgress),
       HasFormStatus(FormzSubmissionStatus.success),
-      HasLoadingStatus(LoadingStatus.loading),
       HasLoadingStatus(LoadingStatus.done),
     ],
-    verify: (cubit) async {
-      List<AgeGroup> collection = await ageGroupRepository.getList();
+    verify: (cubit) {
+      List<AgeGroup> collection = ageGroupRepository.getList();
       expect(collection, hasLength(1));
       expect(collection, isNot(contains(ageGroups[0])));
     },

@@ -1,21 +1,24 @@
 part of 'unique_competition_filter_cubit.dart';
 
-class UniqueCompetitionFilterState
-    extends CollectionFetcherState<UniqueCompetitionFilterState> {
+class UniqueCompetitionFilterState extends CollectionQuerierState {
   UniqueCompetitionFilterState({
     this.loadingStatus = LoadingStatus.loading,
     this.competition = const SelectionInput.pure(value: null),
-    super.collections = const {},
+    this.collections = const [],
   });
 
+  @override
   final LoadingStatus loadingStatus;
 
   final SelectionInput<Competition> competition;
 
+  @override
+  final List<List<Model>> collections;
+
   UniqueCompetitionFilterState copyWith({
     LoadingStatus? loadingStatus,
     SelectionInput<Competition>? competition,
-    Map<Type, List<Model>>? collections,
+    List<List<Model>>? collections,
   }) {
     return UniqueCompetitionFilterState(
       loadingStatus: loadingStatus ?? this.loadingStatus,

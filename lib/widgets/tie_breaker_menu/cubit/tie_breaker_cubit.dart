@@ -104,4 +104,8 @@ class TieBreakerCubit extends CollectionQuerierCubit<TieBreakerState> {
 
     return existingTieBreaker;
   }
+
+  @override
+  void onCollectionUpdate(List<List<Model>> collections,
+      List<CollectionUpdateEvent<Model>> updateEvents) {}
 }

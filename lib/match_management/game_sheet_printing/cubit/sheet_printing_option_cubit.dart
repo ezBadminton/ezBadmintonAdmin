@@ -7,7 +7,7 @@ import 'package:formz/formz.dart';
 part 'sheet_printing_option_state.dart';
 
 class SheetPrintingOptionCubit
-    extends CollectionFetcherCubit<SheetPrintingOptionState> {
+    extends CollectionQuerierCubit<SheetPrintingOptionState> {
   SheetPrintingOptionCubit({
     required CollectionRepository<Tournament> tournamentRepository,
   })  : drawerController = CrossFadeDrawerController(false),
@@ -16,31 +16,21 @@ class SheetPrintingOptionCubit
             tournamentRepository,
           ],
           SheetPrintingOptionState(),
-        ) {
-    loadCollections();
-    subscribeToCollectionUpdates(
-      tournamentRepository,
-      (_) => loadCollections(),
-    );
-  }
+        );
 
   final CrossFadeDrawerController drawerController;
 
-  void loadCollections() {
-    if (state.loadingStatus != LoadingStatus.loading) {
-      emit(state.copyWith(loadingStatus: LoadingStatus.loading));
-    }
-    fetchCollectionsAndUpdateState(
-      [
-        collectionFetcher<Tournament>(),
-      ],
-      onSuccess: (updatedState) {
-        emit(updatedState.copyWith(loadingStatus: LoadingStatus.done));
-      },
-      onFailure: () {
-        emit(state.copyWith(loadingStatus: LoadingStatus.failed));
-      },
+  @override
+  void onCollectionUpdate(
+    List<List<Model>> collections,
+    List<CollectionUpdateEvent<Model>> updateEvents,
+  ) {
+    SheetPrintingOptionState updatedState = state.copyWith(
+      collections: collections,
+      loadingStatus: LoadingStatus.done,
     );
+
+    emit(updatedState);
   }
 
   void dontReprintGameSheetsChanged(bool dontReprintGameSheets) {

@@ -1,21 +1,24 @@
 part of 'competition_selection_cubit.dart';
 
-class CompetitionSelectionState
-    extends CollectionFetcherState<CompetitionSelectionState> {
+class CompetitionSelectionState extends CollectionQuerierState {
   CompetitionSelectionState({
     this.loadingStatus = LoadingStatus.loading,
     this.selectedCompetition = const SelectionInput.pure(value: null),
-    super.collections = const {},
+    this.collections = const [],
   });
 
+  @override
   final LoadingStatus loadingStatus;
 
   final SelectionInput<Competition> selectedCompetition;
 
+  @override
+  final List<List<Model>> collections;
+
   CompetitionSelectionState copyWith({
     LoadingStatus? loadingStatus,
     SelectionInput<Competition>? selectedCompetition,
-    Map<Type, List<Model>>? collections,
+    List<List<Model>>? collections,
   }) {
     return CompetitionSelectionState(
       loadingStatus: loadingStatus ?? this.loadingStatus,

@@ -6,7 +6,7 @@ import 'package:formz/formz.dart';
 part 'match_queue_settings_state.dart';
 
 class MatchQueueSettingsCubit
-    extends CollectionFetcherCubit<MatchQueueSettingsState> {
+    extends CollectionQuerierCubit<MatchQueueSettingsState> {
   MatchQueueSettingsCubit({
     required CollectionRepository<Tournament> tournamentRepository,
   }) : super(
@@ -14,29 +14,19 @@ class MatchQueueSettingsCubit
             tournamentRepository,
           ],
           MatchQueueSettingsState(),
-        ) {
-    loadCollections();
-    subscribeToCollectionUpdates(
-      tournamentRepository,
-      (_) => loadCollections(),
-    );
-  }
+        );
 
-  void loadCollections() {
-    if (state.loadingStatus != LoadingStatus.loading) {
-      emit(state.copyWith(loadingStatus: LoadingStatus.loading));
-    }
-    fetchCollectionsAndUpdateState(
-      [
-        collectionFetcher<Tournament>(),
-      ],
-      onSuccess: (updatedState) {
-        emit(updatedState.copyWith(loadingStatus: LoadingStatus.done));
-      },
-      onFailure: () {
-        emit(state.copyWith(loadingStatus: LoadingStatus.failed));
-      },
+  @override
+  void onCollectionUpdate(
+    List<List<Model>> collections,
+    List<CollectionUpdateEvent<Model>> updateEvents,
+  ) {
+    MatchQueueSettingsState updatedState = state.copyWith(
+      collections: collections,
+      loadingStatus: LoadingStatus.done,
     );
+
+    emit(updatedState);
   }
 
   void playerRestTimeChanged(String playerRestTime) async {

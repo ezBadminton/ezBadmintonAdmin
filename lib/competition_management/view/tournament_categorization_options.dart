@@ -35,10 +35,7 @@ class TournamentCategorizationOptions extends StatelessWidget {
                 CompetitionCategorizationState, bool>(
               builder: (context, _, mergeType) {
                 String categorization =
-                    switch (mergeType as CategoryMergeType) {
-                  CategoryMergeType.ageGroupMerge => l10n.ageGroup(2),
-                  CategoryMergeType.playingLevelMerge => l10n.playingLevel(2),
-                };
+                    _getCategorizationName(mergeType as Type, l10n);
                 return ConfirmDialog(
                   title: Text(l10n.disableCategorization(categorization)),
                   content: SizedBox(
@@ -49,12 +46,79 @@ class TournamentCategorizationOptions extends StatelessWidget {
                   cancelButtonLabel: l10n.cancel,
                 );
               },
-              child: const _CategorizationSwitches(),
+              child: DialogListener<CompetitionCategorizationCubit,
+                  CompetitionCategorizationState, Exception>(
+                builder: (context, _, type) {
+                  String categorization = _getCategorizationName(
+                    type as Type,
+                    l10n,
+                  );
+                  String category = _getCategorizationName(
+                    type,
+                    l10n,
+                    plural: false,
+                  );
+                  return AlertDialog(
+                    title: Text(l10n.noneOf(categorization)),
+                    content: SizedBox(
+                      width: 500,
+                      child: Text(
+                          l10n.noCategoryWarning(categorization, category)),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context, null);
+                          showDialog(
+                            context: context,
+                            useRootNavigator: false,
+                            builder: (context) => _getEditingPopup(type),
+                          );
+                        },
+                        child: Text(l10n.editSubject(categorization)),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, null),
+                        child: Text(l10n.close),
+                      ),
+                    ],
+                  );
+                },
+                child: const _CategorizationSwitches(),
+              ),
             );
           },
         );
       },
     );
+  }
+
+  String _getCategorizationName(
+    Type categorization,
+    AppLocalizations l10n, {
+    bool plural = true,
+  }) {
+    assert(categorization == AgeGroup || categorization == PlayingLevel);
+
+    int num = plural ? 2 : 1;
+
+    String categorizationName = switch (categorization) {
+      AgeGroup => l10n.ageGroup(num),
+      PlayingLevel => l10n.playingLevel(num),
+      _ => throw Exception("Unknown Categorization")
+    };
+
+    return categorizationName;
+  }
+
+  Widget _getEditingPopup(Type categorization) {
+    assert(categorization == AgeGroup || categorization == PlayingLevel);
+
+    return switch (categorization) {
+      AgeGroup => const AgeGroupEditingPopup(),
+      PlayingLevel => const PlayingLevelEditingPopup(),
+      _ => throw Exception("Unknown Categorization")
+    };
   }
 }
 
@@ -67,8 +131,6 @@ class _CategorizationSwitches extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
     return BlocBuilder<CompetitionCategorizationCubit,
         CompetitionCategorizationState>(
-      buildWhen: (previous, current) =>
-          previous.formStatus != current.formStatus,
       builder: (context, state) {
         bool areNoCompetitionsRunning =
             state.getCollection<Competition>().firstWhereOrNull(

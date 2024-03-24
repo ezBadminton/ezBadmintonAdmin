@@ -1,29 +1,19 @@
 part of 'playing_level_editing_cubit.dart';
 
-class PlayingLevelEditingState
-    extends CollectionFetcherState<PlayingLevelEditingState>
+class PlayingLevelEditingState extends CollectionQuerierState
     implements DialogState {
   PlayingLevelEditingState({
     this.playingLevelName = const NonEmptyInput.pure(),
     this.displayPlayingLevels = const [],
     this.loadingStatus = LoadingStatus.loading,
     this.formStatus = FormzSubmissionStatus.initial,
+    this.formInteractable = false,
+    this.formSubmittable = false,
     this.renamingPlayingLevel = const SelectionInput.dirty(),
     this.playingLevelRename = const NonEmptyInput.pure(),
     this.dialog = const CubitDialog(),
-    super.collections = const {},
-  })  : formInteractable = _isFormInteractable(
-          loadingStatus,
-          formStatus,
-          renamingPlayingLevel.value,
-        ),
-        formSubmittable = _isFormSubmittable(
-          loadingStatus,
-          formStatus,
-          renamingPlayingLevel.value,
-          playingLevelName,
-          (collections[PlayingLevel] as List<PlayingLevel>?) ?? [],
-        );
+    this.collections = const [],
+  });
 
   final NonEmptyInput playingLevelName;
 
@@ -31,6 +21,7 @@ class PlayingLevelEditingState
   // before the collection has actually updated
   final List<PlayingLevel> displayPlayingLevels;
 
+  @override
   final LoadingStatus loadingStatus;
   final FormzSubmissionStatus formStatus;
 
@@ -43,56 +34,31 @@ class PlayingLevelEditingState
   @override
   final CubitDialog dialog;
 
+  @override
+  final List<List<Model>> collections;
+
   PlayingLevelEditingState copyWith({
     NonEmptyInput? playingLevelName,
     List<PlayingLevel>? displayPlayingLevels,
     LoadingStatus? loadingStatus,
     FormzSubmissionStatus? formStatus,
+    bool? formInteractable,
+    bool? formSubmittable,
     SelectionInput<PlayingLevel>? renamingPlayingLevel,
     NonEmptyInput? playingLevelRename,
     CubitDialog? dialog,
-    Map<Type, List<Model>>? collections,
+    List<List<Model>>? collections,
   }) =>
       PlayingLevelEditingState(
         playingLevelName: playingLevelName ?? this.playingLevelName,
         displayPlayingLevels: displayPlayingLevels ?? this.displayPlayingLevels,
         loadingStatus: loadingStatus ?? this.loadingStatus,
         formStatus: formStatus ?? this.formStatus,
+        formInteractable: formInteractable ?? this.formInteractable,
+        formSubmittable: formSubmittable ?? this.formSubmittable,
         renamingPlayingLevel: renamingPlayingLevel ?? this.renamingPlayingLevel,
         playingLevelRename: playingLevelRename ?? this.playingLevelRename,
         dialog: dialog ?? this.dialog,
         collections: collections ?? this.collections,
       );
-
-  static bool _isFormInteractable(
-    LoadingStatus loadingStatus,
-    FormzSubmissionStatus formStatus,
-    PlayingLevel? renamingPlayingLevel,
-  ) {
-    return loadingStatus == LoadingStatus.done &&
-        formStatus != FormzSubmissionStatus.inProgress &&
-        renamingPlayingLevel == null;
-  }
-
-  static bool _isFormSubmittable(
-    LoadingStatus loadingStatus,
-    FormzSubmissionStatus formStatus,
-    PlayingLevel? renamingPlayingLevel,
-    NonEmptyInput playingLevelName,
-    List<PlayingLevel> playingLevelCollection,
-  ) {
-    if (!_isFormInteractable(loadingStatus, formStatus, renamingPlayingLevel) ||
-        playingLevelName.isNotValid) {
-      return false;
-    }
-
-    PlayingLevel? existingPlayingLevel = playingLevelCollection
-        .where(
-          (level) =>
-              level.name.toLowerCase() == playingLevelName.value.toLowerCase(),
-        )
-        .firstOrNull;
-
-    return existingPlayingLevel == null;
-  }
 }

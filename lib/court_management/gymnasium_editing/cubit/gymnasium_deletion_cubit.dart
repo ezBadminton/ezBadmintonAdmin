@@ -43,11 +43,7 @@ class GymnasiumDeletionCubit
       return;
     }
 
-    List<Court>? courts = await querier.fetchCollection<Court>();
-    if (courts == null) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-      return;
-    }
+    List<Court> courts = querier.getCollection<Court>();
 
     List<Court> courtsOfGym =
         courts.where((c) => c.gymnasium == state.gymnasium).toList();
@@ -61,14 +57,6 @@ class GymnasiumDeletionCubit
       return;
     }
 
-    Iterable<Future<bool>> courtDeletions =
-        courtsOfGym.map((c) => querier.deleteModel(c));
-    List<bool> courtsDeleted = await Future.wait(courtDeletions);
-    if (courtsDeleted.contains(false)) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-      return;
-    }
-
     bool gymDeleted = await querier.deleteModel(state.gymnasium);
     if (!gymDeleted) {
       emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
@@ -77,4 +65,8 @@ class GymnasiumDeletionCubit
 
     emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
   }
+
+  @override
+  void onCollectionUpdate(List<List<Model>> collections,
+      List<CollectionUpdateEvent<Model>> updateEvents) {}
 }

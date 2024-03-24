@@ -96,11 +96,6 @@ class _CourtListPageScaffold extends StatelessWidget {
                       listState.loadingStatus,
                       selectionState.loadingStatus,
                     ]),
-                    retryButtonLabel: l10n.retry,
-                    onRetry: () {
-                      context.read<CourtListCubit>().loadCollections();
-                      context.read<GymnasiumSelectionCubit>().loadCollections();
-                    },
                     builder: (context) => const Row(
                       children: [
                         SizedBox(

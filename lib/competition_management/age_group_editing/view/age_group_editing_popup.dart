@@ -119,7 +119,7 @@ class _AgeGroupList extends StatelessWidget {
                   current.getCollection<AgeGroup>(),
           builder: (context, state) {
             List<AgeGroup> ageGroups =
-                state.collections[AgeGroup] as List<AgeGroup>? ?? [];
+                state.getCollectionOrNull<AgeGroup>() ?? [];
             return SizedBox(
               height: 300,
               child: ImplicitAnimatedList<AgeGroup>(
@@ -226,7 +226,7 @@ class _AgeGroupForm extends StatelessWidget {
     var cubit = context.read<AgeGroupEditingCubit>();
     return BlocConsumer<AgeGroupEditingCubit, AgeGroupEditingState>(
       listenWhen: (previous, current) =>
-          previous.collections.containsKey(AgeGroup) &&
+          previous.hasCollection<AgeGroup>() &&
           previous.getCollection<AgeGroup>().length <
               current.getCollection<AgeGroup>().length,
       listener: (context, state) {

@@ -3,6 +3,7 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/input_models/tournament_mode_settings_input.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
+import 'package:ez_badminton_admin_app/utils/list_extension/list_extension.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
 import 'package:formz/formz.dart';
 
@@ -210,20 +211,25 @@ class TournamentModeAssignmentCubit
   }
 
   void _onCompetitionCollectionUpdate(
-    CollectionUpdateEvent<Competition> event,
+    List<CollectionUpdateEvent<Competition>> events,
   ) {
-    if (state.competitions.contains(event.model)) {
-      List<Competition> newCompetitions = List.of(state.competitions);
+    List<Competition> newCompetitions = List.of(state.competitions);
+
+    for (CollectionUpdateEvent<Competition> event in events) {
       switch (event.updateType) {
         case UpdateType.update:
-          replaceInList(newCompetitions, event.model.id, event.model);
+          newCompetitions.replaceModel(event.model.id, event.model);
         case UpdateType.delete:
-          replaceInList(newCompetitions, event.model.id, null);
+          newCompetitions.replaceModel(event.model.id, null);
         case UpdateType.create:
           break;
       }
-
-      emit(state.copyWith(competitions: newCompetitions));
     }
+
+    emit(state.copyWith(competitions: newCompetitions));
   }
+
+  @override
+  void onCollectionUpdate(List<List<Model>> collections,
+      List<CollectionUpdateEvent<Model>> updateEvents) {}
 }

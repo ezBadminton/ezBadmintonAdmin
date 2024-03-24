@@ -46,103 +46,57 @@ class _AppState extends State<App> {
     _userRepository = UserRepository(
       pocketBaseProvider: _pocketBaseProvider,
     );
-    _tournamentRepository = CachedCollectionRepository(
-      PocketbaseCollectionRepository(
-        modelConstructor: Tournament.fromJson,
-        pocketBaseProvider: _pocketBaseProvider,
-      ),
+    _tournamentRepository = PocketbaseCollectionRepository(
+      modelConstructor: Tournament.fromJson,
+      pocketBaseProvider: _pocketBaseProvider,
     );
-    _playingLevelRepository = CachedCollectionRepository(
-      PocketbaseCollectionRepository(
-        modelConstructor: PlayingLevel.fromJson,
-        pocketBaseProvider: _pocketBaseProvider,
-      ),
+    _playingLevelRepository = PocketbaseCollectionRepository(
+      modelConstructor: PlayingLevel.fromJson,
+      pocketBaseProvider: _pocketBaseProvider,
     );
-    _ageGroupRepository = CachedCollectionRepository(
-      PocketbaseCollectionRepository(
-        modelConstructor: AgeGroup.fromJson,
-        pocketBaseProvider: _pocketBaseProvider,
-      ),
+    _ageGroupRepository = PocketbaseCollectionRepository(
+      modelConstructor: AgeGroup.fromJson,
+      pocketBaseProvider: _pocketBaseProvider,
     );
-    _playerRepository = CachedCollectionRepository(
-      PocketbaseCollectionRepository(
-        modelConstructor: Player.fromJson,
-        pocketBaseProvider: _pocketBaseProvider,
-      ),
+    _playerRepository = PocketbaseCollectionRepository(
+      modelConstructor: Player.fromJson,
+      pocketBaseProvider: _pocketBaseProvider,
     );
-    _teamRepository = CachedCollectionRepository(
-      relationRepositories: [
-        _playerRepository,
-      ],
-      relationUpdateHandler: onTeamRelationUpdate,
-      PocketbaseCollectionRepository(
-        modelConstructor: Team.fromJson,
-        pocketBaseProvider: _pocketBaseProvider,
-      ),
+    _teamRepository = PocketbaseCollectionRepository(
+      modelConstructor: Team.fromJson,
+      pocketBaseProvider: _pocketBaseProvider,
     );
-    _gymnasiumRepository = CachedCollectionRepository(
-      PocketbaseCollectionRepository(
-        modelConstructor: Gymnasium.fromJson,
-        pocketBaseProvider: _pocketBaseProvider,
-      ),
+    _gymnasiumRepository = PocketbaseCollectionRepository(
+      modelConstructor: Gymnasium.fromJson,
+      pocketBaseProvider: _pocketBaseProvider,
     );
-    _courtRepository = CachedCollectionRepository(
-      relationRepositories: [
-        _gymnasiumRepository,
-      ],
-      relationUpdateHandler: onCourtRelationUpdate,
-      PocketbaseCollectionRepository(
-        modelConstructor: Court.fromJson,
-        pocketBaseProvider: _pocketBaseProvider,
-      ),
+    _courtRepository = PocketbaseCollectionRepository(
+      modelConstructor: Court.fromJson,
+      pocketBaseProvider: _pocketBaseProvider,
     );
-    _matchSetRepository = CachedCollectionRepository(
-      PocketbaseCollectionRepository(
-        modelConstructor: MatchSet.fromJson,
-        pocketBaseProvider: _pocketBaseProvider,
-      ),
+    _matchSetRepository = PocketbaseCollectionRepository(
+      modelConstructor: MatchSet.fromJson,
+      pocketBaseProvider: _pocketBaseProvider,
     );
-    _matchDataRepository = CachedCollectionRepository(
-      relationRepositories: [
-        _courtRepository,
-        _matchSetRepository,
-      ],
-      relationUpdateHandler: onMatchDataRelationUpdate,
-      PocketbaseCollectionRepository(
-        modelConstructor: MatchData.fromJson,
-        pocketBaseProvider: _pocketBaseProvider,
-      ),
+    _matchDataRepository = PocketbaseCollectionRepository(
+      modelConstructor: MatchData.fromJson,
+      pocketBaseProvider: _pocketBaseProvider,
     );
-    _tieBreakerRepository = CachedCollectionRepository(
-      PocketbaseCollectionRepository(
-        modelConstructor: TieBreaker.fromJson,
-        pocketBaseProvider: _pocketBaseProvider,
-      ),
+    _tieBreakerRepository = PocketbaseCollectionRepository(
+      modelConstructor: TieBreaker.fromJson,
+      pocketBaseProvider: _pocketBaseProvider,
     );
-    _competitionRepository = CachedCollectionRepository(
-      relationRepositories: [
-        _playingLevelRepository,
-        _teamRepository,
-        _matchDataRepository,
-        _tieBreakerRepository,
-      ],
-      relationUpdateHandler: onCompetitionRelationUpdate,
-      PocketbaseCollectionRepository(
-        modelConstructor: Competition.fromJson,
-        pocketBaseProvider: _pocketBaseProvider,
-      ),
+    _competitionRepository = PocketbaseCollectionRepository(
+      modelConstructor: Competition.fromJson,
+      pocketBaseProvider: _pocketBaseProvider,
     );
-    _clubRepository = CachedCollectionRepository(
-      PocketbaseCollectionRepository(
-        modelConstructor: Club.fromJson,
-        pocketBaseProvider: _pocketBaseProvider,
-      ),
+    _clubRepository = PocketbaseCollectionRepository(
+      modelConstructor: Club.fromJson,
+      pocketBaseProvider: _pocketBaseProvider,
     );
-    _tournamentModeSettingsRepository = CachedCollectionRepository(
-      PocketbaseCollectionRepository(
-        modelConstructor: TournamentModeSettings.fromJson,
-        pocketBaseProvider: _pocketBaseProvider,
-      ),
+    _tournamentModeSettingsRepository = PocketbaseCollectionRepository(
+      modelConstructor: TournamentModeSettings.fromJson,
+      pocketBaseProvider: _pocketBaseProvider,
     );
   }
 

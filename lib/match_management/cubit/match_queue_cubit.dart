@@ -11,7 +11,7 @@ import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dar
 
 part 'match_queue_state.dart';
 
-class MatchQueueCubit extends CollectionFetcherCubit<MatchQueueState>
+class MatchQueueCubit extends CollectionQuerierCubit<MatchQueueState>
     with MatchCourtAssignmentQuery {
   MatchQueueCubit({
     required this.scheduler,
@@ -23,34 +23,23 @@ class MatchQueueCubit extends CollectionFetcherCubit<MatchQueueState>
             matchDataRepository,
           ],
           MatchQueueState(),
-        ) {
-    loadCollections();
-    subscribeToCollectionUpdates(
-      tournamentRepository,
-      (_) => loadCollections(),
-    );
-  }
+        );
 
   final MatchScheduler scheduler;
 
   Timer? _restTimer;
 
-  void loadCollections() {
-    if (state.loadingStatus != LoadingStatus.loading) {
-      emit(state.copyWith(loadingStatus: LoadingStatus.loading));
-    }
-    fetchCollectionsAndUpdateState(
-      [
-        collectionFetcher<Tournament>(),
-      ],
-      onSuccess: (updatedState) {
-        updatedState = updatedState.copyWith(loadingStatus: LoadingStatus.done);
-        _emit(updatedState);
-      },
-      onFailure: () {
-        emit(state.copyWith(loadingStatus: LoadingStatus.failed));
-      },
+  @override
+  void onCollectionUpdate(
+    List<List<Model>> collections,
+    List<CollectionUpdateEvent<Model>> updateEvents,
+  ) {
+    MatchQueueState updatedState = state.copyWith(
+      collections: collections,
+      loadingStatus: LoadingStatus.done,
     );
+
+    _emit(updatedState);
   }
 
   void tournamentChanged(TournamentProgressState progressState) {

@@ -1,7 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
-import 'package:ez_badminton_admin_app/competition_management/utils/competition_queries.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
 import 'package:formz/formz.dart';
 
@@ -9,14 +8,12 @@ part 'competition_deletion_state.dart';
 
 class CompetitionDeletionCubit
     extends CollectionQuerierCubit<CompetitionDeletionState>
-    with DialogCubit<CompetitionDeletionState>, CompetitionDeletionQueries {
+    with DialogCubit<CompetitionDeletionState> {
   CompetitionDeletionCubit({
     required CollectionRepository<Competition> competitionRepository,
-    required CollectionRepository<Team> teamRepository,
   }) : super(
           collectionRepositories: [
             competitionRepository,
-            teamRepository,
           ],
           CompetitionDeletionState(),
         );
@@ -47,7 +44,7 @@ class CompetitionDeletionCubit
     }
 
     bool competitionsDeleted =
-        await deleteCompetitions(state.selectedCompetitions);
+        await querier.deleteModels(state.selectedCompetitions);
     if (!competitionsDeleted) {
       emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
       return;
@@ -68,4 +65,11 @@ class CompetitionDeletionCubit
 
     return areAllCompetitionsNotRunning;
   }
+
+  @override
+  void onCollectionUpdate(
+    List<List<Model>> collections,
+    List<CollectionUpdateEvent<Model>> updateEvents,
+  ) =>
+      {};
 }

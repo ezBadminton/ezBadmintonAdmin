@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:collection_repository/src/utils/model_converter.dart'
     as model_converter;
@@ -24,29 +25,40 @@ class PocketbaseCollectionRepository<M extends Model>
     required PocketBaseProvider pocketBaseProvider,
   })  : _modelConstructor = modelConstructor,
         _pocketBase = pocketBaseProvider.pocketBase,
-        _collectionName = _collectionNames[M]!;
+        _collectionName = _collectionNames[M]!,
+        _expandString = _defaultExpansions[M]?.expandString ?? '' {
+    _fetchCollection();
+    _pocketBase.collection(_collectionName).subscribe(
+          '*',
+          _handleCollectionUpdate,
+          expand: _expandString,
+        );
+  }
+
+  List<M> _collection = [];
+
+  /// The unmodifiable collection is returned by the public [getList] method
+  /// It should be updated every time the [_collection] changes
+  List<M> _unomdifiableCollection = List.unmodifiable([]);
 
   // The pocketbase SDK abstracts all the DB querying
   final PocketBase _pocketBase;
   final String _collectionName;
+  final String _expandString;
+  Timer? _updateDebounce;
+  List<CollectionUpdateEvent<M>> _debouncedEvents = [];
   final M Function(Map<String, dynamic> recordModelMap) _modelConstructor;
 
   @override
-  final StreamController<CollectionUpdateEvent<M>> updateStreamController =
-      StreamController.broadcast();
+  final Completer<void> loadCompleter = Completer();
 
   @override
-  final StreamController<void> updateNotificationStreamController =
-      StreamController.broadcast();
+  final StreamController<List<CollectionUpdateEvent<M>>>
+      updateStreamController = StreamController.broadcast();
 
   @override
-  Stream<CollectionUpdateEvent<M>> get updateStream async* {
+  Stream<List<CollectionUpdateEvent<M>>> get updateStream async* {
     yield* updateStreamController.stream;
-  }
-
-  @override
-  Stream<void> get updateNotificationStream async* {
-    yield* updateNotificationStreamController.stream;
   }
 
   static final Map<Type, ExpansionTree> _defaultExpansions = {
@@ -67,48 +79,102 @@ class PocketbaseCollectionRepository<M extends Model>
       ..expandWith(Player, Player.expandedFields),
   };
 
-  @override
-  Future<M> getModel(String id, {ExpansionTree? expand}) async {
-    var expandString = expandStringFromExpansionTree(expand);
-    RecordModel record;
-    try {
-      record = await _pocketBase
-          .collection(_collectionName)
-          .getOne(id, expand: expandString);
-    } on ClientException catch (e) {
-      throw CollectionQueryException('${e.statusCode}');
-    }
-    M model = _modelConstructor(record.toExpandedJson());
-    return model;
-  }
-
-  @override
-  Future<List<M>> getList({ExpansionTree? expand}) async {
-    var expandString = expandStringFromExpansionTree(expand);
+  void _fetchCollection() async {
     List<RecordModel> records;
     try {
       records = await _pocketBase
           .collection(_collectionName)
-          .getFullList(expand: expandString);
+          .getFullList(expand: _expandString);
     } on ClientException catch (e) {
-      throw CollectionQueryException('${e.statusCode}');
+      loadCompleter.completeError(e);
+      return;
     }
-    List<M> models = records
+
+    _collection = records
         .map<M>((record) => _modelConstructor(record.toExpandedJson()))
         .toList();
-    return models;
+    _unomdifiableCollection = List.unmodifiable(_collection);
+
+    loadCompleter.complete();
+  }
+
+  void _handleCollectionUpdate(RecordSubscriptionEvent realtimeEvent) {
+    if (realtimeEvent.record == null) {
+      return;
+    }
+
+    M? model = _modelConstructor(realtimeEvent.record!.toExpandedJson());
+
+    CollectionUpdateEvent<M> updateEvent = switch (realtimeEvent.action) {
+      "create" => CollectionUpdateEvent.create(model),
+      "update" => CollectionUpdateEvent.update(model),
+      "delete" => CollectionUpdateEvent.delete(model),
+      _ => throw Exception("Unknown realtime event type"),
+    };
+
+    _debouncedEvents.add(updateEvent);
+
+    if (_updateDebounce?.isActive ?? false) {
+      _updateDebounce!.cancel();
+    }
+
+    _updateDebounce = Timer(const Duration(milliseconds: 25), () {
+      _applyCollectionUpdates(_debouncedEvents);
+      emitUpdateEvents(List.unmodifiable(_debouncedEvents));
+      _debouncedEvents = [];
+    });
+  }
+
+  void _applyCollectionUpdates(List<CollectionUpdateEvent<M>> events) {
+    for (CollectionUpdateEvent<M> event in events) {
+      switch (event.updateType) {
+        case UpdateType.create:
+          _collection.add(event.model);
+        case UpdateType.update:
+          _collection
+            ..removeWhere((m) => m.id == event.model.id)
+            ..add(event.model);
+        case UpdateType.delete:
+          _collection.removeWhere((m) => m.id == event.model.id);
+      }
+    }
+
+    _unomdifiableCollection = List.unmodifiable(_collection);
   }
 
   @override
-  Future<M> create(M newModel, {ExpansionTree? expand}) async {
-    var expandString = expandStringFromExpansionTree(expand);
+  M? getModel(String id) {
+    if (!isLoaded) {
+      throw Exception("Can't get model. The repository is not loaded yet.");
+    }
+
+    return _collection.firstWhereOrNull((model) => model.id == id);
+  }
+
+  @override
+  List<M> getList({ExpansionTree? expand}) {
+    if (!isLoaded) {
+      throw Exception(
+        "Can't get model list. The repository is not loaded yet.",
+      );
+    }
+
+    return _unomdifiableCollection;
+  }
+
+  @override
+  Future<M> create(
+    M newModel, {
+    Map<String, dynamic> query = const {},
+  }) async {
     Map<String, dynamic> json = newModel.toCollapsedJson();
     json.clearMetaJsonFields();
     RecordModel created;
     try {
       created = await _pocketBase.collection(_collectionName).create(
             body: json,
-            expand: expandString,
+            expand: _expandString,
+            query: query,
           );
     } on ClientException catch (e) {
       throw CollectionQueryException('${e.statusCode}');
@@ -116,20 +182,14 @@ class PocketbaseCollectionRepository<M extends Model>
     var createdModelFromDB = _modelConstructor(
       created.toExpandedJson(),
     );
-    emitUpdateEvent(
-      CollectionUpdateEvent.create(createdModelFromDB),
-    );
     return createdModelFromDB;
   }
 
   @override
   Future<M> update(
     M updatedModel, {
-    ExpansionTree? expand,
-    bool isMulti = false,
-    bool isFinalMulti = false,
+    Map<String, dynamic> query = const {},
   }) async {
-    var expandString = expandStringFromExpansionTree(expand);
     Map<String, dynamic> json = updatedModel.toCollapsedJson();
     json.clearMetaJsonFields();
     RecordModel updated;
@@ -137,7 +197,8 @@ class PocketbaseCollectionRepository<M extends Model>
       updated = await _pocketBase.collection(_collectionName).update(
             updatedModel.id,
             body: json,
-            expand: expandString,
+            query: query,
+            expand: _expandString,
           );
     } on ClientException catch (e) {
       throw CollectionQueryException('${e.statusCode}');
@@ -145,41 +206,60 @@ class PocketbaseCollectionRepository<M extends Model>
     var updatedModelFromDB = _modelConstructor(
       updated.toExpandedJson(),
     );
-    emitUpdateEvent(CollectionUpdateEvent.update(
-      updatedModelFromDB,
-      isMulti: isMulti,
-      isFinalMulti: isFinalMulti,
-    ));
-    if (!isMulti || isFinalMulti) {
-      emitUpdateNotification();
-    }
     return updatedModelFromDB;
   }
 
   @override
-  Future<void> delete(M deletedModel) async {
+  Future<void> delete(
+    M deletedModel, {
+    Map<String, dynamic> query = const {},
+  }) async {
     try {
-      await _pocketBase.collection(_collectionName).delete(deletedModel.id);
+      await _pocketBase.collection(_collectionName).delete(
+            deletedModel.id,
+            query: query,
+          );
     } on ClientException catch (e) {
       throw CollectionQueryException('${e.statusCode}');
     }
-    emitUpdateEvent(
-      CollectionUpdateEvent.delete(deletedModel),
-    );
   }
 
-  void emitUpdateEvent(CollectionUpdateEvent<M> event) {
-    updateStreamController.add(event);
-  }
-
-  String expandStringFromExpansionTree(ExpansionTree? expand) {
-    expand = expand ?? _defaultExpansions[M];
-    return expand?.expandString ?? '';
+  void emitUpdateEvents(List<CollectionUpdateEvent<M>> events) {
+    updateStreamController.add(events);
   }
 
   @override
   Future<void> dispose() {
+    _pocketBase.collection(_collectionName).unsubscribe('*');
     return updateStreamController.close();
+  }
+
+  @override
+  Future<bool> route({
+    String route = "",
+    String method = "GET",
+    Map<String, dynamic> data = const {},
+    Map<String, dynamic> query = const {},
+  }) async {
+    String slash = "";
+    if (route.isNotEmpty && !route.startsWith('/')) {
+      slash = "/";
+    }
+
+    String fullRoute = "/api/ezbadminton/${_collectionNames[M]!}$slash$route";
+
+    try {
+      await _pocketBase.send(
+        fullRoute,
+        method: method,
+        body: data,
+        query: query,
+      );
+    } on ClientException {
+      return false;
+    }
+
+    return true;
   }
 }
 

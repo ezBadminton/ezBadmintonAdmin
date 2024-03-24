@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/utils/sorting.dart';
@@ -7,7 +8,7 @@ import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dar
 part 'competition_selection_state.dart';
 
 class CompetitionSelectionCubit
-    extends CollectionFetcherCubit<CompetitionSelectionState> {
+    extends CollectionQuerierCubit<CompetitionSelectionState> {
   CompetitionSelectionCubit({
     required CollectionRepository<Competition> competitionRepository,
   }) : super(
@@ -16,29 +17,28 @@ class CompetitionSelectionCubit
           ],
           CompetitionSelectionState(),
         ) {
-    loadCollections();
     subscribeToCollectionUpdates(
       competitionRepository,
       _onCompetitionCollectionUpdate,
     );
   }
 
-  void loadCollections() {
-    if (state.loadingStatus != LoadingStatus.loading) {
-      emit(state.copyWith(loadingStatus: LoadingStatus.loading));
-    }
-    fetchCollectionsAndUpdateState(
-      [
-        collectionFetcher<Competition>(),
-      ],
-      onSuccess: (updatedState) {
-        updatedState = updatedState.copyWithCompetitionSorting();
-        emit(updatedState.copyWith(loadingStatus: LoadingStatus.done));
-      },
-      onFailure: () {
-        emit(state.copyWith(loadingStatus: LoadingStatus.failed));
-      },
+  @override
+  void onCollectionUpdate(
+    List<List<Model>> collections,
+    List<CollectionUpdateEvent<Model>> updateEvents,
+  ) {
+    CompetitionSelectionState updatedState = state.copyWith(
+      collections: collections,
+      loadingStatus: LoadingStatus.done,
     );
+
+    List<Competition> sortedCompetitions =
+        updatedState.getCollection<Competition>().sorted(compareCompetitions);
+
+    updatedState.overrideCollection(sortedCompetitions);
+
+    emit(updatedState);
   }
 
   void competitionToggled(Competition competition) {
@@ -57,24 +57,32 @@ class CompetitionSelectionCubit
   }
 
   void _onCompetitionCollectionUpdate(
-      CollectionUpdateEvent<Competition> event) {
-    if (state.selectedCompetition.value == event.model) {
-      switch (event.updateType) {
-        case UpdateType.update:
-          emit(state.copyWith(
-            selectedCompetition: SelectionInput.dirty(value: event.model),
-          ));
-          break;
-        case UpdateType.delete:
-          emit(state.copyWith(
-            selectedCompetition: const SelectionInput.dirty(value: null),
-          ));
-          break;
-        case UpdateType.create:
-          break;
-      }
+    List<CollectionUpdateEvent<Competition>> events,
+  ) {
+    CollectionUpdateEvent<Competition>? selectionUpdate =
+        events.reversed.firstWhereOrNull(
+      (e) => e.model.id == state.selectedCompetition.value?.id,
+    );
+
+    if (selectionUpdate == null) {
+      return;
     }
 
-    loadCollections();
+    switch (selectionUpdate.updateType) {
+      case UpdateType.update:
+        emit(state.copyWith(
+          selectedCompetition: SelectionInput.dirty(
+            value: selectionUpdate.model,
+          ),
+        ));
+        break;
+      case UpdateType.delete:
+        emit(state.copyWith(
+          selectedCompetition: const SelectionInput.dirty(value: null),
+        ));
+        break;
+      case UpdateType.create:
+        break;
+    }
   }
 }

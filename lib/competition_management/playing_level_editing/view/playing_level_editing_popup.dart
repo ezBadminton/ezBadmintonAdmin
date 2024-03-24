@@ -196,7 +196,7 @@ class _PlayingLevelList extends StatelessWidget {
   }
 
   LoadingStatus _getLoadingStatus(PlayingLevelEditingState state) {
-    if (state.collections[PlayingLevel] != null &&
+    if (state.hasCollection<PlayingLevel>() &&
         state.loadingStatus == LoadingStatus.loading) {
       return LoadingStatus.done;
     }

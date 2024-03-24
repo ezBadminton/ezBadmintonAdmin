@@ -14,11 +14,9 @@ class ResultDeletionCubit extends CollectionQuerierCubit<ResultDeletionState>
     required this.match,
     required this.tournamentProgressGetter,
     required CollectionRepository<MatchData> matchDataRepository,
-    required CollectionRepository<MatchSet> matchSetRepository,
   }) : super(
           collectionRepositories: [
             matchDataRepository,
-            matchSetRepository,
           ],
           ResultDeletionState(),
         );
@@ -49,14 +47,10 @@ class ResultDeletionCubit extends CollectionQuerierCubit<ResultDeletionState>
       return;
     }
 
-    List<MatchSet> sets = match.score!;
-
-    bool setsDeleted = await querier.deleteModels(sets);
-    if (!setsDeleted) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-      return;
-    }
-
     emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
   }
+
+  @override
+  void onCollectionUpdate(List<List<Model>> collections,
+      List<CollectionUpdateEvent<Model>> updateEvents) {}
 }

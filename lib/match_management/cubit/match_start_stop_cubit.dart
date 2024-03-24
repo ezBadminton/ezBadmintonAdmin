@@ -106,4 +106,8 @@ class MatchStartStopCubit extends CollectionQuerierCubit<MatchStartStopState>
 
     emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
   }
+
+  @override
+  void onCollectionUpdate(List<List<Model>> collections,
+      List<CollectionUpdateEvent<Model>> updateEvents) {}
 }

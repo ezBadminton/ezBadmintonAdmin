@@ -60,7 +60,6 @@ class ResultInputDialog extends StatelessWidget {
             tournamentProgressGetter: () => tournamentProgressCubit.state,
             matchDataRepository:
                 context.read<CollectionRepository<MatchData>>(),
-            matchSetRepository: context.read<CollectionRepository<MatchSet>>(),
           ),
         ),
       ],

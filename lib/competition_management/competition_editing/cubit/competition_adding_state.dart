@@ -1,7 +1,6 @@
 part of 'competition_adding_cubit.dart';
 
-class CompetitionAddingState
-    extends CollectionFetcherState<CompetitionAddingState> {
+class CompetitionAddingState extends CollectionQuerierState {
   CompetitionAddingState({
     this.loadingStatus = LoadingStatus.loading,
     this.formStatus = FormzSubmissionStatus.initial,
@@ -11,14 +10,11 @@ class CompetitionAddingState
     this.disabledAgeGroups = const {},
     this.disabledPlayingLevels = const {},
     this.disabledCompetitionDisciplines = const {},
-    super.collections = const {},
-  }) : submittable = _isSubmittable(
-          collections[Tournament]?.first as Tournament?,
-          ageGroups,
-          playingLevels,
-          competitionDisciplines,
-        );
+    this.formSubmittable = false,
+    this.collections = const [],
+  });
 
+  @override
   final LoadingStatus loadingStatus;
   final FormzSubmissionStatus formStatus;
 
@@ -30,7 +26,10 @@ class CompetitionAddingState
   final Set<PlayingLevel> disabledPlayingLevels;
   final Set<CompetitionDiscipline> disabledCompetitionDisciplines;
 
-  final bool submittable;
+  final bool formSubmittable;
+
+  @override
+  final List<List<Model>> collections;
 
   CompetitionAddingState copyWith({
     LoadingStatus? loadingStatus,
@@ -41,7 +40,8 @@ class CompetitionAddingState
     Set<AgeGroup>? disabledAgeGroups,
     Set<PlayingLevel>? disabledPlayingLevels,
     Set<CompetitionDiscipline>? disabledCompetitionDisciplines,
-    Map<Type, List<Model>>? collections,
+    bool? formSubmittable,
+    List<List<Model>>? collections,
   }) {
     return CompetitionAddingState(
       loadingStatus: loadingStatus ?? this.loadingStatus,
@@ -55,24 +55,8 @@ class CompetitionAddingState
           disabledPlayingLevels ?? this.disabledPlayingLevels,
       disabledCompetitionDisciplines:
           disabledCompetitionDisciplines ?? this.disabledCompetitionDisciplines,
+      formSubmittable: formSubmittable ?? this.formSubmittable,
       collections: collections ?? this.collections,
     );
-  }
-
-  static bool _isSubmittable(
-    Tournament? tournament,
-    List<AgeGroup> ageGroups,
-    List<PlayingLevel> playingLevels,
-    List<CompetitionDiscipline> competitionDisciplines,
-  ) {
-    if (tournament == null) {
-      return false;
-    }
-    bool useAgeGroups = tournament.useAgeGroups;
-    bool usePlayingLevels = tournament.usePlayingLevels;
-
-    return useAgeGroups == ageGroups.isNotEmpty &&
-        usePlayingLevels == playingLevels.isNotEmpty &&
-        competitionDisciplines.isNotEmpty;
   }
 }

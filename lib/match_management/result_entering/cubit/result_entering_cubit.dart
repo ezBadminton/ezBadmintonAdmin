@@ -64,33 +64,22 @@ class ResultEnteringCubit extends CollectionQuerierCubit<ResultEnteringState> {
       (setIndex) => getSetResult(setIndex),
     ).where((setResult) => _isSetResultComplete(setResult)).toList().cast();
 
-    List<MatchSet> sets = setResults
-        .map((result) => MatchSet.newMatchSet(
-              team1Points: result.$1,
-              team2Points: result.$2,
-            ))
-        .toList();
+    List<int> flatSetResults = setResults.expand((r) => [r.$1, r.$2]).toList();
 
-    List<MatchSet?> createdSets = await querier.createModels(sets);
-    if (createdSets.contains(null)) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-      return;
-    }
+    Map<String, dynamic> queryParams = {
+      "match": match.matchData!.id,
+      "endTime": DateTime.now().toUtc(),
+    };
 
-    sets = createdSets.whereType<MatchSet>().toList();
+    Map<String, List<int>> body = {"results": flatSetResults};
 
-    MatchData matchDataWithSets = match.matchData!.copyWith(
-      sets: sets,
-    );
+    bool setsCreated = await querier.getRepository<MatchSet>().route(
+          method: "PUT",
+          query: queryParams,
+          data: body,
+        );
 
-    if (matchDataWithSets.endTime == null) {
-      matchDataWithSets = matchDataWithSets.copyWith(
-        endTime: DateTime.now().toUtc(),
-      );
-    }
-
-    MatchData? updatedMatchData = await querier.updateModel(matchDataWithSets);
-    if (updatedMatchData == null) {
+    if (!setsCreated) {
       emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
       return;
     }
@@ -323,4 +312,8 @@ class ResultEnteringCubit extends CollectionQuerierCubit<ResultEnteringState> {
 
     return inputControllers;
   }
+
+  @override
+  void onCollectionUpdate(List<List<Model>> collections,
+      List<CollectionUpdateEvent<Model>> updateEvents) {}
 }

@@ -165,20 +165,6 @@ void main() {
     );
 
     blocTest<CompetitionRegistrationCubit, CompetitionRegistrationState>(
-      'goes back to LoadingStatus.loading when calling loadPlayerData()',
-      build: createSut,
-      act: (cubit) async {
-        await Future.delayed(Duration.zero);
-        cubit.loadCollections();
-      },
-      expect: () => [
-        HasLoadingStatus(LoadingStatus.done),
-        HasLoadingStatus(LoadingStatus.loading),
-        HasLoadingStatus(LoadingStatus.done),
-      ],
-    );
-
-    blocTest<CompetitionRegistrationCubit, CompetitionRegistrationState>(
       """emits LoadingStatus.done after loading collections,
       the form steps contain the two mandatory competition parameter steps""",
       build: createSut,

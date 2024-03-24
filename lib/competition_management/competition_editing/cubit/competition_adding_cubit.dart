@@ -11,7 +11,7 @@ import 'package:formz/formz.dart';
 part 'competition_adding_state.dart';
 
 class CompetitionAddingCubit
-    extends CollectionFetcherCubit<CompetitionAddingState> {
+    extends CollectionQuerierCubit<CompetitionAddingState> {
   CompetitionAddingCubit({
     required CollectionRepository<Competition> competitionRepository,
     required CollectionRepository<AgeGroup> ageGroupRepository,
@@ -25,29 +25,32 @@ class CompetitionAddingCubit
             tournamentRepository
           ],
           CompetitionAddingState(),
-        ) {
-    loadCompetitionData();
-  }
+        );
 
-  void loadCompetitionData() {
-    fetchCollectionsAndUpdateState(
-      [
-        collectionFetcher<Competition>(),
-        collectionFetcher<AgeGroup>(),
-        collectionFetcher<PlayingLevel>(),
-        collectionFetcher<Tournament>(),
-      ],
-      onSuccess: (updatedState) {
-        updatedState = updatedState.copyWithAgeGroupSorting();
-        updatedState = updatedState.copyWithPlayingLevelSorting();
-        updatedState = _updateDisabledOptions(updatedState);
+  @override
+  void onCollectionUpdate(
+    List<List<Model>> collections,
+    List<CollectionUpdateEvent<Model>> updateEvents,
+  ) {
+    if (state.formStatus == FormzSubmissionStatus.success) {
+      return;
+    }
 
-        emit(updatedState.copyWith(loadingStatus: LoadingStatus.done));
-      },
-      onFailure: () {
-        emit(state.copyWith(loadingStatus: LoadingStatus.failed));
-      },
+    CompetitionAddingState updatedState = state.copyWith(
+      collections: collections,
+      loadingStatus: LoadingStatus.done,
     );
+
+    List<AgeGroup> sortedAgeGroups =
+        updatedState.getCollection<AgeGroup>().sorted(compareAgeGroups);
+    List<PlayingLevel> sortedPlayingLevels =
+        updatedState.getCollection<PlayingLevel>().sorted(comparePlayingLevels);
+    updatedState.overrideCollection(sortedAgeGroups);
+    updatedState.overrideCollection(sortedPlayingLevels);
+
+    updatedState = _updateDisabledOptions(updatedState);
+
+    _emit(updatedState);
   }
 
   void ageGroupToggled(AgeGroup ageGroup) {
@@ -59,7 +62,7 @@ class CompetitionAddingCubit
     newAgeGroups.sort(compareAgeGroups);
     var newState = state.copyWith(ageGroups: newAgeGroups);
     newState = _updateDisabledOptions(newState);
-    emit(newState);
+    _emit(newState);
   }
 
   void playingLevelToggled(PlayingLevel playingLevel) {
@@ -71,7 +74,7 @@ class CompetitionAddingCubit
     newPlayingLevels.sortBy<num>((lvl) => lvl.index);
     var newState = state.copyWith(playingLevels: newPlayingLevels);
     newState = _updateDisabledOptions(newState);
-    emit(newState);
+    _emit(newState);
   }
 
   void competitionDisciplineToggled(CompetitionDiscipline competitionCategory) {
@@ -85,11 +88,11 @@ class CompetitionAddingCubit
       competitionDisciplines: newCompetitionCategories,
     );
     newState = _unselectDisabledOptions(newState);
-    emit(newState);
+    _emit(newState);
   }
 
   void formSubmitted() async {
-    if (!state.submittable ||
+    if (!state.formSubmittable ||
         state.formStatus == FormzSubmissionStatus.inProgress) {
       return;
     }
@@ -111,17 +114,17 @@ class CompetitionAddingCubit
           ),
     ];
 
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
+    _emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
     for (Competition competition in newCompetitions) {
       Competition? createdCompetition = await querier.createModel(competition);
       if (createdCompetition == null) {
-        emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+        _emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
         return;
       }
     }
 
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+    _emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
   }
 
   static void _optionToggle(List optionList, Object option) {
@@ -359,5 +362,24 @@ class CompetitionAddingCubit
         existingCategories[playingCategory]!,
       );
     }
+  }
+
+  void _emit(CompetitionAddingState state) {
+    bool isSubmittable = _isSubmittable(state);
+
+    emit(state.copyWith(formSubmittable: isSubmittable));
+  }
+
+  static bool _isSubmittable(CompetitionAddingState state) {
+    Tournament? tournament = state.getCollection<Tournament>().firstOrNull;
+    if (tournament == null) {
+      return false;
+    }
+    bool useAgeGroups = tournament.useAgeGroups;
+    bool usePlayingLevels = tournament.usePlayingLevels;
+
+    return useAgeGroups == state.ageGroups.isNotEmpty &&
+        usePlayingLevels == state.playingLevels.isNotEmpty &&
+        state.competitionDisciplines.isNotEmpty;
   }
 }

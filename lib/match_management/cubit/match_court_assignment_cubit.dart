@@ -59,4 +59,8 @@ class MatchCourtAssignmentCubit
 
     emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
   }
+
+  @override
+  void onCollectionUpdate(List<List<Model>> collections,
+      List<CollectionUpdateEvent<Model>> updateEvents) {}
 }

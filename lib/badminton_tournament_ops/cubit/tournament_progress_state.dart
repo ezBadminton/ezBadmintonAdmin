@@ -1,7 +1,6 @@
 part of 'tournament_progress_cubit.dart';
 
-class TournamentProgressState
-    extends CollectionFetcherState<TournamentProgressState> {
+class TournamentProgressState extends CollectionQuerierState {
   TournamentProgressState({
     this.loadingStatus = LoadingStatus.loading,
     this.runningTournaments = const {},
@@ -10,9 +9,10 @@ class TournamentProgressState
     this.playingPlayers = const {},
     this.lastPlayerMatches = const {},
     this.editableMatches = const [],
-    super.collections = const {},
+    this.collections = const [],
   });
 
+  @override
   final LoadingStatus loadingStatus;
 
   final Map<Competition, BadmintonTournamentMode> runningTournaments;
@@ -26,6 +26,9 @@ class TournamentProgressState
 
   final List<BadmintonMatch> editableMatches;
 
+  @override
+  final List<List<Model>> collections;
+
   TournamentProgressState copyWith({
     LoadingStatus? loadingStatus,
     Map<Competition, BadmintonTournamentMode>? runningTournaments,
@@ -34,7 +37,7 @@ class TournamentProgressState
     Map<Player, BadmintonMatch>? playingPlayers,
     Map<Player, DateTime>? lastPlayerMatches,
     List<BadmintonMatch>? editableMatches,
-    Map<Type, List<Model>>? collections,
+    List<List<Model>>? collections,
   }) {
     return TournamentProgressState(
       loadingStatus: loadingStatus ?? this.loadingStatus,
