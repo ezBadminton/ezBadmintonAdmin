@@ -88,11 +88,14 @@ extension DoubleEliminationMatchNames on DoubleEliminationRound {
     bool isInWinnerBracket = winnerRound?.matches.contains(match) ?? false;
 
     if (isInWinnerBracket) {
-      bool isUpperFinal =
-          winnerRound!.roundSize == 2 && this.loserRound != null;
+      bool isFinal = winnerRound!.roundSize == 2;
 
-      if (isUpperFinal) {
-        return l10n.upperFinal;
+      if (isFinal) {
+        if (this.loserRound == null) {
+          return l10n.roundOfN('2'); // Final
+        } else {
+          return l10n.upperFinal;
+        }
       }
 
       return winnerRound!.getEliminationMatchName(l10n, match);
