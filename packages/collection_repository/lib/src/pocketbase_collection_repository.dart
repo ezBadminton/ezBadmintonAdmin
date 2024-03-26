@@ -26,14 +26,7 @@ class PocketbaseCollectionRepository<M extends Model>
   })  : _modelConstructor = modelConstructor,
         _pocketBase = pocketBaseProvider.pocketBase,
         _collectionName = _collectionNames[M]!,
-        _expandString = _defaultExpansions[M]?.expandString ?? '' {
-    _fetchCollection();
-    _pocketBase.collection(_collectionName).subscribe(
-          '*',
-          _handleCollectionUpdate,
-          expand: _expandString,
-        );
-  }
+        _expandString = _defaultExpansions[M]?.expandString ?? '';
 
   List<M> _collection = [];
 
@@ -49,8 +42,10 @@ class PocketbaseCollectionRepository<M extends Model>
   List<CollectionUpdateEvent<M>> _debouncedEvents = [];
   final M Function(Map<String, dynamic> recordModelMap) _modelConstructor;
 
+  Completer<void> _loadCompleter = Completer();
+
   @override
-  final Completer<void> loadCompleter = Completer();
+  Completer<void> get loadCompleter => _loadCompleter;
 
   @override
   final StreamController<List<CollectionUpdateEvent<M>>>
@@ -78,6 +73,21 @@ class PocketbaseCollectionRepository<M extends Model>
       ..expandWith(Team, Team.expandedFields)
       ..expandWith(Player, Player.expandedFields),
   };
+
+  @override
+  void load() {
+    if (_loadCompleter.isCompleted) {
+      _loadCompleter = Completer();
+    }
+
+    _pocketBase.collection(_collectionName).unsubscribe('*');
+    _fetchCollection();
+    _pocketBase.collection(_collectionName).subscribe(
+          '*',
+          _handleCollectionUpdate,
+          expand: _expandString,
+        );
+  }
 
   void _fetchCollection() async {
     List<RecordModel> records;

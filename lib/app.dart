@@ -46,6 +46,7 @@ class _AppState extends State<App> {
     _userRepository = UserRepository(
       pocketBaseProvider: _pocketBaseProvider,
     );
+
     _tournamentRepository = PocketbaseCollectionRepository(
       modelConstructor: Tournament.fromJson,
       pocketBaseProvider: _pocketBaseProvider,
@@ -100,6 +101,22 @@ class _AppState extends State<App> {
     );
   }
 
+  void loadCollections() {
+    _tournamentRepository.load();
+    _playingLevelRepository.load();
+    _ageGroupRepository.load();
+    _playerRepository.load();
+    _gymnasiumRepository.load();
+    _courtRepository.load();
+    _matchSetRepository.load();
+    _matchDataRepository.load();
+    _tieBreakerRepository.load();
+    _competitionRepository.load();
+    _teamRepository.load();
+    _clubRepository.load();
+    _tournamentModeSettingsRepository.load();
+  }
+
   @override
   void dispose() {
     _authenticationRepository.dispose();
@@ -142,7 +159,15 @@ class _AppState extends State<App> {
         create: (_) => AuthenticationBloc(
             authenticationRepository: _authenticationRepository,
             userRepository: _userRepository),
-        child: const AppView(),
+        child: BlocListener<AuthenticationBloc, AuthenticationState>(
+          listenWhen: (previous, current) =>
+              current.status == AuthenticationStatus.authenticated &&
+              previous.status != AuthenticationStatus.authenticated,
+          listener: (context, state) {
+            loadCollections();
+          },
+          child: const AppView(),
+        ),
       ),
     );
   }

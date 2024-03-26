@@ -153,4 +153,7 @@ class TestCollectionRepository<M extends Model>
   }) {
     throw UnimplementedError();
   }
+
+  @override
+  void load() {}
 }

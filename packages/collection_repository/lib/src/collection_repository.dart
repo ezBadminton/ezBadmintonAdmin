@@ -17,6 +17,10 @@ abstract class CollectionRepository<M extends Model> {
   Completer<void> get loadCompleter;
   bool get isLoaded => loadCompleter.isCompleted;
 
+  /// Triggers the initial collection load the should eventually complete
+  /// the [loadCompleter].
+  void load();
+
   /// Returns a single collection member by [id].
   ///
   /// An exception is thrown when this method is called before [isLoaded]
