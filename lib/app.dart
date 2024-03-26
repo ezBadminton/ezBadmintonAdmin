@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:ui';
+
 import 'package:authentication_repository/authentication_repository.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -9,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pocketbase_provider/pocketbase_provider.dart';
 import 'package:user_repository/user_repository.dart';
+import 'package:process_run/shell.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -17,7 +21,10 @@ class App extends StatefulWidget {
   State<App> createState() => _AppState();
 }
 
-class _AppState extends State<App> {
+class _AppState extends State<App> with WidgetsBindingObserver {
+  late final Shell _localServerShell;
+  late final List<Process> _serverProcesses;
+
   late final PocketBaseProvider _pocketBaseProvider;
   late final AuthenticationRepository _authenticationRepository;
   late final UserRepository _userRepository;
@@ -39,6 +46,10 @@ class _AppState extends State<App> {
   @override
   void initState() {
     super.initState();
+
+    runLocalSever();
+    WidgetsBinding.instance.addObserver(this);
+
     _pocketBaseProvider = PocketBaseProvider();
     _authenticationRepository = AuthenticationRepository(
       pocketBaseProvider: _pocketBaseProvider,
@@ -117,6 +128,38 @@ class _AppState extends State<App> {
     _tournamentModeSettingsRepository.load();
   }
 
+  void runLocalSever() {
+    _serverProcesses = [];
+
+    Directory cwd = Directory.current;
+    Directory serverWorkingDir = Directory(
+      "${cwd.path}${Platform.pathSeparator}local_server",
+    );
+
+    if (!serverWorkingDir.existsSync()) {
+      return;
+    }
+
+    _localServerShell = Shell(
+      throwOnError: false,
+      workingDirectory: serverWorkingDir.path,
+    );
+
+    _localServerShell.run(
+      './ezBadmintonServer serve',
+      onProcess: _serverProcesses.add,
+    );
+  }
+
+  @override
+  Future<AppExitResponse> didRequestAppExit() async {
+    for (Process p in _serverProcesses) {
+      p.kill();
+    }
+
+    return AppExitResponse.exit;
+  }
+
   @override
   void dispose() {
     _authenticationRepository.dispose();
@@ -133,6 +176,7 @@ class _AppState extends State<App> {
     _competitionRepository.dispose();
     _clubRepository.dispose();
     _tournamentModeSettingsRepository.dispose();
+
     super.dispose();
   }
 
