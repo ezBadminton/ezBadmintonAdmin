@@ -32,29 +32,9 @@ ezBadminton uses a custom extended [PocketBase](https://pocketbase.io) as its ba
 
 - Download the newest prebuilt server executable from the [releases](https://github.com/ezBadminton/ezBadmintonServer/releases).
 	> **_NOTE:_** You can also compile the server yourself from the [repository](https://github.com/ezBadminton/ezBadmintonServer).
-- Create a directory called `pocketbase` in your working directory place the executable there.
-- Start the service
-    ```console
-    you@yourdevice:~/ez_badminton/pocketbase$ ./ezBadmintonServer serve
-    ```
-    It will create the `pb_data` directory.
-- Stop the service (`Ctrl+C`)
-- Set up your admin access
-    ```console
-	you@yourdevice:~/ez_badminton/pocketbase$ ./ezBadmintonServer admin create test@example.com your-password
-    ```
-	> **_NOTE:_** You can use a fake mail but don't forget your password ^^.
-- Start the service again
-    ```console
-	you@yourdevice:~/ez_badminton/pocketbase$ ./ezBadmintonServer serve
-    ```
-- Open the [pocketbase admin UI](http://127.0.0.1:8090/_/) in your browser and log in
-- Open the [pocketbase settings](http://127.0.0.1:8090/_/#/settings/import-collections) and import the ezBadminton database schema from [pb_schema.json](https://gist.githubusercontent.com/Snonky/1a596069391fb06eb3d916934e8c140b/raw/pb_schema.json).
-  - You should be able to see the collection tables on the [pocketbase home page](http://127.0.0.1:8090/_/) now
-- Select the 'tournament_organizer' user-collection and create a test-user for yourself
-    - Click 'New Record', fill out the form and click 'Create'
-- Select the 'tournaments' collection and create a tournament
-    - Click 'New Record', give it a title and click 'Create'
+- Create a directory called `local_server` in your cloned repository (`ez_badminton/ezBadmintonAdmin`).
+  - Place the server executable at `ez_badminton/ezBadmintonAdmin/local_server` and rename it to `ezBadmintonServer` (with `.exe` on Windows).
+- The client automatically detects the server executable in the `local_server` directory and starts it.
 - The backend is ready! On to the app itself.
 
 ### Building the app
