@@ -9,6 +9,17 @@ import 'package:mocktail/mocktail.dart';
 class MockAuthenticationRepository extends Mock
     implements AuthenticationRepository {}
 
+class HasRegistrationStatus extends CustomMatcher {
+  HasRegistrationStatus(matcher)
+      : super(
+          'State with RegistrationStatus of',
+          'RegistrationStatus',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.registrationStatus;
+}
+
 void main() {
   late LoginBloc sut;
   late MockAuthenticationRepository authenticationRepository;
@@ -27,6 +38,11 @@ void main() {
         throw LoginException('400');
       }
     });
+    when(
+      () => authenticationRepository.isRegistered(),
+    ).thenAnswer((invocation) async {
+      return true;
+    });
     sut = LoginBloc(authenticationRepository: authenticationRepository);
   });
 
@@ -34,19 +50,20 @@ void main() {
     blocTest<LoginBloc, LoginState>(
       'emits validated password and unsername on change events.',
       build: () => sut,
-      act: (bloc) {
+      act: (bloc) async {
+        await Future.delayed(const Duration(milliseconds: 2));
         bloc.add(const LoginUsernameChanged('adim'));
         bloc.add(const LoginPasswordChanged('mypass'));
       },
-      expect: () => const <LoginState>[
-        LoginState(
-          username: NonEmptyInput.dirty('adim'),
-          validated: false,
+      expect: () => [
+        const LoginState(
+          username: NonEmptyInput.dirty(value: 'adim'),
+          registrationStatus: RegistrationStatus.registered,
         ),
-        LoginState(
-          username: NonEmptyInput.dirty('adim'),
-          password: NonEmptyInput.dirty('mypass'),
-          validated: true,
+        const LoginState(
+          username: NonEmptyInput.dirty(value: 'adim'),
+          password: NonEmptyInput.dirty(value: 'mypass'),
+          registrationStatus: RegistrationStatus.registered,
         ),
       ],
     );
@@ -71,9 +88,9 @@ void main() {
     );
 
     const wrongCredentialState = LoginState(
-      username: NonEmptyInput.dirty('username'),
-      password: NonEmptyInput.dirty('wrongPassword'),
-      validated: true,
+      username: NonEmptyInput.dirty(value: 'username'),
+      password: NonEmptyInput.dirty(value: 'wrongPassword'),
+      registrationStatus: RegistrationStatus.registered,
     );
     final wrongCredentialsSubmittedState = wrongCredentialState.copyWith(
       showValidationErrors: true,
@@ -90,18 +107,23 @@ void main() {
       when login fails""",
       build: () => sut,
       seed: () => wrongCredentialState,
-      act: (bloc) => bloc.add(const LoginSubmitted()),
-      expect: () => <LoginState>[
+      act: (bloc) async {
+        await Future.delayed(const Duration(milliseconds: 2));
+        bloc.add(const LoginSubmitted());
+      },
+      expect: () => [
         wrongCredentialsSubmittedState,
         loadingFailureState,
+        HasRegistrationStatus(RegistrationStatus.registered),
+        HasRegistrationStatus(RegistrationStatus.unknown),
         failureState,
       ],
     );
 
     const correctCredentialState = LoginState(
-      username: NonEmptyInput.dirty('test'),
-      password: NonEmptyInput.dirty('12345'),
-      validated: true,
+      username: NonEmptyInput.dirty(value: 'test'),
+      password: NonEmptyInput.dirty(value: '12345'),
+      registrationStatus: RegistrationStatus.registered,
     );
     final correctCredentialsSubmittedState = correctCredentialState.copyWith(
       showValidationErrors: true,
@@ -116,11 +138,17 @@ void main() {
       'Emits FormzSubmissionStatus.success when login succeeds',
       build: () => sut,
       seed: () => correctCredentialState,
-      act: (bloc) => bloc.add(const LoginSubmitted()),
-      expect: () => <LoginState>[
+      act: (bloc) async {
+        await Future.delayed(const Duration(milliseconds: 20));
+
+        bloc.add(const LoginSubmitted());
+      },
+      expect: () => [
         correctCredentialsSubmittedState,
         loadingSuccessState,
         successState,
+        HasRegistrationStatus(RegistrationStatus.unknown),
+        HasRegistrationStatus(RegistrationStatus.registered),
       ],
     );
 

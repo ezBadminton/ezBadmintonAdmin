@@ -44,8 +44,8 @@ class PlayerEditingState extends CollectionQuerierState with FormzMixin {
   }) =>
       copyWith(
         player: player,
-        firstName: NonEmptyInput.pure(player.firstName),
-        lastName: NonEmptyInput.pure(player.lastName),
+        firstName: NonEmptyInput.pure(value: player.firstName),
+        lastName: NonEmptyInput.pure(value: player.lastName),
         clubName: NoValidationInput.pure(player.club?.name ?? ''),
         notes: NoValidationInput.pure(player.notes ?? ''),
       );

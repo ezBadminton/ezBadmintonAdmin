@@ -25,12 +25,12 @@ class CourtRenamingCubit extends CollectionQuerierCubit<CourtRenamingState> {
   void formOpened() {
     emit(state.copyWith(
       isFormOpen: true,
-      name: NonEmptyInput.pure(state.court.name),
+      name: NonEmptyInput.pure(value: state.court.name),
     ));
   }
 
   void nameChanged(String name) {
-    emit(state.copyWith(name: NonEmptyInput.dirty(name)));
+    emit(state.copyWith(name: NonEmptyInput.dirty(value: name)));
   }
 
   void formSubmitted() async {

@@ -58,7 +58,7 @@ class PlayingLevelEditingCubit
 
   void playingLevelNameChanged(String playingLevelName) {
     _emit(state.copyWith(
-      playingLevelName: NonEmptyInput.dirty(playingLevelName),
+      playingLevelName: NonEmptyInput.dirty(value: playingLevelName),
     ));
   }
 
@@ -235,7 +235,7 @@ class PlayingLevelEditingCubit
     assert(state.renamingPlayingLevel.value == null);
     _emit(state.copyWith(
       renamingPlayingLevel: SelectionInput.dirty(value: playingLevel),
-      playingLevelRename: NonEmptyInput.pure(playingLevel.name),
+      playingLevelRename: NonEmptyInput.pure(value: playingLevel.name),
     ));
   }
 
@@ -253,7 +253,7 @@ class PlayingLevelEditingCubit
 
   void playingLevelRenameChanged(String name) {
     assert(state.renamingPlayingLevel.value != null);
-    _emit(state.copyWith(playingLevelRename: NonEmptyInput.dirty(name)));
+    _emit(state.copyWith(playingLevelRename: NonEmptyInput.dirty(value: name)));
   }
 
   void _submitRename() async {

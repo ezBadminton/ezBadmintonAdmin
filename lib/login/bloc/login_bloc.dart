@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:authentication_repository/authentication_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:ez_badminton_admin_app/input_models/equal_input.dart';
 import 'package:ez_badminton_admin_app/input_models/non_empty.dart';
 import 'package:formz/formz.dart';
 
@@ -16,32 +17,73 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         super(const LoginState()) {
     on<LoginUsernameChanged>(_onUsernameChanged);
     on<LoginPasswordChanged>(_onPasswordChanged);
+    on<LoginPasswordConfirmationChanged>(_onPasswordConfirmationChanged);
     on<LoginSubmitted>(_onSubmitted);
     on<LoginFailureDismissed>(_onLoginFailureDismissed);
+    on<RegistrationStatusChanged>(_onRegistrationStatusChanged);
+
+    _fetchRegistrationStatus();
   }
 
   final AuthenticationRepository _authenticationRepository;
+
+  void _fetchRegistrationStatus() async {
+    add(const RegistrationStatusChanged(RegistrationStatus.unknown));
+
+    bool isRegistered = await _authenticationRepository.isRegistered();
+
+    if (isRegistered) {
+      add(const RegistrationStatusChanged(RegistrationStatus.registered));
+    } else {
+      add(const RegistrationStatusChanged(RegistrationStatus.notRegistered));
+    }
+  }
+
+  void _onRegistrationStatusChanged(
+    RegistrationStatusChanged event,
+    Emitter<LoginState> emit,
+  ) {
+    emit(state.copyWith(registrationStatus: event.registrationStatus));
+  }
 
   void _onUsernameChanged(
     LoginUsernameChanged event,
     Emitter<LoginState> emit,
   ) {
-    final username = NonEmptyInput.dirty(event.username);
-    emit(state.copyWith(
-      username: username,
-      validated: Formz.validate([state.password, username]),
-    ));
+    final username = NonEmptyInput.dirty(value: event.username);
+    emit(state.copyWith(username: username));
   }
 
   void _onPasswordChanged(
     LoginPasswordChanged event,
     Emitter<LoginState> emit,
   ) {
-    final password = NonEmptyInput.dirty(event.password);
+    final password = state.password.copyWith(event.password);
+
+    EqualInput passwordConfirmation = state.passwordConfirmation;
+    if (state.registrationStatus == RegistrationStatus.notRegistered) {
+      passwordConfirmation = EqualInput.dirty(
+        event.password,
+        state.passwordConfirmation.value,
+      );
+    }
+
     emit(state.copyWith(
       password: password,
-      validated: Formz.validate([password, state.username]),
+      passwordConfirmation: passwordConfirmation,
     ));
+  }
+
+  void _onPasswordConfirmationChanged(
+    LoginPasswordConfirmationChanged event,
+    Emitter<LoginState> emit,
+  ) {
+    final passwordConfirmation = EqualInput.dirty(
+      state.password.value,
+      event.passwordConfirmation,
+    );
+
+    emit(state.copyWith(passwordConfirmation: passwordConfirmation));
   }
 
   Future<void> _onSubmitted(
@@ -49,20 +91,35 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     Emitter<LoginState> emit,
   ) async {
     emit(state.copyWith(showValidationErrors: true));
-    if (state.validated) {
-      emit(state.copyWith(status: FormzSubmissionStatus.inProgress));
-      try {
+
+    if (!state.isValid) {
+      return;
+    }
+
+    emit(state.copyWith(status: FormzSubmissionStatus.inProgress));
+    try {
+      if (state.registrationStatus == RegistrationStatus.registered) {
         await _authenticationRepository.logIn(
           username: state.username.value,
           password: state.password.value,
         );
-        emit(state.copyWith(status: FormzSubmissionStatus.success));
-      } on LoginException catch (e) {
-        emit(state.copyWith(
-          status: FormzSubmissionStatus.failure,
-          loginStatusCode: e.statusCode,
-        ));
+      } else if (state.registrationStatus == RegistrationStatus.notRegistered) {
+        await _authenticationRepository.signUp(
+          username: state.username.value,
+          password: state.password.value,
+        );
+      } else {
+        throw LoginException("Can't submit with unknown registration status");
       }
+      _fetchRegistrationStatus();
+
+      emit(state.copyWith(status: FormzSubmissionStatus.success));
+    } on LoginException catch (e) {
+      emit(state.copyWith(
+        status: FormzSubmissionStatus.failure,
+        loginStatusCode: e.statusCode,
+      ));
+      _fetchRegistrationStatus();
     }
   }
 

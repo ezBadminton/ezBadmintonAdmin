@@ -1,3 +1,4 @@
+import 'package:ez_badminton_admin_app/input_models/models.dart';
 import 'package:ez_badminton_admin_app/login/bloc/login_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,9 @@ class LoginForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<LoginBloc, LoginState>(
+    var l10n = AppLocalizations.of(context)!;
+
+    return BlocConsumer<LoginBloc, LoginState>(
       listener: (context, state) {
         if (state.status.isFailure) {
           ScaffoldMessenger.of(context)
@@ -23,19 +26,47 @@ class LoginForm extends StatelessWidget {
           context.read<LoginBloc>().add(const LoginFailureDismissed());
         }
       },
-      child: Align(
-        alignment: const Alignment(0, -1 / 3),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _UsernameInput(),
-            const Padding(padding: EdgeInsets.all(12)),
-            _PasswordInput(),
-            const Padding(padding: EdgeInsets.all(12)),
-            _LoginButton(),
-          ],
-        ),
-      ),
+      builder: (context, state) {
+        if (state.registrationStatus == RegistrationStatus.unknown) {
+          return const SizedBox();
+        }
+
+        String formTitle =
+            state.registrationStatus == RegistrationStatus.registered
+                ? l10n.login
+                : l10n.signUp;
+
+        return Align(
+          alignment: const Alignment(0, -1 / 4),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 700),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  formTitle,
+                  style: const TextStyle(
+                    fontSize: 28,
+                    letterSpacing: 3.0,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 60),
+                _UsernameInput(),
+                const SizedBox(height: 24),
+                _PasswordInput(),
+                const SizedBox(height: 24),
+                if (state.registrationStatus ==
+                    RegistrationStatus.notRegistered) ...[
+                  _PasswordConfirmationInput(),
+                  const SizedBox(height: 24),
+                ],
+                _SubmitButton(),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -82,9 +113,53 @@ class _PasswordInput extends StatelessWidget {
           obscureText: true,
           decoration: InputDecoration(
             labelText: AppLocalizations.of(context)!.password,
-            errorText: !state.showValidationErrors || state.password.isValid
+            errorText:
+                getValidationErrorText(AppLocalizations.of(context)!, state),
+          ),
+        );
+      },
+    );
+  }
+
+  String? getValidationErrorText(AppLocalizations l10n, LoginState state) {
+    switch (state) {
+      case LoginState(showValidationErrors: false):
+        return null;
+      case LoginState(password: NonEmptyInput(error: NonEmptyError.empty)):
+        return l10n.invalidPassword;
+      case LoginState(
+          registrationStatus: RegistrationStatus.notRegistered,
+          password: NonEmptyInput(error: NonEmptyError.tooShort),
+        ):
+        return l10n.passwordTooShort;
+      default:
+        return null;
+    }
+  }
+}
+
+class _PasswordConfirmationInput extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<LoginBloc, LoginState>(
+      buildWhen: (previous, current) =>
+          previous.passwordConfirmation != current.passwordConfirmation ||
+          previous.showValidationErrors != current.showValidationErrors,
+      builder: (context, state) {
+        return TextField(
+          key: const Key('loginForm_passwordConfirmationInput_textField'),
+          onChanged: (password) => context
+              .read<LoginBloc>()
+              .add(LoginPasswordConfirmationChanged(password)),
+          onSubmitted: (_) =>
+              context.read<LoginBloc>().add(const LoginSubmitted()),
+          obscureText: true,
+          decoration: InputDecoration(
+            labelText: AppLocalizations.of(context)!.passwordConfirmation,
+            errorText: !state.showValidationErrors ||
+                    state.passwordConfirmation.isValid
                 ? null
-                : AppLocalizations.of(context)!.invalidPassword,
+                : AppLocalizations.of(context)!.invalidPasswordConfirmation,
           ),
         );
       },
@@ -92,24 +167,28 @@ class _PasswordInput extends StatelessWidget {
   }
 }
 
-class _LoginButton extends StatelessWidget {
+class _SubmitButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LoginBloc, LoginState>(
       buildWhen: (previous, current) =>
           previous.status != current.status ||
-          previous.validated != current.validated,
+          previous.isValid != current.isValid,
       builder: (context, state) {
+        var l10n = AppLocalizations.of(context)!;
+        String buttonLabel =
+            state.registrationStatus == RegistrationStatus.registered
+                ? l10n.login
+                : l10n.signUp;
+
         return state.status.isInProgress
             ? const CircularProgressIndicator()
             : ElevatedButton(
-                key: const Key('loginForm_continue_raisedButton'),
-                onPressed: state.validated
-                    ? () {
-                        context.read<LoginBloc>().add(const LoginSubmitted());
-                      }
-                    : null,
-                child: Text(AppLocalizations.of(context)!.login),
+                key: const Key('loginForm_submit_raisedButton'),
+                onPressed: () {
+                  context.read<LoginBloc>().add(const LoginSubmitted());
+                },
+                child: Text(buttonLabel),
               );
       },
     );

@@ -21,6 +21,21 @@ class AuthenticationRepository {
     yield* _controller.stream;
   }
 
+  /// Queries the server to find wether an organizer user is registered
+  Future<bool> isRegistered() async {
+    Map<String, dynamic> result;
+    try {
+      result =
+          await pocketBase.send("/api/ezbadminton/tournament_organizer/exists");
+    } on ClientException catch (e) {
+      throw LoginException('${e.statusCode}');
+    }
+
+    bool exists = result["OrganizerUserExists"];
+
+    return exists;
+  }
+
   Future<void> logIn({
     required String username,
     required String password,
@@ -38,6 +53,21 @@ class AuthenticationRepository {
   void logOut() {
     pocketBase.authStore.clear();
     _controller.add(AuthenticationStatus.unauthenticated);
+  }
+
+  Future<void> signUp({
+    required String username,
+    required String password,
+  }) async {
+    try {
+      await pocketBase.collection('tournament_organizer').create(body: {
+        "username": username,
+        "password": password,
+        "passwordConfirm": password,
+      });
+    } on ClientException catch (e) {
+      throw LoginException('${e.statusCode}');
+    }
   }
 
   void dispose() => _controller.close();

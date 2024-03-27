@@ -63,7 +63,7 @@ class GymnasiumEditingCubit
   }
 
   void nameChanged(String name) {
-    emit(state.copyWith(name: NonEmptyInput.dirty(name)));
+    emit(state.copyWith(name: NonEmptyInput.dirty(value: name)));
   }
 
   void directionsChanged(String directions) {

@@ -84,12 +84,14 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
   // Personal data inputs
 
   void firstNameChanged(String firstName) {
-    var newState = state.copyWith(firstName: NonEmptyInput.dirty(firstName));
+    var newState =
+        state.copyWith(firstName: NonEmptyInput.dirty(value: firstName));
     emit(newState);
   }
 
   void lastNameChanged(String lastName) {
-    var newState = state.copyWith(lastName: NonEmptyInput.dirty(lastName));
+    var newState =
+        state.copyWith(lastName: NonEmptyInput.dirty(value: lastName));
     emit(newState);
   }
 

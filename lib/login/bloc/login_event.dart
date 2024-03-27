@@ -25,10 +25,28 @@ class LoginPasswordChanged extends LoginEvent {
   List<Object> get props => [password];
 }
 
+class LoginPasswordConfirmationChanged extends LoginEvent {
+  const LoginPasswordConfirmationChanged(this.passwordConfirmation);
+
+  final String passwordConfirmation;
+
+  @override
+  List<Object> get props => [passwordConfirmation];
+}
+
 class LoginSubmitted extends LoginEvent {
   const LoginSubmitted();
 }
 
 class LoginFailureDismissed extends LoginEvent {
   const LoginFailureDismissed();
+}
+
+class RegistrationStatusChanged extends LoginEvent {
+  const RegistrationStatusChanged(this.registrationStatus);
+
+  final RegistrationStatus registrationStatus;
+
+  @override
+  List<Object> get props => [registrationStatus];
 }

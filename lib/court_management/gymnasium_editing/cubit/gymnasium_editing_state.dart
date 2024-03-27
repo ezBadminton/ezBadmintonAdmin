@@ -25,7 +25,7 @@ class GymnasiumEditingState with FormzMixin implements DialogState {
   final CubitDialog dialog;
 
   GymnasiumEditingState copyWithGymnasium(Gymnasium gymnasium) => copyWith(
-        name: NonEmptyInput.pure(gymnasium.name),
+        name: NonEmptyInput.pure(value: gymnasium.name),
         directions: NoValidationInput.pure(gymnasium.directions ?? ''),
         rows: PositiveNonzeroNumber.pure(gymnasium.rows),
         columns: PositiveNonzeroNumber.pure(gymnasium.columns),
