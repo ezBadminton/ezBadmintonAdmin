@@ -85,4 +85,10 @@ class ChainedTournamentMode<
       ...second.reenterPlayer(player),
     ];
   }
+
+  @override
+  void freezeRankings() {
+    first.freezeRankings();
+    second.freezeRankings();
+  }
 }

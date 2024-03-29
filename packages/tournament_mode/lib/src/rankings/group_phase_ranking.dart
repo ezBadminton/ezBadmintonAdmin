@@ -16,39 +16,88 @@ import 'package:tournament_mode/src/tournament_match.dart';
 class GroupPhaseRanking<P, S, M extends TournamentMatch<P, S>>
     extends Ranking<P> {
   /// Creates a [GroupPhaseRanking] for the [groups].
-  GroupPhaseRanking(this.groups) {
-    _createRanks();
-  }
+  GroupPhaseRanking(
+    this.groupPhase,
+  );
 
-  final List<RoundRobin<P, S, M>> groups;
-
-  List<MatchParticipant<P>>? _ranks;
+  final GroupPhase<P, S, M, RoundRobin<P, S, M>> groupPhase;
+  List<RoundRobin<P, S, M>> get groups => groupPhase.groupRoundRobins;
 
   @override
-  List<MatchParticipant<P>> createRanks() => _ranks!;
+  List<MatchParticipant<P>> createRanks() {
+    int crossRankedRank = _getCrossRankedRank();
 
-  void _createRanks() {
     List<List<MatchParticipant<P>>> groupRankings =
-        groups.map(_getGroupRanking).toList();
+        groups.map((g) => _getGroupRanking(g, crossRankedRank)).toList();
 
     int maxLength = groupRankings.map((r) => r.length).max;
 
-    _ranks = [
-      for (int i = 0; i < maxLength; i += 1)
+    List<MatchParticipant<P>> ranks = [];
+    for (int i = 0; i < maxLength; i += 1) {
+      List<MatchParticipant<P>> groupRank = [
         for (List<MatchParticipant<P>> groupRanking
             in groupRankings.where((r) => i < r.length))
           groupRanking[i],
-    ];
+      ];
+
+      if (i == crossRankedRank) {
+        groupRank = _crossRank(groupRank);
+      }
+
+      ranks.addAll(groupRank);
+    }
+
+    return ranks;
   }
 
-  List<MatchParticipant<P>> _getGroupRanking(RoundRobin<P, S, M> group) {
+  List<MatchParticipant<P>> _getGroupRanking(
+    RoundRobin<P, S, M> group,
+    int crossRankedRank,
+  ) {
     int groupSize = group.participants.where((p) => !p.isBye).length;
+    int groupIndex = groupPhase.groupRoundRobins.indexOf(group);
+
     return List.generate(
       groupSize,
       (place) => MatchParticipant.fromPlacement(
-        _GroupPhasePlacement(ranking: group.finalRanking, place: place),
+        GroupPhasePlacement(
+          ranking: group.finalRanking,
+          place: place,
+          group: groupIndex,
+          isCrossGroup: place == crossRankedRank,
+        ),
       ),
     );
+  }
+
+  /// When the number of qualifications is not divisible by the number
+  /// of groups, the occupants of one rank have to be compared across all
+  /// groups to determine who qualifies. This method returns the rank
+  /// where the cross comparison has to take place.
+  /// Returns -1 if the qualifications are divisible and no cross comparison
+  /// is needed.
+  int _getCrossRankedRank() {
+    if (groupPhase.numQualifications % groupPhase.numGroups == 0) {
+      return -1;
+    }
+
+    return groupPhase.numQualifications ~/ groupPhase.numGroups;
+  }
+
+  /// Order the given [participants] by their ranks in the overall cross group
+  /// ranking.
+  List<MatchParticipant<P>> _crossRank(List<MatchParticipant<P>> participants) {
+    List<MatchParticipant<P>> crossGroupRanks =
+        groupPhase.crossGroupRanking.ranks;
+
+    List<MatchParticipant<P>> crossRanks = participants.sortedBy<num>(
+      (p) => crossGroupRanks.indexWhere(
+        (groupParticipant) =>
+            p.resolvePlayer() == groupParticipant.resolvePlayer(),
+      ),
+    );
+
+    return crossRanks;
   }
 }
 
@@ -63,14 +112,22 @@ class GroupPhaseRanking<P, S, M extends TournamentMatch<P, S>>
 ///
 /// For example it can happen that 3 of 4 group members withdraw but the top 2
 /// qualify for the knockouts. Then 2nd place is occupied by a withdrawn player.
-/// The [_GroupPhasePlacement] prevents this player from going to the next
+/// The [GroupPhasePlacement] prevents this player from going to the next
 /// round, instead giving the would be opponent of the 2nd place a bye round.
-class _GroupPhasePlacement<P> extends Placement<P> {
-  _GroupPhasePlacement({
+class GroupPhasePlacement<P> extends Placement<P> {
+  GroupPhasePlacement({
     required TieableMatchRanking<P, dynamic, TournamentMatch<P, dynamic>>
         ranking,
     required super.place,
+    required this.group,
+    required this.isCrossGroup,
   }) : super(ranking: ranking);
+
+  final int group;
+
+  /// [isCrossGroup] is true when the placement is dependent on a cross
+  /// group ranking.
+  final bool isCrossGroup;
 
   @override
   TieableMatchRanking<P, dynamic, TournamentMatch<P, dynamic>> get ranking =>

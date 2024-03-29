@@ -32,7 +32,7 @@ class GroupKnockoutSettingsWidget extends StatelessWidget {
         child: const Column(
           children: [
             _NumGroupsInputStepper(),
-            _QualificationsPerGroupInputStepper(),
+            _NumQualificationsInputStepper(),
             _SeedingModeSelector(),
             ScoringSettingsWidget<GroupKnockoutSettingsCubit,
                 GroupKnockoutSettings>(),
@@ -64,8 +64,8 @@ class _NumGroupsInputStepper extends StatelessWidget {
   }
 }
 
-class _QualificationsPerGroupInputStepper extends StatelessWidget {
-  const _QualificationsPerGroupInputStepper();
+class _NumQualificationsInputStepper extends StatelessWidget {
+  const _NumQualificationsInputStepper();
 
   @override
   Widget build(BuildContext context) {
@@ -73,11 +73,11 @@ class _QualificationsPerGroupInputStepper extends StatelessWidget {
     var cubit = context.read<GroupKnockoutSettingsCubit>();
 
     return SettingCard(
-      title: Text(l10n.qualificationsPerGroup),
-      helpText: l10n.qualificationsPerGroupHelp,
+      title: Text(l10n.numQualifications),
+      helpText: l10n.numQualificationsHelp,
       child: IntegerStepper(
-        onChanged: cubit.qualificationsPerGroupChanged,
-        initialValue: cubit.state.settings.qualificationsPerGroup,
+        onChanged: cubit.numQualificationsChanged,
+        initialValue: cubit.state.settings.numQualifications,
         minValue: constants.minQualificationsPerGroup,
         maxValue: constants.maxQualificationsPerGroup,
       ),

@@ -175,7 +175,7 @@ class TournamentModeAssignmentCubit
           updated: DateTime.now().toUtc(),
           seedingMode: SeedingMode.tiered,
           numGroups: 4,
-          qualificationsPerGroup: 2,
+          numQualifications: 8,
           winningPoints: winningPoints,
           winningSets: winningSets,
           maxPoints: maxPoints,

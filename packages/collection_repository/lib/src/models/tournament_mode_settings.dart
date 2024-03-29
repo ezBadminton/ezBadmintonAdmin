@@ -44,7 +44,7 @@ sealed class TournamentModeSettings extends Model
     required DateTime updated,
     required SeedingMode seedingMode,
     required int numGroups,
-    required int qualificationsPerGroup,
+    required int numQualifications,
     required int winningPoints,
     required int winningSets,
     required int maxPoints,

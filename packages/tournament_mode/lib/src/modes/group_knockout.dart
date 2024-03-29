@@ -3,6 +3,7 @@ import 'package:tournament_mode/src/modes/group_phase.dart';
 import 'package:tournament_mode/src/modes/round_robin.dart';
 import 'package:tournament_mode/src/modes/single_elimination.dart';
 import 'package:tournament_mode/src/ranking.dart';
+import 'package:tournament_mode/src/rankings/passthrough_ranking.dart';
 import 'package:tournament_mode/src/rankings/rankings.dart';
 import 'package:tournament_mode/src/tournament_match.dart';
 
@@ -18,7 +19,7 @@ class GroupKnockout<
   GroupKnockout({
     required Ranking<P> entries,
     required this.numGroups,
-    required this.qualificationsPerGroup,
+    required this.numQualifications,
     required G Function(
       Ranking<P> entries,
       int numGroups,
@@ -32,21 +33,27 @@ class GroupKnockout<
             entries,
             numGroups,
           ),
-          secondBuilder: (Ranking<P> entries) => singleEliminationBuilder(
-            entries,
-          ),
-          rankingTransition: (Ranking<P> groupResults) =>
-              GroupQualificationRanking(
-            groupResults as GroupPhaseRanking<P, S, M>,
-            numGroups: numGroups,
-            qualificationsPerGroup: qualificationsPerGroup,
+          secondBuilder: (Ranking<P> entries) {
+            entries.freezeRanks();
+            E singleElimination = singleEliminationBuilder(
+              entries,
+            );
+            entries.unfreezeRanks();
+            return singleElimination;
+          },
+          rankingTransition: (Ranking<P> groupResults) => PassthroughRanking(
+            GroupQualificationRanking(
+              groupResults as GroupPhaseRanking<P, S, M>,
+              numGroups: numGroups,
+              numQualifications: numQualifications,
+            ),
           ),
         ) {
     _finalRanking = GroupKnockoutRanking(groupKnockout: this);
   }
 
   final int numGroups;
-  final int qualificationsPerGroup;
+  final int numQualifications;
 
   late final TieableRanking<P> _finalRanking;
 

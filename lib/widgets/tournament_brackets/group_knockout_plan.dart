@@ -62,15 +62,28 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
     BadmintonGroupKnockout tournament,
   ) {
     var l10n = AppLocalizations.of(context)!;
-    List<MatchParticipant> finalGroupRanking =
-        tournament.groupPhase.finalRanking.ranks;
+    List<MatchParticipant> knockoutEntries = tournament
+        .knockoutPhase.entries.ranks
+        .where((p) => p.placement != null)
+        .toList();
 
-    Map<MatchParticipant, Widget> placeholders = {
-      for (int place = 0; place < tournament.qualificationsPerGroup; place += 1)
-        for (int group = 0; group < tournament.numGroups; group += 1)
-          finalGroupRanking[place * tournament.numGroups + group]:
-              Text(l10n.groupQualification(group + 1, place + 1)),
-    };
+    Map<MatchParticipant, Widget> placeholders = {};
+
+    for (MatchParticipant p in knockoutEntries) {
+      MatchParticipant knockoutSeedPlacement = p.placement!.getPlacement()!;
+      MatchParticipant qualificationPlacement =
+          knockoutSeedPlacement.placement!.getPlacement()!;
+
+      GroupPhasePlacement groupPlacement =
+          qualificationPlacement.placement! as GroupPhasePlacement;
+
+      String groupPlaceholder =
+          groupPlacement.isCrossGroup ? '?' : '${groupPlacement.group + 1}';
+
+      placeholders[p] = Text(
+        l10n.groupQualification(groupPlaceholder, groupPlacement.place + 1),
+      );
+    }
 
     return placeholders;
   }

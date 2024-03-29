@@ -13,11 +13,10 @@ class GroupKnockoutSettingsCubit
     );
   }
 
-  void qualificationsPerGroupChanged(int qualificationsPerGroup) {
+  void numQualificationsChanged(int numQualifications) {
     emit(
       state.copyWith(
-        settings: state.settings
-            .copyWith(qualificationsPerGroup: qualificationsPerGroup),
+        settings: state.settings.copyWith(numQualifications: numQualifications),
       ),
     );
   }

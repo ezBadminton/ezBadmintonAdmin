@@ -4,6 +4,7 @@ import 'package:tournament_mode/src/modes/round_robin.dart';
 import 'package:tournament_mode/src/ranking.dart';
 import 'package:tournament_mode/src/rankings/draw_seeds.dart';
 import 'package:tournament_mode/src/rankings/group_phase_ranking.dart';
+import 'package:tournament_mode/src/rankings/match_ranking.dart';
 import 'package:tournament_mode/src/round_types/group_phase_round.dart';
 import 'package:tournament_mode/src/tournament_match.dart';
 import 'package:tournament_mode/src/tournament_mode.dart';
@@ -15,10 +16,13 @@ class GroupPhase<P, S, M extends TournamentMatch<P, S>,
   GroupPhase({
     required this.entries,
     required this.numGroups,
+    required this.numQualifications,
     required this.roundRobinBuilder,
+    required this.crossGroupRanking,
   }) {
     _createMatches();
-    _finalRanking = GroupPhaseRanking(groupRoundRobins);
+    _finalRanking = GroupPhaseRanking(this);
+    crossGroupRanking.initRounds(roundMatches.toList());
   }
 
   /// The players are entered in a seeded Ranking (e.g. [DrawSeeds])
@@ -33,8 +37,16 @@ class GroupPhase<P, S, M extends TournamentMatch<P, S>,
   /// group(s) will have one less member.
   final int numGroups;
 
+  /// The number of players who will qualify for the next round after the
+  /// group phase.
+  final int numQualifications;
+
   /// A function turning a ranking of entries into a specific [RoundRobin].
   final R Function(Ranking<P> entries) roundRobinBuilder;
+
+  /// A [TieableMatchRanking] that will be used to rank all players by their
+  /// stats across all groups.
+  final TieableMatchRanking<P, S, M> crossGroupRanking;
 
   /// Each group is a realized as a [RoundRobin] ([R]) tournament.
   late final List<R> groupRoundRobins;
@@ -147,5 +159,11 @@ class GroupPhase<P, S, M extends TournamentMatch<P, S>,
   @override
   List<M> reenterPlayer(P player) {
     return groupRoundRobins.expand((r) => r.reenterPlayer(player)).toList();
+  }
+
+  int getGroupOfPlayer(P player) {
+    return groupRoundRobins.indexWhere(
+      (r) => r.participants.map((p) => p.resolvePlayer()).contains(player),
+    );
   }
 }

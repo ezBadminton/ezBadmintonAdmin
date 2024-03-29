@@ -63,15 +63,17 @@ class BadmintonGroupPhase extends GroupPhase<Team, List<MatchSet>,
   BadmintonGroupPhase({
     required super.entries,
     required super.numGroups,
-    required int qualificationsPerGroup,
+    required int numQualifications,
     required Competition competition,
   }) : super(
           roundRobinBuilder: (entries) => BadmintonRoundRobin(
             entries: entries,
             passes: 1,
             competition: competition,
-            requiredUntiedRanks: qualificationsPerGroup,
+            requiredUntiedRanks: numQualifications ~/ numGroups,
           ),
+          crossGroupRanking: BadmintonRoundRobinRanking(),
+          numQualifications: numQualifications,
         ) {
     this.competition = competition;
   }
@@ -87,13 +89,13 @@ class BadmintonGroupKnockout extends GroupKnockout<
   BadmintonGroupKnockout({
     required super.entries,
     required super.numGroups,
-    required super.qualificationsPerGroup,
+    required super.numQualifications,
     required Competition competition,
   }) : super(
           groupPhaseBuilder: (entries, numGroups) => BadmintonGroupPhase(
             entries: entries,
             numGroups: numGroups,
-            qualificationsPerGroup: qualificationsPerGroup,
+            numQualifications: numQualifications,
             competition: competition,
           ),
           singleEliminationBuilder: (seededEntries) =>
@@ -118,9 +120,9 @@ class BadmintonGroupKnockout extends GroupKnockout<
           entries: entries,
           numGroups: _getTournamentSettings<GroupKnockoutSettings>(competition)
               .numGroups,
-          qualificationsPerGroup:
+          numQualifications:
               _getTournamentSettings<GroupKnockoutSettings>(competition)
-                  .qualificationsPerGroup,
+                  .numQualifications,
           competition: competition,
         );
 

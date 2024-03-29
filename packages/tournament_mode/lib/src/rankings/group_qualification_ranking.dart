@@ -5,6 +5,7 @@ import 'package:tournament_mode/src/match_participant.dart';
 import 'package:tournament_mode/src/modes/group_knockout.dart';
 import 'package:tournament_mode/src/modes/group_phase.dart';
 import 'package:tournament_mode/src/modes/single_elimination.dart';
+import 'package:tournament_mode/src/ranking.dart';
 import 'package:tournament_mode/src/rankings/group_phase_ranking.dart';
 import 'package:tournament_mode/src/rankings/ranking_decorator.dart';
 
@@ -27,56 +28,52 @@ class GroupQualificationRanking<P> extends RankingDecorator<P> {
   GroupQualificationRanking(
     GroupPhaseRanking<P, dynamic, dynamic> targetRanking, {
     required this.numGroups,
-    required this.qualificationsPerGroup,
-  }) : super(targetRanking) {
-    _groupKnockoutSeeds = _createGroupKnockoutSeeds();
-  }
+    required this.numQualifications,
+  }) : super(targetRanking);
 
   @override
   GroupPhaseRanking<P, dynamic, dynamic> get targetRanking =>
       super.targetRanking as GroupPhaseRanking<P, dynamic, dynamic>;
 
   final int numGroups;
-  final int qualificationsPerGroup;
-
-  late final List<int> _groupKnockoutSeeds;
+  final int numQualifications;
 
   @override
   List<MatchParticipant<P>> createRanks() {
-    List<MatchParticipant<P>> groupResults = targetRanking.ranks;
+    List<int> groupKnockoutSeeds = _createGroupKnockoutSeeds();
 
     List<MatchParticipant<P>> seeds = List.generate(
-      numGroups * qualificationsPerGroup,
-      (index) => groupResults[_groupKnockoutSeeds[index]],
+      numQualifications,
+      (index) {
+        int rank = groupKnockoutSeeds[index];
+        return MatchParticipant.fromPlacement(
+          Placement(ranking: targetRanking, place: rank),
+        );
+      },
     );
 
     return seeds;
   }
 
   List<int> _createGroupKnockoutSeeds() {
-    List<_GroupQualification> qualifications = [
-      for (int place = 0; place < qualificationsPerGroup; place += 1)
-        for (int group = 0; group < numGroups; group += 1)
-          _GroupQualification(group: group, place: place),
-    ];
+    List<_GroupQualification> qualifications = _createGroupQualifications();
 
-    int numQualified = numGroups * qualificationsPerGroup;
-    int baseNumQualified = _getPreviousPowerOfTwo(numQualified);
+    int baseNumQualified = _getPreviousPowerOfTwo(numQualifications);
 
     // If the number of qualified participants is not a power of two, extra KO
     // matches need to be played before the first fully filled elimination
     // round can take place.
-    int extraKOs = numQualified - baseNumQualified;
+    int extraKOs = numQualifications - baseNumQualified;
 
     // The list of qualifications who don't need to play and extra KO.
     // Or - if no extra KOs are needed - it's just the full qualifications list.
     List<_GroupQualification> directQualifications = qualifications.sublist(
       0,
-      numGroups * qualificationsPerGroup - extraKOs * 2,
+      numQualifications - extraKOs * 2,
     );
     // List of qualifications who have to play one extra KO round
     List<_GroupQualification> extraKOPool = qualifications.sublist(
-      numGroups * qualificationsPerGroup - extraKOs * 2,
+      numQualifications - extraKOs * 2,
     );
 
     // The list of extra KO matchups. If none are needed this is just a list
@@ -147,19 +144,48 @@ class GroupQualificationRanking<P> extends RankingDecorator<P> {
 
     List<int> groupKnockoutSeeds = [];
     for (_GroupKnockoutMatchup match in seededMatchups) {
-      groupKnockoutSeeds.add(
-        match.a.place * numGroups + match.a.group,
-      );
+      groupKnockoutSeeds.add(qualifications.indexOf(match.a));
     }
     for (_GroupKnockoutMatchup match in seededMatchups.reversed) {
       if (match.b != null) {
-        groupKnockoutSeeds.add(
-          match.b!.place * numGroups + match.b!.group,
-        );
+        groupKnockoutSeeds.add(qualifications.indexOf(match.b!));
       }
     }
 
     return groupKnockoutSeeds;
+  }
+
+  List<_GroupQualification> _createGroupQualifications() {
+    int places = numQualifications ~/ numGroups;
+
+    List<_GroupQualification> qualifications = [
+      for (int place = 0; place < places; place += 1)
+        for (int group = 0; group < numGroups; group += 1)
+          _GroupQualification(group: group, place: place),
+    ];
+
+    List<MatchParticipant<P>> groupRanking = targetRanking.ranks;
+    int remainder = numQualifications % numGroups;
+    List<MatchParticipant<P>> remainingQualifications = groupRanking.sublist(
+      qualifications.length,
+      qualifications.length + remainder,
+    );
+
+    for ((int, MatchParticipant<P>) indexedQualification
+        in remainingQualifications.indexed) {
+      int i = indexedQualification.$1;
+      MatchParticipant<P> qualification = indexedQualification.$2;
+
+      P? player = qualification.resolvePlayer();
+      if (player == null) {
+        qualifications.add(_GroupQualification(group: i, place: places));
+        continue;
+      }
+      int group = targetRanking.groupPhase.getGroupOfPlayer(player);
+      qualifications.add(_GroupQualification(group: group, place: places));
+    }
+
+    return qualifications;
   }
 
   /// Returns a power of two that is immediately smaller than

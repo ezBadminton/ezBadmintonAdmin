@@ -249,13 +249,13 @@ List<String> tournamentModeSettingsList(
       break;
     case GroupKnockoutSettings(
         numGroups: int numGroups,
-        qualificationsPerGroup: int qualificationsPerGroup,
+        numQualifications: int numQualifications,
       ):
       settingsStrings.add(
         '${l10n.numGroups}: $numGroups',
       );
       settingsStrings.add(
-        '${l10n.qualificationsPerGroup}: $qualificationsPerGroup',
+        '${l10n.numQualifications}: $numQualifications',
       );
       break;
     case SingleEliminationWithConsolationSettings(
