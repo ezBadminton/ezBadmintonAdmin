@@ -97,6 +97,7 @@ void _applyTieBreakers(
           in groupKnockout.groupPhase.groupRoundRobins) {
         group.finalRanking.tieBreakers = tieBreakerRankings;
       }
+      groupKnockout.groupPhase.finalRanking.tieBreakers = tieBreakerRankings;
       break;
   }
 }

@@ -21,8 +21,8 @@ class GroupPhase<P, S, M extends TournamentMatch<P, S>,
     required this.crossGroupRanking,
   }) {
     _createMatches();
-    _finalRanking = GroupPhaseRanking(this);
     crossGroupRanking.initRounds(roundMatches.toList());
+    _finalRanking = GroupPhaseRanking(this);
   }
 
   /// The players are entered in a seeded Ranking (e.g. [DrawSeeds])

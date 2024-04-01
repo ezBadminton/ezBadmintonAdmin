@@ -102,7 +102,10 @@ class _ResultNavigationTabIconState extends State<ResultNavigationTabIcon> {
             group.isCompleted() && group.finalRanking.blockingTies.isNotEmpty,
       );
 
-      return groupWithTies != null;
+      bool crossGroupTies = tournament.groupPhase.isCompleted() &&
+          tournament.groupPhase.finalRanking.blockingTies.isNotEmpty;
+
+      return groupWithTies != null || crossGroupTies;
     }).toList();
 
     return tournamentsWithTies;

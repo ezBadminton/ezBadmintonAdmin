@@ -306,3 +306,53 @@ class _TeamItem extends StatelessWidget {
     );
   }
 }
+
+class TieBreakerButton extends StatelessWidget {
+  const TieBreakerButton({
+    super.key,
+    required this.competition,
+    required this.tie,
+    required this.tieRankLabel,
+    required this.buttonLabel,
+  });
+
+  final Competition competition;
+  final List<Team> tie;
+
+  final String tieRankLabel;
+  final String buttonLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 35,
+      child: ElevatedButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            barrierDismissible: true,
+            builder: (context) {
+              return TieBreakerMenu(
+                competition: competition,
+                tie: tie,
+              );
+            },
+          );
+        },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              tieRankLabel,
+              style: const TextStyle(fontSize: 10),
+            ),
+            Text(
+              buttonLabel,
+              style: const TextStyle(fontSize: 13),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

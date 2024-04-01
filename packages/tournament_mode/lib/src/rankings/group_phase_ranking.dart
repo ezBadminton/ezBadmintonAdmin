@@ -3,7 +3,7 @@ import 'package:tournament_mode/src/match_participant.dart';
 import 'package:tournament_mode/src/modes/group_phase.dart';
 import 'package:tournament_mode/src/modes/round_robin.dart';
 import 'package:tournament_mode/src/ranking.dart';
-import 'package:tournament_mode/src/rankings/match_ranking.dart';
+import 'package:tournament_mode/src/rankings/rankings.dart';
 import 'package:tournament_mode/src/tournament_match.dart';
 
 /// The ranking of a [GroupPhase].
@@ -14,17 +14,19 @@ import 'package:tournament_mode/src/tournament_match.dart';
 /// If `m` groups have less members then the last place is a block of
 /// only `n-m` participants.
 class GroupPhaseRanking<P, S, M extends TournamentMatch<P, S>>
-    extends Ranking<P> {
+    extends Ranking<P> with TieableRanking<P> {
   /// Creates a [GroupPhaseRanking] for the [groups].
   GroupPhaseRanking(
     this.groupPhase,
-  );
+  ) {
+    requiredUntiedRanks = groupPhase.numQualifications;
+  }
 
   final GroupPhase<P, S, M, RoundRobin<P, S, M>> groupPhase;
   List<RoundRobin<P, S, M>> get groups => groupPhase.groupRoundRobins;
 
   @override
-  List<MatchParticipant<P>> createRanks() {
+  List<List<MatchParticipant<P>>> createTiedRanks() {
     int crossRankedRank = _getCrossRankedRank();
 
     List<List<MatchParticipant<P>>> groupRankings =
@@ -32,16 +34,16 @@ class GroupPhaseRanking<P, S, M extends TournamentMatch<P, S>>
 
     int maxLength = groupRankings.map((r) => r.length).max;
 
-    List<MatchParticipant<P>> ranks = [];
+    List<List<MatchParticipant<P>>> ranks = [];
     for (int i = 0; i < maxLength; i += 1) {
-      List<MatchParticipant<P>> groupRank = [
+      List<List<MatchParticipant<P>>> groupRank = [
         for (List<MatchParticipant<P>> groupRanking
             in groupRankings.where((r) => i < r.length))
-          groupRanking[i],
+          [groupRanking[i]],
       ];
 
       if (i == crossRankedRank) {
-        groupRank = _crossRank(groupRank);
+        groupRank = _crossRank(groupRank.flattened.toList());
       }
 
       ranks.addAll(groupRank);
@@ -65,6 +67,7 @@ class GroupPhaseRanking<P, S, M extends TournamentMatch<P, S>>
           place: place,
           group: groupIndex,
           isCrossGroup: place == crossRankedRank,
+          groupPhase: groupPhase,
         ),
       ),
     );
@@ -86,16 +89,36 @@ class GroupPhaseRanking<P, S, M extends TournamentMatch<P, S>>
 
   /// Order the given [participants] by their ranks in the overall cross group
   /// ranking.
-  List<MatchParticipant<P>> _crossRank(List<MatchParticipant<P>> participants) {
-    List<MatchParticipant<P>> crossGroupRanks =
-        groupPhase.crossGroupRanking.ranks;
+  List<List<MatchParticipant<P>>> _crossRank(
+    List<MatchParticipant<P>> participants,
+  ) {
+    Iterable<P?> players = participants.map((p) => p.resolvePlayer());
 
-    List<MatchParticipant<P>> crossRanks = participants.sortedBy<num>(
-      (p) => crossGroupRanks.indexWhere(
-        (groupParticipant) =>
-            p.resolvePlayer() == groupParticipant.resolvePlayer(),
-      ),
-    );
+    if (players.contains(null)) {
+      return participants.map((p) => [p]).toList();
+    }
+
+    List<List<MatchParticipant<P>>> crossGroupRanks =
+        groupPhase.crossGroupRanking.tiedRanks;
+
+    List<List<MatchParticipant<P>>> referenceRanks = crossGroupRanks
+        .map(
+          (rank) =>
+              rank.where((p) => players.contains(p.resolvePlayer())).toList(),
+        )
+        .where((rank) => rank.isNotEmpty)
+        .toList();
+
+    List<List<MatchParticipant<P>>> crossRanks = referenceRanks
+        .map(
+          (rank) => rank
+              .map(
+                (reference) => participants.firstWhere(
+                    (p) => reference.resolvePlayer() == p.resolvePlayer()),
+              )
+              .toList(),
+        )
+        .toList();
 
     return crossRanks;
   }
@@ -103,8 +126,8 @@ class GroupPhaseRanking<P, S, M extends TournamentMatch<P, S>>
 
 /// A [Placement] for a [TieableMatchRanking].
 ///
-/// It holds back the placement ([getPlacement] returns null) while the matches
-/// are not all completed or while there is an unbroken tie.
+/// It holds back the placement ([getPlacement] returns null) while the group
+/// phase matches are not all completed or while there is an unbroken tie.
 ///
 /// It also replaces any placed participants that withdrew from the matches with
 /// a [MatchParticipant.bye]. This way no withdrawn players can pass this
@@ -121,6 +144,7 @@ class GroupPhasePlacement<P> extends Placement<P> {
     required super.place,
     required this.group,
     required this.isCrossGroup,
+    required this.groupPhase,
   }) : super(ranking: ranking);
 
   final int group;
@@ -129,6 +153,9 @@ class GroupPhasePlacement<P> extends Placement<P> {
   /// group ranking.
   final bool isCrossGroup;
 
+  final GroupPhase groupPhase;
+  TieableRanking get groupPhaseRanking => groupPhase.finalRanking;
+
   @override
   TieableMatchRanking<P, dynamic, TournamentMatch<P, dynamic>> get ranking =>
       super.ranking
@@ -136,39 +163,45 @@ class GroupPhasePlacement<P> extends Placement<P> {
 
   @override
   MatchParticipant<P>? getPlacement() {
-    if (!ranking.allMatchesComplete()) {
+    if (!groupPhase.isCompleted() ||
+        _doGroupsHaveTie() ||
+        groupPhaseRanking.blockingTies.isNotEmpty) {
       return null;
     }
 
     MatchParticipant<P>? placement = super.getPlacement();
-
     P? player = placement?.resolvePlayer();
 
-    Iterable<P> tiedPlayers = ranking.ties
-        .expand((tie) => tie.map((participant) => participant.resolvePlayer()))
-        .whereType<P>();
-
-    if (tiedPlayers.contains(player)) {
-      return null;
-    }
-
-    if (player != null && _getWithdrawnPlayers().contains(player)) {
+    if (_isPlayerWithdrawn(player)) {
       return MatchParticipant<P>.bye();
     }
 
     return placement;
   }
 
-  Set<P> _getWithdrawnPlayers() {
-    if (ranking.matches == null) {
-      return {};
+  /// Returns the placement like a normal [Placement] bypassing the blocking
+  /// conditions from the group phase.
+  MatchParticipant<P>? getUnblockedPlacement() {
+    return super.getPlacement();
+  }
+
+  bool _isPlayerWithdrawn(P? player) {
+    if (ranking.matches == null || player == null) {
+      return false;
     }
 
-    return ranking.matches!
-        .expand<MatchParticipant<P>>(
-            (match) => match.withdrawnParticipants ?? [])
-        .map((participant) => participant.resolvePlayer())
-        .whereType<P>()
-        .toSet();
+    return ranking.matches!.firstWhereOrNull(
+          (m) => (m.withdrawnParticipants ?? [])
+              .map((p) => p.resolvePlayer())
+              .contains(player),
+        ) !=
+        null;
+  }
+
+  /// Returns wether at least one group has a tie in its internal final ranking
+  bool _doGroupsHaveTie() {
+    return groupPhase.groupRoundRobins
+            .firstWhereOrNull((g) => g.finalRanking.blockingTies.isNotEmpty) !=
+        null;
   }
 }

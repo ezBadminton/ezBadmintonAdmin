@@ -6,8 +6,7 @@ import 'package:tournament_mode/src/modes/group_knockout.dart';
 import 'package:tournament_mode/src/modes/group_phase.dart';
 import 'package:tournament_mode/src/modes/single_elimination.dart';
 import 'package:tournament_mode/src/ranking.dart';
-import 'package:tournament_mode/src/rankings/group_phase_ranking.dart';
-import 'package:tournament_mode/src/rankings/ranking_decorator.dart';
+import 'package:tournament_mode/src/rankings/rankings.dart';
 
 /// A ranking that converts the final [GroupPhaseRanking] from a [GroupPhase]
 /// into seeds for a [SingleElimination].

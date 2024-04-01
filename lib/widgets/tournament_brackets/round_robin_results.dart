@@ -248,35 +248,11 @@ class _RoundRobinLeaderboard extends StatelessWidget {
     TableRow tieBreakerRow = TableRow(
       children: [
         const SizedBox(),
-        SizedBox(
-          height: 35,
-          child: ElevatedButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                barrierDismissible: true,
-                builder: (context) {
-                  return TieBreakerMenu(
-                    competition: tournament.competition,
-                    tie: tieOfRank,
-                  );
-                },
-              );
-            },
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  tieRankLabel,
-                  style: const TextStyle(fontSize: 10),
-                ),
-                Text(
-                  tieBreakerButtonLabel,
-                  style: const TextStyle(fontSize: 13),
-                ),
-              ],
-            ),
-          ),
+        TieBreakerButton(
+          competition: tournament.competition,
+          tie: tieOfRank,
+          tieRankLabel: tieRankLabel,
+          buttonLabel: tieBreakerButtonLabel,
         ),
         const SizedBox(),
         const SizedBox(),
