@@ -34,7 +34,7 @@ class DoubleElimination<P, S, M extends TournamentMatch<P, S>,
   Ranking<P> get entries => winnerBracket.entries;
 
   @override
-  late final Ranking<P> finalRanking;
+  late final DoubleEliminationRanking<P, S, M> finalRanking;
 
   late List<DoubleEliminationRound<M>> _rounds;
   @override

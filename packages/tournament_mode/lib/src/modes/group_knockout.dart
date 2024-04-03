@@ -1,5 +1,6 @@
 import 'package:tournament_mode/src/modes/chained_tournament_mode.dart';
 import 'package:tournament_mode/src/modes/group_phase.dart';
+import 'package:tournament_mode/src/modes/qualification_chain.dart';
 import 'package:tournament_mode/src/modes/round_robin.dart';
 import 'package:tournament_mode/src/modes/single_elimination.dart';
 import 'package:tournament_mode/src/ranking.dart';
@@ -14,7 +15,7 @@ class GroupKnockout<
         M extends TournamentMatch<P, S>,
         R extends RoundRobin<P, S, M>,
         G extends GroupPhase<P, S, M, R>,
-        E extends SingleElimination<P, S, M>>
+        E extends EliminationChain<P, S, M>>
     extends ChainedTournamentMode<P, S, M, G, E> {
   GroupKnockout({
     required Ranking<P> entries,
@@ -26,7 +27,7 @@ class GroupKnockout<
     ) groupPhaseBuilder,
     required E Function(
       Ranking<P> seededEntries,
-    ) singleEliminationBuilder,
+    ) eliminationBuilder,
   }) : super(
           entries: entries,
           firstBuilder: (Ranking<P> entries) => groupPhaseBuilder(
@@ -35,11 +36,11 @@ class GroupKnockout<
           ),
           secondBuilder: (Ranking<P> entries) {
             entries.freezeRanks();
-            E singleElimination = singleEliminationBuilder(
+            E elimination = eliminationBuilder(
               entries,
             );
             entries.unfreezeRanks();
-            return singleElimination;
+            return elimination;
           },
           rankingTransition: (Ranking<P> groupResults) => PassthroughRanking(
             GroupQualificationRanking(

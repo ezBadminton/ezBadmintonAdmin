@@ -5,7 +5,6 @@ import 'package:tournament_mode/src/match_participant.dart';
 import 'package:tournament_mode/src/modes/qualification_chain.dart';
 import 'package:tournament_mode/src/ranking.dart';
 import 'package:tournament_mode/src/rankings/elimination_ranking.dart';
-import 'package:tournament_mode/src/rankings/match_ranking.dart';
 import 'package:tournament_mode/src/rankings/winner_ranking.dart';
 import 'package:tournament_mode/src/round_types/elimination_round.dart';
 import 'package:tournament_mode/src/tournament_match.dart';
@@ -54,7 +53,7 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
   List<EliminationRound<M>> get rounds => _rounds;
 
   @override
-  final TieableMatchRanking<P, S, M> finalRanking;
+  final EliminationRanking<P, S, M> finalRanking;
 
   void _createMatches() {
     _participants = entries.ranks;

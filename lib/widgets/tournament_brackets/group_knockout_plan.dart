@@ -1,6 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/consolation_elimination_tree.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/double_elimination_tree.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/round_robin_plan.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bracket.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
@@ -39,11 +41,28 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
             ))
         .toList();
 
-    SingleEliminationTree eliminationTree = SingleEliminationTree(
-      rounds: tournament.knockoutPhase.rounds,
-      competition: tournament.competition,
-      placeholderLabels: createQualificationPlaceholders(context, tournament),
-    );
+    Map<MatchParticipant<dynamic>, Widget> placeholders =
+        createQualificationPlaceholders(context, tournament);
+
+    Widget eliminationTree = switch (tournament.knockoutPhase) {
+      BadmintonSingleElimination e => SingleEliminationTree(
+          rounds: e.rounds,
+          competition: tournament.competition,
+          placeholderLabels: placeholders,
+        ),
+      BadmintonDoubleElimination e => DoubleEliminationTree(
+          tournament: e,
+          competition: tournament.competition,
+          placeholderLabels: placeholders,
+        ),
+      BadmintonSingleEliminationWithConsolation e => ConsolationEliminationTree(
+          tournament: e,
+          placeholderLabels: placeholders,
+        ),
+      _ => throw Exception(
+          "This elimination tournament does not have a tree widget implemented",
+        ),
+    };
 
     return Row(
       children: [
@@ -101,13 +120,16 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
     );
 
     Iterable<BracketSection> eliminationSections =
-        tournament.knockoutPhase.rounds.map(
-      (round) => BracketSection(
-        tournamentDataObjects: round.matches,
-        labelBuilder: (context) =>
-            AppLocalizations.of(context)!.roundOfN('${round.roundSize}'),
-      ),
-    );
+        switch (tournament.knockoutPhase) {
+      BadmintonSingleElimination e =>
+        SingleEliminationTree.getSections(e.rounds),
+      BadmintonDoubleElimination e => DoubleEliminationTree.getSections(e),
+      BadmintonSingleEliminationWithConsolation e =>
+        SingleEliminationTree.getSections(e.mainBracket.bracket.rounds),
+      _ => throw Exception(
+          "No sections implemented for this elimination tournament",
+        ),
+    };
 
     return [...groupSections, ...eliminationSections];
   }

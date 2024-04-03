@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:tournament_mode/src/rankings/rankings.dart';
 import 'package:tournament_mode/src/tournament_match.dart';
 import 'package:tournament_mode/src/tournament_mode.dart';
 
@@ -31,6 +32,9 @@ abstract class QualificationChain<M extends TournamentMatch> {
 
 mixin EliminationChain<P, S, M extends TournamentMatch<P, S>>
     on TournamentMode<P, S, M> implements QualificationChain<M> {
+  @override
+  EliminationRanking<P, S, M> get finalRanking;
+
   @override
   List<M> getNextMatches(M match) => match.nextMatches.cast<M>();
 

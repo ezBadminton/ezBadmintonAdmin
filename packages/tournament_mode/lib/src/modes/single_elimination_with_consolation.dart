@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:tournament_mode/src/modes/qualification_chain.dart';
 import 'package:tournament_mode/src/rankings/ordered_ranking.dart';
 import 'package:tournament_mode/tournament_mode.dart';
 

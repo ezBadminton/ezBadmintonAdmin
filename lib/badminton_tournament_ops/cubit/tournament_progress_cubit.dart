@@ -61,8 +61,6 @@ class TournamentProgressCubit
     for (Competition competition in runningCompetitions) {
       BadmintonTournamentMode tournament = runningTournaments[competition]!;
 
-      tournament.freezeRankings();
-
       hydrateTournament(competition, tournament, competition.matches);
 
       tournament.freezeRankings();

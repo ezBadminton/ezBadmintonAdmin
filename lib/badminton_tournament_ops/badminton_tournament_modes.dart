@@ -80,16 +80,20 @@ class BadmintonGroupPhase extends GroupPhase<Team, List<MatchSet>,
 }
 
 class BadmintonGroupKnockout extends GroupKnockout<
-    Team,
-    List<MatchSet>,
-    BadmintonMatch,
-    BadmintonRoundRobin,
-    BadmintonGroupPhase,
-    BadmintonSingleElimination> with BadmintonTournamentMode {
+        Team,
+        List<MatchSet>,
+        BadmintonMatch,
+        BadmintonRoundRobin,
+        BadmintonGroupPhase,
+        EliminationChain<Team, List<MatchSet>, BadmintonMatch>>
+    with BadmintonTournamentMode {
   BadmintonGroupKnockout({
     required super.entries,
     required super.numGroups,
     required super.numQualifications,
+    required KnockOutMode knockOutMode,
+    required int numConsolationRounds,
+    required int placesToPlayOut,
     required Competition competition,
   }) : super(
           groupPhaseBuilder: (entries, numGroups) => BadmintonGroupPhase(
@@ -98,11 +102,15 @@ class BadmintonGroupKnockout extends GroupKnockout<
             numQualifications: numQualifications,
             competition: competition,
           ),
-          singleEliminationBuilder: (seededEntries) =>
-              BadmintonSingleElimination(
-            seededEntries: seededEntries,
-            competition: competition,
-          ),
+          eliminationBuilder: (seededEntries) {
+            return _eliminationBuilder(
+              competition,
+              seededEntries,
+              knockOutMode,
+              numConsolationRounds,
+              placesToPlayOut,
+            );
+          },
         ) {
     this.competition = competition;
   }
@@ -123,6 +131,15 @@ class BadmintonGroupKnockout extends GroupKnockout<
           numQualifications:
               _getTournamentSettings<GroupKnockoutSettings>(competition)
                   .numQualifications,
+          knockOutMode:
+              _getTournamentSettings<GroupKnockoutSettings>(competition)
+                  .knockOutMode,
+          numConsolationRounds:
+              _getTournamentSettings<GroupKnockoutSettings>(competition)
+                  .numConsolationRounds,
+          placesToPlayOut:
+              _getTournamentSettings<GroupKnockoutSettings>(competition)
+                  .placesToPlayOut,
           competition: competition,
         );
 
@@ -166,6 +183,32 @@ class BadmintonGroupKnockout extends GroupKnockout<
     } else {
       return groupPhase.reenterPlayer(player);
     }
+  }
+
+  static EliminationChain<Team, List<MatchSet>, BadmintonMatch>
+      _eliminationBuilder(
+    Competition competition,
+    Ranking<Team> entries,
+    KnockOutMode knockOutMode,
+    int numConsolationRounds,
+    int placesToPlayOut,
+  ) {
+    return switch (knockOutMode) {
+      KnockOutMode.single => BadmintonSingleElimination(
+          seededEntries: entries,
+          competition: competition,
+        ),
+      KnockOutMode.double => BadmintonDoubleElimination(
+          seededEntries: entries,
+          competition: competition,
+        ),
+      KnockOutMode.consolation => BadmintonSingleEliminationWithConsolation(
+          seededEntries: entries,
+          competition: competition,
+          numConsolationRounds: numConsolationRounds,
+          placesToPlayOut: placesToPlayOut,
+        ),
+    } as EliminationChain<Team, List<MatchSet>, BadmintonMatch>;
   }
 }
 

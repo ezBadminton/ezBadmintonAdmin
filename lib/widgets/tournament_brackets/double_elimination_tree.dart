@@ -18,6 +18,7 @@ class DoubleEliminationTree extends StatelessWidget
     super.key,
     required this.tournament,
     required this.competition,
+    this.placeholderLabels = const {},
     this.isEditable = false,
     this.showResults = false,
   }) : _sections = getSections(tournament) {
@@ -28,6 +29,8 @@ class DoubleEliminationTree extends StatelessWidget
 
   final BadmintonDoubleElimination tournament;
   final Competition competition;
+
+  final Map<MatchParticipant, Widget> placeholderLabels;
 
   final bool isEditable;
   final bool showResults;
@@ -49,6 +52,7 @@ class DoubleEliminationTree extends StatelessWidget
       competition: competition,
       isEditable: isEditable,
       showResults: showResults,
+      placeholderLabels: this.placeholderLabels,
     );
 
     List<List<Widget>> matchNodes = [];
@@ -104,9 +108,12 @@ class DoubleEliminationTree extends StatelessWidget
     TextStyle placeholderStyle =
         TextStyle(color: Theme.of(context).disabledColor);
 
-    Iterable<MatchParticipant> loserParticipants = tournament.matches
-        .expand((match) => [match.a, match.b])
-        .where((participant) => participant.placement?.place == 1);
+    Iterable<MatchParticipant> loserParticipants =
+        tournament.matches.expand((match) => [match.a, match.b]).where(
+              (participant) =>
+                  participant.placement?.ranking is WinnerRanking &&
+                  participant.placement?.place == 1,
+            );
 
     Map<MatchParticipant, Widget> participantLabels = {};
 

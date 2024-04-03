@@ -3,6 +3,8 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
 import 'package:ez_badminton_admin_app/widgets/tie_breaker_menu/tie_breaker_menu.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/consolation_elimination_tree.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/double_elimination_tree.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/group_knockout_plan.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/round_robin_results.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bracket.dart';
@@ -16,13 +18,12 @@ class GroupKnockoutResults extends StatelessWidget implements SectionedBracket {
   GroupKnockoutResults({
     super.key,
     required this.tournament,
-  }) : _sections = GroupKnockoutPlan.getSections(tournament);
+  }) : sections = GroupKnockoutPlan.getSections(tournament);
 
   final BadmintonGroupKnockout tournament;
 
-  final List<BracketSection> _sections;
   @override
-  List<BracketSection> get sections => _sections;
+  final List<BracketSection> sections;
 
   @override
   Widget build(BuildContext context) {
@@ -35,15 +36,31 @@ class GroupKnockoutResults extends StatelessWidget implements SectionedBracket {
         )
         .toList();
 
-    Widget eliminationTree = SingleEliminationTree(
-      rounds: tournament.knockoutPhase.rounds,
-      competition: tournament.competition,
-      showResults: true,
-      placeholderLabels: GroupKnockoutPlan.createQualificationPlaceholders(
-        context,
-        tournament,
-      ),
-    );
+    Map<MatchParticipant<dynamic>, Widget> placeholders =
+        GroupKnockoutPlan.createQualificationPlaceholders(context, tournament);
+
+    Widget eliminationTree = switch (tournament.knockoutPhase) {
+      BadmintonSingleElimination e => SingleEliminationTree(
+          rounds: e.rounds,
+          competition: tournament.competition,
+          showResults: true,
+          placeholderLabels: placeholders,
+        ),
+      BadmintonDoubleElimination e => DoubleEliminationTree(
+          tournament: e,
+          competition: tournament.competition,
+          showResults: true,
+          placeholderLabels: placeholders,
+        ),
+      BadmintonSingleEliminationWithConsolation e => ConsolationEliminationTree(
+          tournament: e,
+          showResults: true,
+          placeholderLabels: placeholders,
+        ),
+      _ => throw Exception(
+          "This elimination tournament does not have a tree widget implemented",
+        ),
+    };
 
     Widget knockoutResults = Row(
       children: [

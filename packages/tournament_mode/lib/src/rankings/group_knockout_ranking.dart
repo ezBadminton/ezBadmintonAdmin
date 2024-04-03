@@ -17,7 +17,7 @@ class GroupKnockoutRanking<P, S, M extends TournamentMatch<P, S>>
       M,
       RoundRobin<P, S, M>,
       GroupPhase<P, S, M, RoundRobin<P, S, M>>,
-      SingleElimination<P, S, M>> groupKnockout;
+      EliminationChain<P, S, M>> groupKnockout;
 
   @override
   List<List<MatchParticipant<P>>> createTiedRanks() {
