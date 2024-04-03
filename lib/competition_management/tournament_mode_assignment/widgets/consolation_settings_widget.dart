@@ -3,6 +3,7 @@ import 'package:ez_badminton_admin_app/competition_management/tournament_mode_as
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/cubit/tournament_mode_assignment_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/cubit/tournament_mode_settings_state.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/input_models/tournament_mode_settings_input.dart';
+import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/widgets/consolation_settings_handler.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/widgets/scoring_settings_widget.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/widgets/seeding_mode_selector.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/widgets/setting_card.dart';
@@ -36,8 +37,8 @@ class ConsolationSettingsWidget extends StatelessWidget {
         },
         child: const Column(
           children: [
-            _NumConsolationRoundsStepper(),
-            _PlacesToPlayOutInput(),
+            NumConsolationRoundsStepper<ConsolationSettingsCubit>(),
+            PlacesToPlayOutInput<ConsolationSettingsCubit>(),
             _SeedingModeSelector(),
             ScoringSettingsWidget<ConsolationSettingsCubit,
                 SingleEliminationWithConsolationSettings>(),
@@ -48,23 +49,29 @@ class ConsolationSettingsWidget extends StatelessWidget {
   }
 }
 
-class _NumConsolationRoundsStepper extends StatelessWidget {
-  const _NumConsolationRoundsStepper();
+class NumConsolationRoundsStepper<C extends ConsolationSettingsHandler>
+    extends StatelessWidget {
+  const NumConsolationRoundsStepper({super.key});
 
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    var settingsCubit = context.read<ConsolationSettingsCubit>();
+    var settingsCubit = context.read<C>();
 
-    return BlocBuilder<ConsolationSettingsCubit,
-        TournamentModeSettingsState<SingleEliminationWithConsolationSettings>>(
+    return BlocBuilder<C, TournamentModeSettingsState>(
       builder: (context, state) {
-        int numConsolationRounds = state.settings.numConsolationRounds;
+        int numConsolationRounds = switch (state.settings) {
+          SingleEliminationWithConsolationSettings s => s.numConsolationRounds,
+          GroupKnockoutSettings s => s.numConsolationRounds,
+          _ => throw Exception(
+              "This TournamentModeSettingsCubit cannot process consolation elimination settings.",
+            ),
+        };
 
         return SettingCard(
           title: Text(l10n.numConsolationRounds),
           helpText: l10n.numConsolationRoundsHelp(
-            '$numConsolationRounds ${l10n.match(state.settings.numConsolationRounds)}',
+            '$numConsolationRounds ${l10n.match(numConsolationRounds)}',
           ),
           child: IntegerStepper(
             initialValue: numConsolationRounds,
@@ -76,18 +83,24 @@ class _NumConsolationRoundsStepper extends StatelessWidget {
   }
 }
 
-class _PlacesToPlayOutInput extends StatelessWidget {
-  const _PlacesToPlayOutInput();
+class PlacesToPlayOutInput<C extends ConsolationSettingsHandler>
+    extends StatelessWidget {
+  const PlacesToPlayOutInput({super.key});
 
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    var settingsCubit = context.read<ConsolationSettingsCubit>();
+    var settingsCubit = context.read<C>();
 
-    return BlocBuilder<ConsolationSettingsCubit,
-        TournamentModeSettingsState<SingleEliminationWithConsolationSettings>>(
+    return BlocBuilder<C, TournamentModeSettingsState>(
       builder: (context, state) {
-        int placesToPlayOut = state.settings.placesToPlayOut;
+        int placesToPlayOut = switch (state.settings) {
+          SingleEliminationWithConsolationSettings s => s.placesToPlayOut,
+          GroupKnockoutSettings s => s.placesToPlayOut,
+          _ => throw Exception(
+              "This TournamentModeSettingsCubit cannot process consolation elimination settings.",
+            ),
+        };
 
         return SettingCard(
           title: BlocBuilder<TournamentModeAssignmentCubit,

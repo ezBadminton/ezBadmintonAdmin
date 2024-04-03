@@ -337,5 +337,6 @@
   "noneOf": "No {subject}",
   "noCategoryWarning": "The {categorization} can't be activated because no {category} has been created.",
   "close": "Close",
-  "crossGroupTies": "{count, plural, =1{Cross Group Tie} other{Cross Group Ties}}"
+  "crossGroupTies": "{count, plural, =1{Cross Group Tie} other{Cross Group Ties}}",
+  "knockOutMode": "Knock-Out mode"
 }

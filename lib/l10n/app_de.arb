@@ -337,5 +337,6 @@
   "noneOf": "Keine {subject}",
   "noCategoryWarning": "Die {categorization} können nicht verwendet werden, weil keine {category} erstellt wurde.",
   "close": "Schließen",
-  "crossGroupTies": "{count, plural, =1{Gruppenübergreifender Gleichstand} other{Gruppenübergreifende Gleichstände}}"
+  "crossGroupTies": "{count, plural, =1{Gruppenübergreifender Gleichstand} other{Gruppenübergreifende Gleichstände}}",
+  "knockOutMode": "KO-Modus"
 }

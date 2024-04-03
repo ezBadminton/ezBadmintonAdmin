@@ -43,6 +43,9 @@ sealed class TournamentModeSettings extends Model
     required DateTime created,
     required DateTime updated,
     required SeedingMode seedingMode,
+    required KnockOutMode knockOutMode,
+    required int numConsolationRounds,
+    required int placesToPlayOut,
     required int numGroups,
     required int numQualifications,
     required int winningPoints,
@@ -90,4 +93,10 @@ enum SeedingMode {
   random,
   single,
   tiered,
+}
+
+enum KnockOutMode {
+  single,
+  double,
+  consolation,
 }
