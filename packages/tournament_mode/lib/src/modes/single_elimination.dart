@@ -72,7 +72,7 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
         roundMatches = createEliminationRound(roundParticipants);
       }
 
-      roundParticipants = createNextRoundParticipants(roundMatches);
+      roundParticipants = createNextRoundParticipants(roundMatches, round);
 
       if (eliminationMatches.isNotEmpty) {
         chainMatches(eliminationMatches.last, roundMatches);
@@ -80,6 +80,10 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
 
       eliminationMatches.add(roundMatches);
     }
+
+    M finalMatch = eliminationMatches.last.single;
+    WinnerRanking<P, S> finalWinnerRanking = finalMatch.winnerRanking!;
+    finalWinnerRanking.addDependantRanking(finalRanking);
 
     _rounds = List.generate(
       eliminationMatches.length,
@@ -168,13 +172,27 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
 
   /// Creates the match participant list of the round coming
   /// after the given [roundMatches].
+  ///
+  /// Also connects the ranking graph. If the [roundIndex] is 0 the rankings
+  /// are connected to the entry ranking, otherwise to the round's
+  /// winner rankings.
   List<MatchParticipant<P>> createNextRoundParticipants(
-    List<TournamentMatch<P, S>> roundMatches,
-  ) {
+    List<TournamentMatch<P, S>> roundMatches, [
+    int roundIndex = -1,
+  ]) {
     // The winners are determined by placement in a WinnerRanking
     List<MatchParticipant<P>> winners = roundMatches.map(
       (match) {
         WinnerRanking<P, S> winnerRanking = WinnerRanking(match);
+
+        if (roundIndex == 0) {
+          entries.addDependantRanking(winnerRanking);
+        } else {
+          assert(match.a.placement is WinnerPlacement);
+          match.a.placement!.ranking.addDependantRanking(winnerRanking);
+          match.b.placement!.ranking.addDependantRanking(winnerRanking);
+        }
+
         return MatchParticipant.fromPlacement(
           WinnerPlacement(ranking: winnerRanking, place: 0),
         );
@@ -209,9 +227,8 @@ class SingleElimination<P, S, M extends TournamentMatch<P, S>>
       List<M> pair = matchPairs[i];
       M followingMatch = followingRound[i];
 
-      for (M match in pair) {
-        match.nextMatches.add(followingMatch);
-      }
+      pair[0].nextMatches.add(followingMatch);
+      pair[1].nextMatches.add(followingMatch);
     }
   }
 }
@@ -223,7 +240,9 @@ class _BinaryRanking<P> extends Ranking<P> {
   ///
   /// Does nothing if the [targetRanking]'s number of ranks already is a power
   /// of two.
-  _BinaryRanking(this.targetRanking);
+  _BinaryRanking(this.targetRanking) {
+    targetRanking.addDependantRanking(this);
+  }
 
   final Ranking<P> targetRanking;
 
@@ -236,7 +255,7 @@ class _BinaryRanking<P> extends Ranking<P> {
 
     return [
       ...targetRanks,
-      ...List.generate(padding, (_) => const MatchParticipant.bye()),
+      ...List.generate(padding, (_) => MatchParticipant.bye()),
     ];
   }
 

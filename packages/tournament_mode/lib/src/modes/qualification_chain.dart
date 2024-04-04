@@ -115,9 +115,7 @@ mixin EliminationChain<P, S, M extends TournamentMatch<P, S>>
     List<M> withdrawnMatchesOfPlayer = matches
         .where((m) => m.isWalkover)
         .where(
-          (m) => m.withdrawnParticipants!
-              .map((p) => p.resolvePlayer())
-              .contains(player),
+          (m) => m.withdrawnParticipants!.map((p) => p.player).contains(player),
         )
         .toList();
 

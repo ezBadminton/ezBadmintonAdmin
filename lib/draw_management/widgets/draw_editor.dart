@@ -109,8 +109,6 @@ class _InteractiveDraw extends StatelessWidget {
     BadmintonTournamentMode tournament = createTournamentMode(competition);
     hydrateTournament(competition, tournament, null);
 
-    tournament.freezeRankings();
-
     bool hasCompetitionStarted = competition.matches.isNotEmpty;
 
     Widget drawView = switch (tournament) {

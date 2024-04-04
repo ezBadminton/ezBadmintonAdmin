@@ -18,7 +18,7 @@ mixin TieableRanking<P> implements Ranking<P> {
       _frozenUnbrokenTiedRanks ?? createTiedRanks();
 
   @override
-  void freezeRanks() {
+  void updateRanks() {
     _frozenUnbrokenTiedRanks = createTiedRanks();
     _frozenTiedRanks = createTieBrokenRanks();
   }
@@ -85,11 +85,11 @@ mixin TieableRanking<P> implements Ranking<P> {
     for (Ranking<P> tieBreaker in tieBreakers) {
       List<P> tieBreakerRanks = tieBreaker
           .createRanks()
-          .where((participant) => participant.resolvePlayer() != null)
-          .map((participant) => participant.resolvePlayer()!)
+          .where((participant) => participant.player != null)
+          .map((participant) => participant.player!)
           .toList();
       List<P> tiedPlayers =
-          tie.map((participant) => participant.resolvePlayer()!).toList();
+          tie.map((participant) => participant.player!).toList();
 
       bool canBreakTie =
           !tiedPlayers.map((p) => tieBreakerRanks.contains(p)).contains(false);
@@ -97,7 +97,7 @@ mixin TieableRanking<P> implements Ranking<P> {
       if (canBreakTie) {
         List<MatchParticipant<P>> ranks = tie
             .sortedBy<num>((participant) => tieBreakerRanks
-                .indexWhere((player) => player == participant.resolvePlayer()))
+                .indexWhere((player) => player == participant.player))
             .toList();
 
         return ranks.map((participant) => [participant]).toList();

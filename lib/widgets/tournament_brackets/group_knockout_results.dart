@@ -167,7 +167,7 @@ class _CrossRankTieBreakerButtons extends StatelessWidget {
             .map(
               (p) => (p.placement as GroupPhasePlacement?)
                   ?.getUnblockedPlacement()
-                  ?.resolvePlayer(),
+                  ?.player,
             )
             .toList())
         .where((t) => !t.contains(null))

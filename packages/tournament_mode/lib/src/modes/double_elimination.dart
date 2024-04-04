@@ -19,6 +19,7 @@ class DoubleElimination<P, S, M extends TournamentMatch<P, S>,
   }) : winnerBracket = singleEliminationBuilder(seededEntries) {
     _createMatches();
     finalRanking = DoubleEliminationRanking(doubleEliminationTournament: this);
+    matches.last.winnerRanking!.addDependantRanking(finalRanking);
   }
 
   final E Function(Ranking<P> entries) singleEliminationBuilder;
@@ -201,7 +202,10 @@ class DoubleElimination<P, S, M extends TournamentMatch<P, S>,
       M winnerMatch = winnerRoundMatches.elementAt(i);
 
       WinnerRanking<P, S> loserMatchRanking = WinnerRanking(loserMatch);
-      WinnerRanking<P, S> winnerMatchRanking = WinnerRanking(winnerMatch);
+      WinnerRanking<P, S> winnerMatchRanking = winnerMatch.winnerRanking!;
+
+      loserMatch.a.placement!.ranking.addDependantRanking(loserMatchRanking);
+      loserMatch.b.placement!.ranking.addDependantRanking(loserMatchRanking);
 
       MatchParticipant<P> loserMatchWinner = MatchParticipant.fromPlacement(
         WinnerPlacement(ranking: loserMatchRanking, place: 0),
@@ -238,8 +242,11 @@ class DoubleElimination<P, S, M extends TournamentMatch<P, S>,
   M _createFinal(M loserFinal) {
     M winnerFinal = winnerBracket.matches.last;
 
-    WinnerRanking<P, S> winnerFinalRanking = WinnerRanking(winnerFinal);
+    WinnerRanking<P, S> winnerFinalRanking = winnerFinal.winnerRanking!;
     WinnerRanking<P, S> loserFinalRanking = WinnerRanking(loserFinal);
+
+    loserFinal.a.placement!.ranking.addDependantRanking(loserFinalRanking);
+    loserFinal.b.placement!.ranking.addDependantRanking(loserFinalRanking);
 
     MatchParticipant<P> winnerFinalist = MatchParticipant.fromPlacement(
       WinnerPlacement(ranking: winnerFinalRanking, place: 0),
@@ -249,6 +256,10 @@ class DoubleElimination<P, S, M extends TournamentMatch<P, S>,
     );
 
     M finalFinal = matcher(winnerFinalist, loserFinalist);
+
+    WinnerRanking<P, S> finalFinalRanking = WinnerRanking(finalFinal);
+    winnerFinalRanking.addDependantRanking(finalFinalRanking);
+    loserFinalRanking.addDependantRanking(finalFinalRanking);
 
     winnerFinal.nextMatches.add(finalFinal);
     loserFinal.nextMatches.add(finalFinal);

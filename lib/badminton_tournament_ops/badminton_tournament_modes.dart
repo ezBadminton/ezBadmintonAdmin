@@ -166,13 +166,13 @@ class BadmintonGroupKnockout extends GroupKnockout<
   @override
   List<BadmintonMatch> reenterPlayer(Team player) {
     Set<Team> groupOfPlayer = groupPhase.groupRoundRobins
-        .map((g) => g.participants.map((p) => p.resolvePlayer()!))
+        .map((g) => g.participants.map((p) => p.player!))
         .firstWhere((g) => g.contains(player))
         .toSet();
 
     Set<Team> teamsInKnockout = knockoutPhase.matches
         .where((m) => m.startTime != null)
-        .expand((m) => [m.a.resolvePlayer()!, m.b.resolvePlayer()!])
+        .expand((m) => [m.a.player!, m.b.player!])
         .toSet();
 
     bool groupIsInKnockout =

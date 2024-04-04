@@ -92,7 +92,7 @@ class GroupPhaseRanking<P, S, M extends TournamentMatch<P, S>>
   List<List<MatchParticipant<P>>> _crossRank(
     List<MatchParticipant<P>> participants,
   ) {
-    Iterable<P?> players = participants.map((p) => p.resolvePlayer());
+    Iterable<P?> players = participants.map((p) => p.player);
 
     if (players.contains(null)) {
       return participants.map((p) => [p]).toList();
@@ -103,8 +103,7 @@ class GroupPhaseRanking<P, S, M extends TournamentMatch<P, S>>
 
     List<List<MatchParticipant<P>>> referenceRanks = crossGroupRanks
         .map(
-          (rank) =>
-              rank.where((p) => players.contains(p.resolvePlayer())).toList(),
+          (rank) => rank.where((p) => players.contains(p.player)).toList(),
         )
         .where((rank) => rank.isNotEmpty)
         .toList();
@@ -113,8 +112,8 @@ class GroupPhaseRanking<P, S, M extends TournamentMatch<P, S>>
         .map(
           (rank) => rank
               .map(
-                (reference) => participants.firstWhere(
-                    (p) => reference.resolvePlayer() == p.resolvePlayer()),
+                (reference) => participants
+                    .firstWhere((p) => reference.player == p.player),
               )
               .toList(),
         )
@@ -170,7 +169,7 @@ class GroupPhasePlacement<P> extends Placement<P> {
     }
 
     MatchParticipant<P>? placement = super.getPlacement();
-    P? player = placement?.resolvePlayer();
+    P? player = placement?.player;
 
     if (_isPlayerWithdrawn(player)) {
       return MatchParticipant<P>.bye();
@@ -192,7 +191,7 @@ class GroupPhasePlacement<P> extends Placement<P> {
 
     return ranking.matches!.firstWhereOrNull(
           (m) => (m.withdrawnParticipants ?? [])
-              .map((p) => p.resolvePlayer())
+              .map((p) => p.player)
               .contains(player),
         ) !=
         null;

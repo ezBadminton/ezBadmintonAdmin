@@ -70,7 +70,7 @@ class RawLeaderboard extends StatelessWidget {
     List<TableRow> leaderboardEntries = [];
 
     for (MatchParticipant<Team> participant in ranks.keys) {
-      Team team = participant.resolvePlayer()!;
+      Team team = participant.player!;
 
       TableRow row = TableRow(
         children: [

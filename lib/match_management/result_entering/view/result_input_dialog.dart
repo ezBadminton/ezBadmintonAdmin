@@ -297,7 +297,7 @@ class _MatchParticipantLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return MatchParticipantLabel(
       participant,
-      teamSize: participant.resolvePlayer()!.players.length,
+      teamSize: participant.player!.players.length,
       isEditable: false,
       alignment: CrossAxisAlignment.end,
       textStyle: TextStyle(

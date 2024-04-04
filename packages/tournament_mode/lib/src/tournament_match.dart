@@ -1,12 +1,15 @@
 import 'package:tournament_mode/src/match_participant.dart';
 import 'package:tournament_mode/src/ranking.dart';
+import 'package:tournament_mode/src/rankings/rankings.dart';
 import 'package:tournament_mode/src/tournament_round.dart';
 
 /// A match between two [MatchParticipant]s. The result of the match
 /// is recorded in a score object of generic type [S]
 abstract class TournamentMatch<P, S> {
   /// Creates a [TournamentMatch] between opponents [a] and [b].
-  TournamentMatch(this.a, this.b);
+  TournamentMatch(this.a, this.b) {
+    _fingerprint = _getFingerprint();
+  }
 
   final MatchParticipant<P> a;
   final MatchParticipant<P> b;
@@ -48,6 +51,9 @@ abstract class TournamentMatch<P, S> {
   /// Is `true` when the match has a winner.
   bool get hasWinner => getWinner() != null;
 
+  /// This becomes set when the match is used to create a [WinnerRanking]
+  WinnerRanking<P, S>? winnerRanking;
+
   /// This list is filled when one or both of the participants withdrew
   /// for some reason.
   List<MatchParticipant<P>>? withdrawnParticipants;
@@ -73,7 +79,7 @@ abstract class TournamentMatch<P, S> {
       }
     }
 
-    return const MatchParticipant.bye(isDrawnBye: false);
+    return MatchParticipant.bye(isDrawnBye: false);
   }
 
   /// This is set only when the match is decided due to being a bye.
@@ -160,5 +166,42 @@ abstract class TournamentMatch<P, S> {
     _endTime ??= endTime ?? DateTime.now().toUtc();
 
     _score = score;
+  }
+
+  String getPlayerFingerprint(P? player);
+  String getScoreFingerprint(S? score);
+
+  bool _isDirty = false;
+  bool get isDirty => _isDirty;
+
+  void setClean() {
+    _isDirty = false;
+  }
+
+  String _fingerprint = "";
+  String get fingerprint => _fingerprint;
+
+  void updateFingerprint() {
+    String newFingerprint = _getFingerprint();
+    _isDirty = fingerprint != newFingerprint;
+    _fingerprint = newFingerprint;
+  }
+
+  /// Returns a fingerprint that identifies equal match objects.
+  ///
+  /// The fingerprint is constructed from the participant's players, the score
+  /// and the withdrawn participant's players.
+  String _getFingerprint() {
+    StringBuffer fingerprintBuilder = StringBuffer(
+      '${getPlayerFingerprint(a.player)}:${getPlayerFingerprint(b.player)}:${getScoreFingerprint(score)}',
+    );
+
+    if (withdrawnParticipants != null) {
+      for (MatchParticipant<P> participant in withdrawnParticipants!) {
+        fingerprintBuilder.write(getPlayerFingerprint(participant.player));
+      }
+    }
+
+    return fingerprintBuilder.toString();
   }
 }

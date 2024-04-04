@@ -64,8 +64,8 @@ class _MatchRanking<P, M extends TournamentMatch<P, dynamic>> {
       case TournamentMatch(
           hasWinner: false,
         ):
-        P? player1 = match.a.resolvePlayer();
-        P? player2 = match.b.resolvePlayer();
+        P? player1 = match.a.player;
+        P? player2 = match.b.player;
         winner = [];
         loser = [
           if (player1 != null) match.a,
@@ -86,8 +86,8 @@ class _MatchRanking<P, M extends TournamentMatch<P, dynamic>> {
         break;
 
       default:
-        P? winnerPlayer = match.getWinner()?.resolvePlayer();
-        P? loserPlayer = match.getLoser()?.resolvePlayer();
+        P? winnerPlayer = match.getWinner()?.player;
+        P? loserPlayer = match.getLoser()?.player;
         winner = [if (winnerPlayer != null) match.getWinner()!];
         loser = [if (loserPlayer != null) match.getLoser()!];
         break;

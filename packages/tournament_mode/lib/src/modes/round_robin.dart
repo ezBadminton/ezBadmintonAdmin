@@ -18,6 +18,7 @@ class RoundRobin<P, S, M extends TournamentMatch<P, S>>
   }) {
     _createMatches();
     finalRanking.initRounds(roundMatches.toList());
+    entries.addDependantRanking(finalRanking);
   }
 
   /// The competing players. The ranking order is unimportant for the matches
@@ -60,7 +61,7 @@ class RoundRobin<P, S, M extends TournamentMatch<P, S>>
     participants = entries.ranks;
 
     if (!participants.length.isEven) {
-      participants.insert(1, const MatchParticipant.bye());
+      participants.insert(1, MatchParticipant.bye());
     }
 
     int roundsPerPass = participants.length - 1;
@@ -163,9 +164,7 @@ class RoundRobin<P, S, M extends TournamentMatch<P, S>>
     List<M> withdrawnMatchesOfPlayer = matches
         .where((m) => m.isWalkover)
         .where(
-          (m) => m.withdrawnParticipants!
-              .map((p) => p.resolvePlayer())
-              .contains(player),
+          (m) => m.withdrawnParticipants!.map((p) => p.player).contains(player),
         )
         .toList();
 

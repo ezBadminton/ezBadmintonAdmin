@@ -52,7 +52,7 @@ class MatchParticipantLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    Team? team = participant.resolvePlayer();
+    Team? team = participant.player;
     Widget byeLabel = this.byeLabel ??
         Text(
           l10n.bye,
@@ -185,7 +185,7 @@ class _MatchParticipantLabel extends StatelessWidget {
       ];
     }
 
-    Team? team = participant.resolvePlayer();
+    Team? team = participant.player;
 
     if (team == null) {
       return List.generate(
@@ -248,7 +248,7 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    Team team = participant.resolvePlayer()!;
+    Team team = participant.player!;
     InteractiveViewBlockerCubit? blockerCubit;
     try {
       blockerCubit = context.read<InteractiveViewBlockerCubit>();

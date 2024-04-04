@@ -62,8 +62,6 @@ class TournamentProgressCubit
       BadmintonTournamentMode tournament = runningTournaments[competition]!;
 
       hydrateTournament(competition, tournament, competition.matches);
-
-      tournament.freezeRankings();
     }
 
     List<BadmintonMatch> danglingMatches = runningTournaments.values

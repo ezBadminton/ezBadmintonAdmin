@@ -133,7 +133,7 @@ class _CallOutLines extends StatelessWidget {
                   child: Align(
                     alignment: AlignmentDirectional.centerEnd,
                     child: _CallOutTeamLabel(
-                      team: match.a.resolvePlayer()!,
+                      team: match.a.player!,
                       crossAxisAlignment: CrossAxisAlignment.end,
                     ),
                   ),
@@ -154,7 +154,7 @@ class _CallOutLines extends StatelessWidget {
                   child: Align(
                     alignment: AlignmentDirectional.centerStart,
                     child: _CallOutTeamLabel(
-                      team: match.b.resolvePlayer()!,
+                      team: match.b.player!,
                       crossAxisAlignment: CrossAxisAlignment.start,
                     ),
                   ),

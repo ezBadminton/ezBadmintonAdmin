@@ -19,7 +19,7 @@ class HasRankOccupant extends CustomMatcher {
   final int rank;
 
   @override
-  featureValueOf(actual) => actual[rank]?.resolvePlayer()?.players[0];
+  featureValueOf(actual) => actual[rank]?.player?.players[0];
 }
 
 void main() {
@@ -87,14 +87,14 @@ void main() {
     int matchIndex = 0,
   }) {
     BadmintonMatch match = matches.where((m) {
-      Player? opponent1 = m.a.resolvePlayer()?.players[0];
-      Player? opponent2 = m.b.resolvePlayer()?.players[0];
+      Player? opponent1 = m.a.player?.players[0];
+      Player? opponent2 = m.b.player?.players[0];
 
       return (opponent1 == player1 && opponent2 == player2) ||
           (opponent1 == player2 && opponent2 == player1);
     }).elementAt(matchIndex);
 
-    if (match.a.resolvePlayer()!.players[0] == player2) {
+    if (match.a.player!.players[0] == player2) {
       score1 = (score1.$2, score1.$1);
       score2 = (score2.$2, score2.$1);
       if (score3 != null) {

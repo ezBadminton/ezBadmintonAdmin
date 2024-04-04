@@ -23,6 +23,7 @@ class GroupPhase<P, S, M extends TournamentMatch<P, S>,
     _createMatches();
     crossGroupRanking.initRounds(roundMatches.toList());
     _finalRanking = GroupPhaseRanking(this);
+    crossGroupRanking.addDependantRanking(_finalRanking);
   }
 
   /// The players are entered in a seeded Ranking (e.g. [DrawSeeds])
@@ -69,11 +70,16 @@ class GroupPhase<P, S, M extends TournamentMatch<P, S>,
     List<List<MatchParticipant<P>>> groups =
         _createSeededGroups(participants, numGroups);
 
-    groupRoundRobins = groups
-        .map(
-          (group) => roundRobinBuilder(DrawSeeds.fromParticipants(group)),
-        )
-        .toList();
+    groupRoundRobins = groups.map(
+      (group) {
+        DrawSeeds<P> draw = DrawSeeds.fromParticipants(group);
+        R groupRoundRobin = roundRobinBuilder(draw);
+
+        entries.addDependantRanking(draw);
+        groupRoundRobin.finalRanking.addDependantRanking(crossGroupRanking);
+        return groupRoundRobin;
+      },
+    ).toList();
 
     _rounds = _getGroupPhaseRounds();
   }
@@ -163,7 +169,7 @@ class GroupPhase<P, S, M extends TournamentMatch<P, S>,
 
   int getGroupOfPlayer(P player) {
     return groupRoundRobins.indexWhere(
-      (r) => r.participants.map((p) => p.resolvePlayer()).contains(player),
+      (r) => r.participants.map((p) => p.player).contains(player),
     );
   }
 }

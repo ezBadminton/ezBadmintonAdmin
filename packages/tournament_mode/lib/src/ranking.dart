@@ -4,25 +4,51 @@ import 'package:tournament_mode/src/match_participant.dart';
 /// A class that ranks [MatchParticipant]s. It's not necessarily a ranking by
 /// match results but can also be the result of a random or seeded draw.
 abstract class Ranking<P> {
-  List<MatchParticipant<P>>? _frozenRanks;
+  List<MatchParticipant<P>>? _ranks;
 
-  List<MatchParticipant<P>> get ranks => _frozenRanks ?? createRanks();
+  /// The [Ranking]s that are influenced by this ranking.
+  ///
+  /// The rankings thus form a directed acyclic graph. Updates to a ranking
+  /// propagate through this graph.
+  final List<Ranking<P>> _dependantRankings = [];
+  List<Ranking<P>> get dependantRankings =>
+      List.unmodifiable(_dependantRankings);
+
+  /// The dependent participants are participants who resolve their
+  /// player from this ranking.
+  final List<MatchParticipant<P>> _dependentParticipants = [];
+
+  List<MatchParticipant<P>> get ranks {
+    if (_ranks == null) {
+      updateRanks();
+    }
+    return _ranks!;
+  }
 
   /// Returns a list of [MatchParticipant]s ordered by rank.
   List<MatchParticipant<P>> createRanks();
 
-  /// Save the ranks as they are returned by [createRanks].
-  ///
-  /// After the ranking has been frozen [ranks] will return the saved ranks.
-  ///
-  /// This way the potentially expensive ranking calculations are only done
-  /// once for the freeze.
-  void freezeRanks() {
-    _frozenRanks = createRanks();
+  /// Update the ranks by calling [createRanks].
+  void updateRanks() {
+    _ranks = createRanks();
+
+    for (MatchParticipant<P> participant in _dependentParticipants) {
+      participant.updatePlayer();
+    }
   }
 
-  void unfreezeRanks() {
-    _frozenRanks = null;
+  void addDependantRanking(Ranking<P> ranking) {
+    _dependantRankings.add(ranking);
+  }
+
+  /// Registers a [MatchParticipant.fromPlacement] that has this ranking as its
+  /// [Placement.ranking].
+  ///
+  /// The dependants get their [MatchParticipant.updatePlayer] method called
+  /// when [updateRanks] is called.
+  void registerDependantParticipant(MatchParticipant<P> participant) {
+    assert(participant.placement?.ranking == this);
+    _dependentParticipants.add(participant);
   }
 }
 

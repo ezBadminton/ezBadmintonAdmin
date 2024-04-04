@@ -18,30 +18,33 @@ import 'package:tournament_mode/src/tournament_match.dart';
 /// (where [P] is directly defined) are the input to the seeded ranking.
 class MatchParticipant<P> {
   /// Creates a [MatchParticipant] that is directly defined by [player]
-  const MatchParticipant.fromPlayer(
-    this.player,
-  )   : placement = null,
+  MatchParticipant.fromPlayer(
+    P player,
+  )   : _player = player,
+        placement = null,
         _isBye = false,
         _isDrawnBye = false;
 
   /// Creates a [MatchParticipant] that is defined in terms of the [placement].
-  const MatchParticipant.fromPlacement(
+  MatchParticipant.fromPlacement(
     this.placement,
-  )   : player = null,
-        _isBye = false,
-        _isDrawnBye = false;
+  )   : _isBye = false,
+        _isDrawnBye = false {
+    placement!.ranking.registerDependantParticipant(this);
+  }
 
   /// Creates a [MatchParticipant] as a stand in for a bye. The opponent of this
   /// participant either has a break due to an uneven number of entries or
   /// gets to advance to the next round due to seeding or a lucky draw.
-  const MatchParticipant.bye({
+  MatchParticipant.bye({
     bool isDrawnBye = true,
-  })  : player = null,
-        placement = null,
+  })  : placement = null,
         _isBye = true,
         _isDrawnBye = isDrawnBye;
 
-  final P? player;
+  P? _player;
+
+  P? get player => _player;
   final Placement<P>? placement;
 
   /// Whether this participant is a bye for the opponent.
@@ -73,22 +76,18 @@ class MatchParticipant<P> {
   bool get isDrawnBye => _isDrawnBye;
 
   /// Returns whether this participant is ready to start a match.
-  bool get readyToPlay => !_isBye && resolvePlayer() != null;
+  bool get readyToPlay => !_isBye && player != null;
 
-  /// Resolves to a player [P] who is actually going to fill this participant's
-  /// role.
+  /// Updates the player who is filling this participant's role.
   ///
-  /// If the participant is defined by a [placement] and the necessary results
-  /// to determine it are not yet known, it returns `null`.
-  P? resolvePlayer() {
-    if (_isBye) {
-      return null;
+  /// This has to be called after the [placement]'s ranking updated.
+  ///
+  /// Does nothing if this is not a [MatchParticipant.fromPlacement].
+  void updatePlayer() {
+    if (placement == null || _isBye) {
+      return;
     }
 
-    if (player != null) {
-      return player;
-    }
-
-    return placement!.getPlacement()?.resolvePlayer();
+    _player = placement!.getPlacement()?.player;
   }
 }

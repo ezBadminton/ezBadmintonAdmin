@@ -34,21 +34,20 @@ class GroupKnockout<
             entries,
             numGroups,
           ),
-          secondBuilder: (Ranking<P> entries) {
-            entries.freezeRanks();
-            E elimination = eliminationBuilder(
-              entries,
+          secondBuilder: eliminationBuilder,
+          rankingTransition: (Ranking<P> groupResults) {
+            PassthroughRanking<P> transition = PassthroughRanking(
+              GroupQualificationRanking(
+                groupResults as GroupPhaseRanking<P, S, M>,
+                numGroups: numGroups,
+                numQualifications: numQualifications,
+              ),
             );
-            entries.unfreezeRanks();
-            return elimination;
+
+            groupResults.addDependantRanking(transition);
+
+            return transition;
           },
-          rankingTransition: (Ranking<P> groupResults) => PassthroughRanking(
-            GroupQualificationRanking(
-              groupResults as GroupPhaseRanking<P, S, M>,
-              numGroups: numGroups,
-              numQualifications: numQualifications,
-            ),
-          ),
         ) {
     _finalRanking = GroupKnockoutRanking(groupKnockout: this);
   }

@@ -5,7 +5,13 @@ import 'package:tournament_mode/src/tournament_match.dart';
 /// Ranks the participants of a match by who won.
 class WinnerRanking<P, S> extends Ranking<P> {
   /// Creates a [WinnerRanking] from the given [match]
-  WinnerRanking(this.match);
+  WinnerRanking(this.match) {
+    assert(
+      match.winnerRanking == null,
+      "Do not create multiple WinnerRankings for one match",
+    );
+    match.winnerRanking = this;
+  }
 
   final TournamentMatch<P, S> match;
 
@@ -18,7 +24,7 @@ class WinnerRanking<P, S> extends Ranking<P> {
         MatchParticipant<P>? loser = match.getLoser();
         if (loser != null && loser.isDrawnBye) {
           // Convert a drawn bye to a normal bye
-          loser = const MatchParticipant.bye(isDrawnBye: false);
+          loser = MatchParticipant.bye(isDrawnBye: false);
         }
         return [
           match.getWinner()!,
@@ -55,11 +61,11 @@ class WinnerPlacement<P> extends Placement<P> {
     }
 
     List<P> withdrawnPlayers = (ranking.match.withdrawnParticipants ?? [])
-        .map((participant) => participant.resolvePlayer())
+        .map((participant) => participant.player)
         .whereType<P>()
         .toList();
 
-    P? player = placement.resolvePlayer();
+    P? player = placement.player;
 
     if (withdrawnPlayers.contains(player)) {
       return MatchParticipant<P>.bye();

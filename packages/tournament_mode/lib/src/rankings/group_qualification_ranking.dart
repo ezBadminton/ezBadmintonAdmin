@@ -175,7 +175,7 @@ class GroupQualificationRanking<P> extends RankingDecorator<P> {
       int i = indexedQualification.$1;
       MatchParticipant<P> qualification = indexedQualification.$2;
 
-      P? player = qualification.resolvePlayer();
+      P? player = qualification.player;
       if (player == null) {
         qualifications.add(_GroupQualification(group: i, place: places));
         continue;

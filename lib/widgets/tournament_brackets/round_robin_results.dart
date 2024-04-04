@@ -100,7 +100,7 @@ class _RoundRobinLeaderboard extends StatelessWidget {
         bool isFirstInRank = rank.first == participant;
         int? participantRankIndex = isFirstInRank ? rankIndex : null;
 
-        Team team = participant.resolvePlayer()!;
+        Team team = participant.player!;
         RoundRobinStats teamStats = stats[team]!;
 
         TableRow row = TableRow(
@@ -123,7 +123,7 @@ class _RoundRobinLeaderboard extends StatelessWidget {
       }
 
       List<Team> tiedTeams =
-          rank.map((participant) => participant.resolvePlayer()!).toList();
+          rank.map((participant) => participant.player!).toList();
 
       TableRow? tieBreakerRow = _buildTieBreakerRow(
         context,
@@ -215,7 +215,7 @@ class _RoundRobinLeaderboard extends StatelessWidget {
 
       Set<Team> teamsInKnockout = parentTournament!.knockoutPhase.matches
           .where((m) => m.startTime != null)
-          .expand((m) => [m.a.resolvePlayer()!, m.b.resolvePlayer()!])
+          .expand((m) => [m.a.player!, m.b.player!])
           .toSet();
 
       bool isTieInKnockOut =
@@ -274,7 +274,7 @@ class _RoundRobinLeaderboard extends StatelessWidget {
     List<List<Team>> unbrokenTiedTanks = ranking.unbrokenTiedRanks
         .map(
           (rank) => rank
-              .map((participant) => participant.resolvePlayer())
+              .map((participant) => participant.player)
               .whereType<Team>()
               .toList(),
         )
@@ -283,7 +283,7 @@ class _RoundRobinLeaderboard extends StatelessWidget {
     List<List<Team>> tiedRanks = ranking.tiedRanks
         .map(
           (rank) => rank
-              .map((participant) => participant.resolvePlayer())
+              .map((participant) => participant.player)
               .whereType<Team>()
               .toList(),
         )

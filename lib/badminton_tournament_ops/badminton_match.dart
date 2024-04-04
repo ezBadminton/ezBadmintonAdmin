@@ -75,7 +75,7 @@ class BadmintonMatch extends TournamentMatch<Team, List<MatchSet>> {
     List<MatchParticipant<Team>> withdrawnParticipants = [a, b]
         .where(
           (participant) =>
-              matchData!.withdrawnTeams.contains(participant.resolvePlayer()),
+              matchData!.withdrawnTeams.contains(participant.player),
         )
         .toList();
 
@@ -141,8 +141,32 @@ class BadmintonMatch extends TournamentMatch<Team, List<MatchSet>> {
   /// Returns an [Iterable] of all [Player]s that compete in this match that are
   /// already qualified.
   Iterable<Player> getPlayersOfMatch() {
-    return [a.resolvePlayer(), b.resolvePlayer()]
+    return [a.player, b.player]
         .whereType<Team>()
         .expand((team) => team.players);
+  }
+
+  @override
+  String getPlayerFingerprint(Team? player) {
+    if (player == null) {
+      return "noplayer";
+    }
+
+    return [for (Player p in player.players) p.id].join(':');
+  }
+
+  @override
+  String getScoreFingerprint(List<MatchSet>? score) {
+    if (score == null) {
+      return "noscore";
+    }
+
+    String fingerprint = score
+        .map(
+          (s) => '${s.team1Points}:${s.team2Points}',
+        )
+        .join('-');
+
+    return fingerprint;
   }
 }

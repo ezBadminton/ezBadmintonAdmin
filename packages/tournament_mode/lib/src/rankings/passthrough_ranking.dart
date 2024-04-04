@@ -25,13 +25,8 @@ class PassthroughRanking<P> extends RankingDecorator<P> {
   }
 
   @override
-  void freezeRanks() {
-    targetRanking.freezeRanks();
-    super.freezeRanks();
-  }
-
-  @override
-  void unfreezeRanks() {
-    targetRanking.unfreezeRanks();
+  void updateRanks() {
+    targetRanking.updateRanks();
+    super.updateRanks();
   }
 }

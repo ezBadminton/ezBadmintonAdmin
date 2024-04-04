@@ -60,7 +60,6 @@ class SingleEliminationWithConsolation<P, S, M extends TournamentMatch<P, S>,
 
   void _createMatches() {
     mainElimination = singleEliminationBuilder(entries);
-    mainElimination.freezeRankings();
 
     List<BracketWithConsolation<P, S, M, E>> allBrackets = [];
     List<BracketWithConsolation<P, S, M, E>> consolationRounds =
@@ -76,10 +75,6 @@ class SingleEliminationWithConsolation<P, S, M extends TournamentMatch<P, S>,
     }
 
     allBrackets.add(mainBracket);
-
-    for (BracketWithConsolation bracket in allBrackets) {
-      bracket.bracket.unfreezeRankings();
-    }
 
     this.allBrackets = allBrackets.reversed.toList();
     _arrangeRounds();
@@ -190,7 +185,6 @@ class SingleEliminationWithConsolation<P, S, M extends TournamentMatch<P, S>,
 
     for (EliminationRound<M> round in roundsToConsole) {
       E consolationElimination = _createConsolationTournament(round);
-      consolationElimination.freezeRankings();
       if (_isFullBye(consolationElimination)) {
         break;
       }
@@ -229,14 +223,15 @@ class SingleEliminationWithConsolation<P, S, M extends TournamentMatch<P, S>,
   /// quarter-final. The tournament can be seen as the "loser-equivalent" of
   /// the given [round].
   E _createConsolationTournament(EliminationRound<M> round) {
-    List<MatchParticipant<P>> losers = round.matches
+    List<WinnerRanking<P, S>> winnerRankings = round.matches
         .expand(
-      (match) => [match.a.placement!.ranking, match.b.placement!.ranking],
-    )
-        .map(
-      (ranking) {
-        WinnerRanking<P, S> winnerRanking = ranking as WinnerRanking<P, S>;
+          (match) => [match.a.placement!.ranking, match.b.placement!.ranking],
+        )
+        .whereType<WinnerRanking<P, S>>()
+        .toList();
 
+    List<MatchParticipant<P>> losers = winnerRankings.map(
+      (winnerRanking) {
         Placement<P> loserPlacement =
             WinnerPlacement(ranking: winnerRanking, place: 1);
 
@@ -245,6 +240,10 @@ class SingleEliminationWithConsolation<P, S, M extends TournamentMatch<P, S>,
     ).toList();
 
     Ranking<P> consolationRanking = OrderedRanking(losers);
+
+    for (WinnerRanking<P, S> winnerRanking in winnerRankings) {
+      winnerRanking.addDependantRanking(consolationRanking);
+    }
 
     E consolationTournament = singleEliminationBuilder(consolationRanking);
 
@@ -280,6 +279,13 @@ class SingleEliminationWithConsolation<P, S, M extends TournamentMatch<P, S>,
         .toList();
 
     finalRanking.initRounds(roundMatches);
+
+    Iterable<Ranking<P>> bracketFinalRankings =
+        allBrackets.map((b) => b.bracket.finalRanking);
+
+    for (Ranking<P> ranking in bracketFinalRankings) {
+      ranking.addDependantRanking(finalRanking);
+    }
   }
 
   /// Calculates the amount of brackets that need to be played with full
@@ -324,13 +330,6 @@ class SingleEliminationWithConsolation<P, S, M extends TournamentMatch<P, S>,
     }
 
     return numBrackets;
-  }
-
-  @override
-  void freezeRankings() {
-    for (BracketWithConsolation bracket in allBrackets) {
-      bracket.bracket.freezeRankings();
-    }
   }
 }
 

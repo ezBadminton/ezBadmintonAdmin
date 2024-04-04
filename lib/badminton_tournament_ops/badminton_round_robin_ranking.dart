@@ -198,8 +198,8 @@ class BadmintonRoundRobinRanking
     Team team2,
   ) {
     return matches.where((match) {
-      Team matchParticipant1 = match.a.resolvePlayer()!;
-      Team matchParticipant2 = match.b.resolvePlayer()!;
+      Team matchParticipant1 = match.a.player!;
+      Team matchParticipant2 = match.b.player!;
 
       return (team1 == matchParticipant1 && team2 == matchParticipant2) ||
           (team1 == matchParticipant2 && team2 == matchParticipant1);
@@ -231,8 +231,8 @@ class BadmintonRoundRobinRanking
     Map<Team, int> numMatches = {};
 
     for (BadmintonMatch match in matches) {
-      Team team1 = match.a.resolvePlayer()!;
-      Team team2 = match.b.resolvePlayer()!;
+      Team team1 = match.a.player!;
+      Team team2 = match.b.player!;
 
       numMatches.update(team1, (amount) => amount + 1, ifAbsent: () => 1);
       numMatches.update(team2, (amount) => amount + 1, ifAbsent: () => 1);
@@ -245,15 +245,15 @@ class BadmintonRoundRobinRanking
     Map<Team, int> wins = {};
 
     for (BadmintonMatch match in matches) {
-      Team? winner = match.getWinner()?.resolvePlayer();
-      Team? loser = match.getLoser()?.resolvePlayer();
+      Team? winner = match.getWinner()?.player;
+      Team? loser = match.getLoser()?.player;
 
       if (winner != null && loser != null) {
         wins.update(winner, (wins) => wins + 1, ifAbsent: () => 1);
         wins.putIfAbsent(loser, () => 0);
       } else {
-        Team? team1 = match.a.resolvePlayer();
-        Team? team2 = match.b.resolvePlayer();
+        Team? team1 = match.a.player;
+        Team? team2 = match.b.player;
 
         if (team1 != null) {
           wins.putIfAbsent(team1, () => 0);
@@ -273,8 +273,8 @@ class BadmintonRoundRobinRanking
     Map<Team, ({int wins, int losses})> setWins = {};
 
     for (BadmintonMatch match in matches) {
-      Team team1 = match.a.resolvePlayer()!;
-      Team team2 = match.b.resolvePlayer()!;
+      Team team1 = match.a.player!;
+      Team team2 = match.b.player!;
       for (MatchSet set in match.score!) {
         bool team1Win = set.team1Points > set.team2Points;
         Team winner = team1Win ? team1 : team2;
@@ -302,8 +302,8 @@ class BadmintonRoundRobinRanking
     Map<Team, ({int wins, int losses})> points = {};
 
     for (BadmintonMatch match in matches) {
-      Team team1 = match.a.resolvePlayer()!;
-      Team team2 = match.b.resolvePlayer()!;
+      Team team1 = match.a.player!;
+      Team team2 = match.b.player!;
       for (MatchSet set in match.score!) {
         int points1 = set.team1Points;
         int points2 = set.team2Points;
@@ -328,7 +328,7 @@ class BadmintonRoundRobinRanking
 
   Set<Team> _getTeams() {
     return matches!
-        .expand((match) => [match.a.resolvePlayer(), match.b.resolvePlayer()])
+        .expand((match) => [match.a.player, match.b.player])
         .whereType<Team>()
         .toSet();
   }

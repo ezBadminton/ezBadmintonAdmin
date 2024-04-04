@@ -11,7 +11,7 @@ class ParticipantLabel extends pw.StatelessWidget {
 
   @override
   pw.Widget build(pw.Context context) {
-    Team? team = participant.resolvePlayer();
+    Team? team = participant.player;
 
     if (team == null) {
       return pw.SizedBox();

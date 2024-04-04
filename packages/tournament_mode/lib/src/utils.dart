@@ -51,13 +51,12 @@ List<List<MatchParticipant<P>>> filterHighestRanks<P>(
   for (List<MatchParticipant<P>> rank in ranks) {
     List<MatchParticipant<P>> filteredRank = rank
         .where(
-          (participant) =>
-              !processedPlayers.contains(participant.resolvePlayer()),
+          (participant) => !processedPlayers.contains(participant.player),
         )
         .toList();
 
     processedPlayers.addAll(
-      filteredRank.map((participant) => participant.resolvePlayer()!),
+      filteredRank.map((participant) => participant.player!),
     );
 
     if (filteredRank.isNotEmpty) {
