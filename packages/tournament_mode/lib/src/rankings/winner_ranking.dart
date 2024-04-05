@@ -1,9 +1,11 @@
 import 'package:tournament_mode/src/match_participant.dart';
 import 'package:tournament_mode/src/ranking.dart';
+import 'package:tournament_mode/src/rankings/match_dependant_ranking.dart';
 import 'package:tournament_mode/src/tournament_match.dart';
 
 /// Ranks the participants of a match by who won.
-class WinnerRanking<P, S> extends Ranking<P> {
+class WinnerRanking<P, S> extends Ranking<P>
+    with MatchDependantRanking<P, TournamentMatch<P, S>> {
   /// Creates a [WinnerRanking] from the given [match]
   WinnerRanking(this.match) {
     assert(
@@ -14,6 +16,9 @@ class WinnerRanking<P, S> extends Ranking<P> {
   }
 
   final TournamentMatch<P, S> match;
+
+  @override
+  List<TournamentMatch<P, S>> get matchDependencies => [match];
 
   @override
   List<MatchParticipant<P>> createRanks() {

@@ -2,8 +2,11 @@ import 'package:collection/collection.dart';
 import 'package:tournament_mode/src/modes/group_phase.dart';
 import 'package:tournament_mode/src/modes/single_elimination.dart';
 import 'package:tournament_mode/src/ranking.dart';
+import 'package:tournament_mode/src/rankings/match_dependant_ranking.dart';
 import 'package:tournament_mode/src/tournament_match.dart';
 import 'package:tournament_mode/src/tournament_round.dart';
+
+import 'package:graphs/graphs.dart' as graphs;
 
 /// A tournament mode made up of specifically chained stages of matches.
 ///
@@ -75,5 +78,68 @@ abstract class TournamentMode<P, S, M extends TournamentMatch<P, S>> {
         .where(
           (m) => m.a.player == player || m.b.player == player,
         );
+  }
+
+  void updateTournament({bool forceCompleteUpdate = false}) {
+    for (M match in matches) {
+      match.updateFingerprint();
+    }
+
+    List<Ranking<P>> rankings =
+        forceCompleteUpdate ? crawlRankings() : crawlUpdatableRankings();
+
+    for (Ranking<P> ranking in rankings) {
+      ranking.update();
+    }
+
+    for (M match in matches) {
+      match.setClean();
+    }
+  }
+
+  /// Returns all rankings in this tournament.
+  ///
+  /// They are topologically sorted such that each ranking comes before
+  /// every ranking that depends on it.
+  ///
+  /// This is the order that the rankings have to be updated in so that no
+  /// ranking updates with the data of a not-yet-updated dependency.
+  List<Ranking<P>> crawlRankings([Ranking<P>? root]) {
+    Set<Ranking<P>> rankings = {};
+
+    Set<Ranking<P>> currentRankings = {root ?? entries};
+    while (currentRankings.isNotEmpty) {
+      rankings.addAll(currentRankings);
+
+      Set<Ranking<P>> crawlingNodes = Set.from(currentRankings);
+      currentRankings.clear();
+
+      for (Ranking<P> ranking in crawlingNodes) {
+        currentRankings.addAll(ranking.dependantRankings);
+      }
+    }
+
+    return graphs.topologicalSort(rankings, (r) => r.dependantRankings);
+  }
+
+  /// Returns the rankings that have to update because one of the matches or
+  /// another ranking that they depend on changed.
+  ///
+  /// This prevents for example the group phase rankings to update every time
+  /// a match in the Knock-Out phase is updated.
+  List<Ranking<P>> crawlUpdatableRankings() {
+    List<Ranking<P>> rankings = crawlRankings();
+
+    Ranking<P>? firstUpdatable = rankings.firstWhereOrNull((r) =>
+        r is MatchDependantRanking &&
+        (r as MatchDependantRanking).didMatchesChange());
+
+    if (firstUpdatable == null) {
+      return [];
+    }
+
+    List<Ranking<P>> updatableRankings = crawlRankings(firstUpdatable);
+
+    return updatableRankings;
   }
 }

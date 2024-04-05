@@ -23,10 +23,4 @@ class PassthroughRanking<P> extends RankingDecorator<P> {
         )
     ];
   }
-
-  @override
-  void updateRanks() {
-    targetRanking.updateRanks();
-    super.updateRanks();
-  }
 }

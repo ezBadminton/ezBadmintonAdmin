@@ -1,3 +1,4 @@
+import 'package:tournament_mode/src/match_participant.dart';
 import 'package:tournament_mode/src/modes/chained_tournament_mode.dart';
 import 'package:tournament_mode/src/modes/group_phase.dart';
 import 'package:tournament_mode/src/modes/qualification_chain.dart';
@@ -50,6 +51,7 @@ class GroupKnockout<
           },
         ) {
     _finalRanking = GroupKnockoutRanking(groupKnockout: this);
+    _addCrossGroupDependencies();
   }
 
   final int numGroups;
@@ -63,4 +65,15 @@ class GroupKnockout<
   G get groupPhase => super.first;
 
   E get knockoutPhase => super.second;
+
+  /// Make all final group ranking participants dependant on the cross group
+  /// ranking so they update when a match in any group updates.
+  void _addCrossGroupDependencies() {
+    for (R roundRobin in groupPhase.groupRoundRobins) {
+      for (MatchParticipant<P> participant
+          in roundRobin.finalRanking.dependantParticipants) {
+        groupPhase.crossGroupRanking.addDependantParticipant(participant);
+      }
+    }
+  }
 }

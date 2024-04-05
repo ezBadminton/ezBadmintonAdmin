@@ -7,6 +7,7 @@ import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dar
 import 'package:ez_badminton_admin_app/match_management/cubit/mixins/match_canceling_mixin.dart';
 import 'package:ez_badminton_admin_app/utils/sorting.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
+import 'package:flutter/foundation.dart';
 
 part 'tournament_progress_state.dart';
 
@@ -48,30 +49,16 @@ class TournamentProgressCubit
   TournamentProgressState _createRunningTournamentState(
     TournamentProgressState state,
   ) {
-    List<Competition> runningCompetitions = state
-        .getCollection<Competition>()
-        .where((c) => c.matches.isNotEmpty)
-        .toList();
-
-    Map<Competition, BadmintonTournamentMode> runningTournaments = {
-      for (Competition competition in runningCompetitions)
-        competition: createTournamentMode(competition),
-    };
-
-    for (Competition competition in runningCompetitions) {
-      BadmintonTournamentMode tournament = runningTournaments[competition]!;
-
-      hydrateTournament(competition, tournament, competition.matches);
-    }
+    Map<Competition, BadmintonTournamentMode> runningTournaments =
+        _updateRunningTournaments(state);
 
     List<BadmintonMatch> danglingMatches = runningTournaments.values
         .expand((tournament) => tournament.matches)
-        .where((match) => match.isDangling)
+        .where((match) => !match.isPlayable && match.court != null)
         .toList();
 
     if (danglingMatches.isNotEmpty) {
       _cancelDanglingMatches(danglingMatches);
-      return this.state;
     }
 
     List<BadmintonMatch> runningMatches = runningTournaments.values
@@ -130,5 +117,74 @@ class TournamentProgressCubit
         .toList();
 
     querier.updateModels(canceledMatches);
+  }
+
+  Map<Competition, BadmintonTournamentMode> _updateRunningTournaments(
+    TournamentProgressState state,
+  ) {
+    List<Competition> runningCompetitions = state
+        .getCollection<Competition>()
+        .where((c) => c.matches.isNotEmpty)
+        .toList();
+
+    List<(Competition, BadmintonTournamentMode)> updatingTournaments = [];
+    List<Competition> creatingTournaments = [];
+
+    for (Competition competition in runningCompetitions) {
+      MapEntry<Competition, BadmintonTournamentMode>? oldTournamentEntry = this
+          .state
+          .runningTournaments
+          .entries
+          .firstWhereOrNull((entry) => entry.key == competition);
+
+      if (oldTournamentEntry == null) {
+        creatingTournaments.add(competition);
+        continue;
+      }
+
+      Competition oldCompetition = oldTournamentEntry.key;
+      BadmintonTournamentMode oldTournament = oldTournamentEntry.value;
+
+      bool doRecreate = _doRecreateTournament(competition, oldCompetition);
+
+      if (doRecreate) {
+        creatingTournaments.add(competition);
+      } else {
+        oldTournament.competition = competition;
+        updatingTournaments.add((competition, oldTournament));
+      }
+    }
+
+    Map<Competition, BadmintonTournamentMode> runningTournaments = {
+      for (Competition competition in creatingTournaments)
+        competition: createTournamentMode(competition),
+      for ((Competition, BadmintonTournamentMode) updatingTournament
+          in updatingTournaments)
+        updatingTournament.$1: updatingTournament.$2,
+    };
+
+    for (Competition competition in runningCompetitions) {
+      bool isNew = creatingTournaments.contains(competition);
+      BadmintonTournamentMode tournament = runningTournaments[competition]!;
+
+      hydrateTournament(competition, tournament, competition.matches);
+
+      tournament.updateTournament(forceCompleteUpdate: isNew);
+    }
+
+    return runningTournaments;
+  }
+
+  bool _doRecreateTournament(
+    Competition competition,
+    Competition oldCompetition,
+  ) {
+    bool doRecreate = (competition.tournamentModeSettings !=
+            oldCompetition.tournamentModeSettings) ||
+        !listEquals(competition.draw, oldCompetition.draw) ||
+        !listEquals(competition.seeds, oldCompetition.seeds) ||
+        !listEquals(competition.tieBreakers, oldCompetition.tieBreakers);
+
+    return doRecreate;
   }
 }

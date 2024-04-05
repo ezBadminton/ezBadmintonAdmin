@@ -25,12 +25,26 @@ class MatchParticipant<P> {
         _isBye = false,
         _isDrawnBye = false;
 
-  /// Creates a [MatchParticipant] that is defined in terms of the [placement].
-  MatchParticipant.fromPlacement(
+  MatchParticipant._fromPlacement(
     this.placement,
   )   : _isBye = false,
         _isDrawnBye = false {
-    placement!.ranking.registerDependantParticipant(this);
+    placement!.ranking.addDependantParticipant(this);
+  }
+
+  /// Returns a [MatchParticipant] that is defined in terms of the [placement].
+  ///
+  /// If a MatchParticipant with an equal placement (same ranking and place)
+  /// already exists, that existing instance is returned. Otherwise a new one
+  /// is created.
+  factory MatchParticipant.fromPlacement(Placement<P> placement) {
+    MatchParticipant<P>? existing =
+        placement.ranking.getExistingDependant(placement);
+
+    MatchParticipant<P> placementParticipant =
+        existing ?? MatchParticipant._fromPlacement(placement);
+
+    return placementParticipant;
   }
 
   /// Creates a [MatchParticipant] as a stand in for a bye. The opponent of this

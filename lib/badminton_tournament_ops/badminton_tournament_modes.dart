@@ -9,7 +9,7 @@ BadmintonMatch _matcher(MatchParticipant<Team> a, MatchParticipant<Team> b) =>
 
 mixin BadmintonTournamentMode
     on TournamentMode<Team, List<MatchSet>, BadmintonMatch> {
-  late final Competition competition;
+  late Competition competition;
 }
 
 typedef BadmintonTournamentRound = TournamentRound<BadmintonMatch>;

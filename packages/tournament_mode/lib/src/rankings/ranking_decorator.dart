@@ -9,4 +9,10 @@ abstract class RankingDecorator<P> extends Ranking<P> {
   RankingDecorator(this.targetRanking);
 
   final Ranking<P> targetRanking;
+
+  @override
+  void update() {
+    targetRanking.update();
+    super.update();
+  }
 }

@@ -16,11 +16,13 @@ abstract class Ranking<P> {
 
   /// The dependent participants are participants who resolve their
   /// player from this ranking.
-  final List<MatchParticipant<P>> _dependentParticipants = [];
+  final List<MatchParticipant<P>> _dependantParticipants = [];
+  List<MatchParticipant<P>> get dependantParticipants =>
+      List.unmodifiable(_dependantParticipants);
 
   List<MatchParticipant<P>> get ranks {
     if (_ranks == null) {
-      updateRanks();
+      update();
     }
     return _ranks!;
   }
@@ -28,11 +30,18 @@ abstract class Ranking<P> {
   /// Returns a list of [MatchParticipant]s ordered by rank.
   List<MatchParticipant<P>> createRanks();
 
-  /// Update the ranks by calling [createRanks].
+  /// Update the ranks then update the dependant participants.
+  void update() {
+    updateRanks();
+    updateParticipants();
+  }
+
   void updateRanks() {
     _ranks = createRanks();
+  }
 
-    for (MatchParticipant<P> participant in _dependentParticipants) {
+  void updateParticipants() {
+    for (MatchParticipant<P> participant in _dependantParticipants) {
       participant.updatePlayer();
     }
   }
@@ -41,14 +50,22 @@ abstract class Ranking<P> {
     _dependantRankings.add(ranking);
   }
 
-  /// Registers a [MatchParticipant.fromPlacement] that has this ranking as its
-  /// [Placement.ranking].
+  /// Registers a [MatchParticipant.fromPlacement] as a dependant of this
+  /// ranking.
   ///
   /// The dependants get their [MatchParticipant.updatePlayer] method called
-  /// when [updateRanks] is called.
-  void registerDependantParticipant(MatchParticipant<P> participant) {
-    assert(participant.placement?.ranking == this);
-    _dependentParticipants.add(participant);
+  /// when [update] is called.
+  void addDependantParticipant(MatchParticipant<P> participant) {
+    _dependantParticipants.add(participant);
+  }
+
+  MatchParticipant<P>? getExistingDependant(Placement<P> placement) {
+    if (placement.ranking != this) {
+      return null;
+    }
+
+    return _dependantParticipants
+        .firstWhereOrNull((p) => p.placement?.place == placement.place);
   }
 }
 

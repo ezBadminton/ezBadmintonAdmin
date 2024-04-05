@@ -168,6 +168,14 @@ abstract class TournamentMatch<P, S> {
     _score = score;
   }
 
+  /// Reset the match to prepare it for hydration
+  void resetMatch() {
+    _startTime = null;
+    _endTime = null;
+    _score = null;
+    withdrawnParticipants = null;
+  }
+
   String getPlayerFingerprint(P? player);
   String getScoreFingerprint(S? score);
 
