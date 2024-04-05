@@ -9,6 +9,17 @@ import 'package:mocktail/mocktail.dart';
 class MockAuthenticationRepository extends Mock
     implements AuthenticationRepository {}
 
+class HasStatus extends CustomMatcher {
+  HasStatus(matcher)
+      : super(
+          'State with status of',
+          'FormzSubmissionStatus',
+          matcher,
+        );
+  @override
+  featureValueOf(actual) => actual.status;
+}
+
 class HasRegistrationStatus extends CustomMatcher {
   HasRegistrationStatus(matcher)
       : super(
@@ -128,12 +139,7 @@ void main() {
     final correctCredentialsSubmittedState = correctCredentialState.copyWith(
       showValidationErrors: true,
     );
-    final loadingSuccessState = correctCredentialsSubmittedState.copyWith(
-      status: FormzSubmissionStatus.inProgress,
-    );
-    final successState = loadingSuccessState.copyWith(
-      status: FormzSubmissionStatus.success,
-    );
+
     blocTest<LoginBloc, LoginState>(
       'Emits FormzSubmissionStatus.success when login succeeds',
       build: () => sut,
@@ -145,8 +151,8 @@ void main() {
       },
       expect: () => [
         correctCredentialsSubmittedState,
-        loadingSuccessState,
-        successState,
+        HasStatus(FormzSubmissionStatus.inProgress),
+        HasStatus(FormzSubmissionStatus.success),
         HasRegistrationStatus(RegistrationStatus.unknown),
         HasRegistrationStatus(RegistrationStatus.registered),
       ],

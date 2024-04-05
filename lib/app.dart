@@ -129,11 +129,15 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   }
 
   void runLocalSever() {
+    bool isTest = Platform.environment.containsKey('FLUTTER_TEST');
+
+    String serverDirName = isTest ? 'local_test_server' : 'local_server';
+
     _serverProcesses = [];
 
     Directory cwd = Directory.current;
     Directory serverWorkingDir = Directory(
-      "${cwd.path}${Platform.pathSeparator}local_server",
+      "${cwd.path}${Platform.pathSeparator}$serverDirName",
     );
 
     if (!serverWorkingDir.existsSync()) {

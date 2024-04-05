@@ -81,6 +81,7 @@ class _UsernameInput extends StatelessWidget {
       builder: (context, state) {
         return TextField(
           key: const Key('loginForm_usernameInput_textField'),
+          controller: context.read<LoginBloc>().usernameInputController,
           onChanged: (username) =>
               context.read<LoginBloc>().add(LoginUsernameChanged(username)),
           autofocus: true,
@@ -106,6 +107,7 @@ class _PasswordInput extends StatelessWidget {
       builder: (context, state) {
         return TextField(
           key: const Key('loginForm_passwordInput_textField'),
+          controller: context.read<LoginBloc>().passwordInputController,
           onChanged: (password) =>
               context.read<LoginBloc>().add(LoginPasswordChanged(password)),
           onSubmitted: (_) =>
@@ -148,6 +150,7 @@ class _PasswordConfirmationInput extends StatelessWidget {
       builder: (context, state) {
         return TextField(
           key: const Key('loginForm_passwordConfirmationInput_textField'),
+          controller: context.read<LoginBloc>().passwordConfirmationController,
           onChanged: (password) => context
               .read<LoginBloc>()
               .add(LoginPasswordConfirmationChanged(password)),
@@ -172,6 +175,7 @@ class _SubmitButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<LoginBloc, LoginState>(
       buildWhen: (previous, current) =>
+          previous.registrationStatus != current.registrationStatus ||
           previous.status != current.status ||
           previous.isValid != current.isValid,
       builder: (context, state) {

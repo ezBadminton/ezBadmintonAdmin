@@ -92,6 +92,8 @@ dev_dependencies:
   bloc_test: ^9.1.5
   expect_stream:
     path: packages/expect_stream
+  integration_test:
+    sdk: flutter
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

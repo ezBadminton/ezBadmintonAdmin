@@ -46,7 +46,7 @@ EOF
 fi
 
 printf "\e[33;1m%s\e[0m\n" '=== Running Tests ==='
-flutter test
+flutter test test
 libtest=$?
 flutter test ./packages/collection_repository/test
 repotest=$?

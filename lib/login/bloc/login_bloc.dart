@@ -5,6 +5,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:ez_badminton_admin_app/input_models/equal_input.dart';
 import 'package:ez_badminton_admin_app/input_models/non_empty.dart';
+import 'package:flutter/material.dart';
 import 'package:formz/formz.dart';
 
 part 'login_event.dart';
@@ -27,6 +28,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   final AuthenticationRepository _authenticationRepository;
 
+  final TextEditingController usernameInputController = TextEditingController();
+  final TextEditingController passwordInputController = TextEditingController();
+  final TextEditingController passwordConfirmationController =
+      TextEditingController();
+
   void _fetchRegistrationStatus() async {
     add(const RegistrationStatusChanged(RegistrationStatus.unknown));
 
@@ -43,7 +49,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     RegistrationStatusChanged event,
     Emitter<LoginState> emit,
   ) {
-    emit(state.copyWith(registrationStatus: event.registrationStatus));
+    LoginState newState = state.copyWith(
+      registrationStatus: event.registrationStatus,
+    );
+    emit(newState);
   }
 
   void _onUsernameChanged(
@@ -113,7 +122,16 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       }
       _fetchRegistrationStatus();
 
-      emit(state.copyWith(status: FormzSubmissionStatus.success));
+      emit(state.copyWith(
+        status: FormzSubmissionStatus.success,
+        username: const NonEmptyInput.pure(),
+        password: const NonEmptyInput.pure(minLength: 5),
+        passwordConfirmation: const EqualInput.pure(''),
+        showValidationErrors: false,
+      ));
+      usernameInputController.text = '';
+      passwordInputController.text = '';
+      passwordConfirmationController.text = '';
     } on LoginException catch (e) {
       emit(state.copyWith(
         status: FormzSubmissionStatus.failure,
