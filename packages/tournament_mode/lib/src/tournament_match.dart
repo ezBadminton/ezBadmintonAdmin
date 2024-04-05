@@ -140,7 +140,6 @@ abstract class TournamentMatch<P, S> {
   /// Sets the start time of this match. If [startTime] is `null` it uses
   /// [DateTime.now].
   void beginMatch([DateTime? startTime]) {
-    assert(isPlayable);
     DateTime time = startTime ?? DateTime.now().toUtc();
     _startTime = time;
   }

@@ -33,7 +33,7 @@ class BadmintonMatch extends TournamentMatch<Team, List<MatchSet>> {
       return;
     }
 
-    if (matchData.startTime != null && isPlayable) {
+    if (matchData.startTime != null) {
       beginMatch(matchData.startTime);
     }
 

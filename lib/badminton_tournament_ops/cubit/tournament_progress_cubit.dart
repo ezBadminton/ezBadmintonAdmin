@@ -41,27 +41,36 @@ class TournamentProgressCubit
         updatedState.getCollection<Court>().sorted(compareCourts);
     updatedState.overrideCollection(sortedCourts);
 
-    updatedState = _createRunningTournamentState(updatedState);
+    updatedState = _createProgressState(updatedState, updateEvents);
 
     emit(updatedState);
   }
 
-  TournamentProgressState _createRunningTournamentState(
+  TournamentProgressState _createProgressState(
     TournamentProgressState state,
+    List<CollectionUpdateEvent<Model>> updateEvents,
   ) {
-    Map<Competition, BadmintonTournamentMode> runningTournaments =
-        _updateRunningTournaments(state);
+    bool updateTournaments = updateEvents.isEmpty ||
+        updateEvents.firstWhereOrNull(
+              (e) => e is CollectionUpdateEvent<Competition>,
+            ) !=
+            null;
 
-    List<BadmintonMatch> danglingMatches = runningTournaments.values
-        .expand((tournament) => tournament.matches)
-        .where((match) => !match.isPlayable && match.court != null)
-        .toList();
+    TournamentProgressState newState = state;
 
-    if (danglingMatches.isNotEmpty) {
-      _cancelDanglingMatches(danglingMatches);
+    if (updateTournaments) {
+      newState = _updateRunningTournaments(newState);
     }
 
-    List<BadmintonMatch> runningMatches = runningTournaments.values
+    newState = _updateProgressInfo(newState);
+
+    return newState;
+  }
+
+  TournamentProgressState _updateProgressInfo(
+    TournamentProgressState state,
+  ) {
+    List<BadmintonMatch> runningMatches = state.runningTournaments.values
         .expand((t) => t.matches)
         .where((match) => match.court != null && match.endTime == null)
         .toList();
@@ -80,7 +89,7 @@ class TournamentProgressCubit
         for (Player player in match.getPlayersOfMatch()) player: match,
     };
 
-    List<BadmintonMatch> finishedMatches = runningTournaments.values
+    List<BadmintonMatch> finishedMatches = state.runningTournaments.values
         .expand((t) => t.matches)
         .where((match) => match.hasWinner && match.endTime != null)
         .sortedBy((match) => match.endTime!)
@@ -91,12 +100,11 @@ class TournamentProgressCubit
         for (Player player in match.getPlayersOfMatch()) player: match.endTime!,
     };
 
-    List<BadmintonMatch> editableMatches = runningTournaments.values
+    List<BadmintonMatch> editableMatches = state.runningTournaments.values
         .expand((tournament) => tournament.getEditableMatches())
         .toList();
 
     return state.copyWith(
-      runningTournaments: runningTournaments,
       occupiedCourts: occupiedCourts,
       openCourts: openCourts,
       playingPlayers: playingPlayers,
@@ -105,21 +113,7 @@ class TournamentProgressCubit
     );
   }
 
-  void _cancelDanglingMatches(List<BadmintonMatch> danglingMatches) {
-    List<MatchData> canceledMatches = danglingMatches
-        .map(
-          (match) => cancelMatch(
-            match.matchData!,
-            state,
-            unassignCourt: true,
-          ),
-        )
-        .toList();
-
-    querier.updateModels(canceledMatches);
-  }
-
-  Map<Competition, BadmintonTournamentMode> _updateRunningTournaments(
+  TournamentProgressState _updateRunningTournaments(
     TournamentProgressState state,
   ) {
     List<Competition> runningCompetitions = state
@@ -172,7 +166,30 @@ class TournamentProgressCubit
       tournament.updateTournament(forceCompleteUpdate: isNew);
     }
 
-    return runningTournaments;
+    List<BadmintonMatch> danglingMatches = runningTournaments.values
+        .expand((tournament) => tournament.matches)
+        .where((match) => !match.isPlayable && match.court != null)
+        .toList();
+
+    if (danglingMatches.isNotEmpty) {
+      _cancelDanglingMatches(danglingMatches);
+    }
+
+    return state.copyWith(runningTournaments: runningTournaments);
+  }
+
+  void _cancelDanglingMatches(List<BadmintonMatch> danglingMatches) {
+    List<MatchData> canceledMatches = danglingMatches
+        .map(
+          (match) => cancelMatch(
+            match.matchData!,
+            state,
+            unassignCourt: true,
+          ),
+        )
+        .toList();
+
+    querier.updateModels(canceledMatches);
   }
 
   bool _doRecreateTournament(
