@@ -189,9 +189,12 @@ class _SubmitButton extends StatelessWidget {
             ? const CircularProgressIndicator()
             : ElevatedButton(
                 key: const Key('loginForm_submit_raisedButton'),
-                onPressed: () {
-                  context.read<LoginBloc>().add(const LoginSubmitted());
-                },
+                onPressed: state.registrationStatus ==
+                        RegistrationStatus.unknown
+                    ? null
+                    : () {
+                        context.read<LoginBloc>().add(const LoginSubmitted());
+                      },
                 child: Text(buttonLabel),
               );
       },

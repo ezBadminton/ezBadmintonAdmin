@@ -158,7 +158,7 @@ Future<void> testLogin(WidgetTester tester, AppLocalizations l10n) async {
   expect(find.text(l10n.invalidPassword), findsOne);
 
   await tester.enterText(inputs.at(0), 'testuser');
-  await tester.enterText(inputs.at(1), 'passsword');
+  await tester.enterText(inputs.at(1), 'wrongPassword');
 
   await tester.pump();
 
@@ -171,9 +171,13 @@ Future<void> testLogin(WidgetTester tester, AppLocalizations l10n) async {
 
   expect(find.text(l10n.loginError('400')), findsOne);
 
+  // Set the username again even though the text field already contains it.
+  // Otherwise the test is flaky because the focus of the password text field
+  // fails.
+  await tester.enterText(inputs.at(0), 'testuser');
   await tester.enterText(inputs.at(1), 'password');
 
-  await tester.pump(const Duration(milliseconds: 50));
+  await tester.pump();
 
   await tester.tap(find.byType(ElevatedButton));
 
