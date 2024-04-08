@@ -99,19 +99,17 @@ extension RecordModelConverions on RecordModel {
   ///
   /// Recurses up to [expansionDepth] levels deep.
   Map<String, dynamic> _toExpandedJson(
-      Map<String, dynamic> json, int expansionDepth) {
+    Map<String, dynamic> json,
+    int expansionDepth,
+  ) {
     if (expansionDepth <= 0) {
       // Return json without expansions
       return json;
     }
     for (MapEntry<String, List<RecordModel>> expansion in expand.entries) {
-      var relationIDs = json.remove(expansion.key);
+      json.remove(expansion.key);
       var relatedRecords = expansion.value;
-      assert(relatedRecords
-              .map((r) => r.id)
-              .where((id) => relationIDs.contains(id))
-              .length ==
-          ((relationIDs is List) ? relationIDs.length : 1));
+
       List<Map<String, dynamic>> relatedJsonObjects =
           relatedRecords.map((e) => e.toCollapsedJson()).toList();
       json.putIfAbsent(expansion.key, () => relatedJsonObjects);

@@ -27,7 +27,8 @@ local_test_server/
 .packages
 .pub-cache/
 .pub/
-/build/
+build/
+test-build/
 untranslated-messages.json
 
 # Package related

@@ -5,10 +5,12 @@ import 'package:ez_badminton_admin_app/competition_management/models/competition
 import 'package:ez_badminton_admin_app/court_management/court_editing/view/court_slot.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_deletion_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/view/gymnasium_editing_page.dart';
+import 'package:ez_badminton_admin_app/player_management/player_editing/view/registration_display_card.dart';
 import 'package:ez_badminton_admin_app/player_management/widgets/player_expansion_panel_body.dart';
 import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
     as display_strings;
 import 'package:ez_badminton_admin_app/widgets/badminton_court/badminton_court.dart';
+import 'package:ez_badminton_admin_app/widgets/custom_input_fields/clearable_dropdown_button.dart';
 import 'package:ez_badminton_admin_app/widgets/gym_floor_plan/gym_floor_plan.dart';
 
 import 'package:flutter/material.dart';
@@ -20,6 +22,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:process_run/shell.dart';
 
 import 'matchers.dart';
+import 'package:ez_badminton_admin_app/utils/test_environment.dart';
 
 late final Shell localServerShell;
 final List<Process> serverProcesses = [];
@@ -31,11 +34,46 @@ const String notes = 'This player is\nvery good!';
 const String hallName = "Gym 1";
 const String hallName2 = "Gym 2";
 const String hallName3 = "Gym 3";
+const List<(String, String)> playerNames = [
+  ('Bruce', 'Wayne'),
+  ('Mary', 'Jane'),
+  ('Mark', 'Twain'),
+  ('Lady', 'Gaga'),
+  ('Forrest', 'Gump'),
+  ('Black', 'Widow'),
+  ('Arnold', 'Schwarzenegger'),
+  ('Marilyn', 'Monroe'),
+  ('Christiano', 'Ronaldo'),
+  ('Lea', 'Schüller'),
+  ('Peter', 'Parker'),
+  ('Zendaya', 'Coleman'),
+  ('Steve', 'Jobs'),
+  ('Margaret', 'Hamilton'),
+  ('Michael', 'Schumacher'),
+  ('Ada', 'Lovelace'),
+  ('Ryan', 'Reynolds'),
+  ('Marie', 'Curie'),
+  ('Barack', 'Obama'),
+  ('Rosa', 'Luxemburg'),
+  ('Peter', 'Pan'),
+  ('Sophie', 'Miller'),
+  ('Max', 'Mustermann'),
+  ('Mary', 'Poppins'),
+  ('Mahadma', 'Ghandi'),
+  ('Angela', 'Merkel'),
+  ('Karl', 'Lagerfeld'),
+  ('Bibi', 'Blocksberg'),
+  ('Harry', 'Potter'),
+  ('Evelyn', 'Glennie'),
+  ('Michael', 'Jackson'),
+  ('Martha', 'Cruz'),
+];
 
 void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() async {
+    TestEnvironment().isTest = true;
     await startLocalServer();
   });
 
@@ -68,6 +106,7 @@ void main() async {
       await testDeletePlayer(tester, l10n);
       await testCreateCompetitions(tester, l10n);
       await testAddCourts(tester, l10n);
+      await testCompetitionRegistration(tester, l10n);
 
       await tester.pump(const Duration(seconds: 3));
     },
@@ -105,7 +144,7 @@ Future<void> startLocalServer() async {
   );
 
   localServerShell.run(
-    './ezBadmintonServer serve',
+    './ezBadmintonServer serve --http 127.0.0.1:8096',
     onProcess: serverProcesses.add,
   );
 }
@@ -551,6 +590,198 @@ Future<void> testCreateCompetitions(
   await tester.pumpAndSettle();
 
   expect(find.text(l10n.competitionManagement), findsOne);
+
+  Finder ageGroupSwitch = find.descendant(
+    of: find
+        .ancestor(
+          of: find.text(l10n.activateAgeGroups),
+          matching: find.byType(Row),
+        )
+        .first,
+    matching: find.byType(Switch),
+  );
+  Finder playingLevelSwitch = find.descendant(
+    of: find
+        .ancestor(
+          of: find.text(l10n.activatePlayingLevels),
+          matching: find.byType(Row),
+        )
+        .first,
+    matching: find.byType(Switch),
+  );
+
+  await tester.tap(ageGroupSwitch);
+  await tester.pumpAndSettle();
+
+  expect(find.text(l10n.noneOf(l10n.ageGroup(2))), findsOne);
+
+  await tester.tap(find.text(l10n.close));
+  await tester.pumpAndSettle();
+
+  await tester.tap(find.descendant(
+    of: find.byType(Transform),
+    matching: find.byType(Checkbox),
+  ));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(l10n.deleteSubject(l10n.competition(2))));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(l10n.confirm));
+  await tester.pumpAndSettle();
+
+  await tester.tap(ageGroupSwitch);
+  await tester.pumpAndSettle();
+
+  expect((tester.widget(ageGroupSwitch) as Switch).value, isTrue);
+
+  await tester.tap(find.text(l10n.editSubject(l10n.ageGroup(2))));
+  await tester.pumpAndSettle();
+
+  Finder radioButtons = find.byType(Radio<AgeGroupType>);
+
+  await tester.tap(radioButtons.at(0));
+  await tester.pump();
+  await tester.enterText(find.byType(TextField), '25');
+  await tester.pumpAndSettle();
+  await tester.tap(find.ancestor(
+    of: find.text(l10n.add),
+    matching: find.byType(ElevatedButton),
+  ));
+  await tester.pumpAndSettle();
+
+  expect(find.text('${l10n.overAgeAbbreviated}25'), findsOne);
+
+  await tester.tap(radioButtons.at(1));
+  await tester.pump();
+  await tester.enterText(find.byType(TextField), '40');
+  await tester.pumpAndSettle();
+  await tester.tap(find.ancestor(
+    of: find.text(l10n.add),
+    matching: find.byType(ElevatedButton),
+  ));
+  await tester.pumpAndSettle();
+
+  expect(find.text('${l10n.underAgeAbbreviated}40'), findsOne);
+
+  await tester.tapAt(const Offset(250, 10));
+  await tester.pumpAndSettle();
+
+  await tester.tap(find.byType(FloatingActionButton));
+  await tester.pumpAndSettle();
+
+  Finder ageGroupCheckbox = find.descendant(
+    of: find
+        .ancestor(
+          of: find.text(l10n.ageGroup(2)),
+          matching: find.byType(Row),
+        )
+        .first,
+    matching: find.byType(Checkbox),
+  );
+
+  await tester.tap(ageGroupCheckbox);
+  await tester.pumpAndSettle();
+  await tester.tap(find.byType(FloatingActionButton));
+  await tester.pumpAndSettle();
+
+  expect(find.byType(CheckboxListTile), findsExactly(10));
+  expect(find.text('${l10n.overAgeAbbreviated}25'), findsExactly(5));
+  expect(find.text('${l10n.underAgeAbbreviated}40'), findsExactly(5));
+
+  await tester.tap(ageGroupSwitch);
+  await tester.pumpAndSettle();
+
+  expect(find.byType(CheckboxListTile), findsExactly(5));
+  expect(find.text('${l10n.overAgeAbbreviated}25'), findsNothing);
+  expect(find.text('${l10n.underAgeAbbreviated}40'), findsNothing);
+
+  await tester.tap(ageGroupSwitch);
+  await tester.pumpAndSettle();
+
+  expect(find.text('${l10n.overAgeAbbreviated}25'), findsExactly(5));
+
+  await tester.tap(playingLevelSwitch);
+  await tester.pumpAndSettle();
+
+  expect(find.text(l10n.noneOf(l10n.playingLevel(2))), findsOne);
+
+  await tester.tap(find.descendant(
+    of: find.byType(AlertDialog),
+    matching: find.text(l10n.editSubject(l10n.playingLevel(2))),
+  ));
+  await tester.pumpAndSettle();
+
+  await tester.enterText(find.byType(TextField), 'Class A');
+  await tester.pumpAndSettle();
+  await tester.tap(find.ancestor(
+    of: find.text(l10n.add),
+    matching: find.byType(ElevatedButton),
+  ));
+  await tester.pumpAndSettle();
+
+  await tester.enterText(find.byType(TextField), 'Class B');
+  await tester.pumpAndSettle();
+  await tester.tap(find.ancestor(
+    of: find.text(l10n.add),
+    matching: find.byType(ElevatedButton),
+  ));
+  await tester.pumpAndSettle();
+
+  await tester.tapAt(const Offset(250, 10));
+  await tester.pumpAndSettle();
+
+  await tester.tap(playingLevelSwitch);
+  await tester.pumpAndSettle();
+
+  expect(find.text('Class A'), findsExactly(5));
+  expect(find.text('Class B'), findsNothing);
+
+  await tester.tap(find.byType(FloatingActionButton));
+  await tester.pumpAndSettle();
+
+  await tester.tap(find.text('Class A'));
+  await tester.pump();
+
+  bool? ageGroupEnabled = (tester.widget(find.ancestor(
+    of: find.text('${l10n.overAgeAbbreviated}25'),
+    matching: find.byType(CheckboxListTile),
+  )) as CheckboxListTile)
+      .enabled;
+
+  expect(ageGroupEnabled, isFalse);
+
+  ageGroupEnabled = (tester.widget(find.ancestor(
+    of: find.text('${l10n.underAgeAbbreviated}40'),
+    matching: find.byType(CheckboxListTile),
+  )) as CheckboxListTile)
+      .enabled;
+
+  expect(ageGroupEnabled, isTrue);
+
+  await tester.tap(find.text('Class A'));
+  await tester.pump();
+  await tester.tap(find.text('${l10n.overAgeAbbreviated}25'));
+  await tester.pump();
+
+  bool? playingLevelEnabled = (tester.widget(find.ancestor(
+    of: find.text('Class A'),
+    matching: find.byType(CheckboxListTile),
+  )) as CheckboxListTile)
+      .enabled;
+
+  expect(playingLevelEnabled, isFalse);
+
+  playingLevelEnabled = (tester.widget(find.ancestor(
+    of: find.text('Class B'),
+    matching: find.byType(CheckboxListTile),
+  )) as CheckboxListTile)
+      .enabled;
+
+  expect(playingLevelEnabled, isTrue);
+
+  await tester.tap(
+    find.byTooltip(MaterialLocalizations.of(context).backButtonTooltip),
+  );
+  await tester.pumpAndSettle();
 }
 
 Future<void> testAddCourts(
@@ -759,4 +990,185 @@ Future<void> testAddCourts(
   await tester.pumpAndSettle();
 
   expect(find.text(hallName3), findsExactly(2));
+}
+
+Future<void> testCompetitionRegistration(
+  WidgetTester tester,
+  AppLocalizations l10n,
+) async {
+  for ((String, String) playerName in playerNames) {
+    await createPlayer(tester, l10n, playerName.$1, playerName.$2);
+  }
+
+  await registerPlayer(
+    tester,
+    l10n,
+    playerNames.last.$1,
+    playerNames.last.$2,
+    'Class A',
+    'O25',
+    'Damen',
+    'Einzel',
+    null,
+  );
+}
+
+Future<void> createPlayer(
+  WidgetTester tester,
+  AppLocalizations l10n,
+  String firstName,
+  String lastName,
+) async {
+  Finder playerPageTitle = find.text(l10n.playerManagement);
+
+  if (playerPageTitle.evaluate().isEmpty) {
+    Finder playerTab = find.descendant(
+      of: find.byType(NavigationRail),
+      matching: find.text(l10n.player(2)),
+    );
+
+    expect(playerTab, findsOne);
+
+    await tester.tap(playerTab);
+    await tester.pumpAndSettle();
+
+    expect(playerPageTitle, findsOne);
+  }
+
+  await tester.tap(find.byType(FloatingActionButton));
+  await tester.pumpAndSettle();
+
+  Finder inputs = find.byType(TextField);
+
+  await tester.enterText(inputs.at(0), firstName);
+  await tester.enterText(inputs.at(2), lastName);
+  await tester.pumpAndSettle();
+
+  await tester.tap(find.byType(FloatingActionButton));
+  await tester.pumpAndSettle();
+
+  expect(playerPageTitle, findsOne);
+  expect(find.text('$firstName $lastName'), findsOne);
+
+  await tester.tap(find.text('$firstName $lastName'));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byTooltip(l10n.confirmAttendance));
+  await tester.pumpAndSettle();
+
+  Finder playerStatus = find.descendant(
+    of: find
+        .ancestor(
+          of: find.text('$firstName $lastName'),
+          matching: find.byType(Column),
+        )
+        .at(1),
+    matching: find.text(l10n.playerStatus(PlayerStatus.attending.toString())),
+  );
+
+  expect(playerStatus, findsOne);
+
+  await tester.tap(find.text('$firstName $lastName'));
+  await tester.pumpAndSettle();
+}
+
+Future<void> registerPlayer(
+  WidgetTester tester,
+  AppLocalizations l10n,
+  String firstName,
+  String lastName,
+  String? playingLevel,
+  String? ageGroup,
+  String genderCategory,
+  String competitionType,
+  String? partner,
+) async {
+  Finder playerEditButton = find.descendant(
+    of: find
+        .ancestor(
+          of: find.text('$firstName $lastName'),
+          matching: find.byType(Column),
+        )
+        .at(1),
+    matching: find.text(l10n.editSubject(l10n.playerAndRegistrations)),
+  );
+
+  await tester.tap(find.text('$firstName $lastName'));
+  await tester.pumpAndSettle();
+  await tester.tap(playerEditButton);
+  await tester.pumpAndSettle();
+
+  await tester.tap(find.text(l10n.addRegistration));
+  await tester.pumpAndSettle();
+
+  if (playingLevel != null) {
+    await tester.tap(find.byType(ClearableDropdownButton<PlayingLevel>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(playingLevel));
+    await tester.pumpAndSettle();
+  }
+
+  if (ageGroup != null) {
+    await tester.tap(find.byType(ClearableDropdownButton<AgeGroup>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(ageGroup));
+    await tester.pumpAndSettle();
+  }
+
+  await tester.tap(find.byType(ClearableDropdownButton<GenderCategory>));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(genderCategory));
+  await tester.pumpAndSettle();
+
+  await tester.tap(find.byType(ClearableDropdownButton<CompetitionType>));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(competitionType));
+  await tester.pumpAndSettle();
+
+  if (partner != null) {
+    await tester.enterText(
+      find.ancestor(
+        of: find.textContaining(l10n.partner),
+        matching: find.byType(TextField),
+      ),
+      partner,
+    );
+  }
+
+  await tester.tap(find.text(l10n.register.toUpperCase()));
+  await tester.pumpAndSettle();
+
+  Finder registrationCard = find.byWidgetPredicate((widget) {
+    if (widget is! RegistrationDisplayCard) {
+      return false;
+    }
+    Competition competition = widget.competition;
+
+    bool equalPlayingLevel = competition.playingLevel?.name == playingLevel;
+    String? competitionAgeGroup = competition.ageGroup == null
+        ? null
+        : display_strings.ageGroup(l10n, competition.ageGroup!);
+    bool equalAgeGroup = competitionAgeGroup == ageGroup;
+
+    bool equalGenderCategory =
+        l10n.genderCategory(competition.genderCategory.toString()) ==
+            genderCategory;
+
+    bool equalCompetitionType =
+        l10n.competitionType(competition.type.toString()) == competitionType;
+
+    Player? registrationParter = widget.registration.partner;
+    String? partnerName = registrationParter == null
+        ? null
+        : '${registrationParter.firstName} ${registrationParter.lastName}';
+
+    bool equalPartner = partnerName == partner;
+
+    return equalPlayingLevel &&
+        equalAgeGroup &&
+        equalGenderCategory &&
+        equalCompetitionType &&
+        equalPartner;
+  });
+
+  expect(registrationCard, findsOne);
 }

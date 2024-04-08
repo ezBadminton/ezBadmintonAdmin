@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:authentication_repository/authentication_repository.dart';
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/utils/test_environment.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:ez_badminton_admin_app/authentication/bloc/authentication_bloc.dart';
 import 'package:ez_badminton_admin_app/home/view/home_page.dart';
@@ -50,7 +51,11 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     runLocalSever();
     WidgetsBinding.instance.addObserver(this);
 
-    _pocketBaseProvider = PocketBaseProvider();
+    String pocketbaseUrl = TestEnvironment().isTest
+        ? 'http://127.0.0.1:8096'
+        : 'http://127.0.0.1:8090';
+
+    _pocketBaseProvider = PocketBaseProvider(pocketbaseUrl);
     _authenticationRepository = AuthenticationRepository(
       pocketBaseProvider: _pocketBaseProvider,
     );
@@ -130,8 +135,12 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 
   void runLocalSever() {
     bool isTest = Platform.environment.containsKey('FLUTTER_TEST');
+    if (isTest) {
+      // Tests run their own server
+      return;
+    }
 
-    String serverDirName = isTest ? 'local_test_server' : 'local_server';
+    String serverDirName = 'local_server';
 
     _serverProcesses = [];
 
