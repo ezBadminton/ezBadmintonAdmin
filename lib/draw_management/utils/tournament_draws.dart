@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:collection_repository/collection_repository.dart';
 
 /// Returns the minimum amount of players needed to make a draw for a tournament
@@ -8,7 +10,7 @@ int minDrawParticipants(TournamentModeSettings modeSettings) {
     case SingleEliminationSettings _:
       return 2;
     case GroupKnockoutSettings settings:
-      return settings.numQualifications;
+      return max(settings.numQualifications, settings.numGroups);
     case DoubleEliminationSettings _:
     case SingleEliminationWithConsolationSettings _:
       return 3;
