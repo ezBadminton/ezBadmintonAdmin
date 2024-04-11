@@ -250,6 +250,9 @@ List<String> tournamentModeSettingsList(
     case GroupKnockoutSettings(
         numGroups: int numGroups,
         numQualifications: int numQualifications,
+        knockOutMode: KnockOutMode knockOutMode,
+        numConsolationRounds: int numConsolationRounds,
+        placesToPlayOut: int placesToPlayOut,
       ):
       settingsStrings.add(
         '${l10n.numGroups}: $numGroups',
@@ -257,6 +260,17 @@ List<String> tournamentModeSettingsList(
       settingsStrings.add(
         '${l10n.numQualifications}: $numQualifications',
       );
+      settingsStrings.add(
+        '${l10n.knockOutMode}: ${knockOutModeName(l10n, knockOutMode)}',
+      );
+      if (knockOutMode == KnockOutMode.consolation) {
+        settingsStrings.add(
+          '${l10n.numConsolationRounds}: $numConsolationRounds',
+        );
+        settingsStrings.add(
+          '${l10n.placesToPlayOut}: $placesToPlayOut',
+        );
+      }
       break;
     case SingleEliminationWithConsolationSettings(
         numConsolationRounds: int numConsolationRounds,
@@ -307,5 +321,13 @@ String? matchName(AppLocalizations l10n, TournamentMatch match) {
     DoubleEliminationRound round =>
       round.getDoubleEliminationMatchName(l10n, match),
     _ => null,
+  };
+}
+
+String knockOutModeName(AppLocalizations l10n, KnockOutMode knockOutMode) {
+  return switch (knockOutMode) {
+    KnockOutMode.single => l10n.singleElimination,
+    KnockOutMode.double => l10n.doubleElimination,
+    KnockOutMode.consolation => l10n.consolationElimination,
   };
 }
