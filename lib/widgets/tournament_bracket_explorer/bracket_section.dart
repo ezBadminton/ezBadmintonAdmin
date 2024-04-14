@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:vector_math/vector_math_64.dart';
 
 class BracketSection {
   const BracketSection({
@@ -10,7 +9,7 @@ class BracketSection {
   final List<Object> tournamentDataObjects;
   final String Function(BuildContext context) labelBuilder;
 
-  static Rect? getEnclosingRect(List<GlobalKey> keys, RenderObject referece) {
+  static Rect? getEnclosingRect(List<GlobalKey> keys, RenderObject reference) {
     if (keys.isEmpty) {
       return null;
     }
@@ -35,9 +34,9 @@ class BracketSection {
 
     List<Rect> rects = renderBoxes.map(
       (box) {
-        Vector3 translation = box.getTransformTo(referece).getTranslation();
+        Matrix4 transform = box.getTransformTo(reference);
 
-        return box.semanticBounds.translate(translation.x, translation.y);
+        return MatrixUtils.transformRect(transform, box.semanticBounds);
       },
     ).toList();
 
