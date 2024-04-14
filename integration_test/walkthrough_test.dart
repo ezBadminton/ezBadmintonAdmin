@@ -1,7 +1,10 @@
 import 'dart:io';
 
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/assets/badminton_icons_icons.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
+import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/widgets/tournament_mode_selector.dart';
+import 'package:ez_badminton_admin_app/constants.dart';
 import 'package:ez_badminton_admin_app/court_management/court_editing/view/court_slot.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_deletion_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/view/gymnasium_editing_page.dart';
@@ -14,7 +17,10 @@ import 'package:ez_badminton_admin_app/widgets/custom_expansion_panel_list/expan
 import 'package:ez_badminton_admin_app/widgets/badminton_court/badminton_court.dart';
 import 'package:ez_badminton_admin_app/widgets/custom_input_fields/clearable_dropdown_button.dart';
 import 'package:ez_badminton_admin_app/widgets/gym_floor_plan/gym_floor_plan.dart';
+import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
 import 'package:ez_badminton_admin_app/widgets/mouse_hover_builder/mouse_hover_builder.dart';
+import 'package:ez_badminton_admin_app/widgets/tooltip_dropdown_menu_item/tooltip_dropdown_menu_item.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -23,7 +29,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:ez_badminton_admin_app/app.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:io/io.dart';
 import 'package:process_run/shell.dart';
+import 'package:window_manager/window_manager.dart';
 
 import 'finders.dart';
 import 'matchers.dart';
@@ -80,6 +88,7 @@ const List<(String, String)> playerNames = [
 
 void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  await windowManager.ensureInitialized();
 
   setUpAll(() async {
     TestEnvironment().isTest = true;
@@ -97,6 +106,8 @@ void main() async {
     (WidgetTester tester) async {
       Widget app = const App();
       await tester.pumpWidget(app);
+
+      await windowManager.setSize(const Size(1500, 900));
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
@@ -119,6 +130,9 @@ void main() async {
       await testAddCourts(tester, l10n);
       await testCompetitionRegistration(tester, l10n);
       await testCompetitionMerge(tester, l10n);
+      await testTournamentModeSetting(tester, l10n);
+      //await testSkip(tester, l10n);
+      await testDraw(tester, l10n);
 
       await tester.pump(const Duration(seconds: 3));
     },
@@ -145,9 +159,15 @@ Future<void> startLocalServer() async {
   Directory serverDataDir = Directory(
     '${serverWorkingDir.path}${Platform.pathSeparator}pb_data',
   );
+  Directory serverTestDataDir = Directory(
+    '${serverWorkingDir.path}${Platform.pathSeparator}pb_test_data',
+  );
 
   if (await serverDataDir.exists()) {
     await serverDataDir.delete(recursive: true);
+  }
+  if (await serverTestDataDir.exists()) {
+    await copyPath(serverTestDataDir.path, serverDataDir.path);
   }
 
   localServerShell = Shell(
@@ -165,6 +185,29 @@ void stopLocalServer() {
   for (Process p in serverProcesses) {
     p.kill();
   }
+}
+
+Future<void> testSkip(
+  WidgetTester tester,
+  AppLocalizations l10n,
+) async {
+  Finder inputs = find.byType(TextField);
+
+  await tester.enterText(inputs.at(0), 'testuser');
+  await tester.enterText(inputs.at(1), 'password');
+
+  await tester.pump();
+
+  await tester.tap(find.byType(ElevatedButton));
+  await tester.pumpAndSettle();
+
+  expect(find.text(l10n.playerManagement), findsOne);
+
+  await tester.tap(find.descendant(
+    of: find.byType(NavigationRail),
+    matching: find.text(l10n.competition(2)),
+  ));
+  await tester.pumpAndSettle();
 }
 
 Future<void> testSignUp(
@@ -1396,6 +1439,475 @@ Future<void> testCompetitionMerge(
   expect(find.byType(CheckboxListTile), findsExactly(5));
 }
 
+Future<void> testTournamentModeSetting(
+  WidgetTester tester,
+  AppLocalizations l10n,
+) async {
+  await tester.tap(find.descendant(
+    of: find.byType(NavigationRail),
+    matching: find.text(l10n.player(2)),
+  ));
+  await tester.pumpAndSettle();
+
+  for ((String, String) playerName in playerNames.sublist(10)) {
+    await registerPlayer(
+      tester,
+      l10n,
+      playerName.$1,
+      playerName.$2,
+      playingLevel1,
+      null,
+      l10n.genderCategory(GenderCategory.male.toString()),
+      l10n.competitionType(CompetitionType.singles.toString()),
+      null,
+    );
+  }
+
+  await tester.tap(find.descendant(
+    of: find.byType(NavigationRail),
+    matching: find.text(l10n.competition(2)),
+  ));
+  await tester.pumpAndSettle();
+
+  Finder tournamentModeButton = find.descendant(
+    of: find.ancestor(
+      of: find.text(display_strings.competitionGenderAndType(
+        l10n,
+        GenderCategory.male,
+        CompetitionType.singles,
+      )),
+      matching: find.byType(CheckboxListTile),
+    ),
+    matching: find.text(l10n.assign),
+  );
+
+  await tester.tap(tournamentModeButton);
+  await tester.pumpAndSettle();
+
+  await tester.tap(find.text(l10n.pleaseChoose));
+  await tester.pumpAndSettle();
+
+  await tester.tap(find.text(l10n.roundRobin));
+  await tester.pumpAndSettle();
+
+  Finder plusButton = find.descendant(
+    of: find
+        .ancestor(
+          of: find.text(l10n.passes),
+          matching: find.byType(Row),
+        )
+        .first,
+    matching: find.byIcon(Icons.add_circle_outline),
+  );
+
+  await tester.tap(plusButton);
+  await tester.pumpAndSettle();
+
+  await tester.tap(find.byType(FloatingActionButton));
+  await tester.pumpAndSettle();
+
+  expect(find.text(l10n.roundRobin), findsOne);
+
+  await tester.tap(find.text(l10n.roundRobin));
+  await tester.pumpAndSettle();
+
+  await tester.tap(find.text(l10n.roundRobin));
+  await tester.pumpAndSettle();
+
+  await tester.tap(find.text(l10n.singleElimination));
+  await tester.pumpAndSettle();
+
+  Finder maxPointInput = find.descendant(
+    of: find
+        .ancestor(
+          of: find.text(l10n.maxPoints),
+          matching: find.byType(Row),
+        )
+        .first,
+    matching: find.byType(TextFormField),
+  );
+  Finder pointInput = find.descendant(
+    of: find
+        .ancestor(
+          of: find.text(l10n.winningPoints),
+          matching: find.byType(Row),
+        )
+        .first,
+    matching: find.byType(TextFormField),
+  );
+
+  await tester.enterText(maxPointInput, '20');
+  await tester.pump();
+
+  await tester.tap(find.byType(FloatingActionButton));
+  await tester.pumpAndSettle();
+
+  expect(find.text(l10n.maxPointsError), findsOne);
+
+  await tester.enterText(pointInput, '21');
+  await tester.enterText(maxPointInput, '30');
+  await tester.pumpAndSettle();
+
+  expect(find.text(l10n.maxPointsError), findsNothing);
+
+  await tester.tap(find.byType(FloatingActionButton));
+  await tester.pumpAndSettle();
+
+  expect(find.text(l10n.competitionManagement).hitTestable(), findsOne);
+  expect(find.text(l10n.singleElimination), findsOne);
+}
+
+Future<void> testDraw(
+  WidgetTester tester,
+  AppLocalizations l10n,
+) async {
+  String mensSinglesAbbr = display_strings.competitionGenderAndTypeAbbreviation(
+    l10n,
+    GenderCategory.male,
+    CompetitionType.singles,
+  );
+
+  await tester.tap(find.descendant(
+    of: find.byType(NavigationRail),
+    matching: find.text(l10n.draw(2)),
+  ));
+  await tester.pumpAndSettle();
+
+  expect(find.text(l10n.drawManagement), findsOne);
+
+  await tester.tap(find.ancestor(
+    of: find.textContaining(mensSinglesAbbr),
+    matching: find.byType(ChoiceChip),
+  ));
+  await tester.pumpAndSettle();
+
+  expect(find.text(l10n.entryList), findsOne);
+  expect(
+    find.text(l10n.teamsReady(playerNames.length, playerNames.length)),
+    findsOne,
+  );
+  expect(
+    find.byIcon(playerStatusIcons[PlayerStatus.notAttending]!),
+    findsNothing,
+  );
+
+  await tester.tap(find.descendant(
+    of: find.byType(NavigationRail),
+    matching: find.text(l10n.player(2)),
+  ));
+  await tester.pumpAndSettle();
+  await openPlayerPanel(tester, l10n, playerNames.last.$1, playerNames.last.$2);
+  await tester.tap(find.byTooltip(l10n.changeStatus).hitTestable());
+  await tester.pumpAndSettle();
+  await tester.tap(
+    find.text(l10n.playerStatus(PlayerStatus.injured.toString())),
+  );
+  await tester.pumpAndSettle();
+
+  expect(
+    find.byIcon(playerStatusIcons[PlayerStatus.injured]!),
+    findsExactly(2),
+  );
+
+  await tester.tap(find.descendant(
+    of: find.byType(NavigationRail),
+    matching: find.text(l10n.draw(2)),
+  ));
+  await tester.pumpAndSettle();
+
+  Finder scrollable = find
+      .ancestor(
+        of: find.byType(DragTarget<int>),
+        matching: find.bySubtype<Scrollable>(),
+      )
+      .first;
+
+  await tester.scrollUntilVisible(
+    find.byIcon(playerStatusIcons[PlayerStatus.notAttending]!),
+    120,
+    scrollable: scrollable,
+  );
+
+  expect(
+    find.text(l10n.teamsReady(playerNames.length - 1, playerNames.length)),
+    findsOne,
+  );
+  expect(find.text(l10n.singleElimination), findsOne);
+
+  await tester.tap(find.text(l10n.makeDraw));
+  await tester.pumpAndSettle();
+
+  expect(find.text(l10n.roundOfN('32')), findsOne);
+  expect(find.text(l10n.roundOfN('16')), findsOne);
+  expect(find.text(l10n.roundOfN('8')), findsOne);
+  expect(find.text(l10n.roundOfN('4')), findsOne);
+  expect(find.text(l10n.roundOfN('2')), findsOne);
+
+  expect(find.text(l10n.bye), findsOne);
+
+  for ((String, String) playerName
+      in playerNames.sublist(0, playerNames.length - 1)) {
+    expect(
+      find.descendant(
+        of: find.byType(MatchParticipantLabel),
+        matching: find.text(
+          '${playerName.$1} ${playerName.$2}',
+          findRichText: true,
+        ),
+      ),
+      findsAny,
+    );
+  }
+  expect(
+    find.descendant(
+      of: find.byType(MatchParticipantLabel),
+      matching: find.text(
+        '${playerNames.last.$1} ${playerNames.last.$2}',
+        findRichText: true,
+      ),
+    ),
+    findsNothing,
+  );
+
+  expect(find.byType(MatchupCard), findsExactly(31));
+
+  await tester.tap(find.byTooltip(l10n.deleteSubject(l10n.draw(1))));
+  await tester.pumpAndSettle();
+
+  expect(find.text(l10n.deleteSubject(l10n.draw(1))), findsOne);
+
+  await tester.tap(find.text(l10n.confirm));
+  await tester.pumpAndSettle();
+
+  expect(find.text(l10n.makeDraw), findsOne);
+
+  await tester.tap(find.descendant(
+    of: find.byType(NavigationRail),
+    matching: find.text(l10n.player(2)),
+  ));
+  await tester.pumpAndSettle();
+  await openPlayerPanel(tester, l10n, playerNames.last.$1, playerNames.last.$2);
+  await tester.tap(find.byTooltip(l10n.changeStatus).hitTestable());
+  await tester.pumpAndSettle();
+  await tester.tap(
+    find
+        .text(l10n.playerStatus(PlayerStatus.attending.toString()))
+        .hitTestable(),
+  );
+  await tester.pumpAndSettle();
+
+  await tester.tap(find.descendant(
+    of: find.byType(NavigationRail),
+    matching: find.text(l10n.draw(2)),
+  ));
+  await tester.pumpAndSettle();
+
+  expect(
+    find.text(l10n.teamsReady(playerNames.length, playerNames.length)),
+    findsOne,
+  );
+
+  for ((String, String) playerName in playerNames.take(4)) {
+    await seedPlayer(tester, l10n, '${playerName.$1} ${playerName.$2}');
+  }
+
+  Finder dragHandles = find.byIcon(Icons.drag_indicator);
+
+  await tester.scrollUntilVisible(
+    find.text('1'),
+    -500,
+    maxScrolls: 2,
+    scrollable: scrollable,
+  );
+  await tester.pump();
+
+  await tester.drag(
+    dragHandles.first,
+    const Offset(0, 80),
+  );
+  await tester.pumpAndSettle();
+
+  Finder firstSeed = find.descendant(
+    of: find.ancestor(
+      of: find.text('${playerNames[1].$1} ${playerNames[1].$2}'),
+      matching: find.byType(DragTarget<int>),
+    ),
+    matching: find.text('1'),
+  );
+  Finder secondSeed = find.descendant(
+    of: find.ancestor(
+      of: find.text('${playerNames[0].$1} ${playerNames[0].$2}'),
+      matching: find.byType(DragTarget<int>),
+    ),
+    matching: find.text('2'),
+  );
+  Finder thirdSeed = find.descendant(
+    of: find.ancestor(
+      of: find.text('${playerNames[2].$1} ${playerNames[2].$2}'),
+      matching: find.byType(DragTarget<int>),
+    ),
+    matching: find.text('3/4'),
+  );
+  Finder fourthSeed = find.descendant(
+    of: find.ancestor(
+      of: find.text('${playerNames[3].$1} ${playerNames[3].$2}'),
+      matching: find.byType(DragTarget<int>),
+    ),
+    matching: find.text('3/4'),
+  );
+
+  expect(
+    [firstSeed, secondSeed, thirdSeed, fourthSeed],
+    [findsOne, findsOne, findsOne, findsOne],
+  );
+
+  await tester.tap(find.text(l10n.makeDraw));
+  await tester.pumpAndSettle();
+
+  firstSeed = find.ancestor(
+    of: find.text(
+      '${playerNames[1].$1} ${playerNames[1].$2}',
+      findRichText: true,
+    ),
+    matching: find.byType(MatchParticipantLabel),
+  );
+  Element highestLabel = findHighestMatchParticipantLabel();
+  expect(firstSeed.evaluate().single == highestLabel, isTrue);
+
+  Finder dragHandle1 = find.descendant(
+    of: find.ancestor(
+      of: find.text(
+        '${playerNames[1].$1} ${playerNames[1].$2}',
+        findRichText: true,
+      ),
+      matching: find.byType(MatchParticipantLabel),
+    ),
+    matching: find.byIcon(Icons.drag_indicator),
+  );
+  Finder dragHandle2 = find.descendant(
+    of: find.ancestor(
+      of: find.text(
+        '${playerNames[0].$1} ${playerNames[0].$2}',
+        findRichText: true,
+      ),
+      matching: find.byType(MatchParticipantLabel),
+    ),
+    matching: find.byIcon(Icons.drag_indicator),
+  );
+
+  Offset dragOffset =
+      getGlobalBoundsOfElement(dragHandle2.evaluate().single).center -
+          getGlobalBoundsOfElement(dragHandle1.evaluate().single).center;
+
+  await tester.drag(dragHandle1, dragOffset);
+  await tester.pumpAndSettle();
+
+  secondSeed = find.ancestor(
+    of: find.text(
+      '${playerNames[0].$1} ${playerNames[0].$2}',
+      findRichText: true,
+    ),
+    matching: find.byType(MatchParticipantLabel),
+  );
+  highestLabel = findHighestMatchParticipantLabel();
+  expect(secondSeed.evaluate().single == highestLabel, isTrue);
+
+  await tester.tap(find.byTooltip(l10n.redraw));
+  await tester.pumpAndSettle();
+
+  expect(find.text(l10n.redraw), findsOne);
+
+  await tester.tap(find.text(l10n.confirm));
+  await tester.pumpAndSettle();
+
+  firstSeed = find.ancestor(
+    of: find.text(
+      '${playerNames[1].$1} ${playerNames[1].$2}',
+      findRichText: true,
+    ),
+    matching: find.byType(MatchParticipantLabel),
+  );
+  highestLabel = findHighestMatchParticipantLabel();
+  expect(firstSeed.evaluate().single == highestLabel, isTrue);
+
+  await drawTournamentMode(tester, l10n, l10n.roundRobin);
+  Finder participants = find.descendant(
+    of: find
+        .ancestor(
+          of: find.text(l10n.participant(2)),
+          matching: find.byType(Card),
+        )
+        .first,
+    matching: find.byType(MatchParticipantLabel),
+  );
+  expect(participants, findsExactly(playerNames.length));
+
+  await drawTournamentMode(tester, l10n, l10n.groupKnockout);
+  Finder group1 = find
+      .ancestor(
+        of: find.text(l10n.groupNumber(1)),
+        matching: find.byType(Card),
+      )
+      .first;
+  Finder group2 = find
+      .ancestor(
+        of: find.text(l10n.groupNumber(2)),
+        matching: find.byType(Card),
+      )
+      .first;
+  Finder group3 = find
+      .ancestor(
+        of: find.text(l10n.groupNumber(3)),
+        matching: find.byType(Card),
+      )
+      .first;
+  Finder group4 = find
+      .ancestor(
+        of: find.text(l10n.groupNumber(4)),
+        matching: find.byType(Card),
+      )
+      .first;
+
+  expect(
+    [group1, group2, group3, group4],
+    [findsOne, findsOne, findsOne, findsOne],
+  );
+
+  expect(
+    find.descendant(
+      of: group1,
+      matching: find.text(
+        '${playerNames[1].$1} ${playerNames[1].$2}',
+        findRichText: true,
+      ),
+    ),
+    findsOne,
+  );
+  expect(
+    find.descendant(
+      of: group2,
+      matching: find.text(
+        '${playerNames[0].$1} ${playerNames[0].$2}',
+        findRichText: true,
+      ),
+    ),
+    findsOne,
+  );
+  expect(find.byType(MatchupCard), findsExactly(7));
+
+  for (int group = 1; group <= 4; group += 1) {
+    expect(find.text(l10n.groupQualification(group, 1)), findsOne);
+    expect(find.text(l10n.groupQualification(group, 2)), findsOne);
+  }
+
+  await drawTournamentMode(tester, l10n, l10n.doubleElimination);
+  expect(find.byType(MatchupCard), findsExactly(62));
+
+  await drawTournamentMode(tester, l10n, l10n.consolationElimination);
+  expect(find.byType(MatchupCard), findsExactly(32));
+  expect(find.text(l10n.matchForThrid), findsOne);
+}
+
 Future<void> createPlayer(
   WidgetTester tester,
   AppLocalizations l10n,
@@ -1747,13 +2259,13 @@ Future<void> openPlayerPanel(
 
   await tester.scrollUntilVisible(
     playerEditButton,
-    50,
+    200,
     scrollable: playerList,
     maxScrolls: 20,
   );
   await tester.scrollUntilVisible(
     playerName,
-    -50,
+    -200,
     scrollable: playerList,
     maxScrolls: 20,
   );
@@ -1761,4 +2273,96 @@ Future<void> openPlayerPanel(
 
   expect(playerName, findsOne);
   expect(playerEditButton, findsOne);
+}
+
+Future<void> seedPlayer(
+  WidgetTester tester,
+  AppLocalizations l10n,
+  String playerName,
+) async {
+  Finder scrollable = find
+      .ancestor(
+        of: find.byType(DragTarget<int>),
+        matching: find.bySubtype<Scrollable>(),
+      )
+      .first;
+
+  Finder seedButton = find
+      .descendant(
+        of: find.ancestor(
+          of: find.text(playerName),
+          matching: find.byType(DragTarget<int>),
+        ),
+        matching: find.byIcon(BadmintonIcons.seedling),
+      )
+      .hitTestable();
+
+  try {
+    await tester.scrollUntilVisible(
+      seedButton,
+      150,
+      scrollable: scrollable,
+    );
+  } catch (_) {}
+  try {
+    await tester.scrollUntilVisible(
+      seedButton,
+      -150,
+      scrollable: scrollable,
+    );
+  } catch (_) {}
+  await tester.tap(seedButton);
+  await tester.pumpAndSettle();
+
+  Finder unseedButton = find
+      .descendant(
+        of: find.ancestor(
+          of: find.text(playerName),
+          matching: find.byType(DragTarget<int>),
+        ),
+        matching: find.byIcon(BadmintonIcons.crossed_seedling),
+      )
+      .hitTestable();
+  await tester.scrollUntilVisible(
+    unseedButton,
+    -99999,
+    scrollable: scrollable,
+    maxScrolls: 1,
+  );
+  await tester.pumpAndSettle();
+
+  expect(unseedButton, findsOne);
+}
+
+Future<void> drawTournamentMode(
+  WidgetTester tester,
+  AppLocalizations l10n,
+  String tournamentMode,
+) async {
+  await tester.tap(find.byTooltip(l10n.deleteSubject(l10n.draw(1))));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(l10n.confirm));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(l10n.changeTournamentMode));
+  await tester.pumpAndSettle();
+
+  Finder modeSelector = find.descendant(
+    of: find.byType(TournametModeSelector),
+    matching: find.bySubtype<DropdownButton>(),
+  );
+
+  await tester.tap(modeSelector);
+  await tester.pumpAndSettle();
+
+  Finder modeItem = find.descendant(
+    of: find.bySubtype<TooltipDropdownMenuItem>(),
+    matching: find.text(tournamentMode),
+  );
+
+  await tester.tap(modeItem);
+  await tester.pumpAndSettle();
+  await tester.tap(find.byType(FloatingActionButton));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(l10n.makeDraw));
+  await tester.pumpAndSettle();
 }

@@ -1,5 +1,9 @@
+import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/app.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/registration_display_card.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
@@ -54,4 +58,31 @@ Finder findRegistrationCard(
   });
 
   return registrationCardFinder;
+}
+
+Element findHighestMatchParticipantLabel() {
+  Finder finder = find.byType(MatchParticipantLabel);
+
+  Iterable<Element> elements = finder.evaluate();
+
+  Element highest = elements.sortedBy<num>(
+    (element) {
+      if (element.renderObject == null) {
+        return 999999;
+      }
+      return getGlobalBoundsOfElement(element).top;
+    },
+  ).first;
+
+  return highest;
+}
+
+Rect getGlobalBoundsOfElement(Element element) {
+  RenderObject appRenderObj = find.byType(App).evaluate().single.renderObject!;
+
+  Rect localBounds = element.renderObject!.semanticBounds;
+
+  Matrix4 globalTransform = element.renderObject!.getTransformTo(appRenderObj);
+
+  return MatrixUtils.transformRect(globalTransform, localBounds);
 }

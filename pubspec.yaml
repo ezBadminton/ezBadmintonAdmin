@@ -76,6 +76,8 @@ dependencies:
   dart_numerics: ^0.0.6
   path_drawing: ^1.0.1
   process_run: ^0.14.2
+  io: ^1.0.4
+  window_manager: ^0.3.8
 
 dev_dependencies:
   flutter_test:
