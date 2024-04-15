@@ -140,8 +140,9 @@ void main() async {
       await testCompetitionMerge(tester, l10n);
       await testTournamentModeSetting(tester, l10n);
       await testDraw(tester, l10n);
-      //await testSkip(tester, l10n);
       await testMatches(tester, l10n);
+      //await testSkip(tester, l10n);
+      await testMatchEditing(tester, l10n);
 
       await tester.pump(const Duration(seconds: 3));
     },
@@ -214,7 +215,7 @@ Future<void> testSkip(
 
   await tester.tap(find.descendant(
     of: find.byType(NavigationRail),
-    matching: find.text(l10n.draw(2)),
+    matching: find.text(l10n.result(2)),
   ));
   await tester.pumpAndSettle();
   String mensSinglesAbbr = display_strings.competitionGenderAndTypeAbbreviation(
@@ -2563,6 +2564,93 @@ Future<void> testMatches(
 
   await tester.tap(find.text(l10n.confirm));
   await tester.pumpAndSettle();
+}
+
+Future<void> testMatchEditing(
+  WidgetTester tester,
+  AppLocalizations l10n,
+) async {
+  expect(find.byIcon(Icons.edit), findsOne);
+
+  await tester.tap(find.byIcon(Icons.edit));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(l10n.deleteResult));
+  await tester.pumpAndSettle();
+
+  expect(find.text(l10n.deleteResult).hitTestable(), findsOne);
+
+  await tester.tap(find.text(l10n.confirm));
+  await tester.pumpAndSettle();
+
+  expect(find.byIcon(Icons.edit), findsExactly(2));
+
+  await tester.tap(find.descendant(
+    of: find.byType(NavigationRail),
+    matching: find.text(l10n.match(2)),
+  ));
+  await tester.pumpAndSettle();
+
+  expect(find.text(l10n.matchEnded), findsOne);
+
+  await tester.tap(find.descendant(
+    of: find.byType(NavigationRail),
+    matching: find.text(l10n.result(2)),
+  ));
+  await tester.pumpAndSettle();
+
+  await tester.tap(find.byIcon(Icons.edit).first);
+  await tester.pumpAndSettle();
+
+  Finder scoreInputs = find.descendant(
+    of: find.byType(FocusTraversalOrder),
+    matching: find.byType(TextField),
+  );
+
+  await tester.enterText(scoreInputs.at(0), '10');
+  await tester.enterText(scoreInputs.at(3), '21');
+  await tester.enterText(scoreInputs.at(1), '10');
+  await tester.enterText(scoreInputs.at(4), '21');
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(l10n.enterResult));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(l10n.leaderboard));
+  await tester.pumpAndSettle();
+
+  Finder leaderboardEntries = find.descendant(
+    of: find.byType(AlertDialog),
+    matching: find.byType(MatchParticipantLabel),
+  );
+
+  expect(
+    find.descendant(
+      of: leaderboardEntries.at(2),
+      matching: find.text(
+        '${playerNames[1].$1} ${playerNames[1].$2}',
+        findRichText: true,
+      ),
+    ),
+    findsOne,
+  );
+
+  await tester.tap(find.text(l10n.confirm));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byIcon(Icons.edit).at(1));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(l10n.deleteResult));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(l10n.confirm));
+  await tester.pumpAndSettle();
+
+  expect(find.byIcon(Icons.edit), findsExactly(3));
+
+  await tester.tap(find.descendant(
+    of: find.byType(NavigationRail),
+    matching: find.text(l10n.match(2)),
+  ));
+  await tester.pumpAndSettle();
+
+  expect(find.byType(WaitingMatch), findsOne);
+  expect(find.text(l10n.matchEnded), findsOne);
 }
 
 Future<void> createPlayer(
