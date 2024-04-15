@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_round_robin_ranking.dart';
@@ -116,10 +115,7 @@ class BadmintonGroupKnockout extends GroupKnockout<
   }
 
   bool get hasKnockoutStarted =>
-      knockoutPhase.matches.firstWhereOrNull(
-        (m) => m.matchData?.startTime != null,
-      ) !=
-      null;
+      knockoutPhase.matches.any((match) => match.startTime != null);
 
   BadmintonGroupKnockout.fromCompetition({
     required Ranking<Team> entries,
@@ -165,24 +161,12 @@ class BadmintonGroupKnockout extends GroupKnockout<
 
   @override
   List<BadmintonMatch> reenterPlayer(Team player) {
-    Set<Team> groupOfPlayer = groupPhase.groupRoundRobins
-        .map((g) => g.participants.map((p) => p.player!))
-        .firstWhere((g) => g.contains(player))
-        .toSet();
+    List<BadmintonMatch> reenteringMatches = [
+      if (!hasKnockoutStarted) ...groupPhase.reenterPlayer(player),
+      ...knockoutPhase.reenterPlayer(player),
+    ];
 
-    Set<Team> teamsInKnockout = knockoutPhase.matches
-        .where((m) => m.startTime != null)
-        .expand((m) => [m.a.player!, m.b.player!])
-        .toSet();
-
-    bool groupIsInKnockout =
-        groupOfPlayer.intersection(teamsInKnockout).isNotEmpty;
-
-    if (groupIsInKnockout) {
-      return knockoutPhase.reenterPlayer(player);
-    } else {
-      return groupPhase.reenterPlayer(player);
-    }
+    return reenteringMatches;
   }
 
   static EliminationChain<Team, List<MatchSet>, BadmintonMatch>

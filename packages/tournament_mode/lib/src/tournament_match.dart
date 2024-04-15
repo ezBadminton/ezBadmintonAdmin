@@ -54,9 +54,23 @@ abstract class TournamentMatch<P, S> {
   /// This becomes set when the match is used to create a [WinnerRanking]
   WinnerRanking<P, S>? winnerRanking;
 
+  List<P>? withdrawnPlayers;
+
   /// This list is filled when one or both of the participants withdrew
   /// for some reason.
-  List<MatchParticipant<P>>? withdrawnParticipants;
+  List<MatchParticipant<P>>? get withdrawnParticipants {
+    if (withdrawnPlayers == null || withdrawnPlayers!.isEmpty) {
+      return null;
+    }
+
+    List<MatchParticipant<P>> withdrawnParticipants = [a, b]
+        .where(
+          (participant) => withdrawnPlayers!.contains(participant.player),
+        )
+        .toList();
+
+    return withdrawnParticipants;
+  }
 
   /// This is set when the match is decided due to [withdrawnParticipants].
   ///
@@ -172,7 +186,7 @@ abstract class TournamentMatch<P, S> {
     _startTime = null;
     _endTime = null;
     _score = null;
-    withdrawnParticipants = null;
+    withdrawnPlayers = null;
   }
 
   String getPlayerFingerprint(P? player);

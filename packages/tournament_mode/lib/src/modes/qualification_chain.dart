@@ -63,9 +63,8 @@ mixin EliminationChain<P, S, M extends TournamentMatch<P, S>>
         .where((match) {
       List<M> nextMatches = getNextPlayableMatches(match);
 
-      bool doNextMatchesAllowEditing = nextMatches.fold(
-        true,
-        (allowEditing, match) => allowEditing && !match.hasWinner,
+      bool doNextMatchesAllowEditing = nextMatches.every(
+        (match) => !match.hasWinner,
       );
 
       return doNextMatchesAllowEditing;
@@ -91,9 +90,8 @@ mixin EliminationChain<P, S, M extends TournamentMatch<P, S>>
 
         List<M> nextMatches = getNextPlayableMatches(m);
 
-        bool haveNextMatchesStarted = nextMatches.fold(
-          false,
-          (haveStarted, match) => haveStarted || match.startTime != null,
+        bool haveNextMatchesStarted = nextMatches.any(
+          (match) => match.startTime != null,
         );
 
         bool walkoverNotInEffect =
@@ -123,9 +121,8 @@ mixin EliminationChain<P, S, M extends TournamentMatch<P, S>>
       (match) {
         List<M> nextMatches = getNextPlayableMatches(match);
 
-        bool haveNextMatchesStarted = nextMatches.fold(
-          false,
-          (haveStarted, match) => haveStarted || match.startTime != null,
+        bool haveNextMatchesStarted = nextMatches.any(
+          (match) => match.startTime != null,
         );
 
         return !haveNextMatchesStarted;
