@@ -209,21 +209,8 @@ class _RoundRobinLeaderboard extends StatelessWidget {
     }
 
     if (parentTournament != null && parentTournament!.hasKnockoutStarted) {
-      // Do not allow editing of the tie breaker when the tied teams are
-      // already playing in the knock out matches that they qualified for
-      // because of the tie breaker.
-
-      Set<Team> teamsInKnockout = parentTournament!.knockoutPhase.matches
-          .where((m) => m.startTime != null)
-          .expand((m) => [m.a.player!, m.b.player!])
-          .toSet();
-
-      bool isTieInKnockOut =
-          teamsInKnockout.intersection(tieOfRank.toSet()).isNotEmpty;
-
-      if (isTieInKnockOut) {
-        return null;
-      }
+      // Do not allow editing of the tie breaker when knockout phase has started
+      return null;
     }
 
     var l10n = AppLocalizations.of(context)!;

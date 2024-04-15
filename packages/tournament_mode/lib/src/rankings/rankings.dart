@@ -7,3 +7,4 @@ export 'ranking_decorator.dart';
 export 'winner_ranking.dart';
 export 'tieable_ranking.dart';
 export 'group_knockout_ranking.dart';
+export 'passthrough_ranking.dart';

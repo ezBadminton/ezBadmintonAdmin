@@ -5,7 +5,6 @@ import 'package:tournament_mode/src/modes/qualification_chain.dart';
 import 'package:tournament_mode/src/modes/round_robin.dart';
 import 'package:tournament_mode/src/modes/single_elimination.dart';
 import 'package:tournament_mode/src/ranking.dart';
-import 'package:tournament_mode/src/rankings/passthrough_ranking.dart';
 import 'package:tournament_mode/src/rankings/rankings.dart';
 import 'package:tournament_mode/src/tournament_match.dart';
 
@@ -43,6 +42,7 @@ class GroupKnockout<
                 numGroups: numGroups,
                 numQualifications: numQualifications,
               ),
+              passthroughCondition: _groupPassthroughCondition,
             );
 
             groupResults.addDependantRanking(transition);
@@ -51,7 +51,24 @@ class GroupKnockout<
           },
         ) {
     _finalRanking = GroupKnockoutRanking(groupKnockout: this);
-    _addCrossGroupDependencies();
+  }
+
+  /// The qualified participants from the group phase can only pass into
+  /// the knockout stage when their [GroupPhasePlacement] is not blocked.
+  /// It blocks when the group phase is not entirely completed or when there
+  /// are ties in the group results.
+  static bool _groupPassthroughCondition(MatchParticipant? participant) {
+    assert(
+      participant?.placement?.getPlacement()?.placement is GroupPhasePlacement,
+    );
+
+    GroupPhasePlacement placement = participant?.placement
+        ?.getPlacement()
+        ?.placement as GroupPhasePlacement;
+
+    bool canPass = !placement.isBlocked();
+
+    return canPass;
   }
 
   final int numGroups;
@@ -65,15 +82,4 @@ class GroupKnockout<
   G get groupPhase => super.first;
 
   E get knockoutPhase => super.second;
-
-  /// Make all final group ranking participants dependant on the cross group
-  /// ranking so they update when a match in any group updates.
-  void _addCrossGroupDependencies() {
-    for (R roundRobin in groupPhase.groupRoundRobins) {
-      for (MatchParticipant<P> participant
-          in roundRobin.finalRanking.dependantParticipants) {
-        groupPhase.crossGroupRanking.addDependantParticipant(participant);
-      }
-    }
-  }
 }

@@ -62,17 +62,27 @@ mixin TieableRanking<P> implements Ranking<P> {
 
   /// Returns the ties that need to be broken in order to fulfill
   /// [requiredUntiedRanks].
-  List<List<MatchParticipant<P>>> get blockingTies => tiedRanks
-      .whereIndexed(
-          (index, tie) => tie.length > 1 && index < requiredUntiedRanks)
-      .toList();
+  List<List<MatchParticipant<P>>> get blockingTies {
+    List<int> rankIndices = getRankIndices(tiedRanks);
+
+    return tiedRanks
+        .whereIndexed(
+          (i, tie) => tie.length > 1 && rankIndices[i] < requiredUntiedRanks,
+        )
+        .toList();
+  }
 
   /// Returns the ties that need to be broken in order to fulfill
   /// [requiredUntiedRanks] without tie breakers applied.
-  List<List<MatchParticipant<P>>> get unbrokenBlockingTies => unbrokenTiedRanks
-      .whereIndexed(
-          (index, tie) => tie.length > 1 && index < requiredUntiedRanks)
-      .toList();
+  List<List<MatchParticipant<P>>> get unbrokenBlockingTies {
+    List<int> rankIndices = getRankIndices(unbrokenTiedRanks);
+
+    return unbrokenTiedRanks
+        .whereIndexed(
+          (i, tie) => tie.length > 1 && rankIndices[i] < requiredUntiedRanks,
+        )
+        .toList();
+  }
 
   /// Try to find one of the [tieBreakers] that can break the given [tie].
   List<List<MatchParticipant<P>>> _tryTieBreak(

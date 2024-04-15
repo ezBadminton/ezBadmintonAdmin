@@ -98,6 +98,7 @@ class _CrossRankTieBreakerButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (tournament.hasKnockoutStarted) {
+      // Do not allow editing of the tie breaker when knockout phase has started
       return const SizedBox();
     }
 
@@ -165,9 +166,7 @@ class _CrossRankTieBreakerButtons extends StatelessWidget {
     List<List<Team>> teamTies = ties
         .map((t) => t
             .map(
-              (p) => (p.placement as GroupPhasePlacement?)
-                  ?.getUnblockedPlacement()
-                  ?.player,
+              (p) => p.player,
             )
             .toList())
         .where((t) => !t.contains(null))

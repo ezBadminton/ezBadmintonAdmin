@@ -89,7 +89,8 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
     Map<MatchParticipant, Widget> placeholders = {};
 
     for (MatchParticipant p in knockoutEntries) {
-      MatchParticipant knockoutSeedPlacement = p.placement!.getPlacement()!;
+      MatchParticipant knockoutSeedPlacement =
+          (p.placement! as PassthroughPlacement).getUnblockedPlacement()!;
       MatchParticipant qualificationPlacement =
           knockoutSeedPlacement.placement!.getPlacement()!;
 

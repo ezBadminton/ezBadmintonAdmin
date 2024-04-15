@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:tournament_mode/src/match_participant.dart';
+import 'package:tournament_mode/src/modes/group_knockout.dart';
 import 'package:tournament_mode/src/modes/group_phase.dart';
 import 'package:tournament_mode/src/modes/round_robin.dart';
 import 'package:tournament_mode/src/ranking.dart';
@@ -28,6 +29,7 @@ class GroupPhaseRanking<P, S, M extends TournamentMatch<P, S>>
   @override
   List<List<MatchParticipant<P>>> createTiedRanks() {
     int crossRankedRank = _getCrossRankedRank();
+    bool groupsTied = doGroupsHaveTie();
 
     List<List<MatchParticipant<P>>> groupRankings =
         groups.map((g) => _getGroupRanking(g, crossRankedRank)).toList();
@@ -42,7 +44,7 @@ class GroupPhaseRanking<P, S, M extends TournamentMatch<P, S>>
           [groupRanking[i]],
       ];
 
-      if (i == crossRankedRank) {
+      if (i == crossRankedRank && !groupsTied) {
         groupRank = _crossRank(groupRank.flattened.toList());
       }
 
@@ -121,14 +123,18 @@ class GroupPhaseRanking<P, S, M extends TournamentMatch<P, S>>
 
     return crossRanks;
   }
+
+  /// Returns wether at least one group has a tie in its internal final ranking
+  bool doGroupsHaveTie() {
+    return groupPhase.groupRoundRobins
+            .firstWhereOrNull((g) => g.finalRanking.blockingTies.isNotEmpty) !=
+        null;
+  }
 }
 
 /// A [Placement] for a [TieableMatchRanking].
 ///
-/// It holds back the placement ([getPlacement] returns null) while the group
-/// phase matches are not all completed or while there is an unbroken tie.
-///
-/// It also replaces any placed participants that withdrew from the matches with
+/// It replaces any placed participants that withdrew from the matches with
 /// a [MatchParticipant.bye]. This way no withdrawn players can pass this
 /// placement.
 ///
@@ -153,7 +159,8 @@ class GroupPhasePlacement<P> extends Placement<P> {
   final bool isCrossGroup;
 
   final GroupPhase groupPhase;
-  TieableRanking get groupPhaseRanking => groupPhase.finalRanking;
+  GroupPhaseRanking<P, dynamic, dynamic> get groupPhaseRanking =>
+      groupPhase.finalRanking as GroupPhaseRanking<P, dynamic, dynamic>;
 
   @override
   TieableMatchRanking<P, dynamic, TournamentMatch<P, dynamic>> get ranking =>
@@ -162,12 +169,6 @@ class GroupPhasePlacement<P> extends Placement<P> {
 
   @override
   MatchParticipant<P>? getPlacement() {
-    if (!groupPhase.isCompleted() ||
-        _doGroupsHaveTie() ||
-        groupPhaseRanking.blockingTies.isNotEmpty) {
-      return null;
-    }
-
     MatchParticipant<P>? placement = super.getPlacement();
     P? player = placement?.player;
 
@@ -178,10 +179,17 @@ class GroupPhasePlacement<P> extends Placement<P> {
     return placement;
   }
 
-  /// Returns the placement like a normal [Placement] bypassing the blocking
-  /// conditions from the group phase.
-  MatchParticipant<P>? getUnblockedPlacement() {
-    return super.getPlacement();
+  /// When the group phase placement is blocked it can't forward its
+  /// participant to the knockout stage.
+  ///
+  /// * See [GroupKnockout] where this is called to determine the passthrough
+  /// condition.
+  bool isBlocked() {
+    bool blocking = !groupPhase.isCompleted() ||
+        groupPhaseRanking.doGroupsHaveTie() ||
+        groupPhaseRanking.blockingTies.isNotEmpty;
+
+    return blocking;
   }
 
   bool _isPlayerWithdrawn(P? player) {
@@ -194,13 +202,6 @@ class GroupPhasePlacement<P> extends Placement<P> {
               .map((p) => p.player)
               .contains(player),
         ) !=
-        null;
-  }
-
-  /// Returns wether at least one group has a tie in its internal final ranking
-  bool _doGroupsHaveTie() {
-    return groupPhase.groupRoundRobins
-            .firstWhereOrNull((g) => g.finalRanking.blockingTies.isNotEmpty) !=
         null;
   }
 }
