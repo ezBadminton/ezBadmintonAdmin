@@ -4,10 +4,11 @@ import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/assets/badminton_icons_icons.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/widgets/tournament_mode_selector.dart';
-import 'package:ez_badminton_admin_app/constants.dart';
+import 'package:ez_badminton_admin_app/constants.dart' as constants;
 import 'package:ez_badminton_admin_app/court_management/court_editing/view/court_slot.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/cubit/gymnasium_deletion_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/gymnasium_editing/view/gymnasium_editing_page.dart';
+import 'package:ez_badminton_admin_app/match_management/game_sheet_printing/cubit/game_sheet_printing_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/widgets/match_queue_list.dart';
 import 'package:ez_badminton_admin_app/match_management/widgets/queued_match.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/player_editing_form.dart';
@@ -141,8 +142,9 @@ void main() async {
       await testTournamentModeSetting(tester, l10n);
       await testDraw(tester, l10n);
       await testMatches(tester, l10n);
-      //await testSkip(tester, l10n);
       await testMatchEditing(tester, l10n);
+      //await testSkip(tester, l10n);
+      await testMatchSheetPrinting(tester, l10n);
 
       await tester.pump(const Duration(seconds: 3));
     },
@@ -215,17 +217,7 @@ Future<void> testSkip(
 
   await tester.tap(find.descendant(
     of: find.byType(NavigationRail),
-    matching: find.text(l10n.result(2)),
-  ));
-  await tester.pumpAndSettle();
-  String mensSinglesAbbr = display_strings.competitionGenderAndTypeAbbreviation(
-    l10n,
-    GenderCategory.male,
-    CompetitionType.singles,
-  );
-  await tester.tap(find.ancestor(
-    of: find.textContaining(mensSinglesAbbr),
-    matching: find.byType(ChoiceChip),
+    matching: find.text(l10n.match(2)),
   ));
   await tester.pumpAndSettle();
 }
@@ -1607,7 +1599,7 @@ Future<void> testDraw(
     findsOne,
   );
   expect(
-    find.byIcon(playerStatusIcons[PlayerStatus.notAttending]!),
+    find.byIcon(constants.playerStatusIcons[PlayerStatus.notAttending]!),
     findsNothing,
   );
 
@@ -1625,7 +1617,7 @@ Future<void> testDraw(
   await tester.pumpAndSettle();
 
   expect(
-    find.byIcon(playerStatusIcons[PlayerStatus.injured]!),
+    find.byIcon(constants.playerStatusIcons[PlayerStatus.injured]!),
     findsExactly(2),
   );
 
@@ -1643,7 +1635,7 @@ Future<void> testDraw(
       .first;
 
   await tester.scrollUntilVisible(
-    find.byIcon(playerStatusIcons[PlayerStatus.notAttending]!),
+    find.byIcon(constants.playerStatusIcons[PlayerStatus.notAttending]!),
     120,
     scrollable: scrollable,
   );
@@ -2651,6 +2643,61 @@ Future<void> testMatchEditing(
 
   expect(find.byType(WaitingMatch), findsOne);
   expect(find.text(l10n.matchEnded), findsOne);
+}
+
+Future<void> testMatchSheetPrinting(
+  WidgetTester tester,
+  AppLocalizations l10n,
+) async {
+  await tester.tap(find.byType(FloatingActionButton));
+  await tester.pumpAndSettle();
+
+  expect(find.text(l10n.gameSheetPrintingTitle), findsOne);
+  expect(find.text(l10n.noSheetsToPrint), findsOne);
+
+  await tester.tap(find.text(
+    l10n.gameSheetPrintSelection(PrintSelection.allUpcoming.toString()),
+  ));
+  await tester.pumpAndSettle();
+
+  expect(find.text(l10n.noSheetsToPrint), findsNothing);
+  expect(
+    find.text(l10n.gameSheetPrintPreview(l10n.nPages(1), l10n.nSheets(1))),
+    findsOne,
+  );
+
+  final BuildContext context = tester.element(find.byType(Scaffold).first);
+  await tester.tap(
+    find.byTooltip(MaterialLocalizations.of(context).backButtonTooltip),
+  );
+  await tester.pumpAndSettle();
+
+  String runningMatchId =
+      (tester.widget(find.byType(RunningMatch)) as RunningMatch)
+          .match
+          .matchData!
+          .id;
+
+  String matchQRCode =
+      '${constants.matchQrPrefix}$runningMatchId${constants.matchQrSuffix}';
+
+  for (String char in matchQRCode.split('')) {
+    // Simulate the input from a QR scanner device
+    await tester.sendKeyEvent(LogicalKeyboardKey.digit0, character: char);
+    await Future.delayed(const Duration(milliseconds: 2));
+  }
+  await tester.pumpAndSettle();
+
+  expect(
+    find.descendant(
+      of: find.byType(AlertDialog),
+      matching: find.text(l10n.enterResult),
+    ),
+    findsAny,
+  );
+
+  await tester.tap(find.text(l10n.cancel));
+  await tester.pumpAndSettle();
 }
 
 Future<void> createPlayer(
