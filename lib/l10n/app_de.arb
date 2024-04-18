@@ -338,5 +338,7 @@
   "noCategoryWarning": "Die {categorization} können nicht verwendet werden, weil keine {category} erstellt wurde.",
   "close": "Schließen",
   "crossGroupTies": "{count, plural, =1{Gruppenübergreifender Gleichstand} other{Gruppenübergreifende Gleichstände}}",
-  "knockOutMode": "KO-Modus"
+  "knockOutMode": "KO-Modus",
+  "planPrinting": "Spielpläne drucken",
+  "pageNofM": "Seite {n} von {m}"
 }

@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:path/path.dart' as p;
 import 'package:collection_repository/collection_repository.dart';
 import 'package:flutter/material.dart';
 
@@ -36,8 +33,5 @@ const List<Type> tournamentModes = [
   DoubleEliminationSettings,
   SingleEliminationWithConsolationSettings,
 ];
-
-final String fontDirPath = p.join(Directory.current.path, 'fonts');
-
 const String matchQrPrefix = '\$match:';
 const String matchQrSuffix = '\$';

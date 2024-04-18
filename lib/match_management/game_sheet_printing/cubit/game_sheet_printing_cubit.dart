@@ -2,7 +2,8 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
-import 'package:ez_badminton_admin_app/constants.dart';
+import 'package:ez_badminton_admin_app/assets/pdf_fonts.dart';
+import 'package:ez_badminton_admin_app/printing/pdf_printing_cubit.dart';
 import 'package:path/path.dart' as p;
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
@@ -19,7 +20,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 part 'game_sheet_printing_state.dart';
 
 class GameSheetPrintingCubit
-    extends CollectionQuerierCubit<GameSheetPrintingState> {
+    extends CollectionQuerierCubit<GameSheetPrintingState>
+    with PdfPrintingCubit {
   GameSheetPrintingCubit({
     required TournamentProgressState tournamentProgressState,
     required this.l10n,
@@ -43,6 +45,7 @@ class GameSheetPrintingCubit
 
   final AppLocalizations l10n;
 
+  @override
   void pdfOpened() async {
     if (state.formStatus == FormzSubmissionStatus.inProgress) {
       return;
@@ -148,11 +151,13 @@ class GameSheetPrintingCubit
         ),
     };
 
-    pw.Document pdf = await _createPdf(matchPrintSelection, qrCodeEnabled);
+    pw.Document? pdf = matchPrintSelection.isEmpty
+        ? null
+        : await _createPdf(matchPrintSelection, qrCodeEnabled);
 
     GameSheetPrintingState stateWithPdf = state.copyWith(
       matchesToPrint: matchPrintSelection,
-      gameSheetPdf: SelectionInput.dirty(value: pdf),
+      pdfDocument: SelectionInput.dirty(value: pdf),
     );
 
     emit(stateWithPdf);
@@ -163,9 +168,6 @@ class GameSheetPrintingCubit
     bool qrCodeEnabled,
   ) async {
     pw.Document pdf = pw.Document();
-    final Uint8List fontData =
-        File(p.join(fontDirPath, 'Inter', 'Inter.ttf')).readAsBytesSync();
-    final pw.Font font = pw.Font.ttf(fontData.buffer.asByteData());
 
     double pageMargin = 0.65;
     PdfPageFormat pdfFormat = PdfPageFormat.a4.landscape.copyWith(
@@ -181,7 +183,8 @@ class GameSheetPrintingCubit
       build: (_) => [
         pw.DefaultTextStyle(
           style: pw.TextStyle(
-            font: font,
+            fontNormal: PdfFonts().interNormal,
+            fontBold: PdfFonts().interBold,
             fontSize: 10,
           ),
           child: GameSheetPage(
@@ -229,7 +232,7 @@ class GameSheetPrintingCubit
   }
 
   Future<(File?, Uint8List?)> _savePdf() async {
-    if (state.gameSheetPdf.value == null) {
+    if (state.pdfDocument.value == null) {
       return (null, null);
     }
 
@@ -250,7 +253,7 @@ class GameSheetPrintingCubit
 
     final File file = File(p.join(gameSheetDir.path, pdfFileName));
 
-    final Uint8List pdfBytes = await state.gameSheetPdf.value!.save();
+    final Uint8List pdfBytes = await state.pdfDocument.value!.save();
 
     await file.writeAsBytes(pdfBytes);
 

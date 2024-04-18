@@ -11,3 +11,20 @@ double getVerticalNodeMargin(int round, double matchNodeHeight) {
 
   return absoluteNodeMargin;
 }
+
+/// Returns the horizontal position (y-coordinate) of a match node that
+/// has the [indexInRound]. The [nodeMargin] is the vertical node margin
+/// of that round (see [getVerticalNodeMargin]).
+double getVerticalNodePosition(
+  double matchNodeHeight,
+  double nodeMargin,
+  int indexInRound,
+) {
+  double topMargin = nodeMargin * 0.5;
+
+  double totalNodeHeight = nodeMargin + matchNodeHeight;
+
+  double verticalPosition = topMargin + indexInRound * totalNodeHeight;
+
+  return verticalPosition;
+}

@@ -1,4 +1,5 @@
 import 'package:collection_repository/collection_repository.dart';
+import 'package:ez_badminton_admin_app/draw_management/plan_printing/view/plan_printing_page.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_selection_list/competition_selection_list.dart';
 import 'package:ez_badminton_admin_app/draw_management/widgets/draw_editor.dart';
 import 'package:ez_badminton_admin_app/draw_management/widgets/entry_list.dart';
@@ -64,6 +65,14 @@ class _DrawManagementPageScaffold extends StatelessWidget {
                 builder: (context) => const _DrawManagementPanels(),
               ),
             ),
+          ),
+        ),
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.only(right: 80, bottom: 40),
+          child: FloatingActionButton(
+            onPressed: () =>
+                Navigator.of(context).push(PlanPrintingPage.route()),
+            child: const Icon(Icons.print),
           ),
         ),
       ),

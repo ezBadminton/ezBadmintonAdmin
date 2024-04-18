@@ -14,6 +14,7 @@ class CompetitionLabel extends StatelessWidget {
     this.dividerPadding = 10,
     this.dividerSize = 7,
     this.dividerColor,
+    this.alignment = MainAxisAlignment.center,
   });
 
   final Competition competition;
@@ -25,6 +26,7 @@ class CompetitionLabel extends StatelessWidget {
   final double dividerPadding;
   final double dividerSize;
   final Color? dividerColor;
+  final MainAxisAlignment alignment;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +49,7 @@ class CompetitionLabel extends StatelessWidget {
         style: textStyle,
         child: Row(
           mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: alignment,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             if (competition.playingLevel != null) ...[

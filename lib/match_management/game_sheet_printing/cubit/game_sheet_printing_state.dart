@@ -1,19 +1,20 @@
 part of 'game_sheet_printing_cubit.dart';
 
-class GameSheetPrintingState {
+class GameSheetPrintingState implements PdfPrintingState {
   GameSheetPrintingState({
     required this.tournamentProgressState,
     this.formStatus = FormzSubmissionStatus.initial,
     this.printSelection = PrintSelection.readyForCallOut,
     this.matchesToPrint = const [],
     this.customSelection = const [],
-    this.gameSheetPdf = const SelectionInput.dirty(),
+    this.pdfDocument = const SelectionInput.dirty(),
     this.openedFile = const SelectionInput.dirty(),
     this.openedDirectory = const SelectionInput.dirty(),
   });
 
   final TournamentProgressState tournamentProgressState;
 
+  @override
   final FormzSubmissionStatus formStatus;
 
   final PrintSelection printSelection;
@@ -21,12 +22,14 @@ class GameSheetPrintingState {
   final List<BadmintonMatch> matchesToPrint;
   final List<BadmintonMatch> customSelection;
 
-  final SelectionInput<pw.Document> gameSheetPdf;
+  @override
+  final SelectionInput<pw.Document> pdfDocument;
 
+  @override
   final SelectionInput<File> openedFile;
   final SelectionInput<Directory> openedDirectory;
 
-  int? get numPages => gameSheetPdf.value?.document.pdfPageList.pages.length;
+  int? get numPages => pdfDocument.value?.document.pdfPageList.pages.length;
   int get numSheets => matchesToPrint.length;
 
   GameSheetPrintingState copyWith({
@@ -35,7 +38,7 @@ class GameSheetPrintingState {
     PrintSelection? printSelection,
     List<BadmintonMatch>? matchesToPrint,
     List<BadmintonMatch>? customSelection,
-    SelectionInput<pw.Document>? gameSheetPdf,
+    SelectionInput<pw.Document>? pdfDocument,
     SelectionInput<File>? openedFile,
     SelectionInput<Directory>? openedDirectory,
   }) {
@@ -46,7 +49,7 @@ class GameSheetPrintingState {
       printSelection: printSelection ?? this.printSelection,
       matchesToPrint: matchesToPrint ?? this.matchesToPrint,
       customSelection: customSelection ?? this.customSelection,
-      gameSheetPdf: gameSheetPdf ?? this.gameSheetPdf,
+      pdfDocument: pdfDocument ?? this.pdfDocument,
       openedFile: openedFile ?? this.openedFile,
       openedDirectory: openedDirectory ?? this.openedDirectory,
     );

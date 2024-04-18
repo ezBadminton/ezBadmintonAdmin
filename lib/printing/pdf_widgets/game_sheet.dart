@@ -52,6 +52,11 @@ class GameSheet extends pw.StatelessWidget {
                   ),
                 ),
                 pw.SizedBox(height: 12),
+                pw.Divider(
+                  height: 0,
+                  indent: 0.1,
+                  endIndent: 0.1,
+                ),
                 Scoreboard(match: match),
               ],
             ),

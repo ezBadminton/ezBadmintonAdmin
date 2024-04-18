@@ -12,9 +12,7 @@ class CompetitionSelectionCubit
   CompetitionSelectionCubit({
     required CollectionRepository<Competition> competitionRepository,
   }) : super(
-          collectionRepositories: [
-            competitionRepository,
-          ],
+          collectionRepositories: [competitionRepository],
           CompetitionSelectionState(),
         ) {
     subscribeToCollectionUpdates(

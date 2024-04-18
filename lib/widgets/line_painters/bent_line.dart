@@ -55,20 +55,20 @@ class _BentLinePainter extends CustomPainter {
       ..strokeWidth = thickness;
 
     Path linePath = Path();
-    Corner lineStart = _getLineStart(bendCorner);
+    Corner lineStart = getLineStart(bendCorner);
     if (lineStart == Corner.bottomLeft) {
       linePath.moveTo(0, size.height);
     }
     _drawLineInDirection(
       linePath,
-      _getFirstLineDirection(bendCorner),
+      getFirstLineDirection(bendCorner),
       bendRadius,
       size,
     );
     _drawBend(linePath, bendCorner, bendRadius, size);
     _drawLineInDirection(
       linePath,
-      _getSecondLineDirection(bendCorner),
+      getSecondLineDirection(bendCorner),
       bendRadius,
       size,
     );
@@ -174,7 +174,7 @@ class _BentLinePainter extends CustomPainter {
     }
   }
 
-  Corner _getLineStart(Corner bendCorner) {
+  static Corner getLineStart(Corner bendCorner) {
     switch (bendCorner) {
       case Corner.topRight:
       case Corner.bottomLeft:
@@ -185,7 +185,7 @@ class _BentLinePainter extends CustomPainter {
     }
   }
 
-  AxisDirection _getFirstLineDirection(Corner bendCorner) {
+  static AxisDirection getFirstLineDirection(Corner bendCorner) {
     switch (bendCorner) {
       case Corner.topLeft:
         return AxisDirection.up;
@@ -197,7 +197,7 @@ class _BentLinePainter extends CustomPainter {
     }
   }
 
-  AxisDirection _getSecondLineDirection(Corner bendCorner) {
+  static AxisDirection getSecondLineDirection(Corner bendCorner) {
     switch (bendCorner) {
       case Corner.topLeft:
       case Corner.bottomLeft:

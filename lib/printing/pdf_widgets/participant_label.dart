@@ -5,9 +5,12 @@ import 'package:tournament_mode/tournament_mode.dart';
 class ParticipantLabel extends pw.StatelessWidget {
   ParticipantLabel({
     required this.participant,
+    this.textStyle,
   });
 
   final MatchParticipant<Team> participant;
+
+  final pw.TextStyle? textStyle;
 
   @override
   pw.Widget build(pw.Context context) {
@@ -27,8 +30,15 @@ class ParticipantLabel extends pw.StatelessWidget {
   }
 
   pw.RichText _buildPlayerName(Player player) {
+    pw.TextStyle textStyle = this.textStyle ?? pw.TextStyle.defaultStyle();
+
+    double lastNameFontSize =
+        textStyle.fontSize == null ? 12 : textStyle.fontSize! + 1.5;
+
     return pw.RichText(
+      overflow: pw.TextOverflow.clip,
       text: pw.TextSpan(
+        style: textStyle,
         children: [
           pw.TextSpan(
             text: player.firstName,
@@ -36,8 +46,8 @@ class ParticipantLabel extends pw.StatelessWidget {
           const pw.TextSpan(text: ' '),
           pw.TextSpan(
             text: player.lastName,
-            style: pw.TextStyle(
-              fontSize: 12,
+            style: textStyle.copyWith(
+              fontSize: lastNameFontSize,
               fontWeight: pw.FontWeight.bold,
             ),
           ),

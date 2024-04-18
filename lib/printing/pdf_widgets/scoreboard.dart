@@ -7,21 +7,25 @@ import 'package:tournament_mode/tournament_mode.dart';
 class Scoreboard extends pw.StatelessWidget {
   Scoreboard({
     required this.match,
+    this.height = 84,
+    this.scoreFieldWidth = 37,
+    this.textStyle,
   });
 
   final BadmintonMatch match;
+
+  final double height;
+  final double scoreFieldWidth;
+
+  final pw.TextStyle? textStyle;
 
   @override
   pw.Widget build(pw.Context context) {
     int maxSets = 2 * match.competition.tournamentModeSettings!.winningSets - 1;
 
     return pw.Column(
+      mainAxisSize: pw.MainAxisSize.min,
       children: [
-        pw.Divider(
-          height: 0,
-          indent: 0.1,
-          endIndent: 0.1,
-        ),
         _buildScoreLine(match.a, maxSets),
         pw.Divider(
           height: 0,
@@ -35,17 +39,20 @@ class Scoreboard extends pw.StatelessWidget {
 
   pw.Widget _buildScoreLine(MatchParticipant<Team> participant, int maxSets) {
     return pw.SizedBox(
-      height: 42,
+      height: height / 2,
       child: pw.Row(
         crossAxisAlignment: pw.CrossAxisAlignment.center,
         children: [
           pw.Expanded(
-            child: ParticipantLabel(participant: participant),
+            child: ParticipantLabel(
+              participant: participant,
+              textStyle: textStyle,
+            ),
           ),
           pw.SizedBox(width: 3),
           for (int i = 0; i < maxSets; i += 1)
             pw.Container(
-              width: 37,
+              width: scoreFieldWidth,
               decoration: const pw.BoxDecoration(
                 border: pw.Border(
                   left: pw.BorderSide(),

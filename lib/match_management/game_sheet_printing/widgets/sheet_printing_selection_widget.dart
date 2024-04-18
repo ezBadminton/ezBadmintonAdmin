@@ -1,15 +1,12 @@
-import 'dart:io';
-
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
 import 'package:ez_badminton_admin_app/match_management/game_sheet_printing/cubit/game_sheet_printing_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/game_sheet_printing/view/custom_print_selection_page.dart';
+import 'package:ez_badminton_admin_app/printing/open_pdf_button.dart';
 import 'package:ez_badminton_admin_app/widgets/help_tooltip_icon/help_tooltip_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:formz/formz.dart';
 import 'package:open_file/open_file.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class SheetPrintingSelectionWidget extends StatelessWidget {
   const SheetPrintingSelectionWidget({super.key});
@@ -36,7 +33,8 @@ class SheetPrintingSelectionWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 25),
-            const _OpenPdfButton(),
+            const OpenPdfButton<GameSheetPrintingCubit,
+                GameSheetPrintingState>(),
             const SizedBox(height: 8),
             const _OpenSaveLocationButton(),
           ],
@@ -116,53 +114,6 @@ class _SelectionOptionRadioTile extends StatelessWidget {
         if (value != null) {
           printingCubit.printSelectionChanged(value);
         }
-      },
-    );
-  }
-}
-
-class _OpenPdfButton extends StatelessWidget {
-  const _OpenPdfButton();
-
-  @override
-  Widget build(BuildContext context) {
-    var l10n = AppLocalizations.of(context)!;
-    var cubit = context.read<GameSheetPrintingCubit>();
-
-    return BlocConsumer<GameSheetPrintingCubit, GameSheetPrintingState>(
-      listenWhen: (previous, current) =>
-          previous.openedFile.value != current.openedFile.value &&
-          current.openedFile.value != null,
-      listener: (context, state) {
-        launchUrl(Uri.file(
-          state.openedFile.value!.path,
-          windows: Platform.isWindows,
-        ));
-      },
-      builder: (context, state) {
-        bool enabled = state.numSheets > 0 &&
-            state.formStatus != FormzSubmissionStatus.inProgress;
-
-        return ElevatedButton(
-          onPressed: enabled ? cubit.pdfOpened : null,
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (state.formStatus == FormzSubmissionStatus.inProgress)
-                  const SizedBox.square(
-                    dimension: 16,
-                    child: CircularProgressIndicator(),
-                  )
-                else
-                  const Icon(Icons.open_in_new, size: 20),
-                const SizedBox(width: 8),
-                Text(l10n.saveAndOpenPdf),
-              ],
-            ),
-          ),
-        );
       },
     );
   }

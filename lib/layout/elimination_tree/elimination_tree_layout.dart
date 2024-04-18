@@ -281,14 +281,11 @@ class _ElimiationTreeLayoutDelegate extends MultiChildLayoutDelegate {
     double nodeMargin,
     _TournamentTreePosition treePosition,
   ) {
-    double topMargin = nodeMargin * 0.5;
-
-    double totalNodeHeight = nodeMargin + _matchNodeSize.height;
-
-    double verticalPosition =
-        topMargin + treePosition.indexInRound * totalNodeHeight;
-
-    return verticalPosition;
+    return utils.getVerticalNodePosition(
+      _matchNodeSize.height,
+      nodeMargin,
+      treePosition.indexInRound,
+    );
   }
 
   /// Returns the total vertical margin of the match nodes of a given [round].

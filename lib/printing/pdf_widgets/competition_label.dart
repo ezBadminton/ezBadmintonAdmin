@@ -9,10 +9,13 @@ class CompetitionLabel extends pw.StatelessWidget {
   CompetitionLabel({
     required this.competition,
     required this.l10n,
+    this.textStyle,
   });
 
   final Competition competition;
   final AppLocalizations l10n;
+
+  final pw.TextStyle? textStyle;
 
   @override
   pw.Widget build(pw.Context context) {
@@ -27,6 +30,8 @@ class CompetitionLabel extends pw.StatelessWidget {
           ),
         );
 
+    pw.TextStyle textStyle = this.textStyle ?? const pw.TextStyle();
+
     return pw.Row(
       mainAxisSize: pw.MainAxisSize.min,
       children: [
@@ -37,6 +42,7 @@ class CompetitionLabel extends pw.StatelessWidget {
               competition.playingLevel!.name,
               overflow: pw.TextOverflow.clip,
               softWrap: false,
+              style: textStyle,
             ),
           ),
           divider(),
@@ -51,6 +57,7 @@ class CompetitionLabel extends pw.StatelessWidget {
               ),
               overflow: pw.TextOverflow.clip,
               softWrap: false,
+              style: textStyle,
             ),
           ),
           divider(),
@@ -61,7 +68,7 @@ class CompetitionLabel extends pw.StatelessWidget {
             competition.genderCategory,
             competition.type,
           ),
-          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+          style: textStyle.copyWith(fontWeight: pw.FontWeight.bold),
         ),
       ],
     );

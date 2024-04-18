@@ -1,10 +1,7 @@
-import 'dart:typed_data';
-
 import 'package:ez_badminton_admin_app/match_management/game_sheet_printing/cubit/game_sheet_printing_cubit.dart';
+import 'package:ez_badminton_admin_app/widgets/pdf_document_preview/pdf_document_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class GameSheetPdfPreview extends StatelessWidget {
@@ -26,18 +23,7 @@ class GameSheetPdfPreview extends StatelessWidget {
           );
         }
 
-        pw.Document? pdfDoc = state.gameSheetPdf.value;
-
-        Future<Uint8List> pdfBytes =
-            pdfDoc != null ? pdfDoc.save() : pw.Document().save();
-
-        return PdfPreview(
-          allowPrinting: false,
-          allowSharing: false,
-          canChangeOrientation: false,
-          canChangePageFormat: false,
-          build: (format) => pdfBytes,
-        );
+        return PdfDocumentPreview(document: state.pdfDocument.value);
       },
     );
   }
