@@ -58,6 +58,8 @@ class TournamentProgressCubit
 
     TournamentProgressState newState = state;
 
+    newState = _updateDrawnTournaments(newState);
+
     if (updateTournaments) {
       newState = _updateRunningTournaments(newState);
     }
@@ -111,6 +113,25 @@ class TournamentProgressCubit
       lastPlayerMatches: lastPlayerMatches,
       editableMatches: editableMatches,
     );
+  }
+
+  TournamentProgressState _updateDrawnTournaments(
+    TournamentProgressState state,
+  ) {
+    List<Competition> drawnCompetitions = state
+        .getCollection<Competition>()
+        .where((c) => c.draw.isNotEmpty)
+        .toList();
+
+    Map<Competition, BadmintonTournamentMode> drawnTournaments = {};
+
+    for (Competition competition in drawnCompetitions) {
+      BadmintonTournamentMode tournament = createTournamentMode(competition);
+      hydrateTournament(competition, tournament, null);
+      drawnTournaments[competition] = tournament;
+    }
+
+    return state.copyWith(drawnTournaments: drawnTournaments);
   }
 
   TournamentProgressState _updateRunningTournaments(

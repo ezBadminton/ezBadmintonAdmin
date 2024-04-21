@@ -36,6 +36,8 @@ class PlanPrintingPage extends StatelessWidget {
           create: (context) => CompetitionMultiSelectionCubit(
             competitionRepository:
                 context.read<CollectionRepository<Competition>>(),
+            competitionPreFilter: (Competition competition) =>
+                competition.draw.isNotEmpty,
           ),
         ),
       ],
@@ -45,7 +47,7 @@ class PlanPrintingPage extends StatelessWidget {
           var cubit = context.read<PlanPrintingCubit>();
 
           List<BadmintonTournamentMode> tournaments = state.selectedCompetitions
-              .map((c) => progressCubit.state.runningTournaments[c])
+              .map((c) => progressCubit.state.drawnTournaments[c])
               .whereType<BadmintonTournamentMode>()
               .toList();
 

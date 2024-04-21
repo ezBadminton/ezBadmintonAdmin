@@ -11,6 +11,7 @@ class CompetitionMultiSelectionCubit
     extends CollectionQuerierCubit<CompetitionMultiSelectionState> {
   CompetitionMultiSelectionCubit({
     required CollectionRepository<Competition> competitionRepository,
+    this.competitionPreFilter,
   }) : super(
           collectionRepositories: [competitionRepository],
           const CompetitionMultiSelectionState(),
@@ -20,6 +21,11 @@ class CompetitionMultiSelectionCubit
       _onCompetitionCollectionUpdate,
     );
   }
+
+  /// The competitions prefilter is a predicate that determines which
+  /// competitions can be selected by this cubit. The others are not
+  /// displayed.
+  final bool Function(Competition competition)? competitionPreFilter;
 
   @override
   void onCollectionUpdate(
@@ -33,6 +39,11 @@ class CompetitionMultiSelectionCubit
 
     List<Competition> sortedCompetitions =
         updatedState.getCollection<Competition>().sorted(compareCompetitions);
+
+    if (competitionPreFilter != null) {
+      sortedCompetitions =
+          sortedCompetitions.where(competitionPreFilter!).toList();
+    }
 
     updatedState.overrideCollection(sortedCompetitions);
 

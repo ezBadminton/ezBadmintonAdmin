@@ -1,11 +1,11 @@
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
+import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/view/tournament_mode_assignment_page.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/draw_deletion_cubit.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/draw_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/drawing_cubit.dart';
 import 'package:ez_badminton_admin_app/draw_management/widgets/tournament_mode_card.dart';
-import 'package:ez_badminton_admin_app/badminton_tournament_ops/tournament_mode_hydration.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/utils/confirmation_cubit/confirmation_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_selection_list/cubit/competition_selection_cubit.dart';
@@ -106,8 +106,9 @@ class _InteractiveDraw extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    BadmintonTournamentMode tournament = createTournamentMode(competition);
-    hydrateTournament(competition, tournament, null);
+    var progressCubit = context.read<TournamentProgressCubit>();
+    BadmintonTournamentMode tournament =
+        progressCubit.state.drawnTournaments[competition]!;
 
     bool hasCompetitionStarted = competition.matches.isNotEmpty;
 
