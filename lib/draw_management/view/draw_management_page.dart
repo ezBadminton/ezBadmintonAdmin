@@ -69,10 +69,24 @@ class _DrawManagementPageScaffold extends StatelessWidget {
         ),
         floatingActionButton: Padding(
           padding: const EdgeInsets.only(right: 80, bottom: 40),
-          child: FloatingActionButton(
-            onPressed: () =>
-                Navigator.of(context).push(PlanPrintingPage.route()),
-            child: const Icon(Icons.print),
+          child:
+              BlocBuilder<CompetitionSelectionCubit, CompetitionSelectionState>(
+            builder: (context, state) {
+              return FloatingActionButton(
+                onPressed: () {
+                  Competition? initiallySelectedForPrint =
+                      state.selectedCompetition.value;
+                  if (initiallySelectedForPrint != null &&
+                      initiallySelectedForPrint.draw.isEmpty) {
+                    initiallySelectedForPrint = null;
+                  }
+                  Navigator.of(context).push(PlanPrintingPage.route(
+                    initiallySelectedForPrint,
+                  ));
+                },
+                child: const Icon(Icons.print),
+              );
+            },
           ),
         ),
       ),

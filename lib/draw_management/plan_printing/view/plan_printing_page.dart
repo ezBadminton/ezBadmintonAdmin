@@ -12,13 +12,20 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PlanPrintingPage extends StatelessWidget {
-  const PlanPrintingPage({super.key});
+  const PlanPrintingPage({
+    super.key,
+    this.initiallySelectedCompetition,
+  });
 
-  static Route route() {
+  static Route route(Competition? initiallySelectedCompetition) {
     return MaterialPageRoute(
-      builder: (_) => const PlanPrintingPage(),
+      builder: (_) => PlanPrintingPage(
+        initiallySelectedCompetition: initiallySelectedCompetition,
+      ),
     );
   }
+
+  final Competition? initiallySelectedCompetition;
 
   @override
   Widget build(BuildContext context) {
@@ -33,12 +40,22 @@ class PlanPrintingPage extends StatelessWidget {
           ),
         ),
         BlocProvider(
-          create: (context) => CompetitionMultiSelectionCubit(
-            competitionRepository:
-                context.read<CollectionRepository<Competition>>(),
-            competitionPreFilter: (Competition competition) =>
-                competition.draw.isNotEmpty,
-          ),
+          create: (context) {
+            CompetitionMultiSelectionCubit cubit =
+                CompetitionMultiSelectionCubit(
+              competitionRepository:
+                  context.read<CollectionRepository<Competition>>(),
+              competitionPreFilter: (Competition competition) =>
+                  competition.draw.isNotEmpty,
+            );
+
+            if (initiallySelectedCompetition != null) {
+              Future.delayed(Duration.zero).then((_) {
+                cubit.competitionToggled(initiallySelectedCompetition!);
+              });
+            }
+            return cubit;
+          },
         ),
       ],
       child: BlocListener<CompetitionMultiSelectionCubit,
