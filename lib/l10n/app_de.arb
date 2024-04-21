@@ -340,5 +340,11 @@
   "crossGroupTies": "{count, plural, =1{Gruppenübergreifender Gleichstand} other{Gruppenübergreifende Gleichstände}}",
   "knockOutMode": "KO-Modus",
   "planPrinting": "Spielpläne drucken",
-  "pageNofM": "Seite {n} von {m}"
+  "pageNofM": "Seite {n} von {m}",
+  "noMatchPlans": "Wähle die Disziplinen, für die die Pläne erstellt werden sollen",
+  "matchPlanPrintPages": "Seitenmodus wählen",
+  "multiPagePlan": "Auf Seiten verteilen",
+  "bigPagePlan": "Eine zusammenhängende Seite",
+  "multiPagePlanHelp": "Der Spielplan wird ggf. auf mehrere Seiten aufgeteilt und kann nach dem Drucken ausgeschnitten und zusammengesetzt werden",
+  "bigPagePlanHelp": "Der Spielplan wird auf einer einzelnen Seite erstellt. Die Seitengröße folgt dem Format des Plans. Hinweis: Die Schrift kann beim Drucken größerer Pläne eine unlesbare Größe bekommen."
 }

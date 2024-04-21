@@ -5,6 +5,7 @@ import 'package:ez_badminton_admin_app/draw_management/plan_printing/cubit/plan_
 import 'package:ez_badminton_admin_app/printing/open_pdf_button.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_selection_list/competition_multi_selection_list.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_selection_list/cubit/competition_multi_selection_cubit.dart';
+import 'package:ez_badminton_admin_app/widgets/help_tooltip_icon/help_tooltip_icon.dart';
 import 'package:ez_badminton_admin_app/widgets/pdf_document_preview/pdf_document_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -66,6 +67,8 @@ class _PlanPrintingPageScaffold extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.planPrinting)),
       body: BlocBuilder<PlanPrintingCubit, PlanPrintingState>(
+        buildWhen: (previous, current) =>
+            previous.pdfDocument != current.pdfDocument,
         builder: (context, state) {
           return Row(
             mainAxisSize: MainAxisSize.min,
@@ -85,6 +88,13 @@ class _PlanPrintingPageScaffold extends StatelessWidget {
                   child: Column(
                     children: [
                       const SizedBox(height: 40),
+                      Text(
+                        l10n.matchPlanPrintPages,
+                        style: const TextStyle(fontSize: 22),
+                      ),
+                      const Divider(height: 25, indent: 20, endIndent: 20),
+                      const _PlanPrintingPageFormatOptions(),
+                      const SizedBox(height: 30),
                       const OpenPdfButton<PlanPrintingCubit,
                           PlanPrintingState>(),
                       const SizedBox(height: 8),
@@ -96,20 +106,34 @@ class _PlanPrintingPageScaffold extends StatelessWidget {
                         style: const TextStyle(fontSize: 22),
                       ),
                       const Divider(height: 25, indent: 20, endIndent: 20),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(
-                          maxWidth: 1100,
-                          maxHeight: 750,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 15.0,
+                      if (state.pdfDocument.value == null) ...[
+                        const SizedBox(height: 30),
+                        Text(
+                          l10n.noMatchPlans,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(.25),
+                            fontSize: 25,
                           ),
-                          child: PdfDocumentPreview(
-                            document: state.pdfDocument.value,
+                        ),
+                      ] else
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            maxWidth: 1100,
+                            maxHeight: 750,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 15.0,
+                            ),
+                            child: PdfDocumentPreview(
+                              document: state.pdfDocument.value,
+                            ),
                           ),
                         ),
-                      ),
                     ],
                   ),
                 ),
@@ -118,6 +142,46 @@ class _PlanPrintingPageScaffold extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+}
+
+class _PlanPrintingPageFormatOptions extends StatelessWidget {
+  const _PlanPrintingPageFormatOptions();
+
+  @override
+  Widget build(BuildContext context) {
+    var cubit = context.read<PlanPrintingCubit>();
+    var l10n = AppLocalizations.of(context)!;
+
+    return BlocBuilder<PlanPrintingCubit, PlanPrintingState>(
+      builder: (context, state) {
+        return SizedBox(
+          width: 700,
+          child: Column(
+            children: [
+              RadioListTile(
+                value: false,
+                title: Text(l10n.multiPagePlan),
+                secondary: HelpTooltipIcon(
+                  helpText: l10n.multiPagePlanHelp,
+                ),
+                groupValue: state.printBigPage,
+                onChanged: (_) => cubit.printBigPageToggled(),
+              ),
+              RadioListTile(
+                value: true,
+                title: Text(l10n.bigPagePlan),
+                secondary: HelpTooltipIcon(
+                  helpText: l10n.bigPagePlanHelp,
+                ),
+                groupValue: state.printBigPage,
+                onChanged: (_) => cubit.printBigPageToggled(),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -39,7 +39,19 @@ abstract class TournamentPlan<T extends BadmintonTournamentMode>
     return PdfPoint(size.width, size.height);
   }
 
-  List<pw.Page> generatePdfPages() {
+  /// Lays out the plan onto A4 PDF pages. If the plan is bigger than one page,
+  /// the overflow is continued on the next page(s).
+  ///
+  /// When printed the pages can be glued at the edges to stitch the whole plan
+  /// together.
+  ///
+  /// When [bigPage] is true, only one big page is returned that is formatted
+  /// specifically to contain the plan thus uses no printer paper format.
+  List<pw.Page> generatePdfPages({bool bigPage = false}) {
+    if (bigPage) {
+      return [_generateBigPage()];
+    }
+
     double pageMargin = 0.65;
     pw.EdgeInsets planPadding = const pw.EdgeInsets.all(1);
     pw.EdgeInsets pagePadding = const pw.EdgeInsets.all(0.7 * PdfPageFormat.cm);
@@ -99,7 +111,14 @@ abstract class TournamentPlan<T extends BadmintonTournamentMode>
         pw.Widget pageLabel = pw.Positioned(
           right: 0,
           bottom: 0,
-          child: _buildPageLabel(numRows, numColumns, row, column),
+          child: TournamentPlanPageLabel(
+            l10n: l10n,
+            tournament: tournament,
+            numRows: numRows,
+            numColumns: numColumns,
+            row: row,
+            column: column,
+          ),
         );
 
         pw.Page page = pw.Page(
@@ -126,29 +145,51 @@ abstract class TournamentPlan<T extends BadmintonTournamentMode>
     return pages;
   }
 
-  pw.Widget _buildPageLabel(
-    int numRows,
-    int numColumns,
-    int row,
-    int column,
-  ) {
-    pw.TextStyle textStyle = const pw.TextStyle(fontSize: 10);
+  pw.Page _generateBigPage() {
+    double pageMargin = 0.65;
+    pw.EdgeInsets planPadding = const pw.EdgeInsets.all(1);
+    PdfPoint planSize = layoutSize().translate(
+      planPadding.horizontal,
+      planPadding.vertical,
+    );
 
-    int pageNumber = numColumns * row + column;
+    PdfPageFormat format = PdfPageFormat(
+      planSize.x + 2 * pageMargin * PdfPageFormat.cm,
+      planSize.y + 2 * pageMargin * PdfPageFormat.cm,
+      marginAll: pageMargin * PdfPageFormat.cm,
+    );
 
-    return pw.Row(children: [
-      CompetitionLabel(
-        competition: tournament.competition,
+    pw.Widget plan = pw.Padding(
+      padding: planPadding,
+      child: this,
+    );
+
+    pw.Widget pageLabel = pw.Positioned(
+      right: 0,
+      bottom: 0,
+      child: TournamentPlanPageLabel.withoutPageNumber(
         l10n: l10n,
-        textStyle: textStyle,
+        tournament: tournament,
       ),
-      pw.SizedBox(width: 1.2 * PdfPageFormat.cm),
-      pw.Text(
-        l10n.pageNofM('${numColumns}x$numRows', pageNumber + 1),
-        style: textStyle,
+    );
+
+    pw.Page page = pw.Page(
+      pageFormat: format,
+      build: (pw.Context context) => pw.DefaultTextStyle(
+        style: pw.TextStyle(
+          fontNormal: PdfFonts().interNormal,
+          fontBold: PdfFonts().interBold,
+        ),
+        child: pw.Stack(
+          children: [
+            plan,
+            pageLabel,
+          ],
+        ),
       ),
-      pw.SizedBox(width: 0.85 * PdfPageFormat.cm),
-    ]);
+    );
+
+    return page;
   }
 
   @override
@@ -167,4 +208,66 @@ class TournamentPlanWidget extends pw.Positioned {
   }) : super(left: boundingBox.left, top: boundingBox.top);
 
   final Rect boundingBox;
+}
+
+class TournamentPlanPageLabel extends pw.StatelessWidget {
+  TournamentPlanPageLabel({
+    required this.l10n,
+    required this.tournament,
+    required int this.numRows,
+    required int this.numColumns,
+    required int this.row,
+    required int this.column,
+  }) : _showPageNumber = true;
+
+  TournamentPlanPageLabel.withoutPageNumber({
+    required this.l10n,
+    required this.tournament,
+  })  : numRows = null,
+        numColumns = null,
+        row = null,
+        column = null,
+        _showPageNumber = false;
+
+  final BadmintonTournamentMode tournament;
+
+  final AppLocalizations l10n;
+
+  final int? numRows;
+  final int? numColumns;
+
+  final int? row;
+  final int? column;
+
+  final bool _showPageNumber;
+
+  @override
+  pw.Widget build(pw.Context context) {
+    pw.TextStyle textStyle = const pw.TextStyle(fontSize: 10);
+
+    pw.Widget competitionLabel = CompetitionLabel(
+      competition: tournament.competition,
+      l10n: l10n,
+      textStyle: textStyle,
+    );
+
+    pw.Widget? pageNumLabel;
+    if (_showPageNumber) {
+      int pageNumber = numColumns! * row! + column!;
+
+      pageNumLabel = pw.Text(
+        l10n.pageNofM('${numColumns}x$numRows', pageNumber + 1),
+        style: textStyle,
+      );
+    }
+
+    return pw.Row(children: [
+      competitionLabel,
+      if (_showPageNumber) ...[
+        pw.SizedBox(width: 1.2 * PdfPageFormat.cm),
+        pageNumLabel!,
+      ],
+      pw.SizedBox(width: 0.85 * PdfPageFormat.cm),
+    ]);
+  }
 }

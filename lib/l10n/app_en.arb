@@ -340,5 +340,11 @@
   "crossGroupTies": "{count, plural, =1{Cross Group Tie} other{Cross Group Ties}}",
   "knockOutMode": "Knock-Out mode",
   "planPrinting": "Print match plans",
-  "pageNofM": "Page {n} of {m}"
+  "pageNofM": "Page {n} of {m}",
+  "noMatchPlans": "Select the competitions that the plans should be generated for",
+  "matchPlanPrintPages": "Choose page mode",
+  "multiPagePlan": "Distribute over pages",
+  "bigPagePlan": "One big page",
+  "multiPagePlanHelp": "The match plan is distributed across multiple pages if needed. After printing the plan can be cut out and pieced together.",
+  "bigPagePlanHelp": "The plan is put onto a single page. The page size follows the format of the plan. Note: The text can get an unreadable size when printing large plans."
 }

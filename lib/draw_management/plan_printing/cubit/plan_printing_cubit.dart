@@ -26,6 +26,11 @@ class PlanPrintingCubit extends Cubit<PlanPrintingState> with PdfPrintingCubit {
     _generatePdf();
   }
 
+  void printBigPageToggled() {
+    emit(state.copyWith(printBigPage: !state.printBigPage));
+    _generatePdf();
+  }
+
   @override
   void pdfOpened() {
     _saveAndOpenPdf();
@@ -60,13 +65,19 @@ class PlanPrintingCubit extends Cubit<PlanPrintingState> with PdfPrintingCubit {
       }
     }).toList();
 
-    List<pw.Page> pages = plans.expand((p) => p.generatePdfPages()).toList();
+    List<pw.Page> pages = plans
+        .expand(
+          (p) => p.generatePdfPages(bigPage: state.printBigPage),
+        )
+        .toList();
 
     for (pw.Page page in pages) {
       pdf.addPage(page);
     }
 
-    emit(state.copyWith(pdfDocument: SelectionInput.dirty(value: pdf)));
+    emit(state.copyWith(
+      pdfDocument: SelectionInput.dirty(value: pdf),
+    ));
   }
 
   void _saveAndOpenPdf() async {
