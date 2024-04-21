@@ -65,57 +65,58 @@ class _PlanPrintingPageScaffold extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.planPrinting)),
-      body: PdfOpenListener<PlanPrintingCubit, PlanPrintingState>(
-        child: BlocBuilder<PlanPrintingCubit, PlanPrintingState>(
-          builder: (context, state) {
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(
-                  width: 370,
-                  child: CompetitionMutliSelectionList(),
-                ),
-                const VerticalDivider(
-                  thickness: 1,
-                  width: 1,
-                  color: Colors.black26,
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 40),
-                        const OpenPdfButton<PlanPrintingCubit,
-                            PlanPrintingState>(),
-                        const SizedBox(height: 30),
-                        Text(
-                          l10n.preview,
-                          style: const TextStyle(fontSize: 22),
+      body: BlocBuilder<PlanPrintingCubit, PlanPrintingState>(
+        builder: (context, state) {
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(
+                width: 370,
+                child: CompetitionMutliSelectionList(),
+              ),
+              const VerticalDivider(
+                thickness: 1,
+                width: 1,
+                color: Colors.black26,
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 40),
+                      const OpenPdfButton<PlanPrintingCubit,
+                          PlanPrintingState>(),
+                      const SizedBox(height: 8),
+                      const OpenPdfSaveLocationButton<PlanPrintingCubit,
+                          PlanPrintingState>(),
+                      const SizedBox(height: 30),
+                      Text(
+                        l10n.preview,
+                        style: const TextStyle(fontSize: 22),
+                      ),
+                      const Divider(height: 25, indent: 20, endIndent: 20),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          maxWidth: 1100,
+                          maxHeight: 750,
                         ),
-                        const Divider(height: 25, indent: 20, endIndent: 20),
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(
-                            maxWidth: 1100,
-                            maxHeight: 750,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 15.0,
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 15.0,
-                            ),
-                            child: PdfDocumentPreview(
-                              document: state.pdfDocument.value,
-                            ),
+                          child: PdfDocumentPreview(
+                            document: state.pdfDocument.value,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            );
-          },
-        ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

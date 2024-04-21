@@ -31,6 +31,15 @@ class PlanPrintingCubit extends Cubit<PlanPrintingState> with PdfPrintingCubit {
     _saveAndOpenPdf();
   }
 
+  @override
+  void saveLocationOpened() async {
+    Directory saveLocation = await getSaveLocationDir();
+
+    emit(state.copyWith(
+      openedDirectory: SelectionInput.dirty(value: saveLocation),
+    ));
+  }
+
   void _generatePdf() {
     if (state.tournaments.isEmpty) {
       emit(state.copyWith(pdfDocument: const SelectionInput.dirty()));
@@ -65,20 +74,12 @@ class PlanPrintingCubit extends Cubit<PlanPrintingState> with PdfPrintingCubit {
       return;
     }
 
-    Directory matchPlanDir = await _getPlanPdfDirectory();
+    Directory matchPlanDir = await getSaveLocationDir();
 
-    String fileName(int fileIndex) =>
-        'match_plan_${fileIndex.toString().padLeft(3, '0')}.pdf';
-
-    int fileIndex = 0;
-    List<String> existingSheetFileNames =
-        matchPlanDir.listSync().map((e) => p.basename(e.path)).toList();
-
-    while (existingSheetFileNames.contains(fileName(fileIndex))) {
-      fileIndex += 1;
-    }
-
-    final String pdfFileName = fileName(fileIndex);
+    final String pdfFileName = getPdfFileName(
+      (fileIndex) => 'match_plan_${fileIndex.toString().padLeft(3, '0')}.pdf',
+      matchPlanDir,
+    );
 
     final File file = File(p.join(matchPlanDir.path, pdfFileName));
 
@@ -89,7 +90,8 @@ class PlanPrintingCubit extends Cubit<PlanPrintingState> with PdfPrintingCubit {
     emit(state.copyWith(openedFile: SelectionInput.dirty(value: file)));
   }
 
-  Future<Directory> _getPlanPdfDirectory() async {
+  @override
+  Future<Directory> getSaveLocationDir() async {
     final Directory documentDir = await getApplicationDocumentsDirectory();
     final String matchPlanPath = p.join(
       documentDir.path,

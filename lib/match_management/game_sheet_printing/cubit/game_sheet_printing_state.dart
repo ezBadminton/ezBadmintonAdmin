@@ -27,6 +27,8 @@ class GameSheetPrintingState implements PdfPrintingState {
 
   @override
   final SelectionInput<File> openedFile;
+
+  @override
   final SelectionInput<Directory> openedDirectory;
 
   int? get numPages => pdfDocument.value?.document.pdfPageList.pages.length;

@@ -6,7 +6,6 @@ import 'package:ez_badminton_admin_app/widgets/help_tooltip_icon/help_tooltip_ic
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:open_file/open_file.dart';
 
 class SheetPrintingSelectionWidget extends StatelessWidget {
   const SheetPrintingSelectionWidget({super.key});
@@ -36,7 +35,8 @@ class SheetPrintingSelectionWidget extends StatelessWidget {
             const OpenPdfButton<GameSheetPrintingCubit,
                 GameSheetPrintingState>(),
             const SizedBox(height: 8),
-            const _OpenSaveLocationButton(),
+            const OpenPdfSaveLocationButton<GameSheetPrintingCubit,
+                GameSheetPrintingState>(),
           ],
         );
       },
@@ -115,36 +115,6 @@ class _SelectionOptionRadioTile extends StatelessWidget {
           printingCubit.printSelectionChanged(value);
         }
       },
-    );
-  }
-}
-
-class _OpenSaveLocationButton extends StatelessWidget {
-  const _OpenSaveLocationButton();
-
-  @override
-  Widget build(BuildContext context) {
-    var l10n = AppLocalizations.of(context)!;
-    var cubit = context.read<GameSheetPrintingCubit>();
-
-    return BlocListener<GameSheetPrintingCubit, GameSheetPrintingState>(
-      listenWhen: (previous, current) =>
-          previous.openedDirectory.value != current.openedDirectory.value &&
-          current.openedDirectory.value != null,
-      listener: (context, state) {
-        OpenFile.open(state.openedDirectory.value!.path);
-      },
-      child: TextButton(
-        onPressed: cubit.saveLocationOpened,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.folder, size: 16),
-            const SizedBox(width: 8),
-            Text(l10n.openSaveLocation, style: const TextStyle(fontSize: 12)),
-          ],
-        ),
-      ),
     );
   }
 }

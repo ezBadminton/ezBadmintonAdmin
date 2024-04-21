@@ -6,6 +6,7 @@ class PlanPrintingState implements PdfPrintingState {
     this.formStatus = FormzSubmissionStatus.initial,
     this.pdfDocument = const SelectionInput.pure(),
     this.openedFile = const SelectionInput.pure(),
+    this.openedDirectory = const SelectionInput.pure(),
   });
 
   final List<BadmintonTournamentMode> tournaments;
@@ -19,15 +20,20 @@ class PlanPrintingState implements PdfPrintingState {
   @override
   final SelectionInput<File> openedFile;
 
+  @override
+  final SelectionInput<Directory> openedDirectory;
+
   PlanPrintingState copyWith({
     List<BadmintonTournamentMode>? tournaments,
     SelectionInput<pw.Document>? pdfDocument,
     SelectionInput<File>? openedFile,
+    SelectionInput<Directory>? openedDirectory,
   }) {
     return PlanPrintingState(
       tournaments: tournaments ?? this.tournaments,
       pdfDocument: pdfDocument ?? this.pdfDocument,
       openedFile: openedFile ?? this.openedFile,
+      openedDirectory: openedDirectory ?? this.openedDirectory,
     );
   }
 }

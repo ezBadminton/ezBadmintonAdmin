@@ -66,8 +66,9 @@ class GameSheetPrintingCubit
     ));
   }
 
+  @override
   void saveLocationOpened() async {
-    Directory saveLocation = await _getGameSheetDirectory();
+    Directory saveLocation = await getSaveLocationDir();
 
     emit(state.copyWith(
       openedDirectory: SelectionInput.dirty(value: saveLocation),
@@ -236,20 +237,12 @@ class GameSheetPrintingCubit
       return (null, null);
     }
 
-    Directory gameSheetDir = await _getGameSheetDirectory();
+    Directory gameSheetDir = await getSaveLocationDir();
 
-    String fileName(int fileIndex) =>
-        'game_sheets_${fileIndex.toString().padLeft(3, '0')}.pdf';
-
-    int fileIndex = 0;
-    List<String> existingSheetFileNames =
-        gameSheetDir.listSync().map((e) => p.basename(e.path)).toList();
-
-    while (existingSheetFileNames.contains(fileName(fileIndex))) {
-      fileIndex += 1;
-    }
-
-    final String pdfFileName = fileName(fileIndex);
+    final String pdfFileName = getPdfFileName(
+      (fileIndex) => 'game_sheets_${fileIndex.toString().padLeft(3, '0')}.pdf',
+      gameSheetDir,
+    );
 
     final File file = File(p.join(gameSheetDir.path, pdfFileName));
 
@@ -279,7 +272,8 @@ class GameSheetPrintingCubit
     return updatedSelection;
   }
 
-  Future<Directory> _getGameSheetDirectory() async {
+  @override
+  Future<Directory> getSaveLocationDir() async {
     final Directory documentDir = await getApplicationDocumentsDirectory();
     final String gameSheetPath = p.join(
       documentDir.path,
