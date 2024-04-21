@@ -342,6 +342,7 @@
   "planPrinting": "Print match plans",
   "pageNofM": "Page {n} of {m}",
   "noMatchPlans": "Select the competitions that the plans should be generated for",
+  "noDrawnCompetitions": "There are no competitions with drawn match plan yet",
   "matchPlanPrintPages": "Choose page mode",
   "multiPagePlan": "Distribute over pages",
   "bigPagePlan": "One big page",

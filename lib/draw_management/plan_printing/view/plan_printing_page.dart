@@ -93,9 +93,21 @@ class _PlanPrintingPageScaffold extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(
+              SizedBox(
                 width: 370,
-                child: CompetitionMutliSelectionList(),
+                child: CompetitionMutliSelectionList(
+                  emptyListPlaceholder: Text(
+                    l10n.noDrawnCompetitions,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(.25),
+                      fontSize: 21,
+                    ),
+                  ),
+                ),
               ),
               const VerticalDivider(
                 thickness: 1,

@@ -7,7 +7,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CompetitionMutliSelectionList extends StatelessWidget {
-  const CompetitionMutliSelectionList({super.key});
+  const CompetitionMutliSelectionList({
+    super.key,
+    this.emptyListPlaceholder,
+  });
+
+  /// A widget that is being displayed when the list is empty
+  final Widget? emptyListPlaceholder;
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +32,13 @@ class CompetitionMutliSelectionList extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const _CompetitionMultiSelectionListHeader(),
+                  if (competitions.isEmpty && emptyListPlaceholder != null) ...[
+                    const SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: emptyListPlaceholder!,
+                    ),
+                  ],
                   for (Competition competition in competitions)
                     CheckboxListTile(
                       value: state.selectedCompetitions.contains(competition),

@@ -342,6 +342,7 @@
   "planPrinting": "Spielpläne drucken",
   "pageNofM": "Seite {n} von {m}",
   "noMatchPlans": "Wähle die Disziplinen, für die die Pläne erstellt werden sollen",
+  "noDrawnCompetitions": "Es gibt noch keine Disziplinen mit ausgelostem Spielplan",
   "matchPlanPrintPages": "Seitenmodus wählen",
   "multiPagePlan": "Auf Seiten verteilen",
   "bigPagePlan": "Eine zusammenhängende Seite",
