@@ -62,6 +62,18 @@ class CompetitionMultiSelectionCubit
     emit(state.copyWith(selectedCompetitions: newSelected));
   }
 
+  void allCompetitionsToggled() {
+    List<Competition> newSelected;
+    if (state.selectedCompetitions.length ==
+        state.getCollection<Competition>().length) {
+      newSelected = [];
+    } else {
+      newSelected = List.of(state.getCollection<Competition>());
+    }
+
+    emit(state.copyWith(selectedCompetitions: newSelected));
+  }
+
   void _onCompetitionCollectionUpdate(
     List<CollectionUpdateEvent<Competition>> events,
   ) {
