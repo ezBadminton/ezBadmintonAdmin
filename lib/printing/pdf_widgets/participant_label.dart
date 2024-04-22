@@ -6,11 +6,14 @@ class ParticipantLabel extends pw.StatelessWidget {
   ParticipantLabel({
     required this.participant,
     this.textStyle,
+    this.crossAxisAlignment,
   });
 
   final MatchParticipant<Team> participant;
 
   final pw.TextStyle? textStyle;
+
+  final pw.CrossAxisAlignment? crossAxisAlignment;
 
   @override
   pw.Widget build(pw.Context context) {
@@ -22,7 +25,7 @@ class ParticipantLabel extends pw.StatelessWidget {
 
     return pw.Column(
       mainAxisSize: pw.MainAxisSize.min,
-      crossAxisAlignment: pw.CrossAxisAlignment.end,
+      crossAxisAlignment: crossAxisAlignment ?? pw.CrossAxisAlignment.end,
       children: [
         for (Player p in team.players) _buildPlayerName(p),
       ],

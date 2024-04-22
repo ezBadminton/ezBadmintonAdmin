@@ -6,6 +6,7 @@ import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tourna
 import 'package:ez_badminton_admin_app/input_models/models.dart';
 import 'package:ez_badminton_admin_app/printing/pdf_printing_cubit.dart';
 import 'package:ez_badminton_admin_app/printing/pdf_widgets/pdf_widgets.dart';
+import 'package:ez_badminton_admin_app/printing/pdf_widgets/plans/round_robin_plan.dart';
 import 'package:formz/formz.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -54,15 +55,19 @@ class PlanPrintingCubit extends Cubit<PlanPrintingState> with PdfPrintingCubit {
     final pdf = pw.Document();
 
     List<TournamentPlan> plans = state.tournaments.map((t) {
-      switch (t) {
-        case BadmintonSingleElimination singleElimination:
-          return SingleEliminationPlan(
+      TournamentPlan plan = switch (t) {
+        BadmintonSingleElimination singleElimination => SingleEliminationPlan(
             tournament: singleElimination,
             l10n: l10n,
-          );
-        default:
-          throw Exception("This mode has no plan implemented!");
-      }
+          ),
+        BadmintonRoundRobin roundRobin => RoundRobinPlan(
+            tournament: roundRobin,
+            l10n: l10n,
+          ),
+        _ => throw Exception("This mode has no plan implemented!"),
+      } as TournamentPlan;
+
+      return plan;
     }).toList();
 
     List<pw.Page> pages = plans

@@ -6,9 +6,12 @@ import 'package:pdf/widgets.dart' as pw;
 class MatchCard extends pw.StatelessWidget {
   MatchCard({
     required this.match,
+    this.width,
   });
 
   final BadmintonMatch match;
+
+  final double? width;
 
   bool get _isDoubles => match.competition.teamSize == 2;
   int get _maxSets =>
@@ -44,7 +47,10 @@ class MatchCard extends pw.StatelessWidget {
   }
 
   PdfPoint _getCardSize() {
-    double width = matchCardNameWidth + _maxSets * scoreFieldWidth;
+    double nameWidth = this.width == null
+        ? matchCardNameWidth
+        : this.width! - _maxSets * scoreFieldWidth;
+    double width = nameWidth + _maxSets * scoreFieldWidth;
     double height =
         _isDoubles ? matchCardDoublesHeight : matchCardSinglesHeight;
 
