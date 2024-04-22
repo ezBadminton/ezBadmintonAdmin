@@ -11,3 +11,5 @@ const double groupTableHeaderHeight = 35;
 const double groupTableSinglesHeight = 23;
 const double groupTableDoublesHeight = 29;
 const double roundTitleHeight = 25;
+
+const double loserBracketMargin = 30;

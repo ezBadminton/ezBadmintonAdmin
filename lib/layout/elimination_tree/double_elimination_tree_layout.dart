@@ -359,23 +359,14 @@ class _DoubleEliminationTreeLayoutDelegate
     double nodeMargin,
     _TournamentTreePosition treePosition,
   ) {
-    double basePosition =
-        super.getVerticalNodePosition(nodeMargin, treePosition);
-
-    double winnerBracketOffset = winnerBracketSize.height +
-        DoubleEliminationTreeLayout._winnerLoserBracketMargin;
-
-    double firstIntakeOffset =
-        _matchNodeSize.height * relativeIntakeRoundOffset;
-
-    int intakeRound = (treePosition.roundIndex + 1) ~/ 2;
-    double intakeOffset =
-        -_matchNodeSize.height * intakeRound * relativeIntakeRoundOffset;
-
-    return basePosition +
-        winnerBracketOffset +
-        firstIntakeOffset +
-        intakeOffset;
+    return utils.getVerticalLoserBracketNodePosition(
+      nodeMargin,
+      treePosition.roundIndex,
+      treePosition.indexInRound,
+      winnerBracketSize,
+      _matchNodeSize,
+      DoubleEliminationTreeLayout._winnerLoserBracketMargin,
+    );
   }
 
   @override

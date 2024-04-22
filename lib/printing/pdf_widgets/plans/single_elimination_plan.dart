@@ -47,7 +47,7 @@ class SingleEliminationPlan extends TournamentPlan<BadmintonSingleElimination> {
           round.matches.length,
           (index) => pw.Divider(
             color: PdfColors.grey600,
-            height: 2,
+            height: 0,
             thickness: 2,
             indent: 0.1,
             endIndent: 1.5,

@@ -22,6 +22,7 @@ abstract class TournamentPlan<T extends BadmintonTournamentMode>
   final AppLocalizations l10n;
 
   late final List<TournamentPlanWidget> _widgets;
+  List<TournamentPlanWidget> get widgets => List.unmodifiable(_widgets);
 
   List<TournamentPlanWidget> layoutPlan(T tournament);
 
