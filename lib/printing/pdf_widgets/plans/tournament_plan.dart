@@ -25,6 +25,11 @@ abstract class TournamentPlan<T extends BadmintonTournamentMode>
 
   List<TournamentPlanWidget> layoutPlan(T tournament);
 
+  final double _pageMargin = 0.65;
+  final pw.EdgeInsets _planPadding = const pw.EdgeInsets.all(1);
+  final pw.EdgeInsets _pagePadding =
+      const pw.EdgeInsets.all(0.7 * PdfPageFormat.cm);
+
   /// Returns the boundary size of the plan widget.
   PdfPoint layoutSize() {
     if (_widgets.isEmpty) {
@@ -39,8 +44,8 @@ abstract class TournamentPlan<T extends BadmintonTournamentMode>
     return PdfPoint(size.width, size.height);
   }
 
-  /// Lays out the plan onto A4 PDF pages. If the plan is bigger than one page,
-  /// the overflow is continued on the next page(s).
+  /// Lays out the plan onto DIN A4 PDF pages. If the plan is bigger than one
+  /// page, the overflow is continued on the next page(s).
   ///
   /// When printed the pages can be glued at the edges to stitch the whole plan
   /// together.
@@ -52,25 +57,16 @@ abstract class TournamentPlan<T extends BadmintonTournamentMode>
       return [_generateBigPage()];
     }
 
-    double pageMargin = 0.65;
-    pw.EdgeInsets planPadding = const pw.EdgeInsets.all(1);
-    pw.EdgeInsets pagePadding = const pw.EdgeInsets.all(0.7 * PdfPageFormat.cm);
-
     PdfPoint planSize = layoutSize().translate(
-      planPadding.horizontal,
-      planPadding.vertical,
+      _planPadding.horizontal,
+      _planPadding.vertical,
     );
 
-    PdfPageFormat format = PdfPageFormat.a4.landscape.copyWith(
-      marginTop: pageMargin * PdfPageFormat.cm,
-      marginBottom: pageMargin * PdfPageFormat.cm,
-      marginLeft: pageMargin * PdfPageFormat.cm,
-      marginRight: pageMargin * PdfPageFormat.cm,
-    );
+    PdfPageFormat format = _getPageFormat(planSize);
 
     PdfPoint planPageSize = format.availableDimension.translate(
-      -pagePadding.horizontal,
-      -pagePadding.vertical,
+      -_pagePadding.horizontal,
+      -_pagePadding.vertical,
     );
 
     int numColumns = (planSize.x / planPageSize.x).ceil();
@@ -91,7 +87,7 @@ abstract class TournamentPlan<T extends BadmintonTournamentMode>
         );
 
         pw.Widget planPart = pw.Padding(
-          padding: pagePadding,
+          padding: _pagePadding,
           child: pw.ConstrainedBox(
             constraints: pw.BoxConstraints.tight(planPageSize),
             child: pw.FittedBox(
@@ -100,7 +96,7 @@ abstract class TournamentPlan<T extends BadmintonTournamentMode>
               child: pw.SizedBox.fromSize(
                 size: planSize,
                 child: pw.Padding(
-                  padding: planPadding,
+                  padding: _planPadding,
                   child: this,
                 ),
               ),
@@ -190,6 +186,44 @@ abstract class TournamentPlan<T extends BadmintonTournamentMode>
     );
 
     return page;
+  }
+
+  PdfPageFormat _getPageFormat(PdfPoint planSize) {
+    PdfPageFormat landscape = PdfPageFormat.a4.landscape.copyWith(
+      marginTop: _pageMargin * PdfPageFormat.cm,
+      marginBottom: _pageMargin * PdfPageFormat.cm,
+      marginLeft: _pageMargin * PdfPageFormat.cm,
+      marginRight: _pageMargin * PdfPageFormat.cm,
+    );
+
+    PdfPoint landscapeSize = landscape.availableDimension.translate(
+      -_pagePadding.horizontal,
+      -_pagePadding.vertical,
+    );
+
+    PdfPageFormat portrait = PdfPageFormat.a4.copyWith(
+      marginTop: _pageMargin * PdfPageFormat.cm,
+      marginBottom: _pageMargin * PdfPageFormat.cm,
+      marginLeft: _pageMargin * PdfPageFormat.cm,
+      marginRight: _pageMargin * PdfPageFormat.cm,
+    );
+
+    PdfPoint portraitSize = portrait.availableDimension.translate(
+      -_pagePadding.horizontal,
+      -_pagePadding.vertical,
+    );
+
+    int landscapeNumPages = (planSize.x / landscapeSize.x).ceil() *
+        (planSize.y / landscapeSize.y).ceil();
+
+    int portraitNumPages = (planSize.x / portraitSize.x).ceil() *
+        (planSize.y / portraitSize.y).ceil();
+
+    if (landscapeNumPages <= portraitNumPages) {
+      return landscape;
+    } else {
+      return portrait;
+    }
   }
 
   @override
