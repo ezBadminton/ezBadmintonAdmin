@@ -143,7 +143,12 @@ abstract class TournamentPlan<T extends BadmintonTournamentMode>
 
   pw.Page _generateBigPage() {
     double pageMargin = 0.65;
-    pw.EdgeInsets planPadding = const pw.EdgeInsets.all(1);
+    pw.EdgeInsets planPadding = const pw.EdgeInsets.only(
+      left: 1,
+      right: 1,
+      top: 1,
+      bottom: 24,
+    );
     PdfPoint planSize = layoutSize().translate(
       planPadding.horizontal,
       planPadding.vertical,
