@@ -128,6 +128,7 @@ class TournamentProgressCubit
     for (Competition competition in drawnCompetitions) {
       BadmintonTournamentMode tournament = createTournamentMode(competition);
       hydrateTournament(competition, tournament, null);
+      tournament.updateTournament();
       drawnTournaments[competition] = tournament;
     }
 
