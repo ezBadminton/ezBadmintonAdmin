@@ -18,6 +18,7 @@ class PdfDocumentPreview extends StatelessWidget {
         document != null ? document!.save() : pw.Document().save();
 
     return PdfPreview(
+      key: ValueKey(pdfBytes),
       allowPrinting: false,
       allowSharing: false,
       canChangeOrientation: false,
