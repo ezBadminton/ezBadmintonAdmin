@@ -4,7 +4,7 @@ import 'package:pdf/widgets.dart' as pw;
 class SLine extends pw.StatelessWidget {
   SLine({
     required this.color,
-    this.thickness = 2,
+    this.thickness = 1.5,
   });
 
   final PdfColor color;
@@ -21,7 +21,7 @@ class SLine extends pw.StatelessWidget {
     canvas
       ..setColor(color)
       ..setLineWidth(thickness)
-      ..setLineDashPattern([17, 8])
+      ..setLineDashPattern([5 * 2.215, 5])
       ..moveTo(0, size.y)
       ..curveTo(
         0,

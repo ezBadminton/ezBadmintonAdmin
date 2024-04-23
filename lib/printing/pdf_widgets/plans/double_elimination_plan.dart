@@ -1,8 +1,10 @@
+import 'package:collection/collection.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
 import 'package:ez_badminton_admin_app/layout/elimination_tree/utils.dart';
 import 'package:ez_badminton_admin_app/printing/pdf_widgets/bent_line.dart';
 import 'package:ez_badminton_admin_app/printing/pdf_widgets/pdf_widgets.dart';
+import 'package:ez_badminton_admin_app/printing/pdf_widgets/s_line.dart';
 import 'package:ez_badminton_admin_app/widgets/line_painters/bent_line.dart'
     as bl;
 import 'package:flutter/material.dart';
@@ -191,6 +193,10 @@ class DoubleEliminationPlan extends TournamentPlan<BadmintonDoubleElimination> {
         _positionFinalMatch(finalMatchCard, upperFinal, lowerFinal);
     matchPlanWidgets.addAll(finalWidgets);
 
+    List<TournamentPlanWidget> dashedLines =
+        _positionDashedLines(winnerBracket, matchPlanWidgets);
+    matchPlanWidgets.addAll(dashedLines);
+
     return matchPlanWidgets;
   }
 
@@ -294,5 +300,61 @@ class DoubleEliminationPlan extends TournamentPlan<BadmintonDoubleElimination> {
       upperOutgoingLine,
       lowerOutgoingLine,
     ];
+  }
+
+  List<TournamentPlanWidget> _positionDashedLines(
+    SingleEliminationPlan winnerBracket,
+    List<TournamentPlanWidget> loserBracketWidgets,
+  ) {
+    List<TournamentPlanWidget> lastMatchesOfWinnerRounds =
+        winnerBracket.widgets.where((w) {
+      if (w.child is! MatchCard) {
+        return false;
+      }
+
+      BadmintonMatch match = (w.child as MatchCard).match;
+      DoubleEliminationRound<BadmintonMatch> round =
+          match.round as DoubleEliminationRound<BadmintonMatch>;
+
+      return round.winnerRound?.matches.last == match;
+    }).toList();
+
+    List<TournamentPlanWidget> firstMatchesOfLoserRounds =
+        loserBracketWidgets.where((w) {
+      if (w.child is! MatchCard) {
+        return false;
+      }
+
+      BadmintonMatch match = (w.child as MatchCard).match;
+      DoubleEliminationRound<BadmintonMatch> round =
+          match.round as DoubleEliminationRound<BadmintonMatch>;
+
+      return round.loserRound?.matches.first == match;
+    }).toList();
+
+    List<TournamentPlanWidget> dashedLines =
+        lastMatchesOfWinnerRounds.mapIndexed(
+      (index, winnerMatch) {
+        TournamentPlanWidget loserMatch = switch (index) {
+          == 0 => firstMatchesOfLoserRounds[index],
+          _ => firstMatchesOfLoserRounds[2 * index - 1],
+        };
+
+        Rect boundingBox = Rect.fromPoints(
+          winnerMatch.boundingBox.bottomCenter,
+          loserMatch.boundingBox.topCenter,
+        );
+
+        return TournamentPlanWidget(
+          boundingBox: boundingBox,
+          child: pw.SizedBox.fromSize(
+            size: PdfPoint(boundingBox.size.width, boundingBox.size.height),
+            child: SLine(color: PdfColors.grey400),
+          ),
+        );
+      },
+    ).toList();
+
+    return dashedLines;
   }
 }
