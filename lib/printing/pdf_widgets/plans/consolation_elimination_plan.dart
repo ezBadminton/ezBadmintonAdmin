@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:collection/collection.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
 import 'package:ez_badminton_admin_app/printing/pdf_widgets/pdf_widgets.dart';
+import 'package:ez_badminton_admin_app/printing/pdf_widgets/s_line.dart';
 import 'package:ez_badminton_admin_app/utils/log2/log2.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -113,6 +114,34 @@ class ConsolationEliminationPlan
         rightHandSiblings: node.consolationBrackets.skip(index + 1),
         planWidgets: planWidgets,
       );
+
+      TournamentMatch dashedLineOriginMatch =
+          node.bracket.bracket.rounds[bracketOffset].matches.last;
+      TournamentPlanWidget dashedLineOriginWidget =
+          node.plan.widgets.firstWhere(
+        (w) =>
+            (w.child is MatchCard) &&
+            (w.child as MatchCard).match == dashedLineOriginMatch,
+      );
+      Offset dashedLineOrigin =
+          position + dashedLineOriginWidget.boundingBox.bottomCenter;
+      Offset dashedLineTarget =
+          childPosition + Offset(matchCardSize.x * 0.5, 0);
+      Rect dashedLineBounds = Rect.fromPoints(
+        dashedLineOrigin,
+        dashedLineTarget,
+      );
+
+      pw.Widget dashedLine = pw.SizedBox(
+        width: dashedLineBounds.width,
+        height: dashedLineBounds.height,
+        child: SLine(color: PdfColors.grey400),
+      );
+      TournamentPlanWidget dashedLinePlanWidet = TournamentPlanWidget(
+        boundingBox: dashedLineBounds,
+        child: dashedLine,
+      );
+      planWidgets.add(dashedLinePlanWidet);
 
       double nextSiblingHorizontalOffset =
           horizontalOffset + child.plan.layoutSize().x + eliminationRoundMargin;
