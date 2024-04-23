@@ -20,7 +20,7 @@ class GroupKnockOutPlan extends TournamentPlan<BadmintonGroupKnockout> {
   });
 
   @override
-  List<TournamentPlanWidget> layoutPlan(BadmintonGroupKnockout tournament) {
+  List<TournamentPlanWidget> layoutPlan() {
     List<TournamentPlanWidget> planWidgets = [];
 
     List<TournamentPlanWidget> groupPlans = _positionGroups();

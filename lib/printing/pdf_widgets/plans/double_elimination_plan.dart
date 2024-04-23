@@ -24,7 +24,7 @@ class DoubleEliminationPlan extends TournamentPlan<BadmintonDoubleElimination> {
   final Map<MatchParticipant, pw.Widget> placeholders;
 
   @override
-  List<TournamentPlanWidget> layoutPlan(BadmintonDoubleElimination tournament) {
+  List<TournamentPlanWidget> layoutPlan() {
     SingleEliminationPlan winnerBracket = SingleEliminationPlan(
       tournament: tournament.winnerBracket,
       l10n: l10n,

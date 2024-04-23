@@ -25,9 +25,7 @@ class ConsolationEliminationPlan
   final Map<MatchParticipant, pw.Widget> placeholders;
 
   @override
-  List<TournamentPlanWidget> layoutPlan(
-    BadmintonSingleEliminationWithConsolation tournament,
-  ) {
+  List<TournamentPlanWidget> layoutPlan() {
     ConsolationTreeNode consolationTree =
         _createConsolationTree(tournament.mainBracket);
 

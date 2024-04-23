@@ -21,7 +21,7 @@ class RoundRobinPlan extends TournamentPlan<BadmintonRoundRobin> {
   bool get _isDoubles => tournament.competition.teamSize == 2;
 
   @override
-  List<TournamentPlanWidget> layoutPlan(BadmintonRoundRobin tournament) {
+  List<TournamentPlanWidget> layoutPlan() {
     double rowHeight =
         _isDoubles ? groupTableDoublesHeight : groupTableSinglesHeight;
     double tableWidth = 4 * groupTableStatWidth + groupTableNameWidth;

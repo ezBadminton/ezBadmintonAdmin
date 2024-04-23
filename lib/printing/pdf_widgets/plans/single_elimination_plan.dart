@@ -22,7 +22,7 @@ class SingleEliminationPlan extends TournamentPlan<BadmintonSingleElimination> {
   final Map<MatchParticipant, pw.Widget> placeholders;
 
   @override
-  List<TournamentPlanWidget> layoutPlan(BadmintonSingleElimination tournament) {
+  List<TournamentPlanWidget> layoutPlan() {
     List<List<MatchCard>> matchCards = [
       for (EliminationRound<BadmintonMatch> round in tournament.rounds)
         [

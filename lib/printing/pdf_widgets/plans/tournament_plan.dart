@@ -14,7 +14,7 @@ abstract class TournamentPlan<T extends BadmintonTournamentMode>
     required this.tournament,
     required this.l10n,
   }) {
-    _widgets = layoutPlan(tournament);
+    _widgets = layoutPlan();
   }
 
   final T tournament;
@@ -24,7 +24,7 @@ abstract class TournamentPlan<T extends BadmintonTournamentMode>
   late final List<TournamentPlanWidget> _widgets;
   List<TournamentPlanWidget> get widgets => List.unmodifiable(_widgets);
 
-  List<TournamentPlanWidget> layoutPlan(T tournament);
+  List<TournamentPlanWidget> layoutPlan();
 
   final double _pageMargin = 0.65;
   final pw.EdgeInsets _planPadding = const pw.EdgeInsets.all(1);
