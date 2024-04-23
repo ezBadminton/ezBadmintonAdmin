@@ -105,7 +105,7 @@ class _TournamentBracketExplorerState extends State<TournamentBracketExplorer>
                     builder: (context, boundaryMargin) {
                       return InteractiveViewer(
                         constrained: false,
-                        minScale: .01,
+                        minScale: .001,
                         maxScale: 1.33,
                         scaleEnabled: !blockerState.isZoomBlocked,
                         boundaryMargin: boundaryMargin,

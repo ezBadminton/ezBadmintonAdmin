@@ -84,7 +84,7 @@ class TournamentBracketExplorerController
     double xScale = viewSize.width / widgetSize.width;
     double yScale = viewSize.height / widgetSize.height;
 
-    double fittingScale = clampDouble(min(xScale, yScale), 0.01, 1.33);
+    double fittingScale = clampDouble(min(xScale, yScale), 0.001, 1.33);
 
     focusPoint(widgetCenter, fittingScale);
   }

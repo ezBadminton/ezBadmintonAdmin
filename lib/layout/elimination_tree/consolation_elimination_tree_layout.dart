@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:ez_badminton_admin_app/utils/log2/log2.dart';
 import 'package:ez_badminton_admin_app/widgets/line_painters/s_line.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
@@ -127,15 +128,16 @@ class ConsolationEliminationTreeLayout extends StatelessWidget {
     double localResult =
         result + node.bracket.layoutSize.height + verticalMargin;
 
-    _TreeNode? firstChild = node.children.firstOrNull;
-
-    if (firstChild != null) {
-      localResult = _getLayoutHeight(
-        node: firstChild,
-        result: localResult,
-        rightHandSiblings: node.children.skip(1),
-      );
-    }
+    localResult = node.children
+            .mapIndexed(
+              (index, c) => _getLayoutHeight(
+                node: c,
+                result: localResult,
+                rightHandSiblings: node.children.skip(index + 1),
+              ),
+            )
+            .maxOrNull ??
+        localResult;
 
     return localResult;
   }
