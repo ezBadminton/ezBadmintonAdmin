@@ -10,6 +10,7 @@ class Scoreboard extends pw.StatelessWidget {
     this.height = 84,
     this.scoreFieldWidth = 37,
     this.textStyle,
+    this.placeholders = const {},
     this.byePlaceholder,
   });
 
@@ -19,6 +20,8 @@ class Scoreboard extends pw.StatelessWidget {
   final double scoreFieldWidth;
 
   final pw.TextStyle? textStyle;
+
+  final Map<MatchParticipant, pw.Widget> placeholders;
 
   final pw.Widget? byePlaceholder;
 
@@ -50,6 +53,7 @@ class Scoreboard extends pw.StatelessWidget {
             child: ParticipantLabel(
               participant: participant,
               textStyle: textStyle,
+              placeholder: placeholders[participant],
               byePlaceholder: byePlaceholder,
             ),
           ),

@@ -5,8 +5,10 @@ import 'package:ez_badminton_admin_app/layout/elimination_tree/utils.dart';
 import 'package:ez_badminton_admin_app/printing/pdf_widgets/bent_line.dart';
 import 'package:ez_badminton_admin_app/printing/pdf_widgets/pdf_widgets.dart';
 import 'package:ez_badminton_admin_app/printing/pdf_widgets/s_line.dart';
+import 'package:ez_badminton_admin_app/printing/pdf_widgets/utils.dart';
 import 'package:ez_badminton_admin_app/widgets/line_painters/bent_line.dart'
     as bl;
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/double_elimination_tree.dart';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -16,13 +18,17 @@ class DoubleEliminationPlan extends TournamentPlan<BadmintonDoubleElimination> {
   DoubleEliminationPlan({
     required super.tournament,
     required super.l10n,
+    this.placeholders = const {},
   });
+
+  final Map<MatchParticipant, pw.Widget> placeholders;
 
   @override
   List<TournamentPlanWidget> layoutPlan(BadmintonDoubleElimination tournament) {
     SingleEliminationPlan winnerBracket = SingleEliminationPlan(
       tournament: tournament.winnerBracket,
       l10n: l10n,
+      placeholders: placeholders,
     );
 
     PdfPoint winnerBracketSize = winnerBracket.layoutSize();
@@ -43,12 +49,19 @@ class DoubleEliminationPlan extends TournamentPlan<BadmintonDoubleElimination> {
     );
     planWidgets.add(winnerBracketPlan);
 
+    Map<MatchParticipant, pw.Widget> loserPlaceholders =
+        _createPlaceholderLabels();
+
     List<List<MatchCard>> loserMatches = tournament.rounds
         .map((round) => round.loserRound)
         .whereType<EliminationRound<BadmintonMatch>>()
         .map((loserRound) => [
               for (BadmintonMatch match in loserRound.matches)
-                MatchCard(match: match, l10n: l10n),
+                MatchCard(
+                  match: match,
+                  l10n: l10n,
+                  placeholders: loserPlaceholders,
+                ),
             ])
         .toList();
 
@@ -359,5 +372,14 @@ class DoubleEliminationPlan extends TournamentPlan<BadmintonDoubleElimination> {
     ).toList();
 
     return dashedLines;
+  }
+
+  Map<MatchParticipant, pw.Widget> _createPlaceholderLabels() {
+    Map<MatchParticipant, String> labelTexts =
+        DoubleEliminationTree.createPlaceholderLabels(tournament, l10n);
+
+    Map<MatchParticipant, pw.Widget> labels = wrapPlaceholderLabels(labelTexts);
+
+    return labels;
   }
 }

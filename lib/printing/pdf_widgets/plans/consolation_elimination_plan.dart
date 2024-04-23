@@ -5,7 +5,10 @@ import 'package:collection/collection.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
 import 'package:ez_badminton_admin_app/printing/pdf_widgets/pdf_widgets.dart';
 import 'package:ez_badminton_admin_app/printing/pdf_widgets/s_line.dart';
+import 'package:ez_badminton_admin_app/printing/pdf_widgets/utils.dart';
 import 'package:ez_badminton_admin_app/utils/log2/log2.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/consolation_elimination_tree.dart';
+import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:tournament_mode/tournament_mode.dart';
@@ -16,7 +19,10 @@ class ConsolationEliminationPlan
   ConsolationEliminationPlan({
     required super.tournament,
     required super.l10n,
+    this.placeholders = const {},
   });
+
+  final Map<MatchParticipant, pw.Widget> placeholders;
 
   @override
   List<TournamentPlanWidget> layoutPlan(
@@ -153,9 +159,14 @@ class ConsolationEliminationPlan
   ConsolationTreeNode _createConsolationTree(
     BracketWithConsolation bracket,
   ) {
+    Map<MatchParticipant, pw.Widget> placeholders = bracket.parent == null
+        ? this.placeholders
+        : _createConsolationPlaceholders(bracket);
+
     SingleEliminationPlan plan = SingleEliminationPlan(
       tournament: bracket.bracket as BadmintonSingleElimination,
       l10n: l10n,
+      placeholders: placeholders,
     );
 
     List<ConsolationTreeNode> consolationBrackets =
@@ -172,6 +183,21 @@ class ConsolationEliminationPlan
     }
 
     return node;
+  }
+
+  Map<MatchParticipant, pw.Widget> _createConsolationPlaceholders(
+    BracketWithConsolation bracket,
+  ) {
+    Map<MatchParticipant, String> labelTexts =
+        ConsolationEliminationTree.createConsolationPlaceholderLabels(
+      l10n,
+      bracket,
+    );
+
+    Map<MatchParticipant, pw.Widget> placeholders =
+        wrapPlaceholderLabels(labelTexts);
+
+    return placeholders;
   }
 }
 

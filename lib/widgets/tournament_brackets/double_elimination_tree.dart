@@ -7,6 +7,7 @@ import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bracket.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:tournament_mode/tournament_mode.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -105,9 +106,21 @@ class DoubleEliminationTree extends StatelessWidget
   ) {
     var l10n = AppLocalizations.of(context)!;
 
-    TextStyle placeholderStyle =
-        TextStyle(color: Theme.of(context).disabledColor);
+    Map<MatchParticipant, String> labelTexts =
+        createPlaceholderLabels(tournament, l10n);
 
+    Map<MatchParticipant, Widget> labels = wrapPlaceholderLabels(
+      context,
+      labelTexts,
+    );
+
+    return labels;
+  }
+
+  static Map<MatchParticipant, String> createPlaceholderLabels(
+    BadmintonDoubleElimination tournament,
+    AppLocalizations l10n,
+  ) {
     Iterable<MatchParticipant> loserParticipants =
         tournament.matches.expand((match) => [match.a, match.b]).where(
               (participant) =>
@@ -115,7 +128,7 @@ class DoubleEliminationTree extends StatelessWidget
                   participant.placement?.place == 1,
             );
 
-    Map<MatchParticipant, Widget> participantLabels = {};
+    Map<MatchParticipant, String> participantLabels = {};
 
     for (MatchParticipant loser in loserParticipants) {
       BadmintonMatch lostMatch =
@@ -124,12 +137,7 @@ class DoubleEliminationTree extends StatelessWidget
       String matchName = (lostMatch.round as DoubleEliminationRound)
           .getDoubleEliminationMatchName(l10n, lostMatch);
 
-      Widget label = Text(
-        l10n.loserOfMatch(matchName),
-        style: placeholderStyle,
-      );
-
-      participantLabels.putIfAbsent(loser, () => label);
+      participantLabels.putIfAbsent(loser, () => l10n.loserOfMatch(matchName));
     }
 
     return participantLabels;

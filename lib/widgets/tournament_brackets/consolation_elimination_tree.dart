@@ -4,6 +4,7 @@ import 'package:ez_badminton_admin_app/layout/elimination_tree/consolation_elimi
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bracket.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:tournament_mode/tournament_mode.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -86,17 +87,31 @@ class ConsolationEliminationTree extends StatelessWidget
 
     var l10n = AppLocalizations.of(context)!;
 
+    Map<MatchParticipant, String> labelTexts =
+        createConsolationPlaceholderLabels(l10n, bracket);
+
+    Map<MatchParticipant, Widget> labels =
+        wrapPlaceholderLabels(context, labelTexts);
+
+    return labels;
+  }
+
+  static Map<MatchParticipant, String> createConsolationPlaceholderLabels(
+    AppLocalizations l10n,
+    BracketWithConsolation bracket,
+  ) {
+    if (bracket.parent == null) {
+      return const {};
+    }
+
     List<TournamentMatch> firstRoundMatches =
         bracket.bracket.rounds.first.matches;
 
-    Map<MatchParticipant, Widget> labels = Map.fromEntries(
+    Map<MatchParticipant, String> labels = Map.fromEntries(
       firstRoundMatches
           .expand((match) => [match.a, match.b])
           .where((participant) => !participant.isBye)
           .map((participant) {
-        TextStyle placeholderStyle =
-            TextStyle(color: Theme.of(context).disabledColor);
-
         WinnerRanking winnerRanking =
             participant.placement!.ranking as WinnerRanking;
         TournamentMatch sourceMatch = winnerRanking.match;
@@ -106,12 +121,7 @@ class ConsolationEliminationTree extends StatelessWidget
 
         String loserLabel = l10n.loserOfMatch(matchName);
 
-        Text labelText = Text(
-          loserLabel,
-          style: placeholderStyle,
-        );
-
-        return MapEntry(participant, labelText);
+        return MapEntry(participant, loserLabel);
       }),
     );
 

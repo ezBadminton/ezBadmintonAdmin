@@ -3,17 +3,21 @@ import 'package:ez_badminton_admin_app/printing/pdf_widgets/pdf_widgets.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:tournament_mode/tournament_mode.dart';
 
 class MatchCard extends pw.StatelessWidget {
   MatchCard({
     required this.match,
     required this.l10n,
+    this.placeholders = const {},
     this.byePlaceholder,
     this.width,
   });
 
   final BadmintonMatch match;
   final AppLocalizations l10n;
+
+  final Map<MatchParticipant, pw.Widget> placeholders;
 
   final pw.Widget? byePlaceholder;
 
@@ -41,6 +45,7 @@ class MatchCard extends pw.StatelessWidget {
       height: size.y,
       scoreFieldWidth: scoreFieldWidth,
       textStyle: const pw.TextStyle(fontSize: 9),
+      placeholders: placeholders,
       byePlaceholder: byePlaceholder,
     );
 

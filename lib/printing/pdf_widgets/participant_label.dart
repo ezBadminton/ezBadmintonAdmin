@@ -7,6 +7,7 @@ class ParticipantLabel extends pw.StatelessWidget {
     required this.participant,
     this.textStyle,
     this.crossAxisAlignment,
+    this.placeholder,
     this.byePlaceholder,
   });
 
@@ -16,16 +17,18 @@ class ParticipantLabel extends pw.StatelessWidget {
 
   final pw.CrossAxisAlignment? crossAxisAlignment;
 
+  final pw.Widget? placeholder;
+
   final pw.Widget? byePlaceholder;
 
   @override
   pw.Widget build(pw.Context context) {
-    if (byePlaceholder != null && participant.isBye) {
-      pw.AlignmentDirectional alignment = switch (crossAxisAlignment) {
-        pw.CrossAxisAlignment.start => pw.AlignmentDirectional.centerStart,
-        _ => pw.AlignmentDirectional.centerEnd,
-      };
+    pw.AlignmentDirectional alignment = switch (crossAxisAlignment) {
+      pw.CrossAxisAlignment.start => pw.AlignmentDirectional.centerStart,
+      _ => pw.AlignmentDirectional.centerEnd,
+    };
 
+    if (byePlaceholder != null && participant.isBye) {
       return pw.Align(
         alignment: alignment,
         child: byePlaceholder!,
@@ -35,7 +38,14 @@ class ParticipantLabel extends pw.StatelessWidget {
     Team? team = participant.player;
 
     if (team == null) {
-      return pw.SizedBox();
+      if (placeholder == null) {
+        return pw.SizedBox();
+      } else {
+        return pw.Align(
+          alignment: alignment,
+          child: placeholder,
+        );
+      }
     }
 
     return pw.Column(

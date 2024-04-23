@@ -7,6 +7,7 @@ import 'package:ez_badminton_admin_app/printing/pdf_widgets/bent_line.dart';
 import 'package:ez_badminton_admin_app/printing/pdf_widgets/pdf_widgets.dart';
 import 'package:ez_badminton_admin_app/widgets/line_painters/bent_line.dart'
     as bl;
+import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:tournament_mode/tournament_mode.dart';
@@ -15,7 +16,10 @@ class SingleEliminationPlan extends TournamentPlan<BadmintonSingleElimination> {
   SingleEliminationPlan({
     required super.tournament,
     required super.l10n,
+    this.placeholders = const {},
   });
+
+  final Map<MatchParticipant, pw.Widget> placeholders;
 
   @override
   List<TournamentPlanWidget> layoutPlan(BadmintonSingleElimination tournament) {
@@ -26,6 +30,7 @@ class SingleEliminationPlan extends TournamentPlan<BadmintonSingleElimination> {
             MatchCard(
               match: match,
               l10n: l10n,
+              placeholders: placeholders,
             )
         ],
     ];
