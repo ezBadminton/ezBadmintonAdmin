@@ -73,7 +73,6 @@ dependencies:
   url_launcher: ^6.2.1
   open_file: ^3.3.2
   vector_math: ^2.1.4
-  dart_numerics: ^0.0.6
   path_drawing: ^1.0.1
   process_run: ^0.14.2
   io: ^1.0.4

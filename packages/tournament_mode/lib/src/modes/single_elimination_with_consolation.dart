@@ -363,6 +363,7 @@ class BracketWithConsolation<P, S, M extends TournamentMatch<P, S>,
   /// land on.
   ///
   /// This is regardless of how many participants might be byes.
+  /// The return values are `(best rank, lowest rank)`.
   (int, int) getRankRange() {
     int bracketSize = bracket.rounds.first.roundSize;
 

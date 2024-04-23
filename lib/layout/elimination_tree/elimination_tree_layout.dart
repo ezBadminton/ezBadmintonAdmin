@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:collection/collection.dart';
-import 'package:dart_numerics/dart_numerics.dart';
+import 'package:ez_badminton_admin_app/utils/log2/log2.dart';
 import 'package:ez_badminton_admin_app/widgets/line_painters/bent_line.dart';
 import 'package:ez_badminton_admin_app/widgets/line_painters/s_line.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/bracket_sizes.dart'

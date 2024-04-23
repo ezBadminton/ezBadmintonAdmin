@@ -2,12 +2,13 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
-import 'package:dart_numerics/dart_numerics.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
 import 'package:ez_badminton_admin_app/printing/pdf_widgets/pdf_widgets.dart';
+import 'package:ez_badminton_admin_app/utils/log2/log2.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:tournament_mode/tournament_mode.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ConsolationEliminationPlan
     extends TournamentPlan<BadmintonSingleEliminationWithConsolation> {
@@ -61,6 +62,26 @@ class ConsolationEliminationPlan
       ),
     );
     planWidgets.add(planWidget);
+
+    if (node.parent != null) {
+      (int, int) rankRange = node.bracket.getRankRange();
+      BracketPlaceRangeText rangeText = BracketPlaceRangeText(
+        upperBound: rankRange.$1 + 1,
+        lowerBound: rankRange.$2 + 1,
+        l10n: l10n,
+      );
+
+      TournamentPlanWidget rangeTextWidget = TournamentPlanWidget(
+        boundingBox: Rect.fromLTWH(
+          position.dx,
+          position.dy - 20,
+          planSize.x,
+          35,
+        ),
+        child: rangeText,
+      );
+      planWidgets.add(rangeTextWidget);
+    }
 
     int siblingDepth =
         rightHandSiblings.map((s) => s.getTreeDepth()).maxOrNull ?? 1;
@@ -122,6 +143,34 @@ class ConsolationEliminationPlan
     }
 
     return node;
+  }
+}
+
+class BracketPlaceRangeText extends pw.StatelessWidget {
+  BracketPlaceRangeText({
+    required this.upperBound,
+    required this.lowerBound,
+    this.textStyle = const pw.TextStyle(fontSize: 15),
+    required this.l10n,
+  });
+
+  final int upperBound;
+  final int lowerBound;
+
+  final pw.TextStyle textStyle;
+
+  final AppLocalizations l10n;
+
+  @override
+  pw.Widget build(pw.Context context) {
+    if (upperBound == 3 && lowerBound == 4) {
+      return pw.Text(l10n.matchForThrid, style: textStyle);
+    }
+
+    return pw.Text(
+      l10n.upperToLowerRank(lowerBound, upperBound),
+      style: textStyle,
+    );
   }
 }
 

@@ -160,7 +160,7 @@ packages:
     source: hosted
     version: "1.0.6"
   dart_numerics:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: dart_numerics
       sha256: "47408d4890551636204851325e5649bf1a1616ebc325184c36722a1716cbaba4"
