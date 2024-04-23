@@ -167,11 +167,24 @@ class RoundRobinPlan extends TournamentPlan<BadmintonRoundRobin> {
       child: memberColumn,
     );
 
+    pw.Widget byePlaceholder = pw.Text(
+      l10n.freeOfPlay,
+      style: const pw.TextStyle(
+        color: PdfColors.grey600,
+        fontSize: 9,
+      ),
+    );
+
     List<List<MatchCard>> roundMatchCards = [
       for (RoundRobinRound<BadmintonMatch> round in tournament.rounds)
         [
           for (BadmintonMatch match in round.matches)
-            MatchCard(match: match, width: tableWidth),
+            MatchCard(
+              match: match,
+              width: tableWidth,
+              l10n: l10n,
+              byePlaceholder: byePlaceholder,
+            ),
         ]
     ];
 

@@ -48,7 +48,7 @@ class DoubleEliminationPlan extends TournamentPlan<BadmintonDoubleElimination> {
         .whereType<EliminationRound<BadmintonMatch>>()
         .map((loserRound) => [
               for (BadmintonMatch match in loserRound.matches)
-                MatchCard(match: match),
+                MatchCard(match: match, l10n: l10n),
             ])
         .toList();
 
@@ -187,7 +187,10 @@ class DoubleEliminationPlan extends TournamentPlan<BadmintonDoubleElimination> {
     TournamentPlanWidget lowerFinal =
         matchPlanWidgets.reversed.firstWhere((w) => w.child is MatchCard);
 
-    MatchCard finalMatchCard = MatchCard(match: tournament.matches.last);
+    MatchCard finalMatchCard = MatchCard(
+      match: tournament.matches.last,
+      l10n: l10n,
+    );
 
     List<TournamentPlanWidget> finalWidgets =
         _positionFinalMatch(finalMatchCard, upperFinal, lowerFinal);

@@ -2,14 +2,20 @@ import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.
 import 'package:ez_badminton_admin_app/printing/pdf_widgets/pdf_widgets.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MatchCard extends pw.StatelessWidget {
   MatchCard({
     required this.match,
+    required this.l10n,
+    this.byePlaceholder,
     this.width,
   });
 
   final BadmintonMatch match;
+  final AppLocalizations l10n;
+
+  final pw.Widget? byePlaceholder;
 
   final double? width;
 
@@ -21,11 +27,21 @@ class MatchCard extends pw.StatelessWidget {
   pw.Widget build(pw.Context context) {
     PdfPoint size = _getCardSize();
 
+    pw.Widget byePlaceholder = this.byePlaceholder ??
+        pw.Text(
+          l10n.bye,
+          style: const pw.TextStyle(
+            color: PdfColors.grey600,
+            fontSize: 9,
+          ),
+        );
+
     pw.Widget scoreboard = Scoreboard(
       match: match,
       height: size.y,
       scoreFieldWidth: scoreFieldWidth,
       textStyle: const pw.TextStyle(fontSize: 9),
+      byePlaceholder: byePlaceholder,
     );
 
     return pw.Padding(

@@ -10,6 +10,7 @@ class Scoreboard extends pw.StatelessWidget {
     this.height = 84,
     this.scoreFieldWidth = 37,
     this.textStyle,
+    this.byePlaceholder,
   });
 
   final BadmintonMatch match;
@@ -18,6 +19,8 @@ class Scoreboard extends pw.StatelessWidget {
   final double scoreFieldWidth;
 
   final pw.TextStyle? textStyle;
+
+  final pw.Widget? byePlaceholder;
 
   @override
   pw.Widget build(pw.Context context) {
@@ -47,6 +50,7 @@ class Scoreboard extends pw.StatelessWidget {
             child: ParticipantLabel(
               participant: participant,
               textStyle: textStyle,
+              byePlaceholder: byePlaceholder,
             ),
           ),
           pw.SizedBox(width: 3),

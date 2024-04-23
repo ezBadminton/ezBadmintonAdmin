@@ -21,7 +21,13 @@ class SingleEliminationPlan extends TournamentPlan<BadmintonSingleElimination> {
   List<TournamentPlanWidget> layoutPlan(BadmintonSingleElimination tournament) {
     List<List<MatchCard>> matchCards = [
       for (EliminationRound<BadmintonMatch> round in tournament.rounds)
-        [for (BadmintonMatch match in round.matches) MatchCard(match: match)],
+        [
+          for (BadmintonMatch match in round.matches)
+            MatchCard(
+              match: match,
+              l10n: l10n,
+            )
+        ],
     ];
 
     int numRounds = tournament.rounds.length;

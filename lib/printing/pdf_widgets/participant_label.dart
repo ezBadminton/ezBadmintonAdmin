@@ -7,6 +7,7 @@ class ParticipantLabel extends pw.StatelessWidget {
     required this.participant,
     this.textStyle,
     this.crossAxisAlignment,
+    this.byePlaceholder,
   });
 
   final MatchParticipant<Team> participant;
@@ -15,8 +16,22 @@ class ParticipantLabel extends pw.StatelessWidget {
 
   final pw.CrossAxisAlignment? crossAxisAlignment;
 
+  final pw.Widget? byePlaceholder;
+
   @override
   pw.Widget build(pw.Context context) {
+    if (byePlaceholder != null && participant.isBye) {
+      pw.AlignmentDirectional alignment = switch (crossAxisAlignment) {
+        pw.CrossAxisAlignment.start => pw.AlignmentDirectional.centerStart,
+        _ => pw.AlignmentDirectional.centerEnd,
+      };
+
+      return pw.Align(
+        alignment: alignment,
+        child: byePlaceholder!,
+      );
+    }
+
     Team? team = participant.player;
 
     if (team == null) {
