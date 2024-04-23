@@ -13,3 +13,5 @@ const double groupTableDoublesHeight = 29;
 const double roundTitleHeight = 25;
 
 const double loserBracketMargin = 30;
+
+const double consolationBracketVerticalMargin = 80;
