@@ -8,6 +8,7 @@ import 'package:ez_badminton_admin_app/printing/pdf_printing_cubit.dart';
 import 'package:ez_badminton_admin_app/printing/pdf_widgets/pdf_widgets.dart';
 import 'package:ez_badminton_admin_app/printing/pdf_widgets/plans/consolation_elimination_plan.dart';
 import 'package:ez_badminton_admin_app/printing/pdf_widgets/plans/double_elimination_plan.dart';
+import 'package:ez_badminton_admin_app/printing/pdf_widgets/plans/group_knockout_plan.dart';
 import 'package:ez_badminton_admin_app/printing/pdf_widgets/plans/round_robin_plan.dart';
 import 'package:formz/formz.dart';
 import 'package:path_provider/path_provider.dart';
@@ -73,6 +74,10 @@ class PlanPrintingCubit extends Cubit<PlanPrintingState> with PdfPrintingCubit {
         BadmintonSingleEliminationWithConsolation consolationElimination =>
           ConsolationEliminationPlan(
             tournament: consolationElimination,
+            l10n: l10n,
+          ),
+        BadmintonGroupKnockout groupKnockOut => GroupKnockOutPlan(
+            tournament: groupKnockOut,
             l10n: l10n,
           ),
         _ => throw Exception("This mode has no plan implemented!"),
