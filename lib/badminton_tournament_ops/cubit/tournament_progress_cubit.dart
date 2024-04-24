@@ -220,10 +220,35 @@ class TournamentProgressCubit
   ) {
     bool doRecreate = (competition.tournamentModeSettings !=
             oldCompetition.tournamentModeSettings) ||
-        !listEquals(competition.draw, oldCompetition.draw) ||
+        !_drawEquals(competition.draw, oldCompetition.draw) ||
         !listEquals(competition.seeds, oldCompetition.seeds) ||
         !listEquals(competition.tieBreakers, oldCompetition.tieBreakers);
 
     return doRecreate;
+  }
+
+  bool _drawEquals(List<Team> draw1, List<Team> draw2) {
+    if (!listEquals(draw1, draw2)) {
+      return false;
+    }
+
+    List<Player> players1 = draw1.expand((t) => t.players).toList();
+    List<Player> players2 = draw2.expand((t) => t.players).toList();
+
+    if (!listEquals(players1, players2)) {
+      return false;
+    }
+
+    for (int i = 0; i < players1.length; i += 1) {
+      Player p1 = players1[i];
+      Player p2 = players2[i];
+      bool nameEquals =
+          p1.firstName == p2.firstName && p1.lastName == p2.lastName;
+      if (!nameEquals) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }
