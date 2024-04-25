@@ -1,7 +1,7 @@
 ﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
   <Package Name="ezBadminton" Manufacturer="Simon Gerstmeier" Version="0.1.0" UpgradeCode="ddd98a05-4863-4cfb-ad9b-be4316731a3e">
-    <MajorUpgrade DowngradeErrorMessage="!(loc.DowngradeError)" />
+    <MajorUpgrade DowngradeErrorMessage="!(loc.DowngradeError)" AllowSameVersionUpgrades="yes" />
 
     <Feature Id="Main">
       <ComponentGroupRef Id="AppComponents" />
