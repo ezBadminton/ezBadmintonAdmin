@@ -1,0 +1,159 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Fragment>
+    <ComponentGroup Id="AppComponents" Directory="INSTALLFOLDER">
+      <ComponentGroupRef Id="BinaryFiles"/>
+      <ComponentGroupRef Id="DataFiles"/>
+      <ComponentGroupRef Id="AssetFiles"/>
+      <ComponentGroupRef Id="FontFiles"/>
+      <ComponentGroupRef Id="CupertinoFiles"/>
+      <ComponentGroupRef Id="FontAwesomeFiles"/>
+      <ComponentGroupRef Id="DashedBorderFiles"/>
+      <ComponentGroupRef Id="WindowManagerFiles"/>
+      <ComponentGroupRef Id="ShaderFiles"/>
+      <ComponentGroupRef Id="LocalServerFiles"/>
+
+      <Component Directory="DesktopFolder"
+                 Condition="CREATEDESKTOPSHORTCUT">
+
+        <Shortcut Id="DesktopShortcut"
+                  Name="ezBadminton"
+                  Target="[!ezBadminton.exe]"
+                  WorkingDirectory="INSTALLFOLDER" />
+
+        <RemoveFile Id="RemoveDesktopShortcut" Name="ezBadminton.lnk" On="uninstall" />
+
+        <RegistryValue Root='HKCU' Key='Software\[Manufacturer]\[ProductName]' Type='string' Value='' KeyPath='yes' />
+
+      </Component>
+
+    </ComponentGroup>
+
+    <ComponentGroup Id="BinaryFiles" Directory="INSTALLFOLDER">
+      <Component>
+        <File Id="ezBadminton.exe" Source="cabinet\ezBadminton.exe" />
+      </Component>
+      <Component>
+        <File Id="flutter_windows.dll" Source="cabinet\flutter_windows.dll" />
+      </Component>
+      <Component>
+        <File Id="pdfium.dll" Source="cabinet\pdfium.dll" />
+      </Component>
+      <Component>
+        <File Id="printing_plugin.dll" Source="cabinet\printing_plugin.dll" />
+      </Component>
+      <Component>
+        <File Id="screen_retriever_plugin.dll" Source="cabinet\screen_retriever_plugin.dll" />
+      </Component>
+      <Component>
+        <File Id="url_launcher_windows_plugin.dll" Source="cabinet\url_launcher_windows_plugin.dll" />
+      </Component>
+      <Component>
+        <File Id="window_manager_plugin.dll" Source="cabinet\window_manager_plugin.dll" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="DataFiles" Directory="DATAFOLDER">
+      <Component>
+        <File Id="app.so" Source="cabinet\data\app.so" />
+      </Component>
+      <Component>
+        <File Id="icudtl.dat" Source="cabinet\data\icudtl.dat" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="AssetFiles" Directory="ASSETFOLDER">
+      <Component>
+        <File Id="AssetManifest.bin" Source="cabinet\data\flutter_assets\AssetManifest.bin" />
+      </Component>
+      <Component>
+        <File Id="AssetManifest.bin.json" Source="cabinet\data\flutter_assets\AssetManifest.bin.json" />
+      </Component>
+      <Component>
+        <File Id="AssetManifest.json" Source="cabinet\data\flutter_assets\AssetManifest.json" />
+      </Component>
+      <Component>
+        <File Id="FontManifest.json" Source="cabinet\data\flutter_assets\FontManifest.json" />
+      </Component>
+      <Component>
+        <File Id="kernel_blob.bin" Source="cabinet\data\flutter_assets\kernel_blob.bin" />
+      </Component>
+      <Component>
+        <File Id="NOTICES" Source="cabinet\data\flutter_assets\NOTICES" />
+      </Component>
+      <Component>
+        <File Id="NOTICES.Z" Source="cabinet\data\flutter_assets\NOTICES.Z" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="FontFiles" Directory="FONTFOLDER">
+      <Component>
+        <File Id="BadmintonIcons.ttf" Source="cabinet\data\flutter_assets\fonts\BadmintonIcons.ttf" />
+      </Component>
+      <Component>
+        <File Id="MaterialIcons_Regular.otf" Source="cabinet\data\flutter_assets\fonts\MaterialIcons-Regular.otf" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="CupertinoFiles" Directory="CUPERTINOICONSASSETFOLDER">
+      <Component>
+        <File Id="CupertinoIcons.ttf" Source="cabinet\data\flutter_assets\packages\cupertino_icons\assets\CupertinoIcons.ttf" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="FontAwesomeFiles" Directory="FONTAWESOMEFONTSFOLDER">
+      <Component>
+        <File Id="fa_brands_400.ttf" Source="cabinet\data\flutter_assets\packages\font_awesome_flutter\lib\fonts\fa-brands-400.ttf" />
+      </Component>
+      <Component>
+        <File Id="fa_regular_400.ttf" Source="cabinet\data\flutter_assets\packages\font_awesome_flutter\lib\fonts\fa-regular-400.ttf" />
+      </Component>
+      <Component>
+        <File Id="fa_solid_900.ttf" Source="cabinet\data\flutter_assets\packages\font_awesome_flutter\lib\fonts\fa-solid-900.ttf" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="DashedBorderFiles" Directory="DASHEDBORDERIMAGESFOLDER">
+      <Component>
+        <File Id="type1.png" Source="cabinet\data\flutter_assets\packages\mobkit_dashed_border\images\type1.png" />
+      </Component>
+      <Component>
+        <File Id="type2.png" Source="cabinet\data\flutter_assets\packages\mobkit_dashed_border\images\type2.png" />
+      </Component>
+      <Component>
+        <File Id="type3.png" Source="cabinet\data\flutter_assets\packages\mobkit_dashed_border\images\type3.png" />
+      </Component>
+      <Component>
+        <File Id="type4.png" Source="cabinet\data\flutter_assets\packages\mobkit_dashed_border\images\type4.png" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="WindowManagerFiles" Directory="WINDOWMANAGERIMAGESFOLDER">
+      <Component>
+        <File Id="ic_chrome_close.png" Source="cabinet\data\flutter_assets\packages\window_manager\images\ic_chrome_close.png" />
+      </Component>
+      <Component>
+        <File Id="ic_chrome_maximize.png" Source="cabinet\data\flutter_assets\packages\window_manager\images\ic_chrome_maximize.png" />
+      </Component>
+      <Component>
+        <File Id="ic_chrome_minimize.png" Source="cabinet\data\flutter_assets\packages\window_manager\images\ic_chrome_minimize.png" />
+      </Component>
+      <Component>
+        <File Id="ic_chrome_unmaximize.png" Source="cabinet\data\flutter_assets\packages\window_manager\images\ic_chrome_unmaximize.png" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="ShaderFiles" Directory="SHADERFOLDER">
+      <Component>
+        <File Id="ink_sparkle.frag" Source="cabinet\data\flutter_assets\shaders\ink_sparkle.frag" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="LocalServerFiles" Directory="LOCALSERVERFOLDER">
+      <Component>
+        <File Id="ezBadmintonServer.exe" Source="cabinet\local_server\ezBadmintonServer.exe" />
+      </Component>
+    </ComponentGroup>
+
+    <MediaTemplate EmbedCab="yes" />
+  </Fragment>
+</Wix>

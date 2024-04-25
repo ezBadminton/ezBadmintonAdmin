@@ -1,0 +1,10 @@
+﻿<Project Sdk="WixToolset.Sdk/5.0.0">
+  <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" Version="5.0.0" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="5.0.0" />
+  </ItemGroup>
+  <PropertyGroup>
+    <Cultures>en-US</Cultures>
+    <OutputName>ezBadminton-installer-windows</OutputName>
+  </PropertyGroup>
+</Project>

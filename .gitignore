@@ -47,6 +47,12 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
+# Installer artifacts
+installers/windows/bin
+installers/windows/obj
+installers/windows/cabinet/*
+installers/windows/.vs
+
 # Android Studio will place build artifacts here
 /android/app/debug
 /android/app/profile

@@ -11,6 +11,7 @@ import 'package:ez_badminton_admin_app/login/view/login_page.dart';
 import 'package:ez_badminton_admin_app/splash/splash.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pocketbase_provider/pocketbase_provider.dart';
 import 'package:user_repository/user_repository.dart';
 import 'package:process_run/shell.dart';
@@ -133,9 +134,8 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     _tournamentModeSettingsRepository.load();
   }
 
-  void runLocalSever() {
-    bool isTest = Platform.environment.containsKey('FLUTTER_TEST');
-    if (isTest) {
+  void runLocalSever() async {
+    if (TestEnvironment().isTest) {
       // Tests run their own server
       return;
     }
@@ -149,9 +149,16 @@ class _AppState extends State<App> with WidgetsBindingObserver {
       "${cwd.path}${Platform.pathSeparator}$serverDirName",
     );
 
-    if (!serverWorkingDir.existsSync()) {
+    if (!await serverWorkingDir.exists()) {
       return;
     }
+
+    String localDataDirName = 'local_database';
+    Directory documentDir = await getApplicationDocumentsDirectory();
+
+    Directory localDataDir = Directory(
+      "${documentDir.path}${Platform.pathSeparator}ez_badminton${Platform.pathSeparator}$localDataDirName",
+    );
 
     _localServerShell = Shell(
       throwOnError: false,
@@ -159,7 +166,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     );
 
     _localServerShell.run(
-      './ezBadmintonServer serve',
+      './ezBadmintonServer serve --dir ${localDataDir.path}',
       onProcess: _serverProcesses.add,
     );
   }
