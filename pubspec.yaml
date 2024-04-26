@@ -140,6 +140,11 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
   fonts:
-   - family:  BadmintonIcons
-     fonts:
-      - asset: fonts/BadmintonIcons.ttf
+    - family:  BadmintonIcons
+      fonts:
+        - asset: fonts/BadmintonIcons.ttf
+    - family: Inter
+      fonts:
+        - asset: fonts/Inter/Inter-Regular.ttf
+        - asset: fonts/Inter/Inter-Bold.ttf
+          weight: 700

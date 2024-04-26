@@ -4,7 +4,8 @@
       <ComponentGroupRef Id="BinaryFiles"/>
       <ComponentGroupRef Id="DataFiles"/>
       <ComponentGroupRef Id="AssetFiles"/>
-      <ComponentGroupRef Id="FontFiles"/>
+      <ComponentGroupRef Id="CustomFontFiles"/>
+      <ComponentGroupRef Id="InterFontFiles"/>
       <ComponentGroupRef Id="CupertinoFiles"/>
       <ComponentGroupRef Id="FontAwesomeFiles"/>
       <ComponentGroupRef Id="DashedBorderFiles"/>
@@ -85,12 +86,21 @@
       </Component>
     </ComponentGroup>
 
-    <ComponentGroup Id="FontFiles" Directory="FONTFOLDER">
+    <ComponentGroup Id="CustomFontFiles" Directory="FONTFOLDER">
       <Component>
         <File Id="BadmintonIcons.ttf" Source="cabinet\data\flutter_assets\fonts\BadmintonIcons.ttf" />
       </Component>
       <Component>
         <File Id="MaterialIcons_Regular.otf" Source="cabinet\data\flutter_assets\fonts\MaterialIcons-Regular.otf" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="InterFontFiles" Directory="INTERFOLDER">
+      <Component>
+        <File Id="Inter_Regular.ttf" Source="cabinet\data\flutter_assets\fonts\Inter\Inter-Regular.ttf" />
+      </Component>
+      <Component>
+        <File Id="Inter_Bold.ttf" Source="cabinet\data\flutter_assets\fonts\Inter\Inter-Bold.ttf" />
       </Component>
     </ComponentGroup>
 

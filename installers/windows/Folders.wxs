@@ -4,7 +4,9 @@
       <Directory Id="INSTALLFOLDER" Name="!(bind.Property.ProductName)">
         <Directory Id="DATAFOLDER" Name="data">
           <Directory Id="ASSETFOLDER" Name="flutter_assets">
-            <Directory Id="FONTFOLDER" Name="fonts"></Directory>
+            <Directory Id="FONTFOLDER" Name="fonts">
+              <Directory Id="INTERFOLDER" Name="Inter"></Directory>
+            </Directory>
             <Directory Id="PACKAGEFOLDER" Name="packages">
               <Directory Id="CUPERTINOICONSFOLDER" Name="cupertino_icons">
                 <Directory Id="CUPERTINOICONSASSETFOLDER" Name="assets"></Directory>
