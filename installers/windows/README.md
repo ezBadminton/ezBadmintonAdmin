@@ -12,27 +12,31 @@ The build uses MSBuild via Visual Studio 2022.
 * Open the `windows.sln` solution  in VS2022
 
 
-### Provide the file cabinet
+### Provide the payload files
 
-The files in the cabinet are embedded in the installer during its build.
+The files that are embedded in the installer are "harvested" from different locations during the build. The paths are defined relative to this (`installers/windows`) directory.
 
 * Build the client (run `flutter build windows` in this repository's root directory).
-* Find the build result at `[...]\ez_badminton_admin_app\build\windows\x64\runner\Release`
-* Copy the files to the `cabinet` directory
-    * It should look something like this
-    ```
-    ez_badminton_admin_app\installers\windows\cabinet
-        - data
-        - ez_badminton_admin_app.exe
-        - flutter_windows.dll
-        - ...
-    ```
-* Rename `ez_badminton_admin_app.exe` to `ezBadminton.exe`
-* Download the ezBadminton server executable from the [releases](https://github.com/ezBadminton/ezBadmintonServer/releases)
-    * Take the windows-amd64 one
-* Create a directory called `local_server` in the `cabinet` directory
-* Move the server executable to `local_server`
-* Rename the server executable to `ezBadmintonServer.exe`
+* Verify that the build result is at `ez_badminton_admin_app\build\windows\x64\runner\Release`
+* It should look something like this
+```
+ez_badminton_admin_app\build\windows\x64\runner\Release
+    - data
+    - ez_badminton_admin_app.exe
+    - flutter_windows.dll
+    - ...
+```
+* The installer build will automatically take the files from here
+
+---
+
+The client can run locally and has the ability to start a local server on its own. Therefore the server executable has to be included with the installer.
+
+* Build the server or download the windows-amd64 one from the server repository's [releases](https://github.com/ezBadminton/ezBadmintonServer/releases)
+* Place it in a directory named `server` one level above the repository
+    * Like this: `ez_badminton_admin_app\..\server\ezBadmintonServer-windows-amd64-vX.Y.Z.exe`
+* The installer build will harvest it from there
+
 
 ### Build the installer
 

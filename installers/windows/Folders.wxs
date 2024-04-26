@@ -2,31 +2,7 @@
   <Fragment>
     <StandardDirectory Id="ProgramFiles6432Folder">
       <Directory Id="INSTALLFOLDER" Name="!(bind.Property.ProductName)">
-        <Directory Id="DATAFOLDER" Name="data">
-          <Directory Id="ASSETFOLDER" Name="flutter_assets">
-            <Directory Id="FONTFOLDER" Name="fonts">
-              <Directory Id="INTERFOLDER" Name="Inter"></Directory>
-            </Directory>
-            <Directory Id="PACKAGEFOLDER" Name="packages">
-              <Directory Id="CUPERTINOICONSFOLDER" Name="cupertino_icons">
-                <Directory Id="CUPERTINOICONSASSETFOLDER" Name="assets"></Directory>
-              </Directory>
-              <Directory Id="FONTAWESOMEFOLDER" Name="font_awesome_flutter">
-                <Directory Id="FONTAWESOMELIBFOLDER" Name="lib">
-                  <Directory Id="FONTAWESOMEFONTSFOLDER" Name="fonts"></Directory>
-                </Directory>
-              </Directory>
-              <Directory Id="DASHEDBORDERFOLDER" Name="mobkit_dashed_border">
-                <Directory Id="DASHEDBORDERIMAGESFOLDER" Name="images"></Directory>
-              </Directory>
-              <Directory Id="WINDOWMANAGERFOLDER" Name="window_manager">
-                <Directory Id="WINDOWMANAGERIMAGESFOLDER" Name="images"></Directory>
-              </Directory>
-            </Directory>
-            <Directory Id="SHADERFOLDER" Name="shaders"></Directory>
-          </Directory>
-        </Directory>
-        <Directory Id="LOCALSERVERFOLDER" Name="local_server"></Directory>
+        <Directory Id="SERVERFOLDER" Name="local_server"></Directory>
       </Directory>
     </StandardDirectory>
   </Fragment>

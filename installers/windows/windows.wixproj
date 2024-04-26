@@ -1,8 +1,39 @@
 ﻿<Project Sdk="WixToolset.Sdk/5.0.0">
   <ItemGroup>
+    <PackageReference Include="WixToolset.Heat" Version="5.0.0" />
     <PackageReference Include="WixToolset.UI.wixext" Version="5.0.0" />
     <PackageReference Include="WixToolset.Util.wixext" Version="5.0.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <HarvestDirectory Include="..\..\build\windows\x64\runner\Release">
+      <ComponentGroupName>FileComponents</ComponentGroupName>
+      <DirectoryRefId>INSTALLFOLDER</DirectoryRefId>
+      <SuppressRootDirectory>true</SuppressRootDirectory>
+      <Transforms>ClientExeTransform.xslt</Transforms>
+    </HarvestDirectory>
+    <BindPath Include="..\..\build\windows\x64\runner\Release" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <HarvestFile Include="..\..\..\server\ezBadmintonServer-windows-amd64*.exe">
+      <ComponentGroupName>ServerComponents</ComponentGroupName>
+      <DirectoryRefId>SERVERFOLDER</DirectoryRefId>
+      <SuppressRootDirectory>true</SuppressRootDirectory>
+      <Transforms>ServerExeTransform.xslt</Transforms>
+    </HarvestFile>
+    <BindPath Include="..\..\..\server" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="ClientExeTransform.xslt" />
+    <None Include="ServerExeTransform.xslt" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <HarvestFileSuppressUniqueIds>true</HarvestFileSuppressUniqueIds>
+  </PropertyGroup>
+
   <PropertyGroup>
     <Cultures>en-US</Cultures>
     <OutputName>ezBadminton-installer-windows</OutputName>
