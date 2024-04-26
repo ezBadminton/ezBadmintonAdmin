@@ -45,6 +45,14 @@ Patch dialog sequence:
                     ExeCommand="[#ezBadminton.exe]"
                     Impersonate="yes" />
 
+
+      <WixVariable Id="WixUIDialogBmp"
+                   Value="images/background.png" />
+
+      <WixVariable Id="WixUIBannerBmp"
+                   Value="images/banner.png" />
+
+
       <UI Id="file InstallDialog">
             <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
             <TextStyle Id="WixUI_Font_Bigger" FaceName="Tahoma" Size="12" />
