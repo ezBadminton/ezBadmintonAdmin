@@ -1,0 +1,12 @@
+Source: ezbadminton
+Section: unknown
+Priority: optional
+Maintainer: Simon Gerstmeier <ezBadminton@gerstmeier.dev>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.0
+Rules-Requires-Root: no
+
+Package: ezbadminton
+Architecture: any
+Description: A desktop app for managing Badminton tournaments
+ This is a pre-release version.

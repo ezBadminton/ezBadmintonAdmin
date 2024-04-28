@@ -51,6 +51,9 @@ app.*.map.json
 installers/windows/bin
 installers/windows/obj
 installers/windows/.vs
+installers/linux/*.deb
+installers/linux/*.buildinfo
+installers/linux/*.changes
 
 # Android Studio will place build artifacts here
 /android/app/debug
