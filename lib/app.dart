@@ -48,7 +48,7 @@ class _AppState extends State<App> {
   void initState() {
     super.initState();
 
-    runLocalSever();
+    _runLocalSever();
 
     String pocketbaseUrl = TestEnvironment().isTest
         ? 'http://127.0.0.1:8096'
@@ -132,7 +132,7 @@ class _AppState extends State<App> {
     _tournamentModeSettingsRepository.load();
   }
 
-  void runLocalSever() async {
+  void _runLocalSever() async {
     if (TestEnvironment().isTest) {
       // Tests run their own server
       return;
@@ -161,7 +161,7 @@ class _AppState extends State<App> {
       return;
     }
 
-    createClientHeartbeat();
+    _createClientHeartbeat();
 
     String localDataDirName = 'local_database';
     Directory documentDir = await getApplicationDocumentsDirectory();
@@ -172,7 +172,12 @@ class _AppState extends State<App> {
 
     Process.start(
       serverExe.absolute.path,
-      ['serve', '--dir', localDataDir.path],
+      [
+        'serve',
+        '--dir',
+        localDataDir.path,
+        '--client-exit',
+      ],
       workingDirectory: serverWorkingDir.path,
       mode: ProcessStartMode.normal,
     ).then((process) {
@@ -181,7 +186,7 @@ class _AppState extends State<App> {
     });
   }
 
-  void createClientHeartbeat() {
+  void _createClientHeartbeat() {
     if (Platform.isWindows) {
       CreateNamedPipe(
         "\\\\.\\pipe\\ezbadmintonheartbeat".toNativeUtf16(),
@@ -194,6 +199,9 @@ class _AppState extends State<App> {
         Pointer.fromAddress(0),
       );
     }
+
+    // On linux the prctl syscall can notfify the child process when the parent
+    // process dies. Therefore no active heartbeat is needed.
   }
 
   @override
