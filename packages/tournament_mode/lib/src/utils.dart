@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:tournament_mode/tournament_mode.dart';
 
 /// Filter the duplicate ranks of the rankings.
@@ -65,4 +67,8 @@ List<List<MatchParticipant<P>>> filterHighestRanks<P>(
   }
 
   return filteredRanks;
+}
+
+int log2(int x) {
+  return (log(x) / log(2)).floor();
 }

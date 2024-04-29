@@ -1,4 +1,3 @@
-import 'package:dart_numerics/dart_numerics.dart';
 import 'package:tournament_mode/src/match_participant.dart';
 import 'package:tournament_mode/src/modes/qualification_chain.dart';
 import 'package:tournament_mode/src/modes/single_elimination.dart';
@@ -9,6 +8,7 @@ import 'package:tournament_mode/src/round_types/double_elimination_round.dart';
 import 'package:tournament_mode/src/round_types/elimination_round.dart';
 import 'package:tournament_mode/src/tournament_match.dart';
 import 'package:tournament_mode/src/tournament_mode.dart';
+import 'package:tournament_mode/src/utils.dart';
 
 class DoubleElimination<P, S, M extends TournamentMatch<P, S>,
         E extends SingleElimination<P, S, M>> extends TournamentMode<P, S, M>

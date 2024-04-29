@@ -30,7 +30,6 @@ environment:
 dependencies:
   equatable: ^2.0.0
   collection: ^1.17.2
-  dart_numerics: ^0.0.6
   graphs: ^2.3.1
 
 dev_dependencies:
