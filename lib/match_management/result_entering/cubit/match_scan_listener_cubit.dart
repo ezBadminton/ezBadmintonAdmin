@@ -58,7 +58,7 @@ class MatchScanListenerCubit
     emit(updatedState);
   }
 
-  void onKeyEvent(RawKeyEvent event) {
+  void onKeyEvent(KeyEvent event) {
     if (event.character == null) {
       return;
     }

@@ -206,7 +206,8 @@ class _ReorderableItem<T extends Object> extends StatelessWidget {
     ImplicitAnimatedListState<T> state = cubit.state;
 
     return DragTarget<int>(
-      onAccept: (int draggedIndex) => _onAcceptDraggable(state, draggedIndex),
+      onAcceptWithDetails: (DragTargetDetails<int> draggedIndex) =>
+          _onAcceptDraggable(state, draggedIndex.data),
       builder: (context, candidateData, rejectedData) {
         DraggableItemBuilder<T> currentItemBuilder =
             _getCurrentItemBuilder(state);

@@ -74,7 +74,7 @@ class _MatchScanFocus extends StatelessWidget {
         );
       },
       child: Focus(
-        onKey: (node, event) {
+        onKeyEvent: (node, event) {
           scannerCubit.onKeyEvent(event);
           return KeyEventResult.ignored;
         },

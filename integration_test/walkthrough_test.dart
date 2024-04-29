@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/assets/badminton_icons_icons.dart';
+import 'package:ez_badminton_admin_app/assets/pdf_fonts.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/widgets/tournament_mode_selector.dart';
 import 'package:ez_badminton_admin_app/constants.dart' as constants;
@@ -98,6 +99,7 @@ const List<(String, String)> playerNames = [
 void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
+  await PdfFonts.ensureInitialized();
 
   setUpAll(() async {
     TestEnvironment().isTest = true;

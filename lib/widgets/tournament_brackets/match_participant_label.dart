@@ -289,12 +289,12 @@ class _EditableMatchParticipantLabel extends StatelessWidget {
         lastNameTextStyle: null,
       ),
       child: DragTarget<Team>(
-        onWillAccept: (droppedTeam) {
-          return droppedTeam != team;
+        onWillAcceptWithDetails: (droppedTeam) {
+          return droppedTeam.data != team;
         },
-        onAccept: (droppedTeam) {
+        onAcceptWithDetails: (droppedTeam) {
           var cubit = context.read<DrawEditingCubit>();
-          cubit.swapDrawMembers(team, droppedTeam);
+          cubit.swapDrawMembers(team, droppedTeam.data);
         },
         builder: (context, candidateData, rejectedData) => Draggable<Team>(
           onDragStarted: blockerCubit?.removeEdgePanningBlock,
