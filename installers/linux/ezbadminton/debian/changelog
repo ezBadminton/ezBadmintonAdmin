@@ -1,11 +1,11 @@
-ezbadminton (0.1.0) unstable; urgency=medium
-
-  * Initial release
-
- -- Simon Gerstmeier <ezBadminton@gerstmeier.dev>  Sat, 27 Apr 2024 21:19:51 +0200
-
 ezbadminton (0.1.1) unstable; urgency=medium
 
   * The local server should now exit together with the client more reliably
 
  -- Simon Gerstmeier <ezBadminton@gerstmeier.dev>  Tue, 30 Apr 2024 01:11:23 +0200
+
+ezbadminton (0.1.0) unstable; urgency=medium
+
+  * Initial release
+
+ -- Simon Gerstmeier <ezBadminton@gerstmeier.dev>  Sat, 27 Apr 2024 21:19:51 +0200
