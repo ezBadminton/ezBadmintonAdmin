@@ -1,9 +1,9 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:authentication_repository/authentication_repository.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/utils/test_environment.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:ez_badminton_admin_app/authentication/bloc/authentication_bloc.dart';
 import 'package:ez_badminton_admin_app/home/view/home_page.dart';
@@ -14,6 +14,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pocketbase_provider/pocketbase_provider.dart';
 import 'package:user_repository/user_repository.dart';
+import 'package:process_run/shell.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -22,7 +23,10 @@ class App extends StatefulWidget {
   State<App> createState() => _AppState();
 }
 
-class _AppState extends State<App> {
+class _AppState extends State<App> with WidgetsBindingObserver {
+  late final Shell _localServerShell;
+  late final List<Process> _serverProcesses;
+
   late final PocketBaseProvider _pocketBaseProvider;
   late final AuthenticationRepository _authenticationRepository;
   late final UserRepository _userRepository;
@@ -46,6 +50,7 @@ class _AppState extends State<App> {
     super.initState();
 
     runLocalSever();
+    WidgetsBinding.instance.addObserver(this);
 
     String pocketbaseUrl = TestEnvironment().isTest
         ? 'http://127.0.0.1:8096'
@@ -137,14 +142,9 @@ class _AppState extends State<App> {
 
     String serverDirName = 'local_server';
 
-    Directory cwd;
+    _serverProcesses = [];
 
-    if (kReleaseMode) {
-      cwd = File(Platform.resolvedExecutable).parent;
-    } else {
-      cwd = Directory.current;
-    }
-
+    Directory cwd = Directory.current;
     Directory serverWorkingDir = Directory(
       "${cwd.path}${Platform.pathSeparator}$serverDirName",
     );
@@ -160,15 +160,24 @@ class _AppState extends State<App> {
       "${documentDir.path}${Platform.pathSeparator}ez_badminton${Platform.pathSeparator}$localDataDirName",
     );
 
-    Process.start(
-      './ezBadmintonServer',
-      ['serve', '--dir', localDataDir.path],
+    _localServerShell = Shell(
+      throwOnError: false,
       workingDirectory: serverWorkingDir.path,
-      mode: ProcessStartMode.normal,
-    ).then((process) {
-      stdout.addStream(process.stdout);
-      stderr.addStream(process.stderr);
-    });
+    );
+
+    _localServerShell.run(
+      './ezBadmintonServer serve --dir ${localDataDir.path}',
+      onProcess: _serverProcesses.add,
+    );
+  }
+
+  @override
+  Future<AppExitResponse> didRequestAppExit() async {
+    for (Process p in _serverProcesses) {
+      p.kill();
+    }
+
+    return AppExitResponse.exit;
   }
 
   @override
