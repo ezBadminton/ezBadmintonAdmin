@@ -1,9 +1,10 @@
+import 'dart:ffi';
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:authentication_repository/authentication_repository.dart';
 import 'package:collection_repository/collection_repository.dart';
 import 'package:ez_badminton_admin_app/utils/test_environment.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:ez_badminton_admin_app/authentication/bloc/authentication_bloc.dart';
 import 'package:ez_badminton_admin_app/home/view/home_page.dart';
@@ -14,7 +15,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pocketbase_provider/pocketbase_provider.dart';
 import 'package:user_repository/user_repository.dart';
-import 'package:process_run/shell.dart';
+import 'package:ffi/ffi.dart';
+import 'package:win32/win32.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -23,10 +25,7 @@ class App extends StatefulWidget {
   State<App> createState() => _AppState();
 }
 
-class _AppState extends State<App> with WidgetsBindingObserver {
-  late final Shell _localServerShell;
-  late final List<Process> _serverProcesses;
-
+class _AppState extends State<App> {
   late final PocketBaseProvider _pocketBaseProvider;
   late final AuthenticationRepository _authenticationRepository;
   late final UserRepository _userRepository;
@@ -50,7 +49,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     super.initState();
 
     runLocalSever();
-    WidgetsBinding.instance.addObserver(this);
 
     String pocketbaseUrl = TestEnvironment().isTest
         ? 'http://127.0.0.1:8096'
@@ -142,16 +140,28 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 
     String serverDirName = 'local_server';
 
-    _serverProcesses = [];
+    Directory cwd;
 
-    Directory cwd = Directory.current;
+    if (kReleaseMode) {
+      cwd = File(Platform.resolvedExecutable).parent;
+    } else {
+      cwd = Directory.current;
+    }
+
     Directory serverWorkingDir = Directory(
       "${cwd.path}${Platform.pathSeparator}$serverDirName",
     );
 
-    if (!await serverWorkingDir.exists()) {
+    String exeFileExtension = Platform.isWindows ? '.exe' : '';
+    File serverExe = File(
+      '${serverWorkingDir.path}${Platform.pathSeparator}ezBadmintonServer$exeFileExtension',
+    );
+
+    if (!await serverExe.exists()) {
       return;
     }
+
+    createClientHeartbeat();
 
     String localDataDirName = 'local_database';
     Directory documentDir = await getApplicationDocumentsDirectory();
@@ -160,24 +170,30 @@ class _AppState extends State<App> with WidgetsBindingObserver {
       "${documentDir.path}${Platform.pathSeparator}ez_badminton${Platform.pathSeparator}$localDataDirName",
     );
 
-    _localServerShell = Shell(
-      throwOnError: false,
+    Process.start(
+      serverExe.absolute.path,
+      ['serve', '--dir', localDataDir.path],
       workingDirectory: serverWorkingDir.path,
-    );
-
-    _localServerShell.run(
-      './ezBadmintonServer serve --dir ${localDataDir.path}',
-      onProcess: _serverProcesses.add,
-    );
+      mode: ProcessStartMode.normal,
+    ).then((process) {
+      stdout.addStream(process.stdout);
+      stderr.addStream(process.stderr);
+    });
   }
 
-  @override
-  Future<AppExitResponse> didRequestAppExit() async {
-    for (Process p in _serverProcesses) {
-      p.kill();
+  void createClientHeartbeat() {
+    if (Platform.isWindows) {
+      CreateNamedPipe(
+        "\\\\.\\pipe\\ezbadmintonheartbeat".toNativeUtf16(),
+        0x00000003,
+        0x00000000,
+        1,
+        1,
+        1,
+        0,
+        Pointer.fromAddress(0),
+      );
     }
-
-    return AppExitResponse.exit;
   }
 
   @override

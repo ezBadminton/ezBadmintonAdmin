@@ -77,6 +77,8 @@ dependencies:
   process_run: ^0.14.2
   io: ^1.0.4
   window_manager: ^0.3.8
+  win32: ^5.2.0
+  ffi: ^2.1.0
 
 dev_dependencies:
   flutter_test:
