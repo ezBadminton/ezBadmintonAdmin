@@ -1,16 +1,16 @@
 import 'package:collection/collection.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 
-class CompetitionRegistration {
+class CompetitionRegistrationDep {
   /// An ephemeral data structure representing the registration of a [team]
   /// in a [competition].
-  CompetitionRegistration({
+  CompetitionRegistrationDep({
     required this.player,
     required this.competition,
     required this.team,
   }) : seed = _getSeed(competition, team);
 
-  CompetitionRegistration.fromCompetition({
+  CompetitionRegistrationDep.fromCompetition({
     required this.player,
     required this.competition,
   })  : team = _getTeamOfPlayer(competition, player),
@@ -33,21 +33,20 @@ class CompetitionRegistration {
   /// This can happen when two players were registered on solo teams and are now
   /// being registered as partners.
   Team? getPartnerTeam() {
-    if (partner != null) {
-      return competition.registrations
-          .where((t) => t.players.contains(partner))
-          .firstOrNull;
-    } else {
+    if (partner == null || competition.teamSize == 1) {
       return null;
     }
+    return competition.registrations.firstWhereOrNull(
+      (t) => t.players.length == 1 && t.players[0] == partner,
+    );
   }
 
-  CompetitionRegistration copyWith({
+  CompetitionRegistrationDep copyWith({
     Player? player,
     Competition? competition,
     Team? team,
   }) =>
-      CompetitionRegistration(
+      CompetitionRegistrationDep(
         player: player ?? this.player,
         competition: competition ?? this.competition,
         team: team ?? this.team,

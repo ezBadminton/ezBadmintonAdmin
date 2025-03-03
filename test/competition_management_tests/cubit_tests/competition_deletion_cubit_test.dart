@@ -1,5 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_deletion_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
@@ -27,7 +27,7 @@ Competition competitionWithTeam = Competition.newCompetition(
     registrations: [team]).copyWith(id: 'team-competition');
 
 void main() {
-  late CollectionRepository<Competition> competitionRepository;
+  late ModelStore<Competition> competitionRepository;
 
   void arrangeRepositories({
     bool throwing = false,

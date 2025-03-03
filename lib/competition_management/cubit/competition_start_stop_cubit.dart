@@ -1,7 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:collection_repository/collection_repository.dart';
-import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
-import 'package:ez_badminton_admin_app/badminton_tournament_ops/tournament_mode_hydration.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:formz/formz.dart';
 
@@ -12,17 +10,18 @@ part 'competition_start_stop_state.dart';
 class CompetitionStartStopCubit
     extends CollectionQuerierCubit<CompetitionStartStopState> with DialogCubit {
   CompetitionStartStopCubit({
-    required CollectionRepository<Competition> competitionRepository,
-    required CollectionRepository<MatchData> matchDataRepository,
-    required CollectionRepository<MatchSet> matchSetRepository,
+    required ModelStore<Competition> competitionRepository,
+    required this.startEndpoint,
+    required this.stopEndpoint,
   }) : super(
-          collectionRepositories: [
+          modelStores: [
             competitionRepository,
-            matchDataRepository,
-            matchSetRepository,
           ],
           CompetitionStartStopState(),
         );
+
+  final TournamentStartEndpoint startEndpoint;
+  final TournamentStopEndpoint stopEndpoint;
 
   void competitionsStarted([List<Competition>? competitions]) async {
     competitions = competitions ?? state.selectedCompetitions;
@@ -65,44 +64,38 @@ class CompetitionStartStopCubit
       return;
     }
 
-    Competition stoppedCompetition = competition.copyWith(matches: []);
+    var status = await _stopCompetition(competition);
 
-    Competition? updatedCompetition =
-        await querier.updateModel(stoppedCompetition);
-    if (updatedCompetition == null) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-      return;
-    }
-
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+    emit(state.copyWith(formStatus: status));
   }
 
   Future<FormzSubmissionStatus> _startCompetition(
     Competition competition,
   ) async {
-    bool hasDraw = competition.draw.isNotEmpty;
-    bool alreadyHasMatches = competition.matches.isNotEmpty;
-
-    if (!hasDraw || alreadyHasMatches) {
+    try {
+      await startEndpoint.post(
+        pathParams: {
+          "competition": competition.id,
+        },
+      );
+    } catch (e) {
       return FormzSubmissionStatus.failure;
     }
+    return FormzSubmissionStatus.success;
+  }
 
-    BadmintonTournamentMode tournamentMode = createTournamentMode(competition);
-
-    int numMatches = numMatchesFromTournament(tournamentMode);
-
-    bool competitionStarted = await querier.getRepository<Competition>().route(
-      method: "POST",
-      data: {
-        "competition": competition.id,
-        "numMatches": numMatches,
-      },
-    );
-
-    if (!competitionStarted) {
+  Future<FormzSubmissionStatus> _stopCompetition(
+    Competition competition,
+  ) async {
+    try {
+      await stopEndpoint.post(
+        pathParams: {
+          "competition": competition.id,
+        },
+      );
+    } catch (e) {
       return FormzSubmissionStatus.failure;
     }
-
     return FormzSubmissionStatus.success;
   }
 

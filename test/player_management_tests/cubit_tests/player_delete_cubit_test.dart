@@ -1,5 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_delete_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_delete_state.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
@@ -9,8 +9,7 @@ import 'package:mocktail/mocktail.dart';
 
 import '../../common_matchers/state_matchers.dart';
 
-class MockCollectionRepository<M extends Model> extends Mock
-    implements CollectionRepository<M> {}
+class MockModelStore<M extends Model> extends Mock implements ModelStore<M> {}
 
 class IsConfirmDialogShown extends CustomMatcher {
   IsConfirmDialogShown(matcher)
@@ -27,7 +26,7 @@ class IsConfirmDialogShown extends CustomMatcher {
 }
 
 void main() {
-  late CollectionRepository<Player> playerRepository;
+  late ModelStore<Player> playerRepository;
   late Player player;
 
   PlayerDeleteCubit createSut() {
@@ -48,7 +47,7 @@ void main() {
   }
 
   setUp(() {
-    playerRepository = TestCollectionRepository<Player>();
+    playerRepository = TestModelStore<Player>();
 
     player = Player.newPlayer().copyWith(id: 'test-player');
 

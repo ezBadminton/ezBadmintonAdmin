@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 
 /// Returns all the age groups that the given [age] fits in
 List<AgeGroup> ageToAgeGroups(int age, List<AgeGroup> allGroups) {

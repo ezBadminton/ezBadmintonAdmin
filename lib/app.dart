@@ -2,7 +2,7 @@ import 'dart:ffi';
 import 'dart:io';
 
 import 'package:authentication_repository/authentication_repository.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/utils/test_environment.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -29,20 +29,7 @@ class _AppState extends State<App> {
   late final PocketBaseProvider _pocketBaseProvider;
   late final AuthenticationRepository _authenticationRepository;
   late final UserRepository _userRepository;
-  late final CollectionRepository<Tournament> _tournamentRepository;
-  late final CollectionRepository<PlayingLevel> _playingLevelRepository;
-  late final CollectionRepository<AgeGroup> _ageGroupRepository;
-  late final CollectionRepository<Player> _playerRepository;
-  late final CollectionRepository<Gymnasium> _gymnasiumRepository;
-  late final CollectionRepository<Court> _courtRepository;
-  late final CollectionRepository<MatchSet> _matchSetRepository;
-  late final CollectionRepository<MatchData> _matchDataRepository;
-  late final CollectionRepository<TieBreaker> _tieBreakerRepository;
-  late final CollectionRepository<Competition> _competitionRepository;
-  late final CollectionRepository<Team> _teamRepository;
-  late final CollectionRepository<Club> _clubRepository;
-  late final CollectionRepository<TournamentModeSettings>
-      _tournamentModeSettingsRepository;
+  late final ModelRepository _modelRepository;
 
   @override
   void initState() {
@@ -61,75 +48,9 @@ class _AppState extends State<App> {
     _userRepository = UserRepository(
       pocketBaseProvider: _pocketBaseProvider,
     );
-
-    _tournamentRepository = PocketbaseCollectionRepository(
-      modelConstructor: Tournament.fromJson,
-      pocketBaseProvider: _pocketBaseProvider,
+    _modelRepository = PocketbaseModelRepository(
+      pocketbaseProvider: _pocketBaseProvider,
     );
-    _playingLevelRepository = PocketbaseCollectionRepository(
-      modelConstructor: PlayingLevel.fromJson,
-      pocketBaseProvider: _pocketBaseProvider,
-    );
-    _ageGroupRepository = PocketbaseCollectionRepository(
-      modelConstructor: AgeGroup.fromJson,
-      pocketBaseProvider: _pocketBaseProvider,
-    );
-    _playerRepository = PocketbaseCollectionRepository(
-      modelConstructor: Player.fromJson,
-      pocketBaseProvider: _pocketBaseProvider,
-    );
-    _teamRepository = PocketbaseCollectionRepository(
-      modelConstructor: Team.fromJson,
-      pocketBaseProvider: _pocketBaseProvider,
-    );
-    _gymnasiumRepository = PocketbaseCollectionRepository(
-      modelConstructor: Gymnasium.fromJson,
-      pocketBaseProvider: _pocketBaseProvider,
-    );
-    _courtRepository = PocketbaseCollectionRepository(
-      modelConstructor: Court.fromJson,
-      pocketBaseProvider: _pocketBaseProvider,
-    );
-    _matchSetRepository = PocketbaseCollectionRepository(
-      modelConstructor: MatchSet.fromJson,
-      pocketBaseProvider: _pocketBaseProvider,
-    );
-    _matchDataRepository = PocketbaseCollectionRepository(
-      modelConstructor: MatchData.fromJson,
-      pocketBaseProvider: _pocketBaseProvider,
-    );
-    _tieBreakerRepository = PocketbaseCollectionRepository(
-      modelConstructor: TieBreaker.fromJson,
-      pocketBaseProvider: _pocketBaseProvider,
-    );
-    _competitionRepository = PocketbaseCollectionRepository(
-      modelConstructor: Competition.fromJson,
-      pocketBaseProvider: _pocketBaseProvider,
-    );
-    _clubRepository = PocketbaseCollectionRepository(
-      modelConstructor: Club.fromJson,
-      pocketBaseProvider: _pocketBaseProvider,
-    );
-    _tournamentModeSettingsRepository = PocketbaseCollectionRepository(
-      modelConstructor: TournamentModeSettings.fromJson,
-      pocketBaseProvider: _pocketBaseProvider,
-    );
-  }
-
-  void loadCollections() {
-    _tournamentRepository.load();
-    _playingLevelRepository.load();
-    _ageGroupRepository.load();
-    _playerRepository.load();
-    _gymnasiumRepository.load();
-    _courtRepository.load();
-    _matchSetRepository.load();
-    _matchDataRepository.load();
-    _tieBreakerRepository.load();
-    _competitionRepository.load();
-    _teamRepository.load();
-    _clubRepository.load();
-    _tournamentModeSettingsRepository.load();
   }
 
   void _runLocalSever() async {
@@ -205,43 +126,166 @@ class _AppState extends State<App> {
   }
 
   @override
-  void dispose() {
-    _authenticationRepository.dispose();
-    _tournamentRepository.dispose();
-    _playingLevelRepository.dispose();
-    _ageGroupRepository.dispose();
-    _playerRepository.dispose();
-    _teamRepository.dispose();
-    _gymnasiumRepository.dispose();
-    _courtRepository.dispose();
-    _matchSetRepository.dispose();
-    _matchDataRepository.dispose();
-    _tieBreakerRepository.dispose();
-    _competitionRepository.dispose();
-    _clubRepository.dispose();
-    _tournamentModeSettingsRepository.dispose();
-
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider.value(value: _authenticationRepository),
-        RepositoryProvider.value(value: _tournamentRepository),
-        RepositoryProvider.value(value: _playingLevelRepository),
-        RepositoryProvider.value(value: _ageGroupRepository),
-        RepositoryProvider.value(value: _playerRepository),
-        RepositoryProvider.value(value: _teamRepository),
-        RepositoryProvider.value(value: _gymnasiumRepository),
-        RepositoryProvider.value(value: _courtRepository),
-        RepositoryProvider.value(value: _matchSetRepository),
-        RepositoryProvider.value(value: _matchDataRepository),
-        RepositoryProvider.value(value: _tieBreakerRepository),
-        RepositoryProvider.value(value: _competitionRepository),
-        RepositoryProvider.value(value: _clubRepository),
-        RepositoryProvider.value(value: _tournamentModeSettingsRepository),
+        RepositoryProvider.value(
+          value: _modelRepository.findStore<Tournament>(),
+        ),
+        RepositoryProvider.value(
+          value: _modelRepository.findStore<PlayingLevel>(),
+        ),
+        RepositoryProvider.value(
+          value: _modelRepository.findStore<AgeGroup>(),
+        ),
+        RepositoryProvider.value(
+          value: _modelRepository.findStore<Player>(),
+        ),
+        RepositoryProvider.value(
+          value: _modelRepository.findStore<Team>(),
+        ),
+        RepositoryProvider.value(
+          value: _modelRepository.findStore<Gymnasium>(),
+        ),
+        RepositoryProvider.value(
+          value: _modelRepository.findStore<Court>(),
+        ),
+        RepositoryProvider.value(
+          value: _modelRepository.findStore<MatchSet>(),
+        ),
+        RepositoryProvider.value(
+          value: _modelRepository.findStore<MatchData>(),
+        ),
+        RepositoryProvider.value(
+          value: _modelRepository.findStore<TieBreaker>(),
+        ),
+        RepositoryProvider.value(
+          value: _modelRepository.findStore<Competition>(),
+        ),
+        RepositoryProvider.value(
+          value: _modelRepository.findStore<Club>(),
+        ),
+        RepositoryProvider.value(
+          value: _modelRepository.findStore<TournamentModeSettings>(),
+        ),
+        RepositoryProvider.value(
+          value: _modelRepository.findStore<Registration>(),
+        ),
+        RepositoryProvider.value(
+          value: WithdrawalPreviewEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
+          value: PlayerStatusEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
+          value: AssignCourtEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
+          value: UnassignCourtEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
+          value: MakeDrawEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
+          value: SwapDrawEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
+          value: RedrawEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
+          value: SetSeedsEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
+          value: DeleteDrawEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
+          value: StartMatchEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
+          value: CancelMatchEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
+          value: SetScoreEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
+          value: ResetMatchEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
+          value: RegisterTeamEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
+          value: UpdateTeamEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
+          value: AddTieBreakerEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
+          value: UpdateTieBreakerEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
+          value: TournamentStartEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
+          value: TournamentStopEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
       ],
       child: BlocProvider(
         create: (_) => AuthenticationBloc(
@@ -252,7 +296,7 @@ class _AppState extends State<App> {
               current.status == AuthenticationStatus.authenticated &&
               previous.status != AuthenticationStatus.authenticated,
           listener: (context, state) {
-            loadCollections();
+            _modelRepository.loadModels();
           },
           child: const AppView(),
         ),

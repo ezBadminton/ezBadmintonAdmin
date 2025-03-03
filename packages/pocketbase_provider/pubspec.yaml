@@ -3,10 +3,10 @@ description: Dart package which acts as a PocketBase data provider by exposing s
 publish_to: none
 
 environment:
-  sdk: '>=2.19.6 <3.0.0'
+  sdk: ^3.5.0
 
 dependencies:
- pocketbase: ^0.18.0
+ pocketbase: ^0.21.0
 
 dev_dependencies:
-  very_good_analysis: ^5.1.0
+  very_good_analysis: ^6.0.0

@@ -1,4 +1,4 @@
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_state.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/player_editing_cubit.dart';
@@ -47,6 +47,7 @@ class CompetitionRegistrationForm extends StatelessWidget {
           children: <Widget>[
             for (var registration in state.registrations.value)
               RegistrationDisplayCard(
+                state.player,
                 registration,
                 showDeleteButton: !state.registrationFormShown,
                 onDelete: (registration) =>
@@ -133,10 +134,9 @@ class _CompetitionForm extends StatelessWidget {
       create: (context) => CompetitionRegistrationCubit(
         player: editingCubit.state.player,
         registrations: editingCubit.state.registrations.value,
-        playerRepository: context.read<CollectionRepository<Player>>(),
-        competitionRepository:
-            context.read<CollectionRepository<Competition>>(),
-        ageGroupRepository: context.read<CollectionRepository<AgeGroup>>(),
+        playerRepository: context.read<ModelStore<Player>>(),
+        competitionRepository: context.read<ModelStore<Competition>>(),
+        ageGroupRepository: context.read<ModelStore<AgeGroup>>(),
       ),
       child: const _CompetitionRegistrationStepper(),
     );

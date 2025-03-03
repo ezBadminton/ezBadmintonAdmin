@@ -1,4 +1,4 @@
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/predicate_producer.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_groups.dart';

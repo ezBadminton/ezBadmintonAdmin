@@ -1,4 +1,4 @@
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/player_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/competition_registration_form.dart';
 import 'package:ez_badminton_admin_app/widgets/constrained_autocomplete/constrained_autocomplete.dart';

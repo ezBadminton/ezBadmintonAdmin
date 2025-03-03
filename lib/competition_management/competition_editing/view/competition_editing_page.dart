@@ -1,4 +1,4 @@
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_editing/cubit/competition_adding_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_editing/view/competition_addition_preview.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
@@ -27,12 +27,10 @@ class CompetitionEditingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => CompetitionAddingCubit(
-        competitionRepository:
-            context.read<CollectionRepository<Competition>>(),
-        ageGroupRepository: context.read<CollectionRepository<AgeGroup>>(),
-        playingLevelRepository:
-            context.read<CollectionRepository<PlayingLevel>>(),
-        tournamentRepository: context.read<CollectionRepository<Tournament>>(),
+        competitionRepository: context.read<ModelStore<Competition>>(),
+        ageGroupRepository: context.read<ModelStore<AgeGroup>>(),
+        playingLevelRepository: context.read<ModelStore<PlayingLevel>>(),
+        tournamentRepository: context.read<ModelStore<Tournament>>(),
       ),
       child: const _CompetitionEditingPageScaffold(),
     );
@@ -258,10 +256,7 @@ class _CompetitionCategorySelectionForm extends StatelessWidget {
               onToggle: onToggle,
               valueGetter: valueGetter,
               displayStringFunction: (competitionCategory) =>
-                  display_strings.competitionCategory(
-                l10n,
-                competitionCategory,
-              ),
+                  display_strings.competitionCategory(l10n),
               isEnabled: (competitionCategory) => !state
                   .disabledCompetitionDisciplines
                   .contains(competitionCategory),

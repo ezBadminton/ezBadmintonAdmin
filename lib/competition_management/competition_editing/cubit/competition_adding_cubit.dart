@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/playing_category.dart';
@@ -13,12 +13,12 @@ part 'competition_adding_state.dart';
 class CompetitionAddingCubit
     extends CollectionQuerierCubit<CompetitionAddingState> {
   CompetitionAddingCubit({
-    required CollectionRepository<Competition> competitionRepository,
-    required CollectionRepository<AgeGroup> ageGroupRepository,
-    required CollectionRepository<PlayingLevel> playingLevelRepository,
-    required CollectionRepository<Tournament> tournamentRepository,
+    required ModelStore<Competition> competitionRepository,
+    required ModelStore<AgeGroup> ageGroupRepository,
+    required ModelStore<PlayingLevel> playingLevelRepository,
+    required ModelStore<Tournament> tournamentRepository,
   }) : super(
-          collectionRepositories: [
+          modelStores: [
             competitionRepository,
             ageGroupRepository,
             playingLevelRepository,

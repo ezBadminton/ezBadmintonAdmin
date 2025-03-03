@@ -1,7 +1,7 @@
 // ignore_for_file: invalid_use_of_protected_member
 
 import 'package:bloc_test/bloc_test.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/player_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
@@ -80,31 +80,31 @@ class TestPlayerEditingCubit extends PlayerEditingCubit {
   TestPlayerEditingCubit({
     required BuildContext context,
     Player? player,
-    required CollectionRepository<Player> playerRepository,
-    required CollectionRepository<Competition> competitionRepository,
-    required CollectionRepository<Club> clubRepository,
-    required CollectionRepository<PlayingLevel> playingLevelRepository,
-    required CollectionRepository<Team> teamRepository,
-    required CollectionRepository<Tournament> tournamentRepository,
+    required ModelStore<Player> playerRepository,
+    required ModelStore<Competition> competitionRepository,
+    required ModelStore<Club> clubRepository,
+    required ModelStore<PlayingLevel> playingLevelRepository,
+    required ModelStore<Team> teamRepository,
+    required ModelStore<Tournament> tournamentRepository,
   }) : super(
           player: player,
-          playerRepository: playerRepository,
-          competitionRepository: competitionRepository,
-          clubRepository: clubRepository,
-          playingLevelRepository: playingLevelRepository,
-          teamRepository: teamRepository,
-          tournamentRepository: tournamentRepository,
+          playerStore: playerRepository,
+          competitionStore: competitionRepository,
+          clubStore: clubRepository,
+          playingLevelStore: playingLevelRepository,
+          teamStore: teamRepository,
+          tournamentStore: tournamentRepository,
         );
 }
 
 void main() {
   late BuildContext context;
-  late CollectionRepository<Player> playerRepository;
-  late CollectionRepository<Competition> competitionRepository;
-  late CollectionRepository<Club> clubRepository;
-  late CollectionRepository<PlayingLevel> playingLevelRepository;
-  late CollectionRepository<Team> teamRepository;
-  late CollectionRepository<Tournament> tournamentRepository;
+  late ModelStore<Player> playerRepository;
+  late ModelStore<Competition> competitionRepository;
+  late ModelStore<Club> clubRepository;
+  late ModelStore<PlayingLevel> playingLevelRepository;
+  late ModelStore<Team> teamRepository;
+  late ModelStore<Tournament> tournamentRepository;
 
   var player = Player.newPlayer().copyWith(
     id: 'playerid',

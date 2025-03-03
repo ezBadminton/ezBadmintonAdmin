@@ -1,5 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/playing_level_editing/cubit/playing_level_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
@@ -75,9 +75,9 @@ List<Competition> competitions = [
 ];
 
 void main() {
-  late CollectionRepository<PlayingLevel> playingLevelRepository;
-  late CollectionRepository<Competition> competitionRepository;
-  late CollectionRepository<Team> teamRepository;
+  late ModelStore<PlayingLevel> playingLevelRepository;
+  late ModelStore<Competition> competitionRepository;
+  late ModelStore<Team> teamRepository;
 
   void arrangeRepositories({
     bool throwing = false,

@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/utils/sorting.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/common_predicate_producers/agegroup_predicate_producer.dart';
@@ -18,9 +18,9 @@ class PlayerFilterCubit extends CollectionQuerierCubit<PlayerFilterState>
     with PredicateConsumer
     implements PredicateConsumerCubit<PlayerFilterState> {
   PlayerFilterCubit({
-    required CollectionRepository<PlayingLevel> playingLevelRepository,
-    required CollectionRepository<AgeGroup> ageGroupRepository,
-    required CollectionRepository<Tournament> tournamentRepository,
+    required ModelStore<PlayingLevel> playingLevelRepository,
+    required ModelStore<AgeGroup> ageGroupRepository,
+    required ModelStore<Tournament> tournamentRepository,
     required AgeGroupPredicateProducer ageGroupPredicateProducer,
     required PlayingLevelPredicateProducer playingLevelPredicateProducer,
     required GenderCategoryPredicateProducer genderPredicateProducer,
@@ -29,7 +29,7 @@ class PlayerFilterCubit extends CollectionQuerierCubit<PlayerFilterState>
     required SearchPredicateProducer searchPredicateProducer,
   }) : super(
           const PlayerFilterState(),
-          collectionRepositories: [
+          modelStores: [
             playingLevelRepository,
             ageGroupRepository,
             tournamentRepository,

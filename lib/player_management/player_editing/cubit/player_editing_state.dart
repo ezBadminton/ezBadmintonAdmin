@@ -19,7 +19,7 @@ class PlayerEditingState extends CollectionQuerierState with FormzMixin {
   final LoadingStatus loadingStatus;
   final FormzSubmissionStatus formStatus;
   final Player player;
-  final ListInput<CompetitionRegistration> registrations;
+  final ListInput<Registration> registrations;
   final NonEmptyInput firstName;
   final NonEmptyInput lastName;
   final NoValidationInput clubName;
@@ -53,7 +53,7 @@ class PlayerEditingState extends CollectionQuerierState with FormzMixin {
   PlayerEditingState copyWith({
     LoadingStatus? loadingStatus,
     Player? player,
-    ListInput<CompetitionRegistration>? registrations,
+    ListInput<Registration>? registrations,
     FormzSubmissionStatus? formStatus,
     NonEmptyInput? firstName,
     NonEmptyInput? lastName,

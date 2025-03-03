@@ -1,11 +1,10 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/input_models/list_input.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
-import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/utils/competition_registration.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter/material.dart';
@@ -16,37 +15,37 @@ part 'player_editing_state.dart';
 class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
   PlayerEditingCubit({
     Player? player,
-    required CollectionRepository<Player> playerRepository,
-    required CollectionRepository<Competition> competitionRepository,
-    required CollectionRepository<Club> clubRepository,
-    required CollectionRepository<PlayingLevel> playingLevelRepository,
-    required CollectionRepository<Team> teamRepository,
-    required CollectionRepository<Tournament> tournamentRepository,
+    required ModelStore<Player> playerStore,
+    required ModelStore<Competition> competitionStore,
+    required ModelStore<Registration> registrationStore,
+    required ModelStore<Tournament> tournamentStore,
+    required this.registerEndpoint,
+    required this.updateTeamEndpoint,
   }) : super(
           PlayerEditingState(player: player),
-          collectionRepositories: [
-            playerRepository,
-            competitionRepository,
-            clubRepository,
-            playingLevelRepository,
-            teamRepository,
-            tournamentRepository,
+          modelStores: [
+            playerStore,
+            competitionStore,
+            registrationStore,
+            tournamentStore,
           ],
         ) {
-    subscribeToCollectionUpdates(teamRepository, _onTeamCollectionUpdate);
     subscribeToCollectionUpdates(
-      competitionRepository,
+      competitionStore,
       _onCompetitionCollectionUpdate,
     );
     subscribeToCollectionUpdates(
-      competitionRepository,
+      competitionStore,
       _closeRegistrationFormOnUpdate,
     );
     subscribeToCollectionUpdates(
-      tournamentRepository,
+      tournamentStore,
       _closeRegistrationFormOnUpdate,
     );
   }
+
+  final RegisterTeamEndpoint registerEndpoint;
+  final UpdateTeamEndpoint updateTeamEndpoint;
 
   @override
   void onCollectionUpdate(
@@ -64,9 +63,9 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
       );
     }
 
-    List<CompetitionRegistration> playerRegistrations = registrationsOfPlayer(
+    List<Registration> playerRegistrations = registrationsOfPlayer(
       updatedState.player,
-      updatedState.getCollection<Competition>(),
+      updatedState.getCollection<Registration>(),
     );
     updatedState = updatedState.copyWith(
       registrations: ListInput.pure(playerRegistrations),
@@ -135,8 +134,7 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
 
     assert(team.players.length <= registeredCompetition.teamSize);
 
-    var registration = CompetitionRegistration(
-      player: state.player,
+    var registration = Registration.newRegistration(
       competition: registeredCompetition,
       team: team,
     );
@@ -148,10 +146,9 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
     ));
   }
 
-  void registrationRemoved(CompetitionRegistration removedCompetition) {
-    assert(state.registrations.value.contains(removedCompetition));
-    var registrations =
-        state.registrations.copyWithRemovedValue(removedCompetition);
+  void registrationRemoved(Registration removed) {
+    assert(state.registrations.value.contains(removed));
+    var registrations = state.registrations.copyWithRemovedValue(removed);
     emit(state.copyWith(registrations: registrations));
   }
 
@@ -189,10 +186,7 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
   ) async {
     Club? club;
     if (state.clubName.value.isNotEmpty) {
-      club = await _clubFromName(state.clubName.value);
-      if (club == null) {
-        return null;
-      }
+      club = _clubFromName(state.clubName.value);
     }
 
     Player editedPlayer = _applyPlayerChanges(
@@ -211,18 +205,16 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
 
   /// Either get an existing club by [clubName] or create a new one with the
   /// given [clubName].
-  Future<Club?> _clubFromName(String clubName) async {
-    Club? club;
-    var selectedClub = state.getCollection<Club>().where(
-          (c) => c.name.toLowerCase() == clubName.toLowerCase(),
+  Club _clubFromName(String clubName) {
+    var lowerClubName = clubName.toLowerCase();
+    Club? club = state.getCollection<Club>().firstWhereOrNull(
+          (c) => c.name.toLowerCase() == lowerClubName,
         );
-    if (selectedClub.isNotEmpty) {
-      club = selectedClub.first;
-    } else {
-      var createdClub = Club.newClub(name: clubName);
-      club = await querier.createModel(createdClub);
+    if (club != null) {
+      return club;
     }
-    return club;
+
+    return Club.newClub(name: clubName);
   }
 
   /// Transfers the data from the form inputs to the Player object
@@ -233,7 +225,7 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
       firstName: state.firstName.value,
       lastName: state.lastName.value,
       notes: state.notes.value,
-      club: club,
+      clubRel: SingleRelation.fromModel(club),
     );
   }
 
@@ -242,27 +234,35 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
   ///
   /// The List of [deregisteredCompetitions] represents the competitions that
   /// the player has been removed from during this form submit.
-  List<CompetitionRegistration> _applyRegistrationAdditions(
+  List<Registration> _applyRegistrationAdditions(
     PlayerEditingState state,
   ) {
     assert(state.player.id.isNotEmpty);
     var addedRegistrations =
         state.registrations.getAddedElements().map((registration) {
       var competition = registration.competition;
-      var registeredTeam = registration.team;
-      assert(registeredTeam.id.isEmpty);
+      var registeredTeam =
+          registration.getPartnerTeam(state.player) ?? registration.team;
 
+      if (registeredTeam.id.isNotEmpty) {
+        var teamMembers = List.of(registeredTeam.players)
+          ..add(this.state.player);
+        registeredTeam = registeredTeam.copyWith(
+          playersRel: MultiRelation.fromModels(teamMembers),
+        );
+      }
       if (this.state.player.id.isEmpty) {
         // Replace new player with created player from db
         var teamMembers = List.of(registeredTeam.players)
           ..remove(this.state.player)
           ..add(state.player);
 
-        registeredTeam = registeredTeam.copyWith(players: teamMembers);
+        registeredTeam = registeredTeam.copyWith(
+          playersRel: MultiRelation.fromModels(teamMembers),
+        );
       }
 
-      return CompetitionRegistration(
-        player: state.player,
+      return Registration.newRegistration(
         competition: competition,
         team: registeredTeam,
       );
@@ -275,57 +275,66 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
   Future<bool> _updateRegistrations(
     PlayerEditingState state,
   ) async {
-    List<CompetitionRegistration> removedRegistrations =
+    List<Registration> removedRegistrations =
         state.registrations.getRemovedElements();
 
     for (var registration in removedRegistrations) {
-      bool updatedCompetition =
-          await deregisterCompetition(registration, querier);
-      if (!updatedCompetition) {
-        return false;
+      var partner = registration.getPartner(state.player);
+      if (partner == null) {
+        try {
+          await updateTeamEndpoint.delete(pathParams: {
+            "team": registration.team.id,
+          });
+        } catch (_) {
+          return false;
+        }
+      } else {
+        try {
+          await updateTeamEndpoint.patch(
+            pathParams: {"team": registration.team.id},
+            body: {
+              "players": [partner.id]
+            },
+          );
+        } catch (_) {
+          return false;
+        }
       }
     }
 
-    List<CompetitionRegistration> addedRegistrations =
-        _applyRegistrationAdditions(state);
+    List<Registration> addedRegistrations = _applyRegistrationAdditions(state);
 
     for (var registration in addedRegistrations) {
-      bool updatedCompetition =
-          await registerCompetition(registration, querier);
-      if (!updatedCompetition) {
-        return false;
+      var playerIds = registration.team.players.map((p) => p.id).toList();
+      if (registration.team.id.isEmpty) {
+        try {
+          await registerEndpoint.post(
+            pathParams: {"competition": registration.competition.id},
+            body: {"players": playerIds},
+          );
+        } catch (_) {
+          return false;
+        }
+      } else {
+        try {
+          await updateTeamEndpoint.patch(
+            pathParams: {"team": registration.team.id},
+            body: {"players": playerIds},
+          );
+        } catch (_) {
+          return false;
+        }
       }
     }
 
     return true;
   }
 
-  // Update the registrations when the partner in a registration
-  // is updated via the RegistrationDisplayCard
-  void _onTeamCollectionUpdate(List<CollectionUpdateEvent<Team>> events) {
-    List<Team> updatedTeams = events.map((e) => e.model).toList();
-    for (CompetitionRegistration registration in state.registrations.value) {
-      Team? updatedTeam =
-          updatedTeams.firstWhereOrNull((t) => t == registration.team);
-
-      if (updatedTeam == null) {
-        return;
-      }
-
-      CompetitionRegistration updatedRegistration =
-          registration.copyWith(team: updatedTeam);
-      ListInput<CompetitionRegistration> updatedRegistrations = state
-          .registrations
-          .copyWithReplacedValue(registration, updatedRegistration);
-      emit(state.copyWith(registrations: updatedRegistrations));
-    }
-  }
-
   /// Reset the registration list when the competition collection
   /// changes while this form is open
   void _onCompetitionCollectionUpdate(List<CollectionUpdateEvent> _) {
     if (state.formStatus != FormzSubmissionStatus.success) {
-      ListInput<CompetitionRegistration> resetRegistrations =
+      ListInput<Registration> resetRegistrations =
           state.registrations.copyWithReset();
 
       emit(state.copyWith(registrations: resetRegistrations));

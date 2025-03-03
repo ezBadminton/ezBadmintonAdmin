@@ -1,4 +1,4 @@
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 
 extension GenderCategoryConflict on GenderCategory {
   /// Returns true if [otherCategories] contains a [GenderCategory] that

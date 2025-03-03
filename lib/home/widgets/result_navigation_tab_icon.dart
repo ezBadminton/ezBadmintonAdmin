@@ -1,10 +1,5 @@
-import 'package:collection/collection.dart';
-import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_tournament_modes.dart';
-import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
-import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
 import 'package:ez_badminton_admin_app/widgets/speech_bubble/speech_bubble.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -31,8 +26,6 @@ class ResultNavigationTabIcon extends StatefulWidget {
 class _ResultNavigationTabIconState extends State<ResultNavigationTabIcon> {
   late final LayerLink layerLink;
 
-  late List<BadmintonTournamentMode> tournamentsWithBlockingTies;
-
   OverlayEntry? notificationBubble;
 
   OverlayEntry? notificationIcon;
@@ -40,7 +33,6 @@ class _ResultNavigationTabIconState extends State<ResultNavigationTabIcon> {
   @override
   void initState() {
     super.initState();
-    tournamentsWithBlockingTies = [];
     layerLink = LayerLink();
   }
 
@@ -54,29 +46,9 @@ class _ResultNavigationTabIconState extends State<ResultNavigationTabIcon> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<TournamentProgressCubit, TournamentProgressState>(
-      listener: (context, state) {
-        bool previousTies = tournamentsWithBlockingTies.isNotEmpty;
-
-        setState(() {
-          tournamentsWithBlockingTies = getTournamentsWithBlockingTies(state);
-        });
-
-        bool currentTies = tournamentsWithBlockingTies.isNotEmpty;
-
-        if (!previousTies && currentTies) {
-          showNotficationBubble();
-          showNotificationIcon();
-        }
-        if (previousTies && !currentTies) {
-          hideNotificationBubble();
-          hideNotificationIcon();
-        }
-      },
-      child: CompositedTransformTarget(
-        link: layerLink,
-        child: FaIcon(widget.icon),
-      ),
+    return CompositedTransformTarget(
+      link: layerLink,
+      child: FaIcon(widget.icon),
     );
   }
 
@@ -85,30 +57,6 @@ class _ResultNavigationTabIconState extends State<ResultNavigationTabIcon> {
       notificationBubble = _buildNotificationBubble();
       Overlay.of(context).insert(notificationBubble!);
     }
-  }
-
-  List<BadmintonTournamentMode> getTournamentsWithBlockingTies(
-    TournamentProgressState progressState,
-  ) {
-    List<BadmintonTournamentMode> tournamentsWithTies =
-        progressState.runningTournaments.values.where((tournament) {
-      if (tournament is! BadmintonGroupKnockout) {
-        return false;
-      }
-
-      Object? groupWithTies =
-          tournament.groupPhase.groupRoundRobins.firstWhereOrNull(
-        (group) =>
-            group.isCompleted() && group.finalRanking.blockingTies.isNotEmpty,
-      );
-
-      bool crossGroupTies = tournament.groupPhase.isCompleted() &&
-          tournament.groupPhase.finalRanking.blockingTies.isNotEmpty;
-
-      return groupWithTies != null || crossGroupTies;
-    }).toList();
-
-    return tournamentsWithTies;
   }
 
   void hideNotificationBubble() {
@@ -162,9 +110,6 @@ class _ResultNavigationTabIconState extends State<ResultNavigationTabIcon> {
                       Text(l10n.tournamentProgressBlocked),
                       Text(l10n.tieBreakerRequired),
                       const SizedBox(height: 10),
-                      for (BadmintonTournamentMode tournament
-                          in tournamentsWithBlockingTies)
-                        CompetitionLabel(competition: tournament.competition)
                     ],
                   ),
                 ),

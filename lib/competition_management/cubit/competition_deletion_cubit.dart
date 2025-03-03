@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
 import 'package:formz/formz.dart';
@@ -10,9 +10,9 @@ class CompetitionDeletionCubit
     extends CollectionQuerierCubit<CompetitionDeletionState>
     with DialogCubit<CompetitionDeletionState> {
   CompetitionDeletionCubit({
-    required CollectionRepository<Competition> competitionRepository,
+    required ModelStore<Competition> competitionRepository,
   }) : super(
-          collectionRepositories: [
+          modelStores: [
             competitionRepository,
           ],
           CompetitionDeletionState(),

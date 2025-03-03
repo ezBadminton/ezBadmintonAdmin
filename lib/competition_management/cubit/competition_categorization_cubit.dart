@@ -1,4 +1,4 @@
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_categorization_state.dart';
 import 'package:ez_badminton_admin_app/competition_management/utils/competition_categorization.dart';
@@ -15,12 +15,12 @@ class CompetitionCategorizationCubit
         RemovedCategoryCompetitionManagement<CompetitionCategorizationState> {
   CompetitionCategorizationCubit({
     required this.l10n,
-    required CollectionRepository<Tournament> tournamentRepository,
-    required CollectionRepository<Competition> competitionRepository,
-    required CollectionRepository<AgeGroup> ageGroupRepository,
-    required CollectionRepository<PlayingLevel> playingLevelRepository,
+    required ModelStore<Tournament> tournamentRepository,
+    required ModelStore<Competition> competitionRepository,
+    required ModelStore<AgeGroup> ageGroupRepository,
+    required ModelStore<PlayingLevel> playingLevelRepository,
   }) : super(
-          collectionRepositories: [
+          modelStores: [
             tournamentRepository,
             competitionRepository,
             ageGroupRepository,
@@ -68,7 +68,7 @@ class CompetitionCategorizationCubit
     emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
     bool useCategorization = switch (C) {
-      AgeGroup => updatedTournament.useAgeGroups,
+      const (AgeGroup) => updatedTournament.useAgeGroups,
       _ => updatedTournament.usePlayingLevels,
     };
 

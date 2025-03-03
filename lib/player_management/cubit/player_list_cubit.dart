@@ -1,9 +1,8 @@
 import 'package:collection/collection.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/list_sorting/comparator/list_sorting_comparator.dart';
 import 'package:ez_badminton_admin_app/list_sorting/cubit/sorted_list_cubit.dart';
-import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/player_sorter/comparators/creation_date_comparator.dart';
 import 'package:ez_badminton_admin_app/player_management/utils/competition_registration.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
@@ -16,18 +15,20 @@ part 'player_list_state.dart';
 class PlayerListCubit extends CollectionQuerierCubit<PlayerListState>
     implements SortedListCubit<Player, PlayerListState> {
   PlayerListCubit({
-    required CollectionRepository<Player> playerRepository,
-    required CollectionRepository<Competition> competitionRepository,
-    required CollectionRepository<PlayingLevel> playingLevelRepository,
-    required CollectionRepository<AgeGroup> ageGroupRepository,
-    required CollectionRepository<Club> clubRepository,
+    required ModelStore<Player> playerStore,
+    required ModelStore<Competition> competitoinStore,
+    required ModelStore<Registration> registrationStore,
+    required ModelStore<PlayingLevel> playingLevelStore,
+    required ModelStore<AgeGroup> ageGroupStore,
+    required ModelStore<Club> clubStore,
   }) : super(
-          collectionRepositories: [
-            competitionRepository,
-            playerRepository,
-            playingLevelRepository,
-            ageGroupRepository,
-            clubRepository,
+          modelStores: [
+            playerStore,
+            competitoinStore,
+            registrationStore,
+            playingLevelStore,
+            ageGroupStore,
+            clubStore,
           ],
           const PlayerListState(),
         );
@@ -39,7 +40,7 @@ class PlayerListCubit extends CollectionQuerierCubit<PlayerListState>
   ) {
     bool doPlayerUpdate = updateEvents.firstWhereOrNull((e) =>
                 e is CollectionUpdateEvent<Player> ||
-                e is CollectionUpdateEvent<Competition>) !=
+                e is CollectionUpdateEvent<Registration>) !=
             null ||
         updateEvents.isEmpty;
 
@@ -50,8 +51,7 @@ class PlayerListCubit extends CollectionQuerierCubit<PlayerListState>
 
     if (doPlayerUpdate) {
       var playerCompetitions = mapCompetitionRegistrations(
-        updatedState.getCollection<Player>(),
-        updatedState.getCollection<Competition>(),
+        updatedState.getCollection<Registration>(),
       );
       updatedState = updatedState.copyWith(
         competitionRegistrations: playerCompetitions,

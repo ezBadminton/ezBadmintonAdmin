@@ -15,7 +15,7 @@ class PlayerListState extends CollectionQuerierState
   @override
   final LoadingStatus loadingStatus;
   final List<Player> filteredPlayers;
-  final Map<Player, List<CompetitionRegistration>> competitionRegistrations;
+  final Map<Player, List<Registration>> competitionRegistrations;
 
   final Map<Type, Predicate> filters;
   @override
@@ -27,7 +27,7 @@ class PlayerListState extends CollectionQuerierState
   PlayerListState copyWith({
     LoadingStatus? loadingStatus,
     List<Player>? filteredPlayers,
-    Map<Player, List<CompetitionRegistration>>? competitionRegistrations,
+    Map<Player, List<Registration>>? competitionRegistrations,
     Map<Type, Predicate>? filters,
     ListSortingComparator<Player>? sortingComparator,
     List<List<Model>>? collections,

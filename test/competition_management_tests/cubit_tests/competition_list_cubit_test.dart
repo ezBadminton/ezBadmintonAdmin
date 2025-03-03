@@ -1,7 +1,7 @@
 // ignore_for_file: invalid_use_of_protected_member
 
 import 'package:bloc_test/bloc_test.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_sorter/comparators/competition_comparator.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_list_cubit.dart';
 import 'package:ez_badminton_admin_app/list_sorting/comparator/list_sorting_comparator.dart';
@@ -34,10 +34,10 @@ List<Competition> competitions = [
 ];
 
 void main() {
-  late CollectionRepository<Competition> competitionRepository;
-  late CollectionRepository<Tournament> tournamentRepository;
-  late CollectionRepository<AgeGroup> ageGroupRepository;
-  late CollectionRepository<PlayingLevel> playingLevelRepository;
+  late ModelStore<Competition> competitionRepository;
+  late ModelStore<Tournament> tournamentRepository;
+  late ModelStore<AgeGroup> ageGroupRepository;
+  late ModelStore<PlayingLevel> playingLevelRepository;
 
   void arrangeRepositories({
     List<Competition> competitions = const [],
@@ -45,16 +45,16 @@ void main() {
     List<AgeGroup> ageGroups = const [],
     List<PlayingLevel> playingLevels = const [],
   }) {
-    competitionRepository = TestCollectionRepository<Competition>(
+    competitionRepository = TestModelStore<Competition>(
       initialCollection: competitions,
     );
-    tournamentRepository = TestCollectionRepository<Tournament>(
+    tournamentRepository = TestModelStore<Tournament>(
       initialCollection: tournaments,
     );
-    ageGroupRepository = TestCollectionRepository<AgeGroup>(
+    ageGroupRepository = TestModelStore<AgeGroup>(
       initialCollection: ageGroups,
     );
-    playingLevelRepository = TestCollectionRepository<PlayingLevel>(
+    playingLevelRepository = TestModelStore<PlayingLevel>(
       initialCollection: playingLevels,
     );
   }

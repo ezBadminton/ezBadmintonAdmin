@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/list_sorting/comparator/list_sorting_comparator.dart';
 import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
     as display_strings;

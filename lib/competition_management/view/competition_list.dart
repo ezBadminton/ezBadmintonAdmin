@@ -1,4 +1,4 @@
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_sorter/comparators/competition_comparator.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_sorter/cubit/competition_sorting_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_list_cubit.dart';
@@ -311,7 +311,6 @@ class _CompetitionListItem extends StatelessWidget {
                   child: Text(
                     display_strings.competitionCategory(
                       l10n,
-                      CompetitionDiscipline.fromCompetition(competition),
                     ),
                   ),
                 ),

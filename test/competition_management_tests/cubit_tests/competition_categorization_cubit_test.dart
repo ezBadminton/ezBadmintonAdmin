@@ -1,7 +1,7 @@
 // ignore_for_file: invalid_use_of_protected_member
 
 import 'package:bloc_test/bloc_test.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_categorization_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_categorization_state.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
@@ -17,10 +17,10 @@ class MockAppLocalizations extends Mock implements AppLocalizations {}
 
 void main() {
   late AppLocalizations l10n;
-  late CollectionRepository<Tournament> tournamentRepository;
-  late CollectionRepository<Competition> competitionRepository;
-  late CollectionRepository<AgeGroup> ageGroupRepository;
-  late CollectionRepository<PlayingLevel> playingLevelRepository;
+  late ModelStore<Tournament> tournamentRepository;
+  late ModelStore<Competition> competitionRepository;
+  late ModelStore<AgeGroup> ageGroupRepository;
+  late ModelStore<PlayingLevel> playingLevelRepository;
 
   CompetitionCategorizationCubit createSut() {
     return CompetitionCategorizationCubit(
@@ -51,20 +51,20 @@ void main() {
       queueMode: QueueMode.manual,
     );
 
-    tournamentRepository = TestCollectionRepository<Tournament>(
+    tournamentRepository = TestModelStore<Tournament>(
       initialCollection: [tournament],
       throwing: throwing,
       loadTime: loadTime,
     );
-    competitionRepository = TestCollectionRepository<Competition>(
+    competitionRepository = TestModelStore<Competition>(
       throwing: throwing,
       loadTime: loadTime,
     );
-    ageGroupRepository = TestCollectionRepository<AgeGroup>(
+    ageGroupRepository = TestModelStore<AgeGroup>(
       throwing: throwing,
       loadTime: loadTime,
     );
-    playingLevelRepository = TestCollectionRepository<PlayingLevel>(
+    playingLevelRepository = TestModelStore<PlayingLevel>(
       throwing: throwing,
       loadTime: loadTime,
     );

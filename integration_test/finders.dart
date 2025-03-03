@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/app.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/registration_display_card.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';

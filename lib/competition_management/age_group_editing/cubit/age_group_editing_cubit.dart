@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/competition_management/utils/competition_queries.dart';
 import 'package:ez_badminton_admin_app/utils/sorting.dart';
@@ -15,14 +15,14 @@ class AgeGroupEditingCubit extends CollectionQuerierCubit<AgeGroupEditingState>
         DialogCubit<AgeGroupEditingState>,
         RemovedCategoryCompetitionManagement<AgeGroupEditingState> {
   AgeGroupEditingCubit({
-    required CollectionRepository<AgeGroup> ageGroupRepository,
-    required CollectionRepository<Competition> competitionRepository,
-    required CollectionRepository<Team> teamRepository,
+    required ModelStore<AgeGroup> ageGroupStore,
+    required ModelStore<Competition> competitionStore,
+    required ModelStore<Team> teamStore,
   }) : super(
-          collectionRepositories: [
-            ageGroupRepository,
-            competitionRepository,
-            teamRepository,
+          modelStores: [
+            ageGroupStore,
+            competitionStore,
+            teamStore,
           ],
           AgeGroupEditingState(),
         );

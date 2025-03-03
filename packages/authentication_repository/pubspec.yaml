@@ -3,7 +3,7 @@ description: Dart package which manages the authentication domain.
 publish_to: none
 
 environment:
-  sdk: '>=2.19.6 <3.0.0'
+  sdk: '^3.5.0'
 
 dependencies:
   pocketbase_provider:

@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/playing_level_editing/cubit/playing_level_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/constants.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
@@ -23,11 +23,9 @@ class PlayingLevelEditingPopup extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
     return BlocProvider(
       create: (context) => PlayingLevelEditingCubit(
-        playingLevelRepository:
-            context.read<CollectionRepository<PlayingLevel>>(),
-        competitionRepository:
-            context.read<CollectionRepository<Competition>>(),
-        teamRepository: context.read<CollectionRepository<Team>>(),
+        playingLevelRepository: context.read<ModelStore<PlayingLevel>>(),
+        competitionRepository: context.read<ModelStore<Competition>>(),
+        teamRepository: context.read<ModelStore<Team>>(),
       ),
       child: Dialog(
         child: ConstrainedBox(

@@ -1,4 +1,4 @@
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/utils/gender_categories.dart';
 import 'package:flutter_test/flutter_test.dart';
 

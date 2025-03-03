@@ -1,5 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -40,10 +40,10 @@ List<Competition> competitions = CompetitionDiscipline.baseCompetitions
     .toList();
 
 void main() {
-  late CollectionRepository<Competition> competitionRepository;
+  late ModelStore<Competition> competitionRepository;
 
   setUp(() {
-    competitionRepository = TestCollectionRepository<Competition>();
+    competitionRepository = TestModelStore<Competition>();
   });
 
   CompetitionSelectionCubit createSut() {

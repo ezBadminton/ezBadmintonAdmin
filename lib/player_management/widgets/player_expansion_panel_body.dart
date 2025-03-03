@@ -1,13 +1,9 @@
-import 'package:collection_repository/collection_repository.dart';
-import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
-import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/constants.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_delete_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_delete_state.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_status_cubit.dart';
-import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/player_editing_page.dart';
-import 'package:ez_badminton_admin_app/player_management/widgets/player_participation_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/registration_display_card.dart';
@@ -18,6 +14,8 @@ import 'package:formz/formz.dart';
 import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
     as display_strings;
 
+import 'player_participation_dialog.dart';
+
 class PlayerExpansionPanelBody extends StatelessWidget {
   const PlayerExpansionPanelBody({
     super.key,
@@ -26,7 +24,7 @@ class PlayerExpansionPanelBody extends StatelessWidget {
   });
 
   final Player player;
-  final List<CompetitionRegistration> registrations;
+  final List<Registration> registrations;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +47,10 @@ class PlayerExpansionPanelBody extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _PlayerRegistrations(registrations: registrations),
+                      _PlayerRegistrations(
+                        player: player,
+                        registrations: registrations,
+                      ),
                       const SizedBox(width: 50),
                       _PlayerStatus(player: player),
                       const SizedBox(width: 50),
@@ -86,7 +87,7 @@ class _PlayerDeleteMenu extends StatelessWidget {
     return BlocProvider(
       create: (context) => PlayerDeleteCubit(
         player: player,
-        playerRepository: context.read<CollectionRepository<Player>>(),
+        playerRepository: context.read<ModelStore<Player>>(),
       ),
       child: const _PlayerDeleteButton(),
     );
@@ -169,10 +170,12 @@ class _PlayerEditButton extends StatelessWidget {
 
 class _PlayerRegistrations extends StatelessWidget {
   const _PlayerRegistrations({
+    required this.player,
     required this.registrations,
   });
 
-  final List<CompetitionRegistration> registrations;
+  final Player player;
+  final List<Registration> registrations;
 
   @override
   Widget build(BuildContext context) {
@@ -191,6 +194,7 @@ class _PlayerRegistrations extends StatelessWidget {
                 children: [
                   for (final r in registrations)
                     RegistrationDisplayCard(
+                      player,
                       r,
                       showPartnerInput: true,
                     ),
@@ -211,14 +215,14 @@ class _PlayerStatus extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    var progressCubit = context.read<TournamentProgressCubit>();
 
     return BlocProvider(
       create: (context) => PlayerStatusCubit(
         player: player,
-        tournamentProgressGetter: () => progressCubit.state,
-        playerRepository: context.read<CollectionRepository<Player>>(),
-        matchDataRepository: context.read<CollectionRepository<MatchData>>(),
+        playerStore: context.read<ModelStore<Player>>(),
+        matchDataStore: context.read<ModelStore<MatchData>>(),
+        previewEndpoint: context.read<WithdrawalPreviewEndpoint>(),
+        statusEndpoint: context.read<PlayerStatusEndpoint>(),
       ),
       child: Expanded(
         flex: 2,
@@ -252,8 +256,7 @@ class _PlayerStatusSwitcher extends StatelessWidget {
       builder: (context, state, reenteringTuple) {
         reenteringTuple = reenteringTuple as (
           StatusChangeDirection,
-          Map<CompetitionRegistration, List<BadmintonMatch>>,
-          List<CompetitionRegistration>
+          Map<Competition, List<MatchData>>,
         );
 
         bool isWithdrawal =
@@ -269,7 +272,6 @@ class _PlayerStatusSwitcher extends StatelessWidget {
 
         return PlayerParticipationDialog(
           matchList: reenteringTuple.$2,
-          changableParticipations: reenteringTuple.$3,
           title: title,
           content: info,
         );

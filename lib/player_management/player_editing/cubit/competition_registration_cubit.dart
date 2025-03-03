@@ -1,8 +1,7 @@
 import 'package:collection/collection.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
-import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_state.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/models/registration_warning.dart';
 import 'package:ez_badminton_admin_app/player_management/utils/gender_categories.dart';
@@ -15,12 +14,12 @@ class CompetitionRegistrationCubit
   CompetitionRegistrationCubit({
     required this.player,
     required this.registrations,
-    required CollectionRepository<Player> playerRepository,
-    required CollectionRepository<Competition> competitionRepository,
-    required CollectionRepository<AgeGroup> ageGroupRepository,
+    required ModelStore<Player> playerRepository,
+    required ModelStore<Competition> competitionRepository,
+    required ModelStore<AgeGroup> ageGroupRepository,
   }) : super(
           CompetitionRegistrationState(),
-          collectionRepositories: [
+          modelStores: [
             playerRepository,
             competitionRepository,
             ageGroupRepository,
@@ -28,7 +27,7 @@ class CompetitionRegistrationCubit
         );
 
   final Player player;
-  final List<CompetitionRegistration> registrations;
+  final List<Registration> registrations;
 
   late List<List<Type>> allFormSteps;
 
@@ -137,25 +136,25 @@ class CompetitionRegistrationCubit
       (c) => registrations.map((r) => r.competition).contains(c),
     );
     switch (P) {
-      case PlayingLevel:
+      case const (PlayingLevel):
         return selectedCompetitions
             .map((competition) => competition.playingLevel)
             .whereType<PlayingLevel>()
             .toSet()
             .sorted((a, b) => a.index > b.index ? 1 : -1) as List<P>;
-      case AgeGroup:
+      case const (AgeGroup):
         return selectedCompetitions
             .map((competition) => competition.ageGroup)
             .whereType<AgeGroup>()
             .toSet()
             .sorted((a, b) => a.age > b.age ? 1 : -1) as List<P>;
-      case GenderCategory:
+      case const (GenderCategory):
         var presentGenderCategories =
             selectedCompetitions.map((c) => c.genderCategory);
         return GenderCategory.values
             .where((t) => presentGenderCategories.contains(t))
             .toList() as List<P>;
-      case CompetitionType:
+      case const (CompetitionType):
         var presentCompetitionTypes = selectedCompetitions.map((c) => c.type);
         return CompetitionType.values
             .where((t) => presentCompetitionTypes.contains(t))
@@ -240,21 +239,21 @@ class CompetitionRegistrationCubit
     var newState = state;
     for (var parameterType in getFormStepParameterTypes(formStep)) {
       switch (parameterType) {
-        case PlayingLevel:
+        case const (PlayingLevel):
           newState = newState.copyWithCompetitionParameter<PlayingLevel>(null);
           break;
-        case AgeGroup:
+        case const (AgeGroup):
           newState = newState.copyWithCompetitionParameter<AgeGroup>(null);
           break;
-        case GenderCategory:
+        case const (GenderCategory):
           newState =
               newState.copyWithCompetitionParameter<GenderCategory>(null);
           break;
-        case CompetitionType:
+        case const (CompetitionType):
           newState =
               newState.copyWithCompetitionParameter<CompetitionType>(null);
           break;
-        case Player:
+        case const (Player):
           newState = newState.copyWith(
             partner: const SelectionInput.dirty(),
           );

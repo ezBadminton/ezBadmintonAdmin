@@ -1,4 +1,4 @@
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/widgets/choice_chip_tab/choice_chip_tab.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_selection_list/cubit/competition_selection_cubit.dart';

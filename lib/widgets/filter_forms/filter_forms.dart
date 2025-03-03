@@ -1,4 +1,4 @@
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/common_predicate_producers/agegroup_predicate_producer.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_consumer_cubit.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_consumer_state.dart';

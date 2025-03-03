@@ -1,4 +1,4 @@
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/layout/fab_location.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/player_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/player_editing_form.dart';
@@ -33,14 +33,12 @@ class PlayerEditingPage extends StatelessWidget {
     return BlocProvider(
       create: (context) => PlayerEditingCubit(
         player: player,
-        playerRepository: context.read<CollectionRepository<Player>>(),
-        competitionRepository:
-            context.read<CollectionRepository<Competition>>(),
-        clubRepository: context.read<CollectionRepository<Club>>(),
-        playingLevelRepository:
-            context.read<CollectionRepository<PlayingLevel>>(),
-        teamRepository: context.read<CollectionRepository<Team>>(),
-        tournamentRepository: context.read<CollectionRepository<Tournament>>(),
+        playerStore: context.read<ModelStore<Player>>(),
+        competitionStore: context.read<ModelStore<Competition>>(),
+        registrationStore: context.read<ModelStore<Registration>>(),
+        tournamentStore: context.read<ModelStore<Tournament>>(),
+        registerEndpoint: context.read<RegisterTeamEndpoint>(),
+        updateTeamEndpoint: context.read<UpdateTeamEndpoint>(),
       ),
       child: BlocConsumer<PlayerEditingCubit, PlayerEditingState>(
         listenWhen: (previous, current) =>

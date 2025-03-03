@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/competition_management/utils/competition_queries.dart';
 import 'package:ez_badminton_admin_app/utils/list_extension/list_extension.dart';
@@ -18,11 +18,11 @@ class PlayingLevelEditingCubit
         DialogCubit<PlayingLevelEditingState>,
         RemovedCategoryCompetitionManagement<PlayingLevelEditingState> {
   PlayingLevelEditingCubit({
-    required CollectionRepository<PlayingLevel> playingLevelRepository,
-    required CollectionRepository<Competition> competitionRepository,
-    required CollectionRepository<Team> teamRepository,
+    required ModelStore<PlayingLevel> playingLevelRepository,
+    required ModelStore<Competition> competitionRepository,
+    required ModelStore<Team> teamRepository,
   }) : super(
-          collectionRepositories: [
+          modelStores: [
             playingLevelRepository,
             competitionRepository,
             teamRepository,
@@ -225,10 +225,10 @@ class PlayingLevelEditingCubit
             playingLevel.index)
         .toList();
 
-    List<PlayingLevel?> updatedPlayingLevels =
+    List<bool> updatedPlayingLevels =
         await querier.updateModels(changedPlayingLevels);
 
-    return !updatedPlayingLevels.contains(null);
+    return !updatedPlayingLevels.contains(false);
   }
 
   void playingLevelRenameFormOpened(PlayingLevel playingLevel) {

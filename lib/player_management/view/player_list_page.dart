@@ -1,4 +1,4 @@
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/player_sorter/comparators/team_comparator.dart';
 import 'package:ez_badminton_admin_app/player_management/player_sorter/cubit/unique_competition_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/widgets/player_list.dart';
@@ -37,11 +37,9 @@ class PlayerListPage extends StatelessWidget {
                 CompetitionTypePredicateProducer(),
             statusPredicateProducer: StatusPredicateProducer(),
             searchPredicateProducer: SearchPredicateProducer(),
-            playingLevelRepository:
-                context.read<CollectionRepository<PlayingLevel>>(),
-            ageGroupRepository: context.read<CollectionRepository<AgeGroup>>(),
-            tournamentRepository:
-                context.read<CollectionRepository<Tournament>>(),
+            playingLevelRepository: context.read<ModelStore<PlayingLevel>>(),
+            ageGroupRepository: context.read<ModelStore<AgeGroup>>(),
+            tournamentRepository: context.read<ModelStore<Tournament>>(),
           ),
         ),
         BlocProvider(
@@ -57,21 +55,18 @@ class PlayerListPage extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => UniqueCompetitionFilterCubit(
-            tournamentRepository:
-                context.read<CollectionRepository<Tournament>>(),
-            competitionRepository:
-                context.read<CollectionRepository<Competition>>(),
+            tournamentRepository: context.read<ModelStore<Tournament>>(),
+            competitionRepository: context.read<ModelStore<Competition>>(),
           ),
         ),
         BlocProvider(
           create: (_) => PlayerListCubit(
-            playerRepository: context.read<CollectionRepository<Player>>(),
-            competitionRepository:
-                context.read<CollectionRepository<Competition>>(),
-            playingLevelRepository:
-                context.read<CollectionRepository<PlayingLevel>>(),
-            ageGroupRepository: context.read<CollectionRepository<AgeGroup>>(),
-            clubRepository: context.read<CollectionRepository<Club>>(),
+            playerStore: context.read<ModelStore<Player>>(),
+            competitoinStore: context.read<ModelStore<Competition>>(),
+            registrationStore: context.read<ModelStore<Registration>>(),
+            playingLevelStore: context.read<ModelStore<PlayingLevel>>(),
+            ageGroupStore: context.read<ModelStore<AgeGroup>>(),
+            clubStore: context.read<ModelStore<Club>>(),
           ),
         )
       ],

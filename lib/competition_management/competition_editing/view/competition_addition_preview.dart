@@ -1,5 +1,5 @@
-import 'package:collection_repository/collection_repository.dart';
 import 'package:equatable/equatable.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_editing/cubit/competition_adding_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
 import 'package:ez_badminton_admin_app/widgets/help_tooltip_icon/help_tooltip_icon.dart';
@@ -296,7 +296,7 @@ class _PreviewListItem extends StatelessWidget {
 
   String _competitionCategoryListToString(AppLocalizations l10n) {
     String categoryList = categoryTuple.baseCategories
-        .map((c) => display_strings.competitionCategoryAbbreviation(l10n, c))
+        .map((c) => display_strings.competitionCategoryAbbreviation(l10n))
         .join(', ');
 
     return categoryList;

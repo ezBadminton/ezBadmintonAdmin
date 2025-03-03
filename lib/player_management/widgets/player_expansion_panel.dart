@@ -1,8 +1,7 @@
 import 'package:collection/collection.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/constants.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_list_cubit.dart';
-import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/player_sorter/comparators/team_comparator.dart';
 import 'package:ez_badminton_admin_app/player_management/player_sorter/cubit/unique_competition_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/widgets/player_expansion_panel_body.dart';
@@ -23,7 +22,7 @@ class PlayerExpansionPanel extends ExpansionPanelRadio {
               _headerBuilder(player, listState, context, isExpanded),
           body: PlayerExpansionPanelBody(
             player: player,
-            registrations: listState.competitionRegistrations[player]!,
+            registrations: listState.competitionRegistrations[player] ?? [],
           ),
           canTapOnHeader: true,
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -40,7 +39,7 @@ class PlayerExpansionPanel extends ExpansionPanelRadio {
   ) {
     var l10n = AppLocalizations.of(context)!;
     bool needsPartner = _playerNeedsPartner(
-      listState.competitionRegistrations[player]!,
+      listState.competitionRegistrations[player] ?? [],
     );
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -77,7 +76,7 @@ class PlayerExpansionPanel extends ExpansionPanelRadio {
             SizedBox(
               width: 100,
               child: _RegistrationList(
-                registrations: listState.competitionRegistrations[player]!,
+                registrations: listState.competitionRegistrations[player] ?? [],
               ),
             ),
             Flexible(
@@ -126,9 +125,9 @@ class PlayerExpansionPanel extends ExpansionPanelRadio {
   }
 
   static bool _playerNeedsPartner(
-    Iterable<CompetitionRegistration> registrations,
+    Iterable<Registration> registrations,
   ) {
-    for (CompetitionRegistration registration in registrations) {
+    for (Registration registration in registrations) {
       if (registration.team.players.length <
           registration.competition.teamSize) {
         return true;
@@ -143,7 +142,7 @@ class _RegistrationList extends StatelessWidget {
     required this.registrations,
   });
 
-  final List<CompetitionRegistration> registrations;
+  final List<Registration> registrations;
 
   @override
   Widget build(BuildContext context) {
@@ -156,11 +155,10 @@ class _RegistrationList extends StatelessWidget {
         UniqueCompetitionFilterState? state =
             listState.sortingComparator is TeamComparator ? cubit.state : null;
         Competition? uniqueFiltered = state?.competition.value;
-        CompetitionRegistration? uniqueFilteredRegistration = registrations
+        Registration? uniqueFilteredRegistration = registrations
             .firstWhereOrNull((r) => r.competition == uniqueFiltered);
 
-        List<CompetitionRegistration> sortedRegistrations =
-            List.of(registrations);
+        List<Registration> sortedRegistrations = List.of(registrations);
 
         // Styles for the competitions that are uniquely filtered or not
         TextStyle uniqueStyle = Theme.of(context).textTheme.bodyMedium!;
@@ -194,7 +192,7 @@ class _RegistrationList extends StatelessWidget {
         }
 
         List<TextSpan> abbreviationTexts = [
-          for (CompetitionRegistration r in sortedRegistrations) ...[
+          for (Registration r in sortedRegistrations) ...[
             TextSpan(
               text: _competitionAbbreviation(r.competition, l10n),
               style:

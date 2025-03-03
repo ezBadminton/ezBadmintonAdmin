@@ -1,5 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/badminton_tournament_ops/cubit/tournament_progress_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_status_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,12 +9,11 @@ import 'package:mocktail/mocktail.dart';
 import '../../common_matchers/model_matchers.dart';
 import '../../common_matchers/state_matchers.dart';
 
-class MockCollectionRepository<M extends Model> extends Mock
-    implements CollectionRepository<M> {}
+class MockModelStore<M extends Model> extends Mock implements ModelStore<M> {}
 
 void main() {
-  late CollectionRepository<Player> playerRepository;
-  late CollectionRepository<MatchData> matchDataRepository;
+  late ModelStore<Player> playerRepository;
+  late ModelStore<MatchData> matchDataRepository;
   late Player player;
   late PlayerStatusCubit sut;
 
@@ -22,8 +21,8 @@ void main() {
     return PlayerStatusCubit(
       player: player,
       tournamentProgressGetter: () => TournamentProgressState(),
-      playerRepository: playerRepository,
-      matchDataRepository: matchDataRepository,
+      playerStore: playerRepository,
+      matchDataStore: matchDataRepository,
     );
   }
 

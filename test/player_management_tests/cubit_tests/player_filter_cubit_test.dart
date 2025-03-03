@@ -1,5 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/common_predicate_producers/agegroup_predicate_producer.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
@@ -42,9 +42,9 @@ var playingLevels = List<PlayingLevel>.generate(
 );
 
 void main() {
-  late CollectionRepository<PlayingLevel> playingLevelRepository;
-  late CollectionRepository<AgeGroup> ageGroupRepository;
-  late CollectionRepository<Tournament> tournamentRepository;
+  late ModelStore<PlayingLevel> playingLevelRepository;
+  late ModelStore<AgeGroup> ageGroupRepository;
+  late ModelStore<Tournament> tournamentRepository;
   late List<PredicateProducer> producers;
   late AgeGroupPredicateProducer ageGroupPredicateProducer;
   late GenderCategoryPredicateProducer genderPredicateProducer;

@@ -1,5 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/competition_registration_state.dart';
@@ -105,9 +105,9 @@ var competitionWithPlayingLevelAndAgeGroup3 = Competition.newCompetition(
 );
 
 void main() {
-  late CollectionRepository<Player> playerRepository;
-  late CollectionRepository<Competition> competitionRepository;
-  late CollectionRepository<AgeGroup> ageGroupRepository;
+  late ModelStore<Player> playerRepository;
+  late ModelStore<Competition> competitionRepository;
+  late ModelStore<AgeGroup> ageGroupRepository;
   late Player player;
   late List<CompetitionRegistration> registrations;
 

@@ -1,27 +1,28 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pocketbase/pocketbase.dart';
 
 typedef FetcherFunction<M extends Model> = FutureOr<List<M>> Function();
 
 class CollectionQuerier {
   /// A class that has functions to fetch and update collections from db.
   ///
-  /// The collections are accessed via [CollectionRepository] objects given
-  /// by [collectionRepositories]. Each repository object is granting access to
+  /// The collections are accessed via [ModelStore] objects given
+  /// by [modelStores]. Each store object is granting access to
   /// a collection of one [Model].
   ///
   /// Example:
   /// ```dart
-  /// CollectionRepository<Player> playerRepository = ...; // Usually injected by a repository provider
-  /// CollectionRepository<Team> teamRepository = ...;
+  /// ModelStore<Player> playerStore = ...; // Usually injected by a repository provider
+  /// ModelStore<Team> teamStore = ...;
   /// var querier = CollectionQuerier(
   ///   [
-  ///     playerRepository,
-  ///     teamRepository,
+  ///     playerStore,
+  ///     teamStore,
   ///   ],
   /// );
   ///
@@ -31,26 +32,27 @@ class CollectionQuerier {
   ///
   /// The `querier` now has the ability to fetch [Player] and [Team]
   /// collections. Beware trying to do collection operations
-  /// on Models that the [CollectionQuerier] does not have the repository
+  /// on Models that the [CollectionQuerier] does not have the store
   /// of. This will lead to exceptions.
-  CollectionQuerier(this.collectionRepositories);
+  CollectionQuerier(this.modelStores, {this.pb});
 
-  final Iterable<CollectionRepository<Model>> collectionRepositories;
+  final Iterable<ModelStore<Model>> modelStores;
+
+  final PocketBase? pb;
 
   /// Gets one model from the [M]-collection by [id].
   ///
   /// Returns `null` if that [id] doesn't exist
   M? getModel<M extends Model>(String id) {
-    var collectionRepository = getRepository<M>();
+    var collectionRepository = getStore<M>();
 
     return collectionRepository.getModel(id);
   }
 
   /// Gets the full [M]-collection
   List<M> getCollection<M extends Model>() {
-    var collectionRepository = getRepository<M>();
-
-    return collectionRepository.getList();
+    var store = getStore<M>();
+    return store.getList();
   }
 
   /// Puts a newly created model into its collection on the DB.
@@ -61,12 +63,12 @@ class CollectionQuerier {
   Future<M?> createModel<M extends Model>(
     M newModel, {
     Map<String, dynamic> query = const {},
+    Map<String, dynamic> body = const {},
   }) async {
     assert(newModel.id.isEmpty);
-    var collectionRepository = getRepository<M>();
-
+    var store = getStore<M>();
     try {
-      return await collectionRepository.create(newModel, query: query);
+      return await store.create(newModel, query: query, body: body);
     } on CollectionQueryException {
       return null;
     }
@@ -93,12 +95,22 @@ class CollectionQuerier {
     Map<String, dynamic> query = const {},
   }) async {
     assert(updatedModel.id.isNotEmpty);
-    var collectionRepository = getRepository<M>();
+    var store = getStore<M>();
 
     try {
-      return await collectionRepository.update(updatedModel, query: query);
+      return await store.update(updatedModel, query: query);
     } on CollectionQueryException {
       return null;
+    }
+  }
+
+  Future<List<bool>> updateModels<M extends Model>(List<M> models) async {
+    var store = getStore<M>();
+
+    try {
+      return store.updateTransaction(models);
+    } catch (e) {
+      return List<bool>.generate(models.length, (_) => false);
     }
   }
 
@@ -114,22 +126,6 @@ class CollectionQuerier {
     }
   }
 
-  /// Updates a list of models
-  ///
-  /// Resolves to a list of the updated models
-  Future<List<M?>> updateModels<M extends Model>(List<M> models) async {
-    // This just calls [updateModel] for each list item. Sadly pocketbase
-    // doesn't support transactional bulk operations yet. Keep an eye on
-    // https://github.com/pocketbase/pocketbase/issues/48 where this will be
-    // added.
-    Iterable<Future<M?>> modelUpdates = models.mapIndexed((index, model) {
-      return updateModel(model);
-    });
-    List<M?> updatedModels = await Future.wait(modelUpdates);
-
-    return updatedModels;
-  }
-
   /// Deletes a model from its collection on the DB.
   ///
   /// On success the future resolves to `true` otherwise `false`.
@@ -137,59 +133,54 @@ class CollectionQuerier {
     M deletedModel, {
     Map<String, dynamic> query = const {},
   }) async {
-    assert(
-      collectionRepositories.whereType<CollectionRepository<M>>().isNotEmpty,
-      'The CollectionQuerier does not have the ${M.toString()} repository',
-    );
-    var collectionRepository =
-        collectionRepositories.whereType<CollectionRepository<M>>().first;
+    var store = getStore<M>();
 
     try {
-      await collectionRepository.delete(deletedModel, query: query);
+      await store.delete(deletedModel, query: query);
       return true;
     } on CollectionQueryException {
       return false;
     }
   }
 
-  /// Deletes a list of models
-  ///
-  /// Resolves to `true` when all models have successfully been deleted
-  Future<bool> deleteModels<M extends Model>(List<M> deletedModels) async {
-    Iterable<Future<bool>> modelDeletions =
-        deletedModels.map((model) => deleteModel(model));
-    List<bool> modelsDeleted = await Future.wait(modelDeletions);
+  Future<bool> deleteModels<M extends Model>(List<M> models) async {
+    var store = getStore<M>();
 
-    return !modelsDeleted.contains(false);
+    try {
+      await store.deleteTransaction(models);
+      return true;
+    } on CollectionQueryException {
+      return false;
+    }
   }
 
-  CollectionRepository<M> getRepository<M extends Model>() {
-    CollectionRepository<M>? repository = collectionRepositories
-            .firstWhereOrNull((r) => r is CollectionRepository<M>)
-        as CollectionRepository<M>?;
+  ModelStore<M> getStore<M extends Model>() {
+    ModelStore<M>? store = modelStores
+        .firstWhereOrNull((r) => r is ModelStore<M>) as ModelStore<M>?;
 
-    if (repository == null) {
+    if (store == null) {
       throw Exception(
-        'The CollectionQuerier does not have the ${M.toString()} repository',
+        'The CollectionQuerier does not have the ${M.toString()} store',
       );
     }
 
-    return repository;
+    return store;
   }
 }
 
 abstract class CollectionQuerierCubit<S> extends Cubit<S> {
   /// A Cubit that has a [CollectionQuerier] member.
   ///
-  /// The [CollectionQuerier] is created with the given [collectionRepositories]
+  /// The [CollectionQuerier] is created with the given [modelStores]
   /// and can be used by accessing the `querier` field.
   CollectionQuerierCubit(
     super.initialState, {
-    required Iterable<CollectionRepository<Model>> collectionRepositories,
-  }) : querier = CollectionQuerier(collectionRepositories) {
+    required Iterable<ModelStore<Model>> modelStores,
+    PocketBase? pocketBase,
+  }) : querier = CollectionQuerier(modelStores, pb: pocketBase) {
     _waitForRepositoryLoading();
-    for (CollectionRepository<Model> repository in collectionRepositories) {
-      subscribeToCollectionUpdates(repository, _notifyCollectionUpdate);
+    for (ModelStore<Model> store in modelStores) {
+      subscribeToCollectionUpdates(store, _notifyCollectionUpdate);
     }
   }
 
@@ -197,7 +188,7 @@ abstract class CollectionQuerierCubit<S> extends Cubit<S> {
 
   final List<StreamSubscription> collectionUpdateSubscriptions = [];
 
-  /// Listens to updates in the collection of [M] via the [repository].
+  /// Listens to updates in the collection of [M] via the [store].
   ///
   /// The [listener] is called with a list of [CollectionUpdateEvent]s
   /// whenever the collection behind the repository changes.
@@ -209,10 +200,10 @@ abstract class CollectionQuerierCubit<S> extends Cubit<S> {
   /// cubit closes. This happens automatically when the cubit was created by a
   /// [BlocProvider].
   void subscribeToCollectionUpdates<M extends Model>(
-    CollectionRepository<M> repository,
+    ModelStore<M> store,
     void Function(List<CollectionUpdateEvent<M>> updateEvents)? listener,
   ) {
-    StreamSubscription subscription = repository.updateStream.listen(listener);
+    StreamSubscription subscription = store.updateStream.listen(listener);
     collectionUpdateSubscriptions.add(subscription);
   }
 
@@ -226,7 +217,7 @@ abstract class CollectionQuerierCubit<S> extends Cubit<S> {
 
   /// Gets called when [querier] initially loads all collections and whenever
   /// any of the collections from the [querier]'s
-  /// [CollectionQuerier.collectionRepositories] updates.
+  /// [CollectionQuerier.modelStores] updates.
   ///
   /// The [collections] list is always the full list of collections, not just
   /// the updated ones.
@@ -251,11 +242,8 @@ abstract class CollectionQuerierCubit<S> extends Cubit<S> {
     }
   }
 
-  void _waitForRepositoryLoading() async {
-    Iterable<Completer> loadCompleters =
-        querier.collectionRepositories.map((r) => r.loadCompleter);
-
-    await Future.wait(loadCompleters.map((c) => c.future)).then(
+  void _waitForRepositoryLoading() {
+    ModelRepository.instance.loadCompleter.future.then(
       (_) => _notifyCollectionUpdate(),
       onError: (_) => onLoadError(),
     );
@@ -265,7 +253,7 @@ abstract class CollectionQuerierCubit<S> extends Cubit<S> {
     List<CollectionUpdateEvent<Model>>? updateEvents,
   ]) {
     List<List<Model>> collections =
-        querier.collectionRepositories.map((r) => r.getList()).toList();
+        querier.modelStores.map((r) => r.getList()).toList();
     onCollectionUpdate(collections, updateEvents ?? []);
   }
 }

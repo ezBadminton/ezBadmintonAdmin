@@ -1,4 +1,4 @@
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 
 extension MoveableItem<T> on List<T> {
   /// Moves an item in this list [from] an index [to] another.

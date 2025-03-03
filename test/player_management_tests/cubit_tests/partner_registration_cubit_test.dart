@@ -1,5 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/partner_registration_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/partner_registration_state.dart';
@@ -33,9 +33,9 @@ class HasPartner extends CustomMatcher {
 }
 
 void main() {
-  late CollectionRepository<Player> playerRepository;
-  late CollectionRepository<Team> teamRepository;
-  late CollectionRepository<Competition> competitionRepository;
+  late ModelStore<Player> playerRepository;
+  late ModelStore<Team> teamRepository;
+  late ModelStore<Competition> competitionRepository;
   late CompetitionRegistration registration;
   late Player player;
   late Player partner;
@@ -72,9 +72,9 @@ void main() {
   }
 
   setUp(() {
-    playerRepository = TestCollectionRepository<Player>();
-    teamRepository = TestCollectionRepository<Team>();
-    competitionRepository = TestCollectionRepository<Competition>();
+    playerRepository = TestModelStore<Player>();
+    teamRepository = TestModelStore<Team>();
+    competitionRepository = TestModelStore<Competition>();
 
     player = Player.newPlayer().copyWith(id: 'test-player');
     partner = Player.newPlayer().copyWith(id: 'test-partner');

@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc_test/bloc_test.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_filter/competition_filter.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/common_predicate_producers/agegroup_predicate_producer.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
@@ -38,9 +38,9 @@ void main() {
     'testdomain',
   );
 
-  late CollectionRepository<AgeGroup> ageGroupRepository;
-  late CollectionRepository<PlayingLevel> playingLevelRepository;
-  late CollectionRepository<Tournament> tournamentRepository;
+  late ModelStore<AgeGroup> ageGroupRepository;
+  late ModelStore<PlayingLevel> playingLevelRepository;
+  late ModelStore<Tournament> tournamentRepository;
   late AgeGroupPredicateProducer ageGroupPredicateProducer;
   late PlayingLevelPredicateProducer playingLevelPredicateProducer;
   late RegistrationCountPredicateProducer registrationCountPredicateProducer;
@@ -48,8 +48,8 @@ void main() {
   late GenderCategoryPredicateProducer genderCategoryPredicateProducer;
 
   void arrangeRepositories() {
-    ageGroupRepository = TestCollectionRepository<AgeGroup>();
-    playingLevelRepository = TestCollectionRepository<PlayingLevel>();
+    ageGroupRepository = TestModelStore<AgeGroup>();
+    playingLevelRepository = TestModelStore<PlayingLevel>();
 
     Tournament tournament = Tournament(
       id: 'tournament',
@@ -64,7 +64,7 @@ void main() {
       queueMode: QueueMode.manual,
     );
 
-    tournamentRepository = TestCollectionRepository<Tournament>(
+    tournamentRepository = TestModelStore<Tournament>(
       initialCollection: [tournament],
     );
   }

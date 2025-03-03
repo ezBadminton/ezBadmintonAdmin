@@ -44,7 +44,7 @@
           "build"
         ],
         "options": {
-          "cwd": "${workspaceRoot}/packages/collection_repository"
+          "cwd": "${workspaceRoot}/packages/model_repository"
         },
         "problemMatcher": [
           "$dart-build_runner"

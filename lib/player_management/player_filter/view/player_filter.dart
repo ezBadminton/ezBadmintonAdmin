@@ -1,4 +1,4 @@
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_state.dart';
 import 'package:ez_badminton_admin_app/player_management/player_filter/player_filter.dart';

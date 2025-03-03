@@ -1,11 +1,7 @@
-import 'package:collection_repository/collection_repository.dart';
-import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
-import 'package:ez_badminton_admin_app/display_strings/match_names.dart';
-import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate_producers.dart';
 import 'package:ez_badminton_admin_app/utils/powers_of_two.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:tournament_mode/tournament_mode.dart';
 
 String ageGroup(AppLocalizations l10n, AgeGroup ageGroup) {
   return '${l10n.ageGroupAbbreviated(ageGroup.type.name)}${ageGroup.age}';
@@ -65,24 +61,16 @@ String competitionGenderAndTypeAbbreviation(
 
 String competitionCategory(
   AppLocalizations l10n,
-  CompetitionDiscipline competitionCategory,
 ) {
-  return competitionGenderAndType(
-    l10n,
-    competitionCategory.genderCategory,
-    competitionCategory.competitionType,
-  );
+  // TODO: Restore
+  return "einsel";
 }
 
 String competitionCategoryAbbreviation(
   AppLocalizations l10n,
-  CompetitionDiscipline competitionCategory,
 ) {
-  return competitionGenderAndTypeAbbreviation(
-    l10n,
-    competitionCategory.genderCategory,
-    competitionCategory.competitionType,
-  );
+  // TODO: Restore
+  return "EE";
 }
 
 String competitionLabel(
@@ -99,7 +87,6 @@ String competitionLabel(
   }
   label.write(competitionCategory(
     l10n,
-    CompetitionDiscipline.fromCompetition(competition),
   ));
 
   return label.toString();
@@ -310,18 +297,6 @@ String seedLabel(int seed, SeedingMode seedingMode) {
   int prevPowOf2 = previousPowerOfTwo(rank);
 
   return '${prevPowOf2 + 1}/$nextPowOf2';
-}
-
-String? matchName(AppLocalizations l10n, TournamentMatch match) {
-  return switch (match.round) {
-    GroupPhaseRound<BadmintonMatch> round =>
-      round.getGroupMatchName(l10n, match),
-    RoundRobinRound round => round.getRoundRobinMatchName(l10n),
-    EliminationRound round => round.getEliminationMatchName(l10n, match),
-    DoubleEliminationRound round =>
-      round.getDoubleEliminationMatchName(l10n, match),
-    _ => null,
-  };
 }
 
 String knockOutModeName(AppLocalizations l10n, KnockOutMode knockOutMode) {

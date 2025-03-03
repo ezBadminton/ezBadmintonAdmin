@@ -1,4 +1,4 @@
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/list_sorting/comparator/list_sorting_comparator.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_list_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/player_sorter/comparators/club_comparator.dart';

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/assets/badminton_icons_icons.dart';
 import 'package:ez_badminton_admin_app/assets/pdf_fonts.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';

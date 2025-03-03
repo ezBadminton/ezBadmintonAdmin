@@ -1,4 +1,4 @@
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:equatable/equatable.dart';
 
 /// A tuple of [GenderCategory] and [CompetitionType] forming a competition

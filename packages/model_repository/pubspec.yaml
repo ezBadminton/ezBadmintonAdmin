@@ -1,0 +1,21 @@
+name: model_repository
+description: Dart package for managing data models and their relations
+publish_to: none
+
+environment:
+  sdk: ^3.6.0
+dependencies:
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
+  flutter:
+    sdk: flutter
+  equatable: ^2.0.7
+  collection: ^1.19.0
+  pocketbase: ^0.21.0
+  pocketbase_provider:
+    path: ../pocketbase_provider
+
+dev_dependencies:
+  freezed: ^2.5.8
+  json_serializable: ^6.9.3
+  build_runner: ^2.4.14

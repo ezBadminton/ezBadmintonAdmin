@@ -1,4 +1,4 @@
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/cubit/tournament_mode_assignment_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/widgets/tournament_mode_settings_widget.dart';
 import 'package:ez_badminton_admin_app/layout/fab_location.dart';
@@ -28,9 +28,8 @@ class TournamentModeAssignmentPage extends StatelessWidget {
       create: (context) => TournamentModeAssignmentCubit(
         competitions: competitions,
         tournamentModeSettingsRepository:
-            context.read<CollectionRepository<TournamentModeSettings>>(),
-        competitionRepository:
-            context.read<CollectionRepository<Competition>>(),
+            context.read<ModelStore<TournamentModeSettings>>(),
+        competitionRepository: context.read<ModelStore<Competition>>(),
       ),
       child: const _TournamentModeAssignmentPageScaffold(),
     );

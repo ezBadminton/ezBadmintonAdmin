@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/utils/sorting.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
@@ -10,9 +10,9 @@ part 'competition_selection_state.dart';
 class CompetitionSelectionCubit
     extends CollectionQuerierCubit<CompetitionSelectionState> {
   CompetitionSelectionCubit({
-    required CollectionRepository<Competition> competitionRepository,
+    required ModelStore<Competition> competitionRepository,
   }) : super(
-          collectionRepositories: [competitionRepository],
+          modelStores: [competitionRepository],
           CompetitionSelectionState(),
         ) {
     subscribeToCollectionUpdates(

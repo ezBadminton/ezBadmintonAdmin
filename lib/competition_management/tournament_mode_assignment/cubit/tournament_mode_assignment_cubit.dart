@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/input_models/tournament_mode_settings_input.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
@@ -14,11 +14,11 @@ class TournamentModeAssignmentCubit
     with DialogCubit {
   TournamentModeAssignmentCubit({
     required List<Competition> competitions,
-    required CollectionRepository<TournamentModeSettings>
+    required ModelStore<TournamentModeSettings>
         tournamentModeSettingsRepository,
-    required CollectionRepository<Competition> competitionRepository,
+    required ModelStore<Competition> competitionRepository,
   }) : super(
-          collectionRepositories: [
+          modelStores: [
             tournamentModeSettingsRepository,
             competitionRepository,
           ],
@@ -82,29 +82,22 @@ class TournamentModeAssignmentCubit
       }
     }
 
-    TournamentModeSettings? createdSettings =
-        await querier.createModel(state.modeSettings.value!);
+    var status = await _saveModeSettings();
+
+    emit(state.copyWith(formStatus: status));
+  }
+
+  Future<FormzSubmissionStatus> _saveModeSettings() async {
+    var competitionIds = state.competitions.map((c) => c.id).toList();
+    TournamentModeSettings? createdSettings = await querier.createModel(
+      state.modeSettings.value!,
+      body: {"competitions": competitionIds},
+    );
     if (createdSettings == null) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-      return;
+      return FormzSubmissionStatus.failure;
     }
 
-    List<Competition> competitionsWithSettings = state.competitions
-        .map((c) => c.copyWith(
-              tournamentModeSettings: createdSettings,
-              draw: [],
-            ))
-        .toList();
-
-    List<Competition?> updatedCompetitions =
-        await querier.updateModels(competitionsWithSettings);
-
-    if (updatedCompetitions.contains(null)) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-      return;
-    }
-
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+    return FormzSubmissionStatus.success;
   }
 
   void _initializeFromExistingSettings(Competition competititon) {
@@ -145,7 +138,7 @@ class TournamentModeAssignmentCubit
     bool twoPointMargin = previousSettings?.twoPointMargin ?? true;
 
     switch (tournamentMode) {
-      case RoundRobinSettings:
+      case const (RoundRobinSettings):
         return RoundRobinSettings(
           id: '',
           created: DateTime.now().toUtc(),
@@ -157,7 +150,7 @@ class TournamentModeAssignmentCubit
           maxPoints: maxPoints,
           twoPointMargin: twoPointMargin,
         );
-      case SingleEliminationSettings:
+      case const (SingleEliminationSettings):
         return SingleEliminationSettings(
           id: '',
           created: DateTime.now().toUtc(),
@@ -168,7 +161,7 @@ class TournamentModeAssignmentCubit
           maxPoints: maxPoints,
           twoPointMargin: twoPointMargin,
         );
-      case GroupKnockoutSettings:
+      case const (GroupKnockoutSettings):
         return GroupKnockoutSettings(
           id: '',
           created: DateTime.now().toUtc(),
@@ -184,7 +177,7 @@ class TournamentModeAssignmentCubit
           maxPoints: maxPoints,
           twoPointMargin: twoPointMargin,
         );
-      case DoubleEliminationSettings:
+      case const (DoubleEliminationSettings):
         return DoubleEliminationSettings(
           id: '',
           created: DateTime.now().toUtc(),
@@ -195,7 +188,7 @@ class TournamentModeAssignmentCubit
           maxPoints: maxPoints,
           twoPointMargin: twoPointMargin,
         );
-      case SingleEliminationWithConsolationSettings:
+      case const (SingleEliminationWithConsolationSettings):
         return SingleEliminationWithConsolationSettings(
           id: '',
           created: DateTime.now().toUtc(),

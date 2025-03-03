@@ -1,4 +1,4 @@
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_editing/view/competition_editing_page.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_filter/competition_filter.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_filter/view/competition_filter.dart';
@@ -29,11 +29,9 @@ class CompetitionListPage extends StatelessWidget {
         BlocProvider(create: (context) => PredicateFilterCubit()),
         BlocProvider(
           create: (context) => CompetitionFilterCubit(
-            ageGroupRepository: context.read<CollectionRepository<AgeGroup>>(),
-            playingLevelRepository:
-                context.read<CollectionRepository<PlayingLevel>>(),
-            tournamentRepository:
-                context.read<CollectionRepository<Tournament>>(),
+            ageGroupRepository: context.read<ModelStore<AgeGroup>>(),
+            playingLevelRepository: context.read<ModelStore<PlayingLevel>>(),
+            tournamentRepository: context.read<ModelStore<Tournament>>(),
             ageGroupPredicateProducer: AgeGroupPredicateProducer(),
             playingLevelPredicateProducer: PlayingLevelPredicateProducer(),
             registrationCountPredicateProducer:
@@ -46,39 +44,30 @@ class CompetitionListPage extends StatelessWidget {
         BlocProvider(
           create: (context) => CompetitionCategorizationCubit(
             l10n: l10n,
-            tournamentRepository:
-                context.read<CollectionRepository<Tournament>>(),
-            competitionRepository:
-                context.read<CollectionRepository<Competition>>(),
-            ageGroupRepository: context.read<CollectionRepository<AgeGroup>>(),
-            playingLevelRepository:
-                context.read<CollectionRepository<PlayingLevel>>(),
+            tournamentRepository: context.read<ModelStore<Tournament>>(),
+            competitionRepository: context.read<ModelStore<Competition>>(),
+            ageGroupRepository: context.read<ModelStore<AgeGroup>>(),
+            playingLevelRepository: context.read<ModelStore<PlayingLevel>>(),
           ),
         ),
         BlocProvider(
           create: (context) => CompetitionListCubit(
-            competitionRepository:
-                context.read<CollectionRepository<Competition>>(),
-            tournamentRepository:
-                context.read<CollectionRepository<Tournament>>(),
-            ageGroupRepository: context.read<CollectionRepository<AgeGroup>>(),
-            playingLevelRepository:
-                context.read<CollectionRepository<PlayingLevel>>(),
+            competitionRepository: context.read<ModelStore<Competition>>(),
+            tournamentRepository: context.read<ModelStore<Tournament>>(),
+            ageGroupRepository: context.read<ModelStore<AgeGroup>>(),
+            playingLevelRepository: context.read<ModelStore<PlayingLevel>>(),
           ),
         ),
         BlocProvider(
           create: (context) => CompetitionSelectionCubit(
-            competitionRepository:
-                context.read<CollectionRepository<Competition>>(),
+            competitionRepository: context.read<ModelStore<Competition>>(),
           ),
         ),
         BlocProvider(
           create: (context) => CompetitionStartStopCubit(
-            competitionRepository:
-                context.read<CollectionRepository<Competition>>(),
-            matchDataRepository:
-                context.read<CollectionRepository<MatchData>>(),
-            matchSetRepository: context.read<CollectionRepository<MatchSet>>(),
+            competitionRepository: context.read<ModelStore<Competition>>(),
+            startEndpoint: context.read<TournamentStartEndpoint>(),
+            stopEndpoint: context.read<TournamentStopEndpoint>(),
           ),
         ),
       ],

@@ -1,13 +1,13 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_list_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import '../../common_matchers/state_matchers.dart';
 
-class MockCollectionRepository<M extends Model> extends Mock
-    implements PocketbaseCollectionRepository<M> {}
+class MockModelStore<M extends Model> extends Mock
+    implements PocketbaseModelStore<M> {}
 
 class HasFilteredPlayers extends CustomMatcher {
   HasFilteredPlayers(matcher)
@@ -21,11 +21,11 @@ class HasFilteredPlayers extends CustomMatcher {
 }
 
 void main() {
-  late CollectionRepository<Player> playerRepository;
-  late CollectionRepository<Competition> competitionRepository;
-  late CollectionRepository<PlayingLevel> playingLevelRepository;
-  late CollectionRepository<AgeGroup> ageGroupRepository;
-  late CollectionRepository<Club> clubRepository;
+  late ModelStore<Player> playerRepository;
+  late ModelStore<Competition> competitionRepository;
+  late ModelStore<PlayingLevel> playingLevelRepository;
+  late ModelStore<AgeGroup> ageGroupRepository;
+  late ModelStore<Club> clubRepository;
   late PlayerListCubit sut;
 
   // Create some players and competitions with teams for testing
@@ -95,11 +95,11 @@ void main() {
 
   PlayerListCubit createSut() {
     return PlayerListCubit(
-      playerRepository: playerRepository,
+      playerStore: playerRepository,
       competitionRepository: competitionRepository,
-      playingLevelRepository: playingLevelRepository,
-      ageGroupRepository: ageGroupRepository,
-      clubRepository: clubRepository,
+      playingLevelStore: playingLevelRepository,
+      ageGroupStore: ageGroupRepository,
+      clubStore: clubRepository,
     );
   }
 

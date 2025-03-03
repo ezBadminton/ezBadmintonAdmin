@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/age_group_editing/view/age_group_editing_popup.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_categorization_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_categorization_state.dart';
@@ -103,8 +103,8 @@ class TournamentCategorizationOptions extends StatelessWidget {
     int num = plural ? 2 : 1;
 
     String categorizationName = switch (categorization) {
-      AgeGroup => l10n.ageGroup(num),
-      PlayingLevel => l10n.playingLevel(num),
+      const (AgeGroup) => l10n.ageGroup(num),
+      const (PlayingLevel) => l10n.playingLevel(num),
       _ => throw Exception("Unknown Categorization")
     };
 
@@ -115,8 +115,8 @@ class TournamentCategorizationOptions extends StatelessWidget {
     assert(categorization == AgeGroup || categorization == PlayingLevel);
 
     return switch (categorization) {
-      AgeGroup => const AgeGroupEditingPopup(),
-      PlayingLevel => const PlayingLevelEditingPopup(),
+      const (AgeGroup) => const AgeGroupEditingPopup(),
+      const (PlayingLevel) => const PlayingLevelEditingPopup(),
       _ => throw Exception("Unknown Categorization")
     };
   }

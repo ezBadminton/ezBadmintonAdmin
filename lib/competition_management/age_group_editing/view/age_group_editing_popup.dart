@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
 import 'package:ez_badminton_admin_app/widgets/dialogs/dropdown_selection_dialog.dart';
@@ -22,10 +22,9 @@ class AgeGroupEditingPopup extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
     return BlocProvider(
       create: (context) => AgeGroupEditingCubit(
-        ageGroupRepository: context.read<CollectionRepository<AgeGroup>>(),
-        competitionRepository:
-            context.read<CollectionRepository<Competition>>(),
-        teamRepository: context.read<CollectionRepository<Team>>(),
+        ageGroupStore: context.read<ModelStore<AgeGroup>>(),
+        competitionStore: context.read<ModelStore<Competition>>(),
+        teamStore: context.read<ModelStore<Team>>(),
       ),
       child: Dialog(
         child: ConstrainedBox(

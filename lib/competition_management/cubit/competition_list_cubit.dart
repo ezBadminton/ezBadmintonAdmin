@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_sorter/comparators/competition_comparator.dart';
 import 'package:ez_badminton_admin_app/list_sorting/comparator/list_sorting_comparator.dart';
@@ -12,12 +12,12 @@ part 'competition_list_state.dart';
 class CompetitionListCubit extends CollectionQuerierCubit<CompetitionListState>
     implements SortedListCubit<Competition, CompetitionListState> {
   CompetitionListCubit({
-    required CollectionRepository<Competition> competitionRepository,
-    required CollectionRepository<Tournament> tournamentRepository,
-    required CollectionRepository<AgeGroup> ageGroupRepository,
-    required CollectionRepository<PlayingLevel> playingLevelRepository,
+    required ModelStore<Competition> competitionRepository,
+    required ModelStore<Tournament> tournamentRepository,
+    required ModelStore<AgeGroup> ageGroupRepository,
+    required ModelStore<PlayingLevel> playingLevelRepository,
   }) : super(
-          collectionRepositories: [
+          modelStores: [
             competitionRepository,
             tournamentRepository,
             ageGroupRepository,

@@ -1,4 +1,4 @@
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_filter/cubit/competition_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_filter/registration_count_predicate_producer.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';

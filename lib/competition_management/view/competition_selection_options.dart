@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_deletion_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_start_stop_cubit.dart';
@@ -20,8 +20,7 @@ class CompetitionSelectionOptions extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
     return BlocProvider(
       create: (context) => CompetitionDeletionCubit(
-        competitionRepository:
-            context.read<CollectionRepository<Competition>>(),
+        competitionRepository: context.read<ModelStore<Competition>>(),
       ),
       child: BlocConsumer<CompetitionSelectionCubit, CompetitionSelectionState>(
         listener: (context, state) {

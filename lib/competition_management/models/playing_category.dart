@@ -1,4 +1,4 @@
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:equatable/equatable.dart';
 
 /// A tuple of [ageGroup] and [playingLevel] forming a playing category.
@@ -36,9 +36,9 @@ class PlayingCategory extends Equatable {
 
   C? getCategory<C extends Model>() {
     switch (C) {
-      case AgeGroup:
+      case AgeGroup _:
         return ageGroup as C?;
-      case PlayingLevel:
+      case PlayingLevel _:
         return playingLevel as C?;
       default:
         return null;

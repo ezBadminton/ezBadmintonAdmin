@@ -1,5 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_editing/cubit/competition_adding_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
@@ -118,10 +118,10 @@ List<Competition> mixedCompetitions = playingLevels
     .toList();
 
 void main() {
-  late CollectionRepository<Competition> competitionRepository;
-  late CollectionRepository<AgeGroup> ageGroupRepository;
-  late CollectionRepository<PlayingLevel> playingLevelRepository;
-  late CollectionRepository<Tournament> tournamentRepository;
+  late ModelStore<Competition> competitionRepository;
+  late ModelStore<AgeGroup> ageGroupRepository;
+  late ModelStore<PlayingLevel> playingLevelRepository;
+  late ModelStore<Tournament> tournamentRepository;
 
   void arrangeRepositories({
     bool throwing = false,

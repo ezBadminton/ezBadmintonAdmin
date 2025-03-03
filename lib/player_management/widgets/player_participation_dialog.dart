@@ -1,15 +1,10 @@
-import 'package:collection_repository/collection_repository.dart';
-import 'package:ez_badminton_admin_app/badminton_tournament_ops/badminton_match.dart';
-import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
 import 'package:ez_badminton_admin_app/utils/selection_cubit/selection_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
 import 'package:ez_badminton_admin_app/widgets/map_listview/map_listview.dart';
-import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
-    as display_strings;
+import 'package:model_repository/model_repository.dart';
 
 /// A widget that lists competitions with matches that a player withdraws
 /// from or reenters into, thus changes their participation status in them.
@@ -17,13 +12,11 @@ class PlayerParticipationDialog extends StatelessWidget {
   const PlayerParticipationDialog({
     super.key,
     required this.matchList,
-    required this.changableParticipations,
     required this.title,
     this.content,
   });
 
-  final Map<CompetitionRegistration, List<BadmintonMatch>> matchList;
-  final List<CompetitionRegistration> changableParticipations;
+  final Map<Competition, List<MatchData>> matchList;
 
   final Widget title;
   final Widget? content;
@@ -34,7 +27,7 @@ class PlayerParticipationDialog extends StatelessWidget {
 
     return BlocProvider(
       create: (context) => SelectionCubit<Competition>(
-        items: changableParticipations.map((p) => p.competition).toList(),
+        items: matchList.keys.toList(),
       ),
       child: Builder(builder: (context) {
         var selectionCubit = context.read<SelectionCubit<Competition>>();
@@ -51,7 +44,6 @@ class PlayerParticipationDialog extends StatelessWidget {
                 ],
                 _PlayerParticipationMenu(
                   currentWalkovers: matchList,
-                  reenteringRegistrations: changableParticipations,
                 ),
               ],
             ),
@@ -78,11 +70,9 @@ class PlayerParticipationDialog extends StatelessWidget {
 class _PlayerParticipationMenu extends StatelessWidget {
   const _PlayerParticipationMenu({
     required this.currentWalkovers,
-    required this.reenteringRegistrations,
   });
 
-  final Map<CompetitionRegistration, List<BadmintonMatch>> currentWalkovers;
-  final List<CompetitionRegistration> reenteringRegistrations;
+  final Map<Competition, List<MatchData>> currentWalkovers;
 
   @override
   Widget build(BuildContext context) {
@@ -94,17 +84,15 @@ class _PlayerParticipationMenu extends StatelessWidget {
   }
 
   Map<Widget, List<Widget>> _buildMatchList(BuildContext context) {
-    Iterable<Team> reenteringTeams = reenteringRegistrations.map((r) => r.team);
-
     Map<Widget, List<Widget>> matchList = currentWalkovers.map(
       (registration, matches) {
         return MapEntry(
           _CompetitionHeader(
-            registration: registration,
-            isReentering: reenteringTeams.contains(registration.team),
+            competition: registration,
+            isReentering: matches.isNotEmpty,
           ),
           [
-            for (BadmintonMatch match in matches) _MatchInfo(match: match),
+            for (var match in matches) _MatchInfo(match: match),
           ],
         );
       },
@@ -116,11 +104,11 @@ class _PlayerParticipationMenu extends StatelessWidget {
 
 class _CompetitionHeader extends StatelessWidget {
   const _CompetitionHeader({
-    required this.registration,
+    required this.competition,
     required this.isReentering,
   });
 
-  final CompetitionRegistration registration;
+  final Competition competition;
   final bool isReentering;
 
   @override
@@ -128,20 +116,17 @@ class _CompetitionHeader extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
     var selectionCubit = context.read<SelectionCubit<Competition>>();
 
-    Competition registeredCompetition = registration.competition;
-
     return Row(
       children: [
         if (isReentering) ...[
           BlocBuilder<SelectionCubit<Competition>, Map<Competition, bool>>(
             buildWhen: (previous, current) =>
-                previous[registeredCompetition] !=
-                current[registeredCompetition],
+                previous[competition] != current[competition],
             builder: (context, state) {
               return Checkbox(
-                value: state[registeredCompetition],
+                value: state[competition],
                 onChanged: (_) {
-                  selectionCubit.itemToggled(registeredCompetition);
+                  selectionCubit.itemToggled(competition);
                 },
               );
             },
@@ -149,7 +134,7 @@ class _CompetitionHeader extends StatelessWidget {
           const SizedBox(width: 10),
         ],
         CompetitionLabel(
-          competition: registeredCompetition,
+          competition: competition,
           textStyle: const TextStyle(fontSize: 18),
         ),
         if (!isReentering) ...[
@@ -172,27 +157,18 @@ class _MatchInfo extends StatelessWidget {
     required this.match,
   });
 
-  final BadmintonMatch match;
+  final MatchData match;
 
   @override
   Widget build(BuildContext context) {
-    var l10n = AppLocalizations.of(context)!;
+    //var l10n = AppLocalizations.of(context)!;
+    // TODO restore matchup label
 
     return Row(
       children: [
         Text(
-          display_strings.matchName(l10n, match) ?? '',
+          "MatchData ID: " + match.id,
           style: const TextStyle(fontSize: 14),
-        ),
-        MatchupLabel(
-          match: match,
-          orientation: Axis.horizontal,
-          textStyle: TextStyle(
-            fontSize: 16,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-          useFullName: true,
-          participantWidth: 270,
         ),
       ],
     );

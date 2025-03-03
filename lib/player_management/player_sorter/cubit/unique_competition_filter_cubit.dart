@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
@@ -17,10 +17,10 @@ part 'unique_competition_filter_state.dart';
 class UniqueCompetitionFilterCubit
     extends CollectionQuerierCubit<UniqueCompetitionFilterState> {
   UniqueCompetitionFilterCubit({
-    required CollectionRepository<Tournament> tournamentRepository,
-    required CollectionRepository<Competition> competitionRepository,
+    required ModelStore<Tournament> tournamentRepository,
+    required ModelStore<Competition> competitionRepository,
   }) : super(
-          collectionRepositories: [
+          modelStores: [
             tournamentRepository,
             competitionRepository,
           ],

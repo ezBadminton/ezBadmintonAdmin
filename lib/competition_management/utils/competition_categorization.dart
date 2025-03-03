@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:collection_repository/collection_repository.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/playing_category.dart';
 
@@ -142,9 +142,9 @@ Map<C?, List<Competition>> mapByCategory<C extends Model>(
 C? getCompetitionCategory<C extends Model>(Competition competition) {
   assert(C == AgeGroup || C == PlayingLevel);
   switch (C) {
-    case AgeGroup:
+    case AgeGroup _:
       return competition.ageGroup as C?;
-    case PlayingLevel:
+    case PlayingLevel _:
       return competition.playingLevel as C?;
     default:
       return null;

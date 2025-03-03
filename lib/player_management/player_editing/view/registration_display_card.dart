@@ -1,5 +1,4 @@
-import 'package:collection_repository/collection_repository.dart';
-import 'package:ez_badminton_admin_app/player_management/models/competition_registration.dart';
+import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/partner_registration_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/cubit/partner_registration_state.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
@@ -14,6 +13,7 @@ import 'package:formz/formz.dart';
 
 class RegistrationDisplayCard extends StatelessWidget {
   const RegistrationDisplayCard(
+    this.player,
     this.registration, {
     super.key,
     this.showDeleteButton = false,
@@ -24,10 +24,11 @@ class RegistrationDisplayCard extends StatelessWidget {
           'No function for the delete button provided',
         );
 
-  final CompetitionRegistration registration;
+  final Player player;
+  final Registration registration;
 
   final bool showDeleteButton;
-  final void Function(CompetitionRegistration)? onDelete;
+  final void Function(Registration)? onDelete;
 
   final bool showPartnerInput;
 
@@ -69,6 +70,7 @@ class RegistrationDisplayCard extends StatelessWidget {
                     endIndent: 35,
                   ),
                   _DoublesPartner(
+                    player: player,
                     registration: registration,
                     showPartnerInput: isPartnerRegisterable,
                     showDeleteButton: isRegistrationDeletable,
@@ -96,16 +98,18 @@ class RegistrationDisplayCard extends StatelessWidget {
 
 class _DoublesPartner extends StatelessWidget {
   _DoublesPartner({
+    required this.player,
     required this.registration,
     required this.showPartnerInput,
     required this.showDeleteButton,
   }) : super(
           key: ValueKey<String>(
-            '${registration.player.id}${registration.competition.id}-partnerdisplay',
+            '${registration.getPartner(player)?.id}${registration.competition.id}-partnerdisplay',
           ),
         );
 
-  final CompetitionRegistration registration;
+  final Player player;
+  final Registration registration;
   final bool showPartnerInput;
   final bool showDeleteButton;
 
@@ -113,17 +117,19 @@ class _DoublesPartner extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
     TextStyle textStyle = const TextStyle(fontSize: 12);
-    if (registration.partner == null) {
+    Player? partner = registration.getPartner(player);
+    if (partner == null) {
       if (showPartnerInput) {
         return BlocProvider(
           create: (context) => PartnerRegistrationCubit(
+            player: player,
             registration: registration,
-            playerRepository: context.read<CollectionRepository<Player>>(),
-            competitionRepository:
-                context.read<CollectionRepository<Competition>>(),
-            teamRepository: context.read<CollectionRepository<Team>>(),
+            playerRepository: context.read<ModelStore<Player>>(),
+            teamRepository: context.read<ModelStore<Team>>(),
+            updateTeamEndpoint: context.read<UpdateTeamEndpoint>(),
           ),
           child: _PartnerNameInput(
+            player: player,
             registration: registration,
             showDeleteButton: showDeleteButton,
           ),
@@ -138,7 +144,7 @@ class _DoublesPartner extends StatelessWidget {
     } else {
       return Text(
         l10n.withPartner(
-          display_strings.playerWithClub(registration.partner!),
+          display_strings.playerWithClub(partner),
         ),
         style: textStyle,
         textAlign: TextAlign.center,
@@ -149,11 +155,13 @@ class _DoublesPartner extends StatelessWidget {
 
 class _PartnerNameInput extends StatelessWidget {
   const _PartnerNameInput({
+    required this.player,
     required this.registration,
     required this.showDeleteButton,
   });
 
-  final CompetitionRegistration registration;
+  final Player player;
+  final Registration registration;
   final bool showDeleteButton;
 
   @override
@@ -173,7 +181,7 @@ class _PartnerNameInput extends StatelessWidget {
             children: [
               Expanded(
                 child: PartnerNameInput(
-                  player: registration.player,
+                  player: player,
                   competition: registration.competition,
                   playerCollection:
                       isLoading ? [] : state.getCollection<Player>(),
