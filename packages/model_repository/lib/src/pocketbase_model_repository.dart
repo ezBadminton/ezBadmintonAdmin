@@ -236,5 +236,20 @@ class PocketbaseModelRepository extends ModelRepository {
       modelConstructor: Registration.fromJson,
       pocketBase: _pbProvider.pocketBase,
     );
+    _stores[Schedule] = PocketbaseModelStore<Schedule>(
+      repository: this,
+      modelConstructor: Schedule.fromJson,
+      pocketBase: _pbProvider.pocketBase,
+    );
+    _stores[ScheduledRound] = PocketbaseModelStore<ScheduledRound>(
+      repository: this,
+      modelConstructor: ScheduledRound.fromJson,
+      pocketBase: _pbProvider.pocketBase,
+    );
+    _stores[ScheduledMatch] = PocketbaseModelStore<ScheduledMatch>(
+      repository: this,
+      modelConstructor: ScheduledMatch.fromJson,
+      pocketBase: _pbProvider.pocketBase,
+    );
   }
 }

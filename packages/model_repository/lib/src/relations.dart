@@ -110,6 +110,16 @@ class MultiRelationTieBreakerConverter
   const MultiRelationTieBreakerConverter();
 }
 
+class MultiRelationScheduledMatchConverter
+    extends _MultiRelationConverter<ScheduledMatch> {
+  const MultiRelationScheduledMatchConverter();
+}
+
+class MultiRelationScheduledRoundConverter
+    extends _MultiRelationConverter<ScheduledRound> {
+  const MultiRelationScheduledRoundConverter();
+}
+
 class SingleRelationAgeGroupConverter
     extends _SingleRelationConverter<AgeGroup> {
   const SingleRelationAgeGroupConverter();
@@ -145,4 +155,9 @@ class SingleRelationCompetitionConverter
 
 class SingleRelationTeamConverter extends _SingleRelationConverter<Team> {
   const SingleRelationTeamConverter();
+}
+
+class SingleRelationMatchDataConverter
+    extends _SingleRelationConverter<MatchData> {
+  const SingleRelationMatchDataConverter();
 }

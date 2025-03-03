@@ -1,0 +1,33 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:model_repository/model_repository.dart';
+// ignore: unused_import
+import 'package:flutter/foundation.dart';
+
+part 'generated/player_block.freezed.dart';
+part 'generated/player_block.g.dart';
+
+@freezed
+class PlayerBlock with _$PlayerBlock {
+  const PlayerBlock._();
+
+  const factory PlayerBlock({
+    required String id,
+    required DateTime created,
+    required DateTime updated,
+    required PlayerBlockMode mode,
+    @SingleRelationMatchDataConverter()
+    @JsonKey(name: 'blockingMatch', defaultValue: SingleRelation<MatchData>.new)
+    required SingleRelation<MatchData> blockingMatchRel,
+    DateTime? restUntil,
+  }) = _PlayerBlock;
+
+  MatchData? get blockingMatch => blockingMatchRel.model;
+
+  factory PlayerBlock.fromJson(Map<String, dynamic> json) =>
+      _$PlayerBlockFromJson(json);
+}
+
+enum PlayerBlockMode {
+  playing,
+  resting,
+}

@@ -19,6 +19,7 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
     required ModelStore<Competition> competitionStore,
     required ModelStore<Registration> registrationStore,
     required ModelStore<Tournament> tournamentStore,
+    required ModelStore<Club> clubStore,
     required this.registerEndpoint,
     required this.updateTeamEndpoint,
   }) : super(
@@ -28,6 +29,7 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
             competitionStore,
             registrationStore,
             tournamentStore,
+            clubStore,
           ],
         ) {
     subscribeToCollectionUpdates(

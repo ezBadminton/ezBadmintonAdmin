@@ -87,7 +87,7 @@ class PocketbaseModelStore<M extends Model> extends ModelStore<M> {
       return;
     }
 
-    M? model = _modelConstructor(realtimeEvent.record!.toJson());
+    M model = _modelConstructor(realtimeEvent.record!.toJson());
 
     CollectionUpdateEvent<M> updateEvent = switch (realtimeEvent.action) {
       "create" => CollectionUpdateEvent.create(model),
@@ -285,4 +285,7 @@ const Map<Type, String> _collectionNames = {
   Tournament: 'tournaments',
   TieBreaker: 'tie_breakers',
   Registration: 'registrations',
+  Schedule: 'schedule',
+  ScheduledRound: 'scheduled_rounds',
+  ScheduledMatch: 'scheduled_matches',
 };

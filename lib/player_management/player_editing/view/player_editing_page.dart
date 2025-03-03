@@ -37,6 +37,7 @@ class PlayerEditingPage extends StatelessWidget {
         competitionStore: context.read<ModelStore<Competition>>(),
         registrationStore: context.read<ModelStore<Registration>>(),
         tournamentStore: context.read<ModelStore<Tournament>>(),
+        clubStore: context.read<ModelStore<Club>>(),
         registerEndpoint: context.read<RegisterTeamEndpoint>(),
         updateTeamEndpoint: context.read<UpdateTeamEndpoint>(),
       ),

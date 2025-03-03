@@ -14,3 +14,7 @@ export 'tournament_mode_settings.dart';
 export 'tie_breaker.dart';
 export 'registration.dart';
 export 'withdrawal_preview.dart';
+export 'player_block.dart';
+export 'scheduled_match.dart';
+export 'scheduled_round.dart';
+export 'schedule.dart';
