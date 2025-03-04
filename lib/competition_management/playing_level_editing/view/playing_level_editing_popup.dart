@@ -26,6 +26,7 @@ class PlayingLevelEditingPopup extends StatelessWidget {
         playingLevelRepository: context.read<ModelStore<PlayingLevel>>(),
         competitionRepository: context.read<ModelStore<Competition>>(),
         teamRepository: context.read<ModelStore<Team>>(),
+        reorderEndpoint: context.read<PlayingLevelReorderEndpoint>(),
       ),
       child: Dialog(
         child: ConstrainedBox(
@@ -138,7 +139,7 @@ class _PlayingLevelList extends StatelessWidget {
           PlayingLevel>(
         builder: (context, state, removedPlayingLevel) {
           PlayingLevel noSelectionPlayingLevel =
-              PlayingLevel.newPlayingLevel('', -1);
+              PlayingLevel.newPlayingLevel('');
           List<PlayingLevel> replacementOptions = state
               .getCollection<PlayingLevel>()
               .whereNot((playingLevel) => playingLevel == removedPlayingLevel)

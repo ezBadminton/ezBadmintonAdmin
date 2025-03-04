@@ -21,6 +21,7 @@ class CompetitionSelectionOptions extends StatelessWidget {
     return BlocProvider(
       create: (context) => CompetitionDeletionCubit(
         competitionRepository: context.read<ModelStore<Competition>>(),
+        competitionDeleteEndpoint: context.read<CompetitionDeleteEndpoint>(),
       ),
       child: BlocConsumer<CompetitionSelectionCubit, CompetitionSelectionState>(
         listener: (context, state) {

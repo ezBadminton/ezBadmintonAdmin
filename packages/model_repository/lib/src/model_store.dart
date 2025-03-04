@@ -58,10 +58,6 @@ abstract class ModelStore<M extends Model> {
     Map<String, dynamic> query = const {},
   });
 
-  Future<List<bool>> updateTransaction(
-    List<M> updatedModels,
-  );
-
   /// Deletes an existing instance of [M] identified by its 'id'.
   ///
   /// Optionally [query] parameters can be set.
@@ -69,10 +65,6 @@ abstract class ModelStore<M extends Model> {
     M deletedModel, {
     Map<String, dynamic> query = const {},
   });
-
-  Future<void> deleteTransaction(
-    List<M> deletedModels,
-  );
 
   /// Sends a request to a collection-specific base route concatenated with the
   /// given [route].

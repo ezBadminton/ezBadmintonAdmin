@@ -104,16 +104,6 @@ class CollectionQuerier {
     }
   }
 
-  Future<List<bool>> updateModels<M extends Model>(List<M> models) async {
-    var store = getStore<M>();
-
-    try {
-      return store.updateTransaction(models);
-    } catch (e) {
-      return List<bool>.generate(models.length, (_) => false);
-    }
-  }
-
   /// Updates or creates the given model based on wether it already has an `id`.
   Future<M?> updateOrCreateModel<M extends Model>(
     M model, {
@@ -137,17 +127,6 @@ class CollectionQuerier {
 
     try {
       await store.delete(deletedModel, query: query);
-      return true;
-    } on CollectionQueryException {
-      return false;
-    }
-  }
-
-  Future<bool> deleteModels<M extends Model>(List<M> models) async {
-    var store = getStore<M>();
-
-    try {
-      await store.deleteTransaction(models);
       return true;
     } on CollectionQueryException {
       return false;

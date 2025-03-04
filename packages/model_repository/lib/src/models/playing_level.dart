@@ -27,13 +27,12 @@ class PlayingLevel extends Model with _$PlayingLevel {
 
   factory PlayingLevel.newPlayingLevel(
     String name,
-    int index,
   ) =>
       PlayingLevel(
         id: '',
         created: DateTime.now().toUtc(),
         updated: DateTime.now().toUtc(),
         name: name,
-        index: index,
+        index: 0,
       );
 }

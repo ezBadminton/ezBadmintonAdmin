@@ -137,3 +137,17 @@ class TournamentStopEndpoint extends ApiEndpointRepository {
     required super.modelRepository,
   }) : super(url: "/tournaments/competition/stop");
 }
+
+class CompetitionDeleteEndpoint extends ApiEndpointRepository {
+  CompetitionDeleteEndpoint({
+    required super.pocketBase,
+    required super.modelRepository,
+  }) : super(url: "/competitions");
+}
+
+class PlayingLevelReorderEndpoint extends ApiEndpointRepository {
+  PlayingLevelReorderEndpoint({
+    required super.pocketBase,
+    required super.modelRepository,
+  }) : super(url: "/playinglevels/reorder");
+}

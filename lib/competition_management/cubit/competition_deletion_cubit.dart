@@ -11,12 +11,15 @@ class CompetitionDeletionCubit
     with DialogCubit<CompetitionDeletionState> {
   CompetitionDeletionCubit({
     required ModelStore<Competition> competitionRepository,
+    required this.competitionDeleteEndpoint,
   }) : super(
           modelStores: [
             competitionRepository,
           ],
           CompetitionDeletionState(),
         );
+
+  final CompetitionDeleteEndpoint competitionDeleteEndpoint;
 
   void selectedCompetitionsChanged(List<Competition> selectedCompetitions) {
     emit(state.copyWith(
@@ -43,14 +46,15 @@ class CompetitionDeletionCubit
       return;
     }
 
-    bool competitionsDeleted =
-        await querier.deleteModels(state.selectedCompetitions);
-    if (!competitionsDeleted) {
+    var competitionIds = state.selectedCompetitions.map((c) => c.id).toList();
+    try {
+      await competitionDeleteEndpoint.delete(body: {
+        "competitions": competitionIds,
+      });
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+    } catch (_) {
       emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-      return;
     }
-
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
   }
 
   bool _isSelectionDeletable(List<Competition> selectedCompetitions) {

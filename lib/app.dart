@@ -286,6 +286,18 @@ class _AppState extends State<App> {
             modelRepository: _modelRepository,
           ),
         ),
+        RepositoryProvider.value(
+          value: CompetitionDeleteEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
+          value: PlayingLevelReorderEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
       ],
       child: BlocProvider(
         create: (_) => AuthenticationBloc(

@@ -187,23 +187,6 @@ class PocketbaseModelStore<M extends Model> extends ModelStore<M> {
   }
 
   @override
-  Future<List<bool>> updateTransaction(List<M> updatedModels) async {
-    var transaction = _pocketBase.createBatch();
-    for (M model in updatedModels) {
-      transaction.collection(_collectionName).update(
-            model.id,
-            body: model.toJson(),
-          );
-    }
-    try {
-      var results = await transaction.send();
-      return results.map((r) => r.status == 200).toList();
-    } on ClientException catch (e) {
-      throw CollectionQueryException('${e.statusCode}');
-    }
-  }
-
-  @override
   Future<void> delete(
     M deletedModel, {
     Map<String, dynamic> query = const {},
@@ -213,19 +196,6 @@ class PocketbaseModelStore<M extends Model> extends ModelStore<M> {
             deletedModel.id,
             query: query,
           );
-    } on ClientException catch (e) {
-      throw CollectionQueryException('${e.statusCode}');
-    }
-  }
-
-  @override
-  Future<void> deleteTransaction(List<M> deletedModels) async {
-    var transaction = _pocketBase.createBatch();
-    for (M model in deletedModels) {
-      transaction.collection(_collectionName).delete(model.id);
-    }
-    try {
-      await transaction.send();
     } on ClientException catch (e) {
       throw CollectionQueryException('${e.statusCode}');
     }

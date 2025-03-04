@@ -2,7 +2,6 @@ import 'package:collection/collection.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/competition_management/utils/competition_queries.dart';
-import 'package:ez_badminton_admin_app/utils/list_extension/list_extension.dart';
 import 'package:ez_badminton_admin_app/utils/sorting.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
@@ -21,6 +20,7 @@ class PlayingLevelEditingCubit
     required ModelStore<PlayingLevel> playingLevelRepository,
     required ModelStore<Competition> competitionRepository,
     required ModelStore<Team> teamRepository,
+    required this.reorderEndpoint,
   }) : super(
           modelStores: [
             playingLevelRepository,
@@ -32,6 +32,7 @@ class PlayingLevelEditingCubit
 
   final FocusNode focusNode = FocusNode();
   final TextEditingController controller = TextEditingController();
+  final PlayingLevelReorderEndpoint reorderEndpoint;
 
   @override
   void onCollectionUpdate(
@@ -69,7 +70,6 @@ class PlayingLevelEditingCubit
 
     PlayingLevel newPlayingLevel = PlayingLevel.newPlayingLevel(
       state.playingLevelName.value,
-      state.getCollection<PlayingLevel>().length,
     );
 
     _addPlayingLevel(newPlayingLevel);
@@ -112,22 +112,6 @@ class PlayingLevelEditingCubit
       return;
     }
 
-    List<PlayingLevel> reorderedPlayingLevels = _syncPlayingLevelIndices(
-      state.displayPlayingLevels,
-      removedPlayingLevel: removedPlayingLevel,
-    );
-
-    bool indicesUpdated = await _updateReorderedPlayingLevels(
-      reorderedPlayingLevels,
-    );
-    if (isClosed) {
-      return;
-    }
-    if (!indicesUpdated) {
-      _emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-      return;
-    }
-
     _emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
   }
 
@@ -155,80 +139,19 @@ class PlayingLevelEditingCubit
   }
 
   void playingLevelsReordered(int from, int to) async {
-    if (state.formStatus == FormzSubmissionStatus.inProgress) {
+    if (from == to || state.formStatus == FormzSubmissionStatus.inProgress) {
       return;
     }
-    // Update order of display PlayingLevels
-    List<PlayingLevel> currentPlayingLevels = state.displayPlayingLevels;
 
-    List<PlayingLevel> reorderedPlayingLevels =
-        currentPlayingLevels.moveItem(from, to);
-
-    reorderedPlayingLevels = _syncPlayingLevelIndices(reorderedPlayingLevels);
-
-    _emit(state.copyWith(
-      formStatus: FormzSubmissionStatus.inProgress,
-      displayPlayingLevels: reorderedPlayingLevels,
-    ));
-
-    bool indicesUpdated = await _updateReorderedPlayingLevels(
-      reorderedPlayingLevels,
-    );
-    if (isClosed) {
-      return;
-    }
-    if (!indicesUpdated) {
+    try {
+      await reorderEndpoint.post(body: {
+        "from": from,
+        "to": to,
+      });
+      _emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+    } catch (e) {
       _emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-      return;
     }
-
-    _emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
-  }
-
-  /// Returns a copy of [reorderedPlayingLevels] with the [PlayingLevel]s
-  /// inside having their `index` members synced to their index in the list.
-  ///
-  /// If the indices have to shift because a PlayingLevel was removed, pass the
-  /// [removedPlayingLevel]. It will also be removed from the copy.
-  List<PlayingLevel> _syncPlayingLevelIndices(
-    List<PlayingLevel> reorderedPlayingLevels, {
-    PlayingLevel? removedPlayingLevel,
-  }) {
-    List<PlayingLevel> updatedPlayingLevels = List.of(reorderedPlayingLevels);
-
-    if (removedPlayingLevel != null) {
-      updatedPlayingLevels.remove(removedPlayingLevel);
-    }
-
-    for (int i = 0; i < updatedPlayingLevels.length; i += 1) {
-      if (updatedPlayingLevels[i].index != i) {
-        PlayingLevel reorderedPlayingLevel =
-            updatedPlayingLevels[i].copyWith(index: i);
-        updatedPlayingLevels[i] = reorderedPlayingLevel;
-      }
-    }
-
-    return updatedPlayingLevels;
-  }
-
-  /// Finds [PlayingLevel]s where the `index` was changed in
-  /// [reorderedPlayingLevels] and updates those on the DB.
-  Future<bool> _updateReorderedPlayingLevels(
-    List<PlayingLevel> reorderedPlayingLevels,
-  ) async {
-    List<PlayingLevel> changedPlayingLevels = reorderedPlayingLevels
-        .where((playingLevel) =>
-            state
-                .getCollection<PlayingLevel>()
-                .firstWhere((lvl) => lvl.id == playingLevel.id)
-                .index !=
-            playingLevel.index)
-        .toList();
-
-    List<bool> updatedPlayingLevels =
-        await querier.updateModels(changedPlayingLevels);
-
-    return !updatedPlayingLevels.contains(false);
   }
 
   void playingLevelRenameFormOpened(PlayingLevel playingLevel) {
