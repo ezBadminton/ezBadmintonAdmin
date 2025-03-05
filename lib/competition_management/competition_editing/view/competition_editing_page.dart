@@ -30,7 +30,7 @@ class CompetitionEditingPage extends StatelessWidget {
         competitionRepository: context.read<ModelStore<Competition>>(),
         ageGroupRepository: context.read<ModelStore<AgeGroup>>(),
         playingLevelRepository: context.read<ModelStore<PlayingLevel>>(),
-        tournamentRepository: context.read<ModelStore<Tournament>>(),
+        tournamentRepository: context.read<ModelStore<TournamentEvent>>(),
       ),
       child: const _CompetitionEditingPageScaffold(),
     );
@@ -79,9 +79,11 @@ class _CompetitionEditingPageScaffold extends StatelessWidget {
                 loadingStatus: _getLoadingScreenStatus(state),
                 builder: (_) {
                   bool useAgeGroups =
-                      state.getCollection<Tournament>().first.useAgeGroups;
-                  bool usePlayingLevels =
-                      state.getCollection<Tournament>().first.usePlayingLevels;
+                      state.getCollection<TournamentEvent>().first.useAgeGroups;
+                  bool usePlayingLevels = state
+                      .getCollection<TournamentEvent>()
+                      .first
+                      .usePlayingLevels;
                   bool noCategories = !useAgeGroups && !usePlayingLevels;
                   return SingleChildScrollView(
                     child: Padding(

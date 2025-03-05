@@ -38,7 +38,7 @@ List<Competition> competitions = [
     ],
 ];
 
-Tournament doubleCategorizedTournament = Tournament(
+TournamentEvent doubleCategorizedTournament = TournamentEvent(
   id: 'double',
   created: DateTime.now(),
   updated: DateTime.now(),
@@ -51,7 +51,7 @@ Tournament doubleCategorizedTournament = Tournament(
   queueMode: QueueMode.manual,
 );
 
-Tournament ageGroupCategorizedTournament = Tournament(
+TournamentEvent ageGroupCategorizedTournament = TournamentEvent(
   id: 'ageGroups',
   created: DateTime.now(),
   updated: DateTime.now(),
@@ -64,7 +64,7 @@ Tournament ageGroupCategorizedTournament = Tournament(
   queueMode: QueueMode.manual,
 );
 
-Tournament playingLevelCategorizedTournament = Tournament(
+TournamentEvent playingLevelCategorizedTournament = TournamentEvent(
   id: 'playingLevels',
   created: DateTime.now(),
   updated: DateTime.now(),

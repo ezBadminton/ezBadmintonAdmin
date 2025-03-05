@@ -34,13 +34,8 @@ class MatchData extends Model with _$MatchData {
     required String id,
     required DateTime created,
     required DateTime updated,
-    @MultiRelationMatchSetConverter()
-    @JsonKey(name: 'sets')
-    required MultiRelation<MatchSet> setsRel,
-    @SingleRelationCourtConverter()
-    @JsonKey(name: 'court')
-    required SingleRelation<Court> courtRel,
-    @MultiRelationTeamConverter()
+    @JsonKey(name: 'sets') required MultiRelation<MatchSet> setsRel,
+    @JsonKey(name: 'court') required SingleRelation<Court> courtRel,
     @JsonKey(name: 'withdrawnTeams')
     required MultiRelation<Team> withdrawnTeamsRel,
     @NullableDateTimeConverter() DateTime? courtAssignmentTime,

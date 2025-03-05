@@ -24,9 +24,9 @@ class CompetitionAdditionPreview extends StatelessWidget {
     return BlocBuilder<CompetitionAddingCubit, CompetitionAddingState>(
       builder: (context, state) {
         bool useAgeGroups =
-            state.getCollection<Tournament>().first.useAgeGroups;
+            state.getCollection<TournamentEvent>().first.useAgeGroups;
         bool usePlayingLevels =
-            state.getCollection<Tournament>().first.usePlayingLevels;
+            state.getCollection<TournamentEvent>().first.usePlayingLevels;
         bool noCategories = !useAgeGroups && !usePlayingLevels;
 
         List<_CategoryTuple> previewList = _buildPreviewList(

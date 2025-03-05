@@ -44,7 +44,7 @@ var playingLevels = List<PlayingLevel>.generate(
 void main() {
   late ModelStore<PlayingLevel> playingLevelRepository;
   late ModelStore<AgeGroup> ageGroupRepository;
-  late ModelStore<Tournament> tournamentRepository;
+  late ModelStore<TournamentEvent> tournamentRepository;
   late List<PredicateProducer> producers;
   late AgeGroupPredicateProducer ageGroupPredicateProducer;
   late GenderCategoryPredicateProducer genderPredicateProducer;

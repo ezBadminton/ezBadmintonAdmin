@@ -83,9 +83,9 @@ class _CompetitionList extends StatelessWidget {
       },
       builder: (context, state) {
         bool useAgeGroups =
-            state.getCollection<Tournament>().first.useAgeGroups;
+            state.getCollection<TournamentEvent>().first.useAgeGroups;
         bool usePlayingLevels =
-            state.getCollection<Tournament>().first.usePlayingLevels;
+            state.getCollection<TournamentEvent>().first.usePlayingLevels;
 
         return Column(
           children: [
@@ -589,14 +589,15 @@ class _MissingCategoriesHint extends StatelessWidget {
   }
 
   static bool _areAgeGroupsMissing(CompetitionListState state) {
-    bool useAgeGroups = state.getCollection<Tournament>().first.useAgeGroups;
+    bool useAgeGroups =
+        state.getCollection<TournamentEvent>().first.useAgeGroups;
     List<AgeGroup> ageGroups = state.getCollection<AgeGroup>();
     return useAgeGroups && ageGroups.isEmpty;
   }
 
   static bool _arePlayingLevelsMissing(CompetitionListState state) {
     bool usePlayingLevels =
-        state.getCollection<Tournament>().first.usePlayingLevels;
+        state.getCollection<TournamentEvent>().first.usePlayingLevels;
     List<PlayingLevel> playingLevels = state.getCollection<PlayingLevel>();
     return usePlayingLevels && playingLevels.isEmpty;
   }

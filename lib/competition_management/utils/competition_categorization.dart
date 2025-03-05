@@ -18,7 +18,7 @@ import 'package:ez_badminton_admin_app/competition_management/models/playing_cat
 /// * `U19 beginner`
 /// * `U19 pro`
 List<PlayingCategory> getPossiblePlayingCategories(
-  Tournament tournament,
+  TournamentEvent tournament,
   List<AgeGroup> ageGroups,
   List<PlayingLevel> playingLevels,
 ) {

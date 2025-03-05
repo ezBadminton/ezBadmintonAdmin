@@ -13,7 +13,7 @@ class CompetitionListCubit extends CollectionQuerierCubit<CompetitionListState>
     implements SortedListCubit<Competition, CompetitionListState> {
   CompetitionListCubit({
     required ModelStore<Competition> competitionRepository,
-    required ModelStore<Tournament> tournamentRepository,
+    required ModelStore<TournamentEvent> tournamentRepository,
     required ModelStore<AgeGroup> ageGroupRepository,
     required ModelStore<PlayingLevel> playingLevelRepository,
   }) : super(

@@ -25,7 +25,7 @@ class CompetitionCategorizationState extends CollectionQuerierState
   @override
   final List<List<Model>> collections;
 
-  Tournament get tournament => getCollection<Tournament>().first;
+  TournamentEvent get tournament => getCollection<TournamentEvent>().first;
 
   CompetitionCategorizationState copyWith({
     LoadingStatus? loadingStatus,
@@ -46,8 +46,9 @@ class CompetitionCategorizationState extends CollectionQuerierState
   }
 
   static bool _debugOnlyOneTournament(List<List<Model>>? collections) {
-    List<Tournament>? tournaments = collections
-        ?.firstWhereOrNull((c) => c is List<Tournament>) as List<Tournament>?;
+    List<TournamentEvent>? tournaments =
+        collections?.firstWhereOrNull((c) => c is List<TournamentEvent>)
+            as List<TournamentEvent>?;
     if (tournaments != null && tournaments.length > 1) {
       return false;
     }

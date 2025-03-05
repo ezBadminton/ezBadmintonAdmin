@@ -19,7 +19,6 @@ class Team extends Model with _$Team {
     required String id,
     required DateTime created,
     required DateTime updated,
-    @MultiRelationPlayerConverter()
     @JsonKey(name: 'players')
     required MultiRelation<Player> playersRel,
     required bool resigned,

@@ -39,7 +39,7 @@ class PlayerListPage extends StatelessWidget {
             searchPredicateProducer: SearchPredicateProducer(),
             playingLevelRepository: context.read<ModelStore<PlayingLevel>>(),
             ageGroupRepository: context.read<ModelStore<AgeGroup>>(),
-            tournamentRepository: context.read<ModelStore<Tournament>>(),
+            tournamentRepository: context.read<ModelStore<TournamentEvent>>(),
           ),
         ),
         BlocProvider(
@@ -55,7 +55,7 @@ class PlayerListPage extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => UniqueCompetitionFilterCubit(
-            tournamentRepository: context.read<ModelStore<Tournament>>(),
+            tournamentRepository: context.read<ModelStore<TournamentEvent>>(),
             competitionRepository: context.read<ModelStore<Competition>>(),
           ),
         ),

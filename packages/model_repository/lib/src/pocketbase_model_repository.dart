@@ -226,9 +226,9 @@ class PocketbaseModelRepository extends ModelRepository {
       modelConstructor: TournamentModeSettings.fromJson,
       pocketBase: _pbProvider.pocketBase,
     );
-    _stores[Tournament] = PocketbaseModelStore<Tournament>(
+    _stores[TournamentEvent] = PocketbaseModelStore<TournamentEvent>(
       repository: this,
-      modelConstructor: Tournament.fromJson,
+      modelConstructor: TournamentEvent.fromJson,
       pocketBase: _pbProvider.pocketBase,
     );
     _stores[Registration] = PocketbaseModelStore<Registration>(
@@ -249,6 +249,11 @@ class PocketbaseModelRepository extends ModelRepository {
     _stores[ScheduledMatch] = PocketbaseModelStore<ScheduledMatch>(
       repository: this,
       modelConstructor: ScheduledMatch.fromJson,
+      pocketBase: _pbProvider.pocketBase,
+    );
+    _stores[TournamentPlan] = PocketbaseModelStore<TournamentPlan>(
+      repository: this,
+      modelConstructor: TournamentPlan.fromJson,
       pocketBase: _pbProvider.pocketBase,
     );
   }

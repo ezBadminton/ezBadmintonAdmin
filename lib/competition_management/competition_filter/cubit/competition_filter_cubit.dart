@@ -20,7 +20,7 @@ class CompetitionFilterCubit
   CompetitionFilterCubit({
     required ModelStore<AgeGroup> ageGroupRepository,
     required ModelStore<PlayingLevel> playingLevelRepository,
-    required ModelStore<Tournament> tournamentRepository,
+    required ModelStore<TournamentEvent> tournamentRepository,
     required AgeGroupPredicateProducer ageGroupPredicateProducer,
     required PlayingLevelPredicateProducer playingLevelPredicateProducer,
     required RegistrationCountPredicateProducer

@@ -40,7 +40,7 @@ void main() {
 
   late ModelStore<AgeGroup> ageGroupRepository;
   late ModelStore<PlayingLevel> playingLevelRepository;
-  late ModelStore<Tournament> tournamentRepository;
+  late ModelStore<TournamentEvent> tournamentRepository;
   late AgeGroupPredicateProducer ageGroupPredicateProducer;
   late PlayingLevelPredicateProducer playingLevelPredicateProducer;
   late RegistrationCountPredicateProducer registrationCountPredicateProducer;
@@ -51,7 +51,7 @@ void main() {
     ageGroupRepository = TestModelStore<AgeGroup>();
     playingLevelRepository = TestModelStore<PlayingLevel>();
 
-    Tournament tournament = Tournament(
+    TournamentEvent tournament = TournamentEvent(
       id: 'tournament',
       created: DateTime.now(),
       updated: DateTime.now(),
@@ -64,7 +64,7 @@ void main() {
       queueMode: QueueMode.manual,
     );
 
-    tournamentRepository = TestModelStore<Tournament>(
+    tournamentRepository = TestModelStore<TournamentEvent>(
       initialCollection: [tournament],
     );
   }

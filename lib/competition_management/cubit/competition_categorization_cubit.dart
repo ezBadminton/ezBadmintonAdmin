@@ -15,7 +15,7 @@ class CompetitionCategorizationCubit
         RemovedCategoryCompetitionManagement<CompetitionCategorizationState> {
   CompetitionCategorizationCubit({
     required this.l10n,
-    required ModelStore<Tournament> tournamentRepository,
+    required ModelStore<TournamentEvent> tournamentRepository,
     required ModelStore<Competition> competitionRepository,
     required ModelStore<AgeGroup> ageGroupRepository,
     required ModelStore<PlayingLevel> playingLevelRepository,
@@ -45,21 +45,21 @@ class CompetitionCategorizationCubit
   }
 
   void useAgeGroupsChanged(bool useAgeGroups) {
-    Tournament updatedTournament = state.tournament.copyWith(
+    TournamentEvent updatedTournament = state.tournament.copyWith(
       useAgeGroups: useAgeGroups,
     );
     _updateCategorization<AgeGroup>(updatedTournament);
   }
 
   void usePlayingLevelsChanged(bool usePlayingLevels) {
-    Tournament updatedTournament = state.tournament.copyWith(
+    TournamentEvent updatedTournament = state.tournament.copyWith(
       usePlayingLevels: usePlayingLevels,
     );
     _updateCategorization<PlayingLevel>(updatedTournament);
   }
 
   void _updateCategorization<C extends Model>(
-    Tournament updatedTournament,
+    TournamentEvent updatedTournament,
   ) async {
     assert(C == AgeGroup || C == PlayingLevel);
     if (state.formStatus == FormzSubmissionStatus.inProgress) {
@@ -84,7 +84,7 @@ class CompetitionCategorizationCubit
       return;
     }
 
-    Tournament? updatedTournamentFromDB =
+    TournamentEvent? updatedTournamentFromDB =
         await querier.updateModel(updatedTournament);
     if (updatedTournamentFromDB == null) {
       emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));

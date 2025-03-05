@@ -14,7 +14,6 @@ class Schedule extends Model with _$Schedule {
     required String id,
     required DateTime created,
     required DateTime updated,
-    @MultiRelationScheduledRoundConverter()
     @JsonKey(name: 'roundQueue')
     required MultiRelation<ScheduledRound> roundQueueRel,
   }) = _Schedule;

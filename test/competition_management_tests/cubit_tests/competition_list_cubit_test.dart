@@ -35,20 +35,20 @@ List<Competition> competitions = [
 
 void main() {
   late ModelStore<Competition> competitionRepository;
-  late ModelStore<Tournament> tournamentRepository;
+  late ModelStore<TournamentEvent> tournamentRepository;
   late ModelStore<AgeGroup> ageGroupRepository;
   late ModelStore<PlayingLevel> playingLevelRepository;
 
   void arrangeRepositories({
     List<Competition> competitions = const [],
-    List<Tournament> tournaments = const [],
+    List<TournamentEvent> tournaments = const [],
     List<AgeGroup> ageGroups = const [],
     List<PlayingLevel> playingLevels = const [],
   }) {
     competitionRepository = TestModelStore<Competition>(
       initialCollection: competitions,
     );
-    tournamentRepository = TestModelStore<Tournament>(
+    tournamentRepository = TestModelStore<TournamentEvent>(
       initialCollection: tournaments,
     );
     ageGroupRepository = TestModelStore<AgeGroup>(

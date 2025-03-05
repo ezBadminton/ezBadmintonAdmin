@@ -15,7 +15,6 @@ class PlayerBlock with _$PlayerBlock {
     required DateTime created,
     required DateTime updated,
     required PlayerBlockMode mode,
-    @SingleRelationMatchDataConverter()
     @JsonKey(name: 'blockingMatch', defaultValue: SingleRelation<MatchData>.new)
     required SingleRelation<MatchData> blockingMatchRel,
     DateTime? restUntil,

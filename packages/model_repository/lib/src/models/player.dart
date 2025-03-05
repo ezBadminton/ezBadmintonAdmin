@@ -19,7 +19,6 @@ class Player extends Model with _$Player {
     required String firstName,
     required String lastName,
     String? notes,
-    @SingleRelationClubConverter()
     @JsonKey(name: 'club')
     required SingleRelation<Club> clubRel,
     required PlayerStatus status,

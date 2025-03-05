@@ -16,7 +16,7 @@ class CompetitionAddingCubit
     required ModelStore<Competition> competitionRepository,
     required ModelStore<AgeGroup> ageGroupRepository,
     required ModelStore<PlayingLevel> playingLevelRepository,
-    required ModelStore<Tournament> tournamentRepository,
+    required ModelStore<TournamentEvent> tournamentRepository,
   }) : super(
           modelStores: [
             competitionRepository,
@@ -142,7 +142,7 @@ class CompetitionAddingCubit
   ) {
     List<Competition> existingCompetitions = state.getCollection<Competition>();
 
-    Tournament tournament = state.getCollection<Tournament>().first;
+    TournamentEvent tournament = state.getCollection<TournamentEvent>().first;
 
     List<PlayingCategory> possibleCategories = getPossiblePlayingCategories(
       tournament,
@@ -271,9 +271,10 @@ class CompetitionAddingCubit
   ) {
     List<PlayingCategory> selectedPlayingCategories = [];
 
-    bool useAgeGroups = state.getCollection<Tournament>().first.useAgeGroups;
+    bool useAgeGroups =
+        state.getCollection<TournamentEvent>().first.useAgeGroups;
     bool usePlayingLevels =
-        state.getCollection<Tournament>().first.usePlayingLevels;
+        state.getCollection<TournamentEvent>().first.usePlayingLevels;
 
     if (useAgeGroups == state.ageGroups.isNotEmpty &&
         usePlayingLevels == state.playingLevels.isNotEmpty) {
@@ -371,7 +372,8 @@ class CompetitionAddingCubit
   }
 
   static bool _isSubmittable(CompetitionAddingState state) {
-    Tournament? tournament = state.getCollection<Tournament>().firstOrNull;
+    TournamentEvent? tournament =
+        state.getCollection<TournamentEvent>().firstOrNull;
     if (tournament == null) {
       return false;
     }

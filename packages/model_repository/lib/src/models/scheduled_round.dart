@@ -14,11 +14,9 @@ class ScheduledRound extends Model with _$ScheduledRound {
     required String id,
     required DateTime created,
     required DateTime updated,
-    @MultiRelationScheduledMatchConverter()
     @JsonKey(name: 'matches')
     required MultiRelation<ScheduledMatch> matchesRel,
     required int roundIndex,
-    @SingleRelationCompetitionConverter()
     @JsonKey(name: 'competition')
     required SingleRelation<Competition> competitionRel,
   }) = _ScheduledRound;

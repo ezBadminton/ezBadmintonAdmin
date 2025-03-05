@@ -17,10 +17,8 @@ class Registration extends Model with _$Registration {
     required String id,
     required DateTime created,
     required DateTime updated,
-    @SingleRelationCompetitionConverter()
     @JsonKey(name: 'competition')
     required SingleRelation<Competition> competitionRel,
-    @SingleRelationTeamConverter()
     @JsonKey(name: 'team')
     required SingleRelation<Team> teamRel,
     required bool withdrawn,

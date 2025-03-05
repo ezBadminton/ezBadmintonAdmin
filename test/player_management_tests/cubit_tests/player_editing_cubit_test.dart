@@ -85,7 +85,7 @@ class TestPlayerEditingCubit extends PlayerEditingCubit {
     required ModelStore<Club> clubRepository,
     required ModelStore<PlayingLevel> playingLevelRepository,
     required ModelStore<Team> teamRepository,
-    required ModelStore<Tournament> tournamentRepository,
+    required ModelStore<TournamentEvent> tournamentRepository,
   }) : super(
           player: player,
           playerStore: playerRepository,
@@ -104,7 +104,7 @@ void main() {
   late ModelStore<Club> clubRepository;
   late ModelStore<PlayingLevel> playingLevelRepository;
   late ModelStore<Team> teamRepository;
-  late ModelStore<Tournament> tournamentRepository;
+  late ModelStore<TournamentEvent> tournamentRepository;
 
   var player = Player.newPlayer().copyWith(
     id: 'playerid',

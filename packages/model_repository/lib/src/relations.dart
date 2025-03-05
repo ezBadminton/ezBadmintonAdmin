@@ -1,4 +1,3 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:model_repository/model_repository.dart';
 
 abstract class Relation {
@@ -29,6 +28,14 @@ class SingleRelation<M extends Model> implements Relation {
 
     model = modelStore.getModel(relationId) as M;
   }
+
+  factory SingleRelation.fromJson(String relationId) {
+    return SingleRelation<M>(relationId: relationId);
+  }
+
+  String toJson() {
+    return relationId;
+  }
 }
 
 class MultiRelation<M extends Model> implements Relation {
@@ -52,112 +59,13 @@ class MultiRelation<M extends Model> implements Relation {
 
     models = relationIds.map((e) => modelStore.getModel(e)!).toList();
   }
-}
 
-class _SingleRelationConverter<M extends Model>
-    implements JsonConverter<SingleRelation<M>, String> {
-  const _SingleRelationConverter();
-
-  @override
-  SingleRelation<M> fromJson(String relationId) {
-    return SingleRelation(relationId: relationId);
-  }
-
-  @override
-  String toJson(SingleRelation<M> relationPointer) {
-    return relationPointer.relationId;
-  }
-}
-
-class _MultiRelationConverter<M extends Model>
-    implements JsonConverter<MultiRelation<M>, List> {
-  const _MultiRelationConverter();
-
-  @override
-  MultiRelation<M> fromJson(List relationIds) {
+  factory MultiRelation.fromJson(List relationIds) {
     List<String> stringIds = relationIds.cast<String>();
-    return MultiRelation(relationIds: stringIds);
+    return MultiRelation<M>(relationIds: stringIds);
   }
 
-  @override
-  List<String> toJson(MultiRelation<M> relationPointer) {
-    return relationPointer.relationIds;
+  List<String> toJson() {
+    return relationIds;
   }
-}
-
-// Sadly cannot use the generic converter directly because json_annotation
-// does not support generic converters. So we manually type every converter:
-
-class MultiRelationTeamConverter extends _MultiRelationConverter<Team> {
-  const MultiRelationTeamConverter();
-}
-
-class MultiRelationPlayerConverter extends _MultiRelationConverter<Player> {
-  const MultiRelationPlayerConverter();
-}
-
-class MultiRelationMatchDataConverter
-    extends _MultiRelationConverter<MatchData> {
-  const MultiRelationMatchDataConverter();
-}
-
-class MultiRelationMatchSetConverter extends _MultiRelationConverter<MatchSet> {
-  const MultiRelationMatchSetConverter();
-}
-
-class MultiRelationTieBreakerConverter
-    extends _MultiRelationConverter<TieBreaker> {
-  const MultiRelationTieBreakerConverter();
-}
-
-class MultiRelationScheduledMatchConverter
-    extends _MultiRelationConverter<ScheduledMatch> {
-  const MultiRelationScheduledMatchConverter();
-}
-
-class MultiRelationScheduledRoundConverter
-    extends _MultiRelationConverter<ScheduledRound> {
-  const MultiRelationScheduledRoundConverter();
-}
-
-class SingleRelationAgeGroupConverter
-    extends _SingleRelationConverter<AgeGroup> {
-  const SingleRelationAgeGroupConverter();
-}
-
-class SingleRelationPlayingLevelConverter
-    extends _SingleRelationConverter<PlayingLevel> {
-  const SingleRelationPlayingLevelConverter();
-}
-
-class SingleRelationClubConverter extends _SingleRelationConverter<Club> {
-  const SingleRelationClubConverter();
-}
-
-class SingleRelationCourtConverter extends _SingleRelationConverter<Court> {
-  const SingleRelationCourtConverter();
-}
-
-class SingleRelationTournamentModeSettingsConverter
-    extends _SingleRelationConverter<TournamentModeSettings> {
-  const SingleRelationTournamentModeSettingsConverter();
-}
-
-class SingleRelationGymnasiumConverter
-    extends _SingleRelationConverter<Gymnasium> {
-  const SingleRelationGymnasiumConverter();
-}
-
-class SingleRelationCompetitionConverter
-    extends _SingleRelationConverter<Competition> {
-  const SingleRelationCompetitionConverter();
-}
-
-class SingleRelationTeamConverter extends _SingleRelationConverter<Team> {
-  const SingleRelationTeamConverter();
-}
-
-class SingleRelationMatchDataConverter
-    extends _SingleRelationConverter<MatchData> {
-  const SingleRelationMatchDataConverter();
 }

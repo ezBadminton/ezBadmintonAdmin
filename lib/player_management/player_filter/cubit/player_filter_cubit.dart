@@ -20,7 +20,7 @@ class PlayerFilterCubit extends CollectionQuerierCubit<PlayerFilterState>
   PlayerFilterCubit({
     required ModelStore<PlayingLevel> playingLevelRepository,
     required ModelStore<AgeGroup> ageGroupRepository,
-    required ModelStore<Tournament> tournamentRepository,
+    required ModelStore<TournamentEvent> tournamentRepository,
     required AgeGroupPredicateProducer ageGroupPredicateProducer,
     required PlayingLevelPredicateProducer playingLevelPredicateProducer,
     required GenderCategoryPredicateProducer genderPredicateProducer,

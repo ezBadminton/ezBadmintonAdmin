@@ -131,7 +131,7 @@ class _AppState extends State<App> {
       providers: [
         RepositoryProvider.value(value: _authenticationRepository),
         RepositoryProvider.value(
-          value: _modelRepository.findStore<Tournament>(),
+          value: _modelRepository.findStore<TournamentEvent>(),
         ),
         RepositoryProvider.value(
           value: _modelRepository.findStore<PlayingLevel>(),

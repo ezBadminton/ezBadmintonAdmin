@@ -16,7 +16,6 @@ class ScheduledMatch extends Model with _$ScheduledMatch {
     required String id,
     required DateTime created,
     required DateTime updated,
-    @SingleRelationMatchDataConverter()
     @JsonKey(name: 'match')
     required SingleRelation<MatchData> matchRel,
     required ScheduleStatus status,

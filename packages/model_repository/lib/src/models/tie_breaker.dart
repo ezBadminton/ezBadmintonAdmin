@@ -12,7 +12,6 @@ class TieBreaker extends Model with _$TieBreaker {
     required String id,
     required DateTime created,
     required DateTime updated,
-    @MultiRelationTeamConverter()
     @JsonKey(name: 'tieBreakerRanking')
     required MultiRelation<Team> tieBreakerRankingRel,
   }) = _TieBreaker;

@@ -17,7 +17,7 @@ class MockAppLocalizations extends Mock implements AppLocalizations {}
 
 void main() {
   late AppLocalizations l10n;
-  late ModelStore<Tournament> tournamentRepository;
+  late ModelStore<TournamentEvent> tournamentRepository;
   late ModelStore<Competition> competitionRepository;
   late ModelStore<AgeGroup> ageGroupRepository;
   late ModelStore<PlayingLevel> playingLevelRepository;
@@ -38,7 +38,7 @@ void main() {
     bool useAgeGroups = true,
     bool usePlayingLevels = true,
   }) {
-    Tournament tournament = Tournament(
+    TournamentEvent tournament = TournamentEvent(
       id: 'tournament',
       created: DateTime.now(),
       updated: DateTime.now(),
@@ -51,7 +51,7 @@ void main() {
       queueMode: QueueMode.manual,
     );
 
-    tournamentRepository = TestModelStore<Tournament>(
+    tournamentRepository = TestModelStore<TournamentEvent>(
       initialCollection: [tournament],
       throwing: throwing,
       loadTime: loadTime,
@@ -130,20 +130,20 @@ void main() {
         HasFormStatus(FormzSubmissionStatus.inProgress),
         HasFormStatus(FormzSubmissionStatus.success),
         allOf(
-          HasCollection<Tournament>(
+          HasCollection<TournamentEvent>(
             hasLength(1),
           ),
-          HasCollection<Tournament>(
+          HasCollection<TournamentEvent>(
             contains(HasAgeGroupCategorization(isTrue)),
           ),
         ),
         HasFormStatus(FormzSubmissionStatus.inProgress),
         HasFormStatus(FormzSubmissionStatus.success),
         allOf(
-          HasCollection<Tournament>(
+          HasCollection<TournamentEvent>(
             hasLength(1),
           ),
-          HasCollection<Tournament>(
+          HasCollection<TournamentEvent>(
             contains(HasPlayingLevelCategorization(isTrue)),
           ),
         ),

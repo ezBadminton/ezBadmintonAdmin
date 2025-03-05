@@ -59,7 +59,8 @@ class CompetitionFilterMenus extends StatelessWidget {
       buildWhen: (previous, current) =>
           previous.collections != current.collections,
       builder: (context, state) {
-        Tournament tournament = state.getCollection<Tournament>().first;
+        TournamentEvent tournament =
+            state.getCollection<TournamentEvent>().first;
         bool showAgeGroupFilter = tournament.useAgeGroups;
         bool showPlayingLevelFilter = tournament.usePlayingLevels;
         return Row(

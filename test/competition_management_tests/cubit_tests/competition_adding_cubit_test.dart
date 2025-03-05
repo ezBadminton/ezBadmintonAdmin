@@ -121,7 +121,7 @@ void main() {
   late ModelStore<Competition> competitionRepository;
   late ModelStore<AgeGroup> ageGroupRepository;
   late ModelStore<PlayingLevel> playingLevelRepository;
-  late ModelStore<Tournament> tournamentRepository;
+  late ModelStore<TournamentEvent> tournamentRepository;
 
   void arrangeRepositories({
     bool throwing = false,
@@ -145,7 +145,7 @@ void main() {
       throwing: throwing,
     );
 
-    Tournament tournament = Tournament(
+    TournamentEvent tournament = TournamentEvent(
       id: 'test-tournament',
       created: DateTime.now(),
       updated: DateTime.now(),

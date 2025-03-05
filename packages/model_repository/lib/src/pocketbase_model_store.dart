@@ -252,10 +252,11 @@ const Map<Type, String> _collectionNames = {
   PlayingLevel: 'playing_levels',
   Team: 'teams',
   TournamentModeSettings: 'tournament_mode_settings',
-  Tournament: 'tournaments',
+  TournamentEvent: 'tournaments',
   TieBreaker: 'tie_breakers',
   Registration: 'registrations',
   Schedule: 'schedule',
   ScheduledRound: 'scheduled_rounds',
   ScheduledMatch: 'scheduled_matches',
+  TournamentPlan: 'tournamentplans',
 };

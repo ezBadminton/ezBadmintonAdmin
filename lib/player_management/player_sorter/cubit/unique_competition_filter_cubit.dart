@@ -17,7 +17,7 @@ part 'unique_competition_filter_state.dart';
 class UniqueCompetitionFilterCubit
     extends CollectionQuerierCubit<UniqueCompetitionFilterState> {
   UniqueCompetitionFilterCubit({
-    required ModelStore<Tournament> tournamentRepository,
+    required ModelStore<TournamentEvent> tournamentRepository,
     required ModelStore<Competition> competitionRepository,
   }) : super(
           modelStores: [
@@ -56,7 +56,7 @@ class UniqueCompetitionFilterCubit
 
     List<FilterPredicate> competitionFilters = filterPredicates[Competition]!;
 
-    Tournament tournament = state.getCollection<Tournament>().first;
+    TournamentEvent tournament = state.getCollection<TournamentEvent>().first;
     bool usePlayingLevels = tournament.usePlayingLevels;
     bool useAgeGroups = tournament.useAgeGroups;
 

@@ -22,28 +22,20 @@ class Competition extends Model with _$Competition {
     required DateTime updated,
     required int teamSize,
     required GenderCategory genderCategory,
-    @SingleRelationAgeGroupConverter()
     @JsonKey(name: 'ageGroup')
     required SingleRelation<AgeGroup> ageGroupRel,
-    @SingleRelationPlayingLevelConverter()
     @JsonKey(name: 'playingLevel')
     required SingleRelation<PlayingLevel> playingLevelRel,
-    @MultiRelationTeamConverter()
     @JsonKey(name: 'registrations')
     required MultiRelation<Team> registrationsRel,
-    @SingleRelationTournamentModeSettingsConverter()
     @JsonKey(name: 'tournamentModeSettings')
     required SingleRelation<TournamentModeSettings> tournamentModeSettingsRel,
-    @MultiRelationTeamConverter()
     @JsonKey(name: 'seeds')
     required MultiRelation<Team> seedsRel,
-    @MultiRelationTeamConverter()
     @JsonKey(name: 'draw')
     required MultiRelation<Team> drawRel,
-    @MultiRelationMatchDataConverter()
     @JsonKey(name: 'matches')
     required MultiRelation<MatchData> matchesRel,
-    @MultiRelationTieBreakerConverter()
     @JsonKey(name: 'tieBreakers')
     required MultiRelation<TieBreaker> tieBreakersRel,
     required int rngSeed,

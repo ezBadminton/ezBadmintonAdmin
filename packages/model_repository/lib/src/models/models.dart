@@ -1,5 +1,5 @@
 export 'model.dart';
-export 'tournament.dart';
+export 'tournament_event.dart';
 export 'club.dart';
 export 'playing_level.dart';
 export 'player.dart';
@@ -18,3 +18,5 @@ export 'player_block.dart';
 export 'scheduled_match.dart';
 export 'scheduled_round.dart';
 export 'schedule.dart';
+export 'tournament.dart';
+export 'tournament_plan.dart';
