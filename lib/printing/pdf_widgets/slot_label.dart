@@ -1,0 +1,85 @@
+import 'package:model_repository/model_repository.dart';
+import 'package:pdf/widgets.dart' as pw;
+
+class SlotLabel extends pw.StatelessWidget {
+  SlotLabel({
+    required this.slot,
+    this.textStyle,
+    this.crossAxisAlignment,
+    this.placeholder,
+    this.byePlaceholder,
+  });
+
+  final Slot slot;
+
+  final pw.TextStyle? textStyle;
+
+  final pw.CrossAxisAlignment? crossAxisAlignment;
+
+  final pw.Widget? placeholder;
+
+  final pw.Widget? byePlaceholder;
+
+  @override
+  pw.Widget build(pw.Context context) {
+    pw.AlignmentDirectional alignment = switch (crossAxisAlignment) {
+      pw.CrossAxisAlignment.start => pw.AlignmentDirectional.centerStart,
+      _ => pw.AlignmentDirectional.centerEnd,
+    };
+
+    if (byePlaceholder != null && slot.isBye) {
+      return pw.Align(
+        alignment: alignment,
+        child: byePlaceholder!,
+      );
+    }
+
+    Team? team = slot.team;
+
+    if (team == null) {
+      if (placeholder == null) {
+        return pw.SizedBox();
+      } else {
+        return pw.Align(
+          alignment: alignment,
+          child: placeholder,
+        );
+      }
+    }
+
+    return pw.Column(
+      mainAxisSize: pw.MainAxisSize.min,
+      crossAxisAlignment: crossAxisAlignment ?? pw.CrossAxisAlignment.end,
+      children: [
+        for (Player p in team.players) _buildPlayerName(p),
+      ],
+    );
+  }
+
+  pw.RichText _buildPlayerName(Player player) {
+    pw.TextStyle textStyle = this.textStyle ?? pw.TextStyle.defaultStyle();
+
+    double lastNameFontSize =
+        textStyle.fontSize == null ? 12 : textStyle.fontSize! + 1.5;
+
+    return pw.RichText(
+      overflow: pw.TextOverflow.clip,
+      text: pw.TextSpan(
+        style: textStyle,
+        children: [
+          pw.TextSpan(
+            text: player.firstName,
+          ),
+          const pw.TextSpan(text: ' '),
+          pw.TextSpan(
+            text: player.lastName,
+            style: textStyle.copyWith(
+              fontSize: lastNameFontSize,
+              fontWeight: pw.FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

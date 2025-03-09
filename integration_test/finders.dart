@@ -2,7 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/app.dart';
 import 'package:ez_badminton_admin_app/player_management/player_editing/view/registration_display_card.dart';
-import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/slot_label.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -61,7 +61,7 @@ Finder findRegistrationCard(
 }
 
 Element findHighestMatchParticipantLabel() {
-  Finder finder = find.byType(MatchParticipantLabel);
+  Finder finder = find.byType(SlotLabel);
 
   Iterable<Element> elements = finder.evaluate();
 

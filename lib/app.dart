@@ -155,7 +155,7 @@ class _AppState extends State<App> {
           value: _modelRepository.findStore<MatchSet>(),
         ),
         RepositoryProvider.value(
-          value: _modelRepository.findStore<MatchData>(),
+          value: _modelRepository.findStore<TournamentMatch>(),
         ),
         RepositoryProvider.value(
           value: _modelRepository.findStore<TieBreaker>(),
@@ -171,6 +171,15 @@ class _AppState extends State<App> {
         ),
         RepositoryProvider.value(
           value: _modelRepository.findStore<Registration>(),
+        ),
+        RepositoryProvider.value(
+          value: _modelRepository.findStore<Schedule>(),
+        ),
+        RepositoryProvider.value(
+          value: _modelRepository.findStore<ScheduledRound>(),
+        ),
+        RepositoryProvider.value(
+          value: _modelRepository.findStore<ScheduledMatch>(),
         ),
         RepositoryProvider.value(
           value: WithdrawalPreviewEndpoint(

@@ -16,7 +16,7 @@ class PlayerParticipationDialog extends StatelessWidget {
     this.content,
   });
 
-  final Map<Competition, List<MatchData>> matchList;
+  final Map<Competition, List<TournamentMatch>> matchList;
 
   final Widget title;
   final Widget? content;
@@ -72,7 +72,7 @@ class _PlayerParticipationMenu extends StatelessWidget {
     required this.currentWalkovers,
   });
 
-  final Map<Competition, List<MatchData>> currentWalkovers;
+  final Map<Competition, List<TournamentMatch>> currentWalkovers;
 
   @override
   Widget build(BuildContext context) {
@@ -157,7 +157,7 @@ class _MatchInfo extends StatelessWidget {
     required this.match,
   });
 
-  final MatchData match;
+  final TournamentMatch match;
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +167,7 @@ class _MatchInfo extends StatelessWidget {
     return Row(
       children: [
         Text(
-          "MatchData ID: " + match.id,
+          "MatchData ID: ${match.id}",
           style: const TextStyle(fontSize: 14),
         ),
       ],

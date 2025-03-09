@@ -16,14 +16,14 @@ class ScheduledMatch extends Model with _$ScheduledMatch {
     required String id,
     required DateTime created,
     required DateTime updated,
-    @JsonKey(name: 'match')
-    required SingleRelation<MatchData> matchRel,
+    @JsonKey(name: 'match') required SingleRelation<TournamentMatch> matchRel,
     required ScheduleStatus status,
     @_BlockingPlayersConverter()
     @JsonKey(name: 'blockingPlayers')
     required BlockMap blockingPlayersRel,
   }) = _ScheduledMatch;
 
+  TournamentMatch get match => matchRel.model!;
   Map<Player, PlayerBlock> get blockingPlayers {
     return blockingPlayersRel.map(
       (playerRel, playerBlock) => MapEntry(playerRel.model!, playerBlock),

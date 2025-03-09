@@ -1,0 +1,35 @@
+import 'package:model_repository/model_repository.dart';
+import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
+import 'package:formz/formz.dart';
+
+part 'court_deletion_state.dart';
+
+class CourtDeletionCubit extends CollectionQuerierCubit<CourtDeletionState> {
+  CourtDeletionCubit({
+    required Court court,
+    required ModelStore<Court> courtRepository,
+  }) : super(
+          modelStores: [courtRepository],
+          CourtDeletionState(court: court),
+        );
+
+  void courtDeleted() async {
+    if (state.formStatus == FormzSubmissionStatus.inProgress) {
+      return;
+    }
+
+    emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
+
+    bool courtDeleted = await querier.deleteModel(state.court);
+    if (!courtDeleted) {
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+      return;
+    }
+
+    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+  }
+
+  @override
+  void onCollectionUpdate(List<List<Model>> collections,
+      List<CollectionUpdateEvent<Model>> updateEvents) {}
+}

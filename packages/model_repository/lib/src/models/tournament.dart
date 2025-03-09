@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -11,128 +12,97 @@ typedef RoundList = List<List<Map<String, dynamic>>>;
   unionValueCase: FreezedUnionCase.pascal,
   toJson: false,
 )
-sealed class Tournament with _$Tournament {
+sealed class Tournament with _$Tournament implements MatchRoundList {
   const Tournament._();
 
   @FreezedUnionValue('RoundRobin')
+  @With<DefaultRounds>()
+  @With<RoundRobinTies>()
   @JsonSerializable(explicitToJson: true, createToJson: false)
   const factory Tournament.roundRobin({
-    @JsonKey(name: 'editable', readValue: Tournament._mapEditableMatches)
-    required MultiRelation<MatchData> editableRel,
-    @JsonKey(readValue: Tournament._mapSlotOccupants)
-    required List<List<TournamentMatch>> rounds,
+    @JsonKey(name: 'editable')
+    required MultiRelation<TournamentMatch> editableRel,
+    @JsonKey(name: 'rounds')
+    required List<MultiRelation<TournamentMatch>> roundsRel,
+    @JsonKey(name: 'entries') required List<List<Slot>> entriesRel,
+    @JsonKey(name: 'finalRanking') required List<List<Slot>> finalRankingRel,
     required List<MatchMetrics> metrics,
+    @JsonKey(name: 'ties') required List<List<Slot>> tiesRel,
+    @JsonKey(name: 'unbrokenTies') required List<List<Slot>> unbrokenTiesRel,
   }) = RoundRobin;
 
   @FreezedUnionValue('SingleElimination')
+  @With<DefaultRounds>()
   @JsonSerializable(explicitToJson: true, createToJson: false)
   const factory Tournament.singleElimination({
-    @JsonKey(name: 'editable', readValue: Tournament._mapEditableMatches)
-    required MultiRelation<MatchData> editableRel,
-    @JsonKey(readValue: Tournament._mapSlotOccupants)
-    required List<List<TournamentMatch>> rounds,
+    @JsonKey(name: 'editable')
+    required MultiRelation<TournamentMatch> editableRel,
+    @JsonKey(name: 'rounds')
+    required List<MultiRelation<TournamentMatch>> roundsRel,
+    @JsonKey(name: 'entries') required List<List<Slot>> entriesRel,
+    @JsonKey(name: 'finalRanking') required List<List<Slot>> finalRankingRel,
   }) = SingleElimination;
 
   @FreezedUnionValue('SingleEliminationWithConsolation')
+  @With<ConsolationRounds>()
   @JsonSerializable(explicitToJson: true, createToJson: false)
-  const factory Tournament.singleEliminationWithConsolation({
-    @JsonKey(name: 'editable', readValue: Tournament._mapEditableMatches)
-    required MultiRelation<MatchData> editableRel,
+  factory Tournament.singleEliminationWithConsolation({
+    @JsonKey(name: 'editable')
+    required MultiRelation<TournamentMatch> editableRel,
+    @JsonKey(name: 'entries') required List<List<Slot>> entriesRel,
+    @JsonKey(name: 'finalRanking') required List<List<Slot>> finalRankingRel,
     required ConsolationBracket mainBracket,
   }) = SingleEliminationWithConsolation;
 
   @FreezedUnionValue('DoubleElimination')
+  @With<DoubleEliminationRounds>()
   @JsonSerializable(explicitToJson: true, createToJson: false)
-  const factory Tournament.doubleElimination({
-    @JsonKey(name: 'editable', readValue: Tournament._mapEditableMatches)
-    required MultiRelation<MatchData> editableRel,
-    @JsonKey(readValue: Tournament._mapSlotOccupants)
-    required List<List<TournamentMatch>> rounds,
+  factory Tournament.doubleElimination({
+    @JsonKey(name: 'editable')
+    required MultiRelation<TournamentMatch> editableRel,
+    @JsonKey(name: 'entries') required List<List<Slot>> entriesRel,
+    @JsonKey(name: 'finalRanking') required List<List<Slot>> finalRankingRel,
+    @JsonKey(name: 'winnerRounds')
+    required List<MultiRelation<TournamentMatch>> winnerRoundsRel,
+    @JsonKey(name: 'loserRounds')
+    required List<MultiRelation<TournamentMatch>> loserRoundsRel,
+    @JsonKey(name: 'final') required TournamentMatch finalMatch,
   }) = DoubleElimination;
 
   @FreezedUnionValue('GroupKnockout')
+  @With<GroupKnockoutRounds>()
   @JsonSerializable(explicitToJson: true, createToJson: false)
-  const factory Tournament.groupKnockout({
-    @JsonKey(name: 'editable', readValue: Tournament._mapEditableMatches)
-    required MultiRelation<MatchData> editableRel,
-    @JsonKey(readValue: TournamentPlan.enrichMatchData)
+  factory Tournament.groupKnockout({
+    @JsonKey(name: 'editable')
+    required MultiRelation<TournamentMatch> editableRel,
+    @JsonKey(name: 'entries') required List<List<Slot>> entriesRel,
+    @JsonKey(name: 'finalRanking') required List<List<Slot>> finalRankingRel,
     required GroupPhase groupPhase,
-    @JsonKey(name: 'koPhase', readValue: TournamentPlan.enrichMatchData)
-    required Tournament knockoutPhase,
+    @JsonKey(name: 'koPhase') required Tournament knockoutPhase,
+    @JsonKey(name: 'koStarted') required bool knockoutStarted,
   }) = GroupKnockout;
 
-  List<MatchData> get editable => editableRel.models;
+  List<TournamentMatch> get editable => editableRel.models;
+  List<Team> get entries =>
+      Tournament._unwrapTeams(entriesRel).flattened.toList();
+  List<List<Team>> get finalRanking => Tournament._unwrapTeams(finalRankingRel);
 
   factory Tournament.fromJson(Map<String, dynamic> json) =>
       _$TournamentFromJson(json);
 
-  static Object? _mapEditableMatches(Map json, String key) {
-    var matchDataMap = Map<int, String>.from(json["matchData"]);
-    var matchIds = List<int>.from(json[key] ?? []);
-    matchIds = matchIds.where((id) => matchDataMap.containsKey(id)).toList();
-    return matchIds.map((id) => matchDataMap[id]!).toList();
-  }
-
-  static Object? _mapSlotOccupants(Map json, String key) {
-    var matchDataMap = Map<int, String>.from(json["matchData"]);
-    var slotMap = Map<int, String>.from(json["slots"]);
-    var rounds = List.from(json[key]);
-    return rounds.map((r) {
-      var round = List.from(r);
-      return round.map((m) {
-        var match = Map<String, dynamic>.from(m);
-        match["matchData"] = matchDataMap[match["id"]] ?? "";
-        match["slot1"] = slotMap[match["slot1"]];
-        match["slot2"] = slotMap[match["slot2"]];
-        return match;
-      }).toList();
+  static List<List<Team>> _unwrapTeams(List<List<Slot>> slots) {
+    return slots.map((slotList) {
+      return slotList
+          .where((slot) => slot.team != null)
+          .map((slot) => slot.team!)
+          .toList();
     }).toList();
   }
-}
 
-class TournamentMatch {
-  TournamentMatch({
-    required this.aRel,
-    required this.bRel,
-    required this.matchDataRel,
-    required this.bye,
-  });
-
-  final SingleRelation<Team> aRel;
-  final SingleRelation<Team> bRel;
-  final SingleRelation<MatchData> matchDataRel;
-  final ByeStatus? bye;
-
-  Team? get a => aRel.model;
-  Team? get b => bRel.model;
-  MatchData? get matchData => matchDataRel.model;
-
-  factory TournamentMatch.fromJson(Map<String, dynamic> json) {
-    ByeStatus? bye;
-    String teamAId = json["slot1"] ?? "";
-    String teamBId = json["slot2"] ?? "";
-    var aDrawnBye = teamAId == "db";
-    var bDrawnBye = teamBId == "db";
-    var aBye = teamAId == "b";
-    var bBye = teamBId == "b";
-    if (aDrawnBye || bDrawnBye) {
-      bye = ByeStatus.drawnBye;
-    } else if (aBye || bBye) {
-      bye = ByeStatus.bye;
-    }
-    teamAId = (aDrawnBye || aBye) ? "" : teamAId;
-    teamBId = (bDrawnBye || bBye) ? "" : teamBId;
-
-    var a = SingleRelation<Team>(relationId: teamAId);
-    var b = SingleRelation<Team>(relationId: teamBId);
-    var matchData = SingleRelation<MatchData>(relationId: json["matchData"]);
-
-    return TournamentMatch(
-      aRel: a,
-      bRel: b,
-      matchDataRel: matchData,
-      bye: bye,
-    );
+  static List<List<TournamentMatch>> _unwrapMatches(
+    List<MultiRelation<TournamentMatch>> matches,
+  ) {
+    return matches.map((r) => r.models).toList();
   }
 }
 
@@ -173,13 +143,16 @@ enum ByeStatus {
 @JsonSerializable(explicitToJson: true, createToJson: false)
 class ConsolationBracket {
   const ConsolationBracket({
-    required this.rounds,
+    required this.roundsRel,
     this.consolations = const [],
   });
 
-  @JsonKey(readValue: Tournament._mapSlotOccupants)
-  final List<List<TournamentMatch>> rounds;
+  @JsonKey(name: 'rounds')
+  final List<MultiRelation<TournamentMatch>> roundsRel;
   final List<ConsolationBracket> consolations;
+
+  List<List<TournamentMatch>> get rounds =>
+      Tournament._unwrapMatches(roundsRel);
 
   factory ConsolationBracket.fromJson(Map<String, dynamic> json) =>
       _$ConsolationBracketFromJson(json);
@@ -188,71 +161,151 @@ class ConsolationBracket {
 @JsonSerializable(explicitToJson: true, createToJson: false)
 class GroupPhase {
   const GroupPhase({
-    required this.groupRounds,
-    required this.groupMetrics,
-    required this.groupTies,
-    required this.unbrokenGroupTies,
-    required this.crossGroupTies,
+    required this.groups,
+    required this.crossGroupTiesRel,
+    required this.unbrokenCrossGroupTiesRel,
+    required this.crossTiedRank,
   });
 
-  @JsonKey(readValue: GroupPhase._mapSlotOccupants)
-  final List<List<List<TournamentMatch>>> groupRounds;
-  final List<MatchMetrics> groupMetrics;
-  @JsonKey(readValue: GroupPhase._mapGroupTieSlots)
-  final List<List<List<SingleRelation<Team>>>> groupTies;
-  @JsonKey(readValue: GroupPhase._mapGroupTieSlots)
-  final List<List<List<SingleRelation<Team>>>> unbrokenGroupTies;
-  @JsonKey(readValue: GroupPhase._mapCrossGroupTieSlots)
-  final List<List<SingleRelation<Team>>> crossGroupTies;
+  final List<RoundRobin> groups;
+  @JsonKey(name: 'crossGroupTies')
+  final List<List<Slot>> crossGroupTiesRel;
+  @JsonKey(name: 'unbrokenCrossGroupTies')
+  final List<List<Slot>> unbrokenCrossGroupTiesRel;
+  final int crossTiedRank;
+
+  List<List<Team>> get crossGroupTies =>
+      Tournament._unwrapTeams(crossGroupTiesRel);
+  List<List<Team>> get unbrokenCrossGroupTies =>
+      Tournament._unwrapTeams(unbrokenCrossGroupTiesRel);
 
   factory GroupPhase.fromJson(Map<String, dynamic> json) =>
       _$GroupPhaseFromJson(json);
+}
 
-  static Object? _mapSlotOccupants(Map json, String key) {
-    var matchDataMap = Map<int, String>.from(json["matchData"]);
-    var slotMap = Map<int, String>.from(json["slots"]);
-    var rounds = List.from(json[key]);
-    return rounds.map((groupRs) {
-      var groupRounds = List.from(groupRs);
-      return groupRounds.map((r) {
-        var round = List.from(r);
-        return round.map((m) {
-          var match = Map<String, dynamic>.from(m);
-          match["matchData"] = matchDataMap[match["id"]] ?? "";
-          match["slot1"] = slotMap[match["slot1"]];
-          match["slot2"] = slotMap[match["slot2"]];
-          return match;
-        });
-      }).toList();
-    }).toList();
+mixin RoundRobinTies {
+  List<List<Slot>> get tiesRel;
+  List<List<Slot>> get unbrokenTiesRel;
+
+  List<List<Team>> get ties => Tournament._unwrapTeams(tiesRel);
+  List<List<Team>> get unbrokenTies => Tournament._unwrapTeams(unbrokenTiesRel);
+}
+
+abstract class MatchRoundList {
+  List<List<TournamentMatch>> get rounds;
+}
+
+mixin DefaultRounds {
+  List<MultiRelation<TournamentMatch>> get roundsRel;
+  List<List<TournamentMatch>> get rounds =>
+      Tournament._unwrapMatches(roundsRel);
+}
+
+mixin ConsolationRounds {
+  ConsolationBracket get mainBracket;
+
+  List<List<TournamentMatch>> get rounds {
+    _rounds ??= _makeRounds();
+    return _rounds!;
   }
 
-  static Object? _mapGroupTieSlots(Map json, String key) {
-    var slotMap = Map<int, String>.from(json["slots"]);
-    var groupTieList = List.from(json[key]);
-    return groupTieList.map((gt) {
-      var groupTies = List.of(gt);
-      return groupTies.map((t) {
-        var tie = List.of(t);
-        tie.map((t) {
-          var slotId = t as int;
-          var teamId = slotMap[slotId];
-          return teamId;
-        });
-      });
-    });
+  late final List<List<TournamentMatch>>? _rounds;
+
+  List<List<TournamentMatch>> _makeRounds() {
+    var stack = <ConsolationBracket>[mainBracket];
+    var orderedBrackets = <ConsolationBracket>[];
+
+    for (int l = 1; l > 0; l = stack.length) {
+      var current = stack[l - 1];
+      stack = stack.sublist(0, l - 1);
+      stack.addAll(current.consolations);
+      orderedBrackets.add(current);
+    }
+
+    var maxNumRounds = mainBracket.rounds.length;
+    var groupedRounds =
+        List<List<TournamentMatch>>.generate(maxNumRounds, (_) => []);
+    for (var bracket in orderedBrackets) {
+      var numRounds = bracket.rounds.length;
+      for (var (i, r) in bracket.rounds.indexed) {
+        var groupI = i + (maxNumRounds - numRounds);
+        groupedRounds[groupI].addAll(r);
+      }
+    }
+    return groupedRounds;
+  }
+}
+
+mixin DoubleEliminationRounds {
+  List<MultiRelation<TournamentMatch>> get winnerRoundsRel;
+  List<MultiRelation<TournamentMatch>> get loserRoundsRel;
+  TournamentMatch get finalMatch;
+
+  List<List<TournamentMatch>> get winnerRounds =>
+      Tournament._unwrapMatches(winnerRoundsRel);
+  List<List<TournamentMatch>> get loserRounds =>
+      Tournament._unwrapMatches(loserRoundsRel);
+
+  List<List<TournamentMatch>> get rounds {
+    _rounds ??= _makeRounds();
+    return _rounds!;
   }
 
-  static Object? _mapCrossGroupTieSlots(Map json, String key) {
-    var slotMap = Map<int, String>.from(json["slots"]);
-    var crossTies = List.from(json[key]);
-    return crossTies.map((t) {
-      var tie = List.of(t);
-      tie.map((t) {
-        var slotId = t as int;
-        var teamId = slotMap[slotId];
-        return teamId;
-      });
-    });
+  late final List<List<TournamentMatch>>? _rounds;
+
+  List<List<TournamentMatch>> _makeRounds() {
+    var rounds = <List<TournamentMatch>>[];
+
+    for (var i = 0; i < winnerRounds.length; i++) {
+      var loserRoundI = i - 1;
+      var winnerMatches = winnerRounds[i];
+      if (loserRoundI >= 0) {
+        var minorMatches = loserRounds[2 * loserRoundI];
+        var majorMatches = loserRounds[2 * loserRoundI + 1];
+
+        rounds.add([...winnerMatches, ...minorMatches]);
+        rounds.add(majorMatches);
+      } else {
+        rounds.add(winnerMatches);
+      }
+    }
+    rounds.add([finalMatch]);
+
+    return rounds;
+  }
+}
+
+mixin GroupKnockoutRounds {
+  GroupPhase get groupPhase;
+
+  List<List<TournamentMatch>> get rounds {
+    _rounds ??= _makeRounds();
+    return _rounds!;
+  }
+
+  late final List<List<TournamentMatch>>? _rounds;
+
+  List<List<TournamentMatch>> _makeRounds() {
+    var rounds = <List<TournamentMatch>>[];
+    var lastGroup = groupPhase.groups.last;
+    var maxNumRounds = lastGroup.rounds.length;
+
+    for (int i = 0; i < maxNumRounds; i++) {
+      var groupRounds = groupPhase.groups
+          .map((g) => g.rounds.elementAtOrNull(i))
+          .whereType<List<TournamentMatch>>()
+          .toList();
+      var maxNumMatches = groupRounds.last.length;
+      var superGroupRound = <TournamentMatch>[];
+      for (int i = 0; i < maxNumMatches; i++) {
+        var matchesAtIndex = groupRounds
+            .map((group) => group.elementAtOrNull(i))
+            .whereType<TournamentMatch>()
+            .toList();
+        superGroupRound.addAll(matchesAtIndex);
+      }
+      rounds.add(superGroupRound);
+    }
+    return rounds;
   }
 }

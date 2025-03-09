@@ -28,7 +28,7 @@ import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
 import 'package:ez_badminton_admin_app/widgets/mouse_hover_builder/mouse_hover_builder.dart';
 import 'package:ez_badminton_admin_app/widgets/tie_breaker_menu/tie_breaker_menu.dart';
 import 'package:ez_badminton_admin_app/widgets/tooltip_dropdown_menu_item/tooltip_dropdown_menu_item.dart';
-import 'package:ez_badminton_admin_app/widgets/tournament_brackets/match_participant_label.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/slot_label.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
 
 import 'package:flutter/material.dart';
@@ -1663,7 +1663,7 @@ Future<void> testDraw(
       in playerNames.sublist(0, playerNames.length - 1)) {
     expect(
       find.descendant(
-        of: find.byType(MatchParticipantLabel),
+        of: find.byType(SlotLabel),
         matching: find.text(
           '${playerName.$1} ${playerName.$2}',
           findRichText: true,
@@ -1674,7 +1674,7 @@ Future<void> testDraw(
   }
   expect(
     find.descendant(
-      of: find.byType(MatchParticipantLabel),
+      of: find.byType(SlotLabel),
       matching: find.text(
         '${playerNames.last.$1} ${playerNames.last.$2}',
         findRichText: true,
@@ -1783,7 +1783,7 @@ Future<void> testDraw(
       '${playerNames[1].$1} ${playerNames[1].$2}',
       findRichText: true,
     ),
-    matching: find.byType(MatchParticipantLabel),
+    matching: find.byType(SlotLabel),
   );
   Element highestLabel = findHighestMatchParticipantLabel();
   expect(firstSeed.evaluate().single == highestLabel, isTrue);
@@ -1794,7 +1794,7 @@ Future<void> testDraw(
         '${playerNames[1].$1} ${playerNames[1].$2}',
         findRichText: true,
       ),
-      matching: find.byType(MatchParticipantLabel),
+      matching: find.byType(SlotLabel),
     ),
     matching: find.byIcon(Icons.drag_indicator),
   );
@@ -1804,7 +1804,7 @@ Future<void> testDraw(
         '${playerNames[0].$1} ${playerNames[0].$2}',
         findRichText: true,
       ),
-      matching: find.byType(MatchParticipantLabel),
+      matching: find.byType(SlotLabel),
     ),
     matching: find.byIcon(Icons.drag_indicator),
   );
@@ -1821,7 +1821,7 @@ Future<void> testDraw(
       '${playerNames[0].$1} ${playerNames[0].$2}',
       findRichText: true,
     ),
-    matching: find.byType(MatchParticipantLabel),
+    matching: find.byType(SlotLabel),
   );
   highestLabel = findHighestMatchParticipantLabel();
   expect(secondSeed.evaluate().single == highestLabel, isTrue);
@@ -1839,7 +1839,7 @@ Future<void> testDraw(
       '${playerNames[1].$1} ${playerNames[1].$2}',
       findRichText: true,
     ),
-    matching: find.byType(MatchParticipantLabel),
+    matching: find.byType(SlotLabel),
   );
   highestLabel = findHighestMatchParticipantLabel();
   expect(firstSeed.evaluate().single == highestLabel, isTrue);
@@ -1852,7 +1852,7 @@ Future<void> testDraw(
           matching: find.byType(Card),
         )
         .first,
-    matching: find.byType(MatchParticipantLabel),
+    matching: find.byType(SlotLabel),
   );
   expect(participants, findsExactly(playerNames.length));
 
@@ -2516,7 +2516,7 @@ Future<void> testMatches(
   );
   Finder leaderboardEntries = find.descendant(
     of: find.byType(AlertDialog),
-    matching: find.byType(MatchParticipantLabel),
+    matching: find.byType(SlotLabel),
   );
 
   expect(
@@ -2612,7 +2612,7 @@ Future<void> testMatchEditing(
 
   Finder leaderboardEntries = find.descendant(
     of: find.byType(AlertDialog),
-    matching: find.byType(MatchParticipantLabel),
+    matching: find.byType(SlotLabel),
   );
 
   expect(
@@ -3165,7 +3165,7 @@ List<int> getScore() {
   Finder playerNameLabels = find.descendant(
     of: find.descendant(
       of: find.byType(AlertDialog),
-      matching: find.byType(MatchParticipantLabel),
+      matching: find.byType(SlotLabel),
     ),
     matching: find.byType(RichText),
   )..evaluate();

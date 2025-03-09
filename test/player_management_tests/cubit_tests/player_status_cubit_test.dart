@@ -22,7 +22,7 @@ void main() {
       player: player,
       tournamentProgressGetter: () => TournamentProgressState(),
       playerStore: playerRepository,
-      matchDataStore: matchDataRepository,
+      matchStore: matchDataRepository,
     );
   }
 

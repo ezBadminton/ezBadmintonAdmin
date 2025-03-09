@@ -220,7 +220,7 @@ class _PlayerStatus extends StatelessWidget {
       create: (context) => PlayerStatusCubit(
         player: player,
         playerStore: context.read<ModelStore<Player>>(),
-        matchDataStore: context.read<ModelStore<MatchData>>(),
+        matchStore: context.read<ModelStore<TournamentMatch>>(),
         previewEndpoint: context.read<WithdrawalPreviewEndpoint>(),
         statusEndpoint: context.read<PlayerStatusEndpoint>(),
       ),
@@ -256,7 +256,7 @@ class _PlayerStatusSwitcher extends StatelessWidget {
       builder: (context, state, reenteringTuple) {
         reenteringTuple = reenteringTuple as (
           StatusChangeDirection,
-          Map<Competition, List<MatchData>>,
+          Map<Competition, List<TournamentMatch>>,
         );
 
         bool isWithdrawal =

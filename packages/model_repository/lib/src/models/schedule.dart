@@ -19,6 +19,8 @@ class Schedule extends Model with _$Schedule {
   }) = _Schedule;
 
   List<ScheduledRound> get roundQueue => roundQueueRel.models;
+  List<ScheduledMatch> get matches =>
+      roundQueue.expand((round) => round.matches).toList();
 
   factory Schedule.fromJson(Map<String, dynamic> json) =>
       _$ScheduleFromJson(json);

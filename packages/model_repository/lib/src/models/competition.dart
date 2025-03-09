@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:model_repository/model_repository.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:model_repository/src/relations.dart';
 
 part 'generated/competition.freezed.dart';
 part 'generated/competition.g.dart';
@@ -22,23 +21,22 @@ class Competition extends Model with _$Competition {
     required DateTime updated,
     required int teamSize,
     required GenderCategory genderCategory,
-    @JsonKey(name: 'ageGroup')
-    required SingleRelation<AgeGroup> ageGroupRel,
+    @JsonKey(name: 'ageGroup') required SingleRelation<AgeGroup> ageGroupRel,
     @JsonKey(name: 'playingLevel')
     required SingleRelation<PlayingLevel> playingLevelRel,
     @JsonKey(name: 'registrations')
     required MultiRelation<Team> registrationsRel,
     @JsonKey(name: 'tournamentModeSettings')
     required SingleRelation<TournamentModeSettings> tournamentModeSettingsRel,
-    @JsonKey(name: 'seeds')
-    required MultiRelation<Team> seedsRel,
-    @JsonKey(name: 'draw')
-    required MultiRelation<Team> drawRel,
+    @JsonKey(name: 'seeds') required MultiRelation<Team> seedsRel,
+    @JsonKey(name: 'draw') required MultiRelation<Team> drawRel,
     @JsonKey(name: 'matches')
-    required MultiRelation<MatchData> matchesRel,
+    required MultiRelation<TournamentMatch> matchesRel,
     @JsonKey(name: 'tieBreakers')
     required MultiRelation<TieBreaker> tieBreakersRel,
     required int rngSeed,
+    @JsonKey(readValue: Competition._planId, includeToJson: false)
+    required SingleRelation<TournamentPlan> planRel,
   }) = _Competition;
 
   AgeGroup? get ageGroup => ageGroupRel.model;
@@ -48,8 +46,9 @@ class Competition extends Model with _$Competition {
       tournamentModeSettingsRel.model;
   List<Team> get seeds => seedsRel.models;
   List<Team> get draw => drawRel.models;
-  List<MatchData> get matches => matchesRel.models;
+  List<TournamentMatch> get matches => matchesRel.models;
   List<TieBreaker> get tieBreakers => tieBreakersRel.models;
+  TournamentPlan? get tournamentPlan => planRel.model;
 
   factory Competition.fromJson(Map<String, dynamic> json) =>
       _$CompetitionFromJson(json);
@@ -76,6 +75,7 @@ class Competition extends Model with _$Competition {
       matchesRel: MultiRelation(),
       tieBreakersRel: MultiRelation(),
       rngSeed: Random().nextInt(1 << 32),
+      planRel: SingleRelation(),
     );
   }
 
@@ -92,6 +92,11 @@ class Competition extends Model with _$Competition {
     } else {
       return CompetitionType.other;
     }
+  }
+
+  static Object? _planId(Map json, String key) {
+    String id = json["id"];
+    return "t-$id";
   }
 }
 

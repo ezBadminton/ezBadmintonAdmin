@@ -11,14 +11,14 @@ class PlayerStatusCubit extends CollectionQuerierCubit<PlayerStatusState>
   PlayerStatusCubit({
     required Player player,
     required ModelStore<Player> playerStore,
-    required ModelStore<MatchData> matchDataStore,
+    required ModelStore<TournamentMatch> matchStore,
     required this.previewEndpoint,
     required this.statusEndpoint,
   }) : super(
           PlayerStatusState(player: player),
           modelStores: [
             playerStore,
-            matchDataStore,
+            matchStore,
           ],
         ) {
     subscribeToCollectionUpdates(playerStore, _onPlayerUpdated);

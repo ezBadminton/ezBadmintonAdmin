@@ -23,14 +23,14 @@ class AssignCourtEndpoint extends ApiEndpointRepository {
   AssignCourtEndpoint({
     required super.pocketBase,
     required super.modelRepository,
-  }) : super(url: "/courts/court/assign");
+  }) : super(url: "/courts/matchdata/assign");
 }
 
 class UnassignCourtEndpoint extends ApiEndpointRepository {
   UnassignCourtEndpoint({
     required super.pocketBase,
     required super.modelRepository,
-  }) : super(url: "/courts/court/unassign");
+  }) : super(url: "/courts/matchdata/unassign");
 }
 
 class MakeDrawEndpoint extends ApiEndpointRepository {

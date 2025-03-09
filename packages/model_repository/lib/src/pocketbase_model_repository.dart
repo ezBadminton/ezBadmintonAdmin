@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:pocketbase_provider/pocketbase_provider.dart';
 
@@ -104,12 +105,9 @@ class PocketbaseModelRepository extends ModelRepository {
           relations.add(m.tournamentModeSettingsRel);
           relations.add(m.matchesRel);
           relations.add(m.tieBreakersRel);
+          relations.add(m.planRel);
         case Court m:
           relations.add(m.gymnasiumRel);
-        case MatchData m:
-          relations.add(m.setsRel);
-          relations.add(m.courtRel);
-          relations.add(m.withdrawnTeamsRel);
         case Player m:
           relations.add(m.clubRel);
         case Team m:
@@ -124,6 +122,32 @@ class PocketbaseModelRepository extends ModelRepository {
             relations.add(e.key);
             relations.add(e.value);
           }
+        case Schedule m:
+          relations.add(m.roundQueueRel);
+        case ScheduledRound m:
+          relations.add(m.competitionRel);
+          relations.add(m.matchesRel);
+        case ScheduledMatch m:
+          relations.add(m.matchRel);
+          for (var MapEntry(key: playerRel, value: block)
+              in m.blockingPlayersRel.entries) {
+            relations.add(playerRel);
+            relations.add(block.blockingMatchRel);
+          }
+        case TournamentPlan m:
+          relations.add(m.competitionRel);
+          var t = m.tournament;
+          relations.add(t.editableRel);
+          relations.addAll(t.entriesRel.flattened.map((slot) => slot.teamRel));
+          relations
+              .addAll(t.finalRankingRel.flattened.map((slot) => slot.teamRel));
+        case TournamentMatch m:
+          relations.add(m.setsRel);
+          relations.add(m.courtRel);
+          relations.add(m.withdrawnTeamsRel);
+          relations.add(m.winnerRel);
+          relations.add(m.slot1.teamRel);
+          relations.add(m.slot2.teamRel);
       }
 
       for (final relation in relations) {
@@ -190,11 +214,6 @@ class PocketbaseModelRepository extends ModelRepository {
       modelConstructor: Gymnasium.fromJson,
       pocketBase: _pbProvider.pocketBase,
     );
-    _stores[MatchData] = PocketbaseModelStore<MatchData>(
-      repository: this,
-      modelConstructor: MatchData.fromJson,
-      pocketBase: _pbProvider.pocketBase,
-    );
     _stores[MatchSet] = PocketbaseModelStore<MatchSet>(
       repository: this,
       modelConstructor: MatchSet.fromJson,
@@ -229,6 +248,11 @@ class PocketbaseModelRepository extends ModelRepository {
     _stores[TournamentEvent] = PocketbaseModelStore<TournamentEvent>(
       repository: this,
       modelConstructor: TournamentEvent.fromJson,
+      pocketBase: _pbProvider.pocketBase,
+    );
+    _stores[TournamentMatch] = PocketbaseModelStore<TournamentMatch>(
+      repository: this,
+      modelConstructor: TournamentMatch.fromJson,
       pocketBase: _pbProvider.pocketBase,
     );
     _stores[Registration] = PocketbaseModelStore<Registration>(

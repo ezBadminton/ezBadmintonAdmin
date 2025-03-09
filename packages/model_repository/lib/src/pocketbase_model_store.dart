@@ -247,7 +247,6 @@ const Map<Type, String> _collectionNames = {
   Court: 'courts',
   Gymnasium: 'gymnasiums',
   MatchSet: 'match_sets',
-  MatchData: 'match_data',
   Player: 'players',
   PlayingLevel: 'playing_levels',
   Team: 'teams',
@@ -258,5 +257,6 @@ const Map<Type, String> _collectionNames = {
   Schedule: 'schedule',
   ScheduledRound: 'scheduled_rounds',
   ScheduledMatch: 'scheduled_matches',
-  TournamentPlan: 'tournamentplans',
+  TournamentPlan: 'tournament_plans',
+  TournamentMatch: 'tournament_matches',
 };

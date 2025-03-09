@@ -4,7 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'generated/tournament_plan.freezed.dart';
 part 'generated/tournament_plan.g.dart';
 
-@Freezed(toJson: false)
+@Freezed(toJson: false, fromJson: true)
 sealed class TournamentPlan extends Model with _$TournamentPlan {
   const TournamentPlan._();
 
@@ -16,7 +16,6 @@ sealed class TournamentPlan extends Model with _$TournamentPlan {
     required SingleRelation<Competition> competitionRel,
     required bool started,
     required bool ended,
-    @JsonKey(readValue: TournamentPlan.enrichMatchData)
     required Tournament tournament,
   }) = _TournamentPlan;
 
@@ -27,19 +26,4 @@ sealed class TournamentPlan extends Model with _$TournamentPlan {
 
   @override
   Map<String, dynamic> toJson() => throw UnimplementedError();
-
-  static Object? enrichMatchData(Map json, String key) {
-    var tournament = json[key] as Map;
-    var matchData = Map<String, String>.from(json["matchData"]);
-    tournament["matchData"] = matchData.map(
-      (matchId, matchDataId) => MapEntry(int.parse(matchId), matchDataId),
-    );
-
-    var slots = Map<String, String>.from(tournament["slots"]);
-    tournament["slots"] = slots.map(
-      (slotId, occupant) => MapEntry(int.parse(slotId), occupant),
-    );
-
-    return tournament;
-  }
 }

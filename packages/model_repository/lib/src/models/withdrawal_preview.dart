@@ -6,7 +6,8 @@ import 'package:flutter/foundation.dart';
 part 'generated/withdrawal_preview.freezed.dart';
 part 'generated/withdrawal_preview.g.dart';
 
-typedef PreviewMap = Map<SingleRelation<Competition>, MultiRelation<MatchData>>;
+typedef PreviewMap
+    = Map<SingleRelation<Competition>, MultiRelation<TournamentMatch>>;
 
 @freezed
 class WithdrawalPreview with _$WithdrawalPreview {
@@ -18,12 +19,12 @@ class WithdrawalPreview with _$WithdrawalPreview {
     required PreviewMap changesRel,
   }) = _WithdrawalPreview;
 
-  Map<Competition, List<MatchData>> get changes {
-    Map<Competition, List<MatchData>> c = {};
+  Map<Competition, List<TournamentMatch>> get changes {
+    Map<Competition, List<TournamentMatch>> c = {};
     for (SingleRelation<Competition> competitionRel in changesRel.keys) {
       var competition = competitionRel.model!;
-      var matchData = changesRel[competitionRel]!.models;
-      c[competition] = matchData;
+      var match = changesRel[competitionRel]!.models;
+      c[competition] = match;
     }
     return c;
   }
@@ -43,7 +44,7 @@ class _PreviewChangesConverter
         var competition = SingleRelation<Competition>(
           relationId: key,
         );
-        var matchList = MultiRelation<MatchData>(
+        var matchList = MultiRelation<TournamentMatch>(
           relationIds: List<String>.from(value),
         );
         return MapEntry(competition, matchList);

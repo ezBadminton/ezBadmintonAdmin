@@ -15,12 +15,15 @@ class PlayerBlock with _$PlayerBlock {
     required DateTime created,
     required DateTime updated,
     required PlayerBlockMode mode,
-    @JsonKey(name: 'blockingMatch', defaultValue: SingleRelation<MatchData>.new)
-    required SingleRelation<MatchData> blockingMatchRel,
+    @JsonKey(
+      name: 'blockingMatch',
+      defaultValue: SingleRelation<TournamentMatch>.new,
+    )
+    required SingleRelation<TournamentMatch> blockingMatchRel,
     DateTime? restUntil,
   }) = _PlayerBlock;
 
-  MatchData? get blockingMatch => blockingMatchRel.model;
+  TournamentMatch? get blockingMatch => blockingMatchRel.model;
 
   factory PlayerBlock.fromJson(Map<String, dynamic> json) =>
       _$PlayerBlockFromJson(json);

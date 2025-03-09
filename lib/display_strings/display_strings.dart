@@ -92,6 +92,15 @@ String competitionLabel(
   return label.toString();
 }
 
+String? matchName(
+  AppLocalizations l10n,
+  TournamentPlan tournament,
+  TournamentMatch match,
+) {
+  // TODO restore
+  return "owoFinal";
+}
+
 String filterChipGroup(AppLocalizations l10n, FilterGroup filterGroup) {
   switch (filterGroup) {
     case FilterGroup.overAge:
