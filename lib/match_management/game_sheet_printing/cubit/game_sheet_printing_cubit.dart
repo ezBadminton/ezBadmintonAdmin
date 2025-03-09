@@ -24,10 +24,12 @@ class GameSheetPrintingCubit
     with PdfPrintingCubit {
   GameSheetPrintingCubit({
     required this.l10n,
+    required ModelStore<TournamentEvent> tournamentStore,
     required ModelStore<ScheduledMatch> scheduledMatchStore,
     required ModelStore<ScheduledRound> scheduledRoundStore,
   }) : super(
           modelStores: [
+            tournamentStore,
             scheduledMatchStore,
             scheduledRoundStore,
           ],
@@ -52,7 +54,7 @@ class GameSheetPrintingCubit
     }).toList();
 
     updatedState = updatedState.copyWith(matches: matches);
-    updatedState = _updateCustomPrintSelection(state);
+    updatedState = _updateCustomPrintSelection(updatedState);
 
     _emitStateWithPdf(updatedState);
   }

@@ -21,7 +21,7 @@ class ModelIdQRCode extends pw.StatelessWidget {
   @override
   pw.Widget build(pw.Context context) {
     final pw.Barcode qrCodeSettings = pw.Barcode.qrCode(
-      typeNumber: 2,
+      typeNumber: 3,
       errorCorrectLevel: pw.BarcodeQRCorrectionLevel.medium,
     );
 

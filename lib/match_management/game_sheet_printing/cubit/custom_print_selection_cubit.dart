@@ -16,13 +16,14 @@ class CustomPrintSelectionCubit
     required ModelStore<ScheduledRound> scheduledRoundStore,
     required List<ScheduledMatchContext> initalSelection,
   }) : super(
-          modelStores: [],
+          modelStores: [
+            scheduledMatchStore,
+            scheduledRoundStore,
+          ],
           CustomPrintSelectionState(
             selectedMatches: ListInput.pure(initalSelection),
           ),
-        ) {
-    _emitState(state);
-  }
+        );
 
   @override
   void onCollectionUpdate(

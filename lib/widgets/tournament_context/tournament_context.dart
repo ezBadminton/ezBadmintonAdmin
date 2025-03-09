@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:model_repository/model_repository.dart';
@@ -14,9 +15,13 @@ class TournamentContext<T extends Tournament> {
       TournamentContext(tPlan, tournament: tournament);
 }
 
-class MatchContext<T extends Tournament> extends TournamentContext<T> {
+class MatchContext<T extends Tournament> extends TournamentContext<T>
+    with EquatableMixin {
   const MatchContext(super.tPlan, this.match);
   final TournamentMatch match;
+
+  @override
+  List<Object?> get props => [match.id];
 }
 
 class ScheduledMatchContext<T extends Tournament> extends MatchContext<T> {
