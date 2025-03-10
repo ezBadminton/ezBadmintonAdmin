@@ -17,21 +17,19 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:formz/formz.dart';
 
 class ResultInputDialog extends StatelessWidget {
-  const ResultInputDialog({
-    super.key,
-    required this.match,
-  });
-
-  final MatchContext match;
+  const ResultInputDialog({super.key});
 
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
-    TournamentModeSettings modeSettings =
-        match.competition.tournamentModeSettings!;
+    var matchContext = context.read<MatchContext>();
+    var match = matchContext.match;
 
-    bool alreadyHasScore = match.match.sets.isNotEmpty;
+    TournamentModeSettings modeSettings =
+        matchContext.competition.tournamentModeSettings!;
+
+    bool alreadyHasScore = match.sets.isNotEmpty;
 
     String dialogTitle = alreadyHasScore ? l10n.editResult : l10n.enterResult;
 
@@ -39,7 +37,7 @@ class ResultInputDialog extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (context) => ResultEnteringCubit(
-            match: match.match,
+            match: match,
             scoreEndpoint: context.read<SetScoreEndpoint>(),
             winningPoints: modeSettings.winningPoints,
             winningSets: modeSettings.winningSets,
@@ -49,7 +47,7 @@ class ResultInputDialog extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => ResultDeletionCubit(
-            match: match.match,
+            match: match,
             resetEndpoint: context.read<ResetMatchEndpoint>(),
           ),
         ),
@@ -77,21 +75,19 @@ class ResultInputDialog extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                CompetitionLabel(competition: match.competition),
+                CompetitionLabel(competition: matchContext.competition),
                 const SizedBox(height: 8),
                 RunningMatchInfo(
-                  tournament: match.tPlan,
-                  match: match.match,
                   textStyle: const TextStyle(fontSize: 16),
                 ),
                 const SizedBox(height: 20),
-                _ResultInputForm(match: match.match),
+                _ResultInputForm(),
               ],
             ),
             actions: [
               Row(
                 children: [
-                  _ResultDeleteButton(match: match.match),
+                  _ResultDeleteButton(),
                   const Expanded(child: SizedBox()),
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
@@ -116,15 +112,14 @@ class ResultInputDialog extends StatelessWidget {
 }
 
 class _ResultInputForm extends StatelessWidget {
-  const _ResultInputForm({
-    required this.match,
-  });
-
-  final TournamentMatch match;
+  const _ResultInputForm();
 
   @override
   Widget build(BuildContext context) {
     var resultEnteringCubit = context.read<ResultEnteringCubit>();
+
+    var matchContext = context.read<MatchContext>();
+    var match = matchContext.match;
 
     Color borderColor = Theme.of(context).colorScheme.onSurface.withOpacity(.6);
 
@@ -143,7 +138,7 @@ class _ResultInputForm extends StatelessWidget {
         child: Column(
           children: [
             Expanded(
-              child: _ParticipantScoreInputs(
+              child: _ScoreInputs(
                 match: match,
                 slot: match.slot1,
                 inputControllers: resultEnteringCubit.controllers,
@@ -154,7 +149,7 @@ class _ResultInputForm extends StatelessWidget {
               color: borderColor,
             ),
             Expanded(
-              child: _ParticipantScoreInputs(
+              child: _ScoreInputs(
                 match: match,
                 slot: match.slot2,
                 inputControllers: resultEnteringCubit.controllers,
@@ -167,8 +162,8 @@ class _ResultInputForm extends StatelessWidget {
   }
 }
 
-class _ParticipantScoreInputs extends StatelessWidget {
-  const _ParticipantScoreInputs({
+class _ScoreInputs extends StatelessWidget {
+  const _ScoreInputs({
     required this.match,
     required this.slot,
     required this.inputControllers,
@@ -302,15 +297,14 @@ class _SlotLabel extends StatelessWidget {
 }
 
 class _ResultDeleteButton extends StatelessWidget {
-  const _ResultDeleteButton({
-    required this.match,
-  });
-
-  final TournamentMatch match;
+  const _ResultDeleteButton();
 
   @override
   Widget build(BuildContext context) {
-    if ((match.sets ?? []).isEmpty) {
+    var matchContext = context.read<MatchContext>();
+    var match = matchContext.match;
+
+    if (match.sets.isEmpty) {
       return const SizedBox();
     }
 

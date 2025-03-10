@@ -17,7 +17,7 @@ class TournamentContext<T extends Tournament> {
 
 class MatchContext<T extends Tournament> extends TournamentContext<T>
     with EquatableMixin {
-  const MatchContext(super.tPlan, this.match);
+  const MatchContext(super.tPlan, this.match, {super.tournament});
   final TournamentMatch match;
 
   @override
@@ -30,15 +30,32 @@ class ScheduledMatchContext<T extends Tournament> extends MatchContext<T> {
   final ScheduledMatch scheduledMatch;
 }
 
-class TournamentContextSubtree<C extends TournamentContext>
-    extends StatelessWidget {
+class TournamentContextSubtree extends StatelessWidget {
   const TournamentContextSubtree(this.tContext, {this.child, super.key});
 
-  final C tContext;
+  final TournamentContext tContext;
   final Widget? child;
 
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider.value(value: tContext, child: child);
+    return RepositoryProvider<TournamentContext>.value(
+      value: tContext,
+      child: child,
+    );
+  }
+}
+
+class MatchContextSubtree extends StatelessWidget {
+  const MatchContextSubtree(this.mContext, {this.child, super.key});
+
+  final MatchContext mContext;
+  final Widget? child;
+
+  @override
+  Widget build(BuildContext context) {
+    return RepositoryProvider<MatchContext>.value(
+      value: mContext,
+      child: child,
+    );
   }
 }

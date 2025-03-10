@@ -5,61 +5,68 @@ import 'package:ez_badminton_admin_app/widgets/tournament_brackets/double_elimin
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/round_robin_plan.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bracket.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:model_repository/model_repository.dart';
 import 'bracket_sizes.dart' as bracket_sizes;
 
 class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
-  GroupKnockoutPlan({
+  const GroupKnockoutPlan({
     super.key,
-    required this.tournament,
     required this.isEditable,
-  }) : _sections = getSections(tournament.tournament as GroupKnockout);
-
-  final TournamentPlan tournament;
-  GroupKnockout get groupKnockout => tournament.tournament as GroupKnockout;
+    required this.sections,
+  });
 
   final bool isEditable;
 
-  final List<BracketSection> _sections;
   @override
-  List<BracketSection> get sections => _sections;
+  final List<BracketSection> sections;
 
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
+    var tContext =
+        context.read<TournamentContext>() as TournamentContext<GroupKnockout>;
+    var tournament = tContext.tournament;
 
-    List<RoundRobin> groupRoundRobins = groupKnockout.groupPhase.groups;
+    List<RoundRobin> groupRoundRobins = tournament.groupPhase.groups;
 
-    List<RoundRobinPlan> groupPlans = groupRoundRobins
-        .mapIndexed((index, group) => RoundRobinPlan(
-              tPlan: tournament,
-              tournament: group,
-              isEditable: isEditable,
-              title: l10n.groupNumber(index + 1),
+    List<Widget> groupPlans = groupRoundRobins
+        .mapIndexed((index, group) => TournamentContextSubtree(
+              tContext.copyWith(group),
+              child: RoundRobinPlan(
+                isEditable: isEditable,
+                title: l10n.groupNumber(index + 1),
+              ),
             ))
         .toList();
 
     Map<Slot, Widget> placeholders =
-        createQualificationPlaceholders(context, groupKnockout);
+        createQualificationPlaceholders(context, tournament);
 
-    Widget eliminationTree = switch (groupKnockout.knockoutPhase) {
-      SingleElimination e => SingleEliminationTree(
-          tournament: e,
-          competition: tournament.competition,
-          rounds: e.rounds,
-          placeholderLabels: placeholders,
+    Widget eliminationTree = switch (tournament.knockoutPhase) {
+      SingleElimination e => TournamentContextSubtree(
+          tContext.copyWith(e),
+          child: SingleEliminationTree(
+            rounds: e.rounds,
+            placeholderLabels: placeholders,
+          ),
         ),
-      DoubleElimination e => DoubleEliminationTree(
-          tournament: e,
-          competition: tournament.competition,
-          placeholderLabels: placeholders,
+      DoubleElimination e => TournamentContextSubtree(
+          tContext.copyWith(e),
+          child: DoubleEliminationTree(
+            sections: DoubleEliminationTree.getSections(e),
+            placeholderLabels: placeholders,
+          ),
         ),
-      SingleEliminationWithConsolation e => ConsolationEliminationTree(
-          tournament: e,
-          competition: tournament.competition,
-          placeholderLabels: placeholders,
+      SingleEliminationWithConsolation e => TournamentContextSubtree(
+          tContext.copyWith(e),
+          child: ConsolationEliminationTree(
+            sections: SingleEliminationTree.getSections(e.mainBracket.rounds),
+            placeholderLabels: placeholders,
+          ),
         ),
       _ => throw Exception(
           "This elimination tournament does not have a tree widget implemented",

@@ -2,25 +2,21 @@ import 'package:ez_badminton_admin_app/layout/elimination_tree/consolation_elimi
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bracket.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:model_repository/model_repository.dart';
 
 class ConsolationEliminationTree extends StatelessWidget
     implements SectionedBracket {
-  ConsolationEliminationTree({
+  const ConsolationEliminationTree({
     super.key,
-    required this.tournament,
-    required this.competition,
     this.isEditable = false,
     this.showResults = false,
+    this.sections = const [],
     this.placeholderLabels = const {},
-  }) : sections = SingleEliminationTree.getSections(
-          tournament.mainBracket.rounds,
-        );
-
-  final SingleEliminationWithConsolation tournament;
-  final Competition competition;
+  });
 
   final bool isEditable;
   final bool showResults;
@@ -32,6 +28,10 @@ class ConsolationEliminationTree extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
+    var tContext = context.read<TournamentContext>()
+        as TournamentContext<SingleEliminationWithConsolation>;
+    var tournament = tContext.tournament;
+
     ConsolationTreeNode consolationTreeRoot =
         _buildBracketTree(context, tournament.mainBracket);
 
@@ -48,9 +48,7 @@ class ConsolationEliminationTree extends StatelessWidget
       ..addAll(_createPlaceholderLabels(context, bracket));
 
     SingleEliminationTree tree = SingleEliminationTree(
-      tournament: tournament,
       rounds: bracket.rounds,
-      competition: competition,
       isEditable: isEditable,
       showResults: showResults,
       placeholderLabels: placeholderLabels,

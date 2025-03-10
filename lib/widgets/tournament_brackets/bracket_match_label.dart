@@ -1,21 +1,19 @@
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/slot_label.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:model_repository/model_repository.dart';
 
 class BracketMatchLabel extends StatelessWidget {
-  const BracketMatchLabel({
-    super.key,
-    required this.match,
-    required this.competition,
-  });
-
-  final TournamentMatch match;
-  final Competition competition;
+  const BracketMatchLabel({super.key});
 
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
+
+    var matchContext = context.read<MatchContext>();
+    var match = matchContext.match;
+    var competition = matchContext.competition;
 
     return Row(
       children: [

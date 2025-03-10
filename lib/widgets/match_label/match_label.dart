@@ -1,4 +1,5 @@
 import 'package:ez_badminton_admin_app/tournament_plans/cubit/tournament_plan_cubit.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:model_repository/model_repository.dart';
 // TODO import 'package:ez_badminton_admin_app/match_management/result_entering/view/result_input_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
@@ -15,37 +16,31 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class MatchLabel extends StatelessWidget {
   const MatchLabel({
     super.key,
-    required this.tournament,
-    required this.match,
     this.infoStyle = const TextStyle(fontSize: 12),
     this.opponentStyle = const TextStyle(fontSize: 16),
   });
-
-  final TournamentPlan tournament;
-  final TournamentMatch match;
 
   final TextStyle infoStyle;
   final TextStyle opponentStyle;
 
   @override
   Widget build(BuildContext context) {
+    var matchContext = context.read<MatchContext>();
+    var match = matchContext.match;
+    var tPlan = matchContext.tPlan;
     return Column(
       children: [
         CompetitionLabel(
-          competition: tournament.competition,
+          competition: tPlan.competition,
           textStyle: infoStyle,
           dividerPadding: 6,
         ),
         const SizedBox(height: 5),
         RunningMatchInfo(
-          tournament: tournament,
-          match: match,
           textStyle: infoStyle,
         ),
         const SizedBox(height: 5),
         MatchupLabel(
-          tournament: tournament,
-          match: match,
           orientation: Axis.horizontal,
           textStyle: opponentStyle,
         ),
@@ -59,17 +54,12 @@ class MatchLabel extends StatelessWidget {
 class MatchupLabel extends StatelessWidget {
   const MatchupLabel({
     super.key,
-    required this.tournament,
-    required this.match,
     this.orientation = Axis.vertical,
     this.participantWidth = 185,
     this.useFullName = false,
     this.boldLastName = false,
     this.textStyle,
   });
-
-  final TournamentPlan tournament;
-  final TournamentMatch match;
 
   final Axis orientation;
 
@@ -88,10 +78,14 @@ class MatchupLabel extends StatelessWidget {
     TextStyle? lastNameTextStyle =
         boldLastName ? const TextStyle(fontWeight: FontWeight.bold) : null;
 
+    var matchContext = context.read<MatchContext>();
+    var match = matchContext.match;
+    var teamSize = matchContext.competition.teamSize;
+
     List<Widget> widgets = [
       SlotLabel(
         match.slot1,
-        teamSize: tournament.competition.teamSize,
+        teamSize: teamSize,
         isEditable: false,
         width: participantWidth,
         alignment: orientation == Axis.vertical
@@ -117,7 +111,7 @@ class MatchupLabel extends StatelessWidget {
       ),
       SlotLabel(
         match.slot2,
-        teamSize: tournament.competition.teamSize,
+        teamSize: teamSize,
         isEditable: false,
         width: participantWidth,
         alignment: orientation == Axis.vertical
@@ -154,18 +148,12 @@ class MatchupLabel extends StatelessWidget {
 class MatchupCard extends StatelessWidget {
   const MatchupCard({
     super.key,
-    required this.tournament,
-    required this.match,
-    required this.competition,
     this.isEditable = false,
     this.width,
     this.placeholderLabels = const {},
     this.showResult = false,
   });
 
-  final Tournament tournament;
-  final TournamentMatch match;
-  final Competition competition;
   final bool isEditable;
   final double? width;
   final Map<Slot, Widget> placeholderLabels;
@@ -173,6 +161,10 @@ class MatchupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var matchContext = context.read<MatchContext>();
+    var match = matchContext.match;
+    var competition = matchContext.competition;
+
     Team? winner = showResult ? match.winner : null;
 
     Widget matchupCard = SizedBox(
@@ -195,8 +187,8 @@ class MatchupCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: [
-            _WalkoverInfo(match: match),
-            _ScoreEditButton(tournament: tournament, match: match),
+            _WalkoverInfo(),
+            _ScoreEditButton(),
             Expanded(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -243,7 +235,7 @@ class MatchupCard extends StatelessWidget {
                 ],
               ),
             ),
-            if (showResult) _Scoreline(match: match, competition: competition),
+            if (showResult) _Scoreline(),
           ],
         ),
       ),
@@ -257,16 +249,14 @@ class MatchupCard extends StatelessWidget {
 }
 
 class _Scoreline extends StatelessWidget {
-  const _Scoreline({
-    required this.match,
-    required this.competition,
-  });
-
-  final TournamentMatch match;
-  final Competition competition;
+  const _Scoreline();
 
   @override
   Widget build(BuildContext context) {
+    var matchContext = context.read<MatchContext>();
+    var match = matchContext.match;
+    var competition = matchContext.competition;
+
     int maxSets = competition.tournamentModeSettings!.winningSets * 2 - 1;
 
     Color dividerColor = match.isWalkover
@@ -394,16 +384,14 @@ class _ScoreContainer extends StatelessWidget {
 }
 
 class _ScoreEditButton extends StatelessWidget {
-  const _ScoreEditButton({
-    required this.tournament,
-    required this.match,
-  });
-
-  final Tournament tournament;
-  final TournamentMatch match;
+  const _ScoreEditButton();
 
   @override
   Widget build(BuildContext context) {
+    var matchContext = context.read<MatchContext>();
+    var match = matchContext.match;
+    var tournament = matchContext.tournament;
+
     var l10n = AppLocalizations.of(context)!;
 
     return BlocBuilder<TournamentPlanCubit, TournamentPlanState>(
@@ -443,14 +431,13 @@ class _ScoreEditButton extends StatelessWidget {
 }
 
 class _WalkoverInfo extends StatelessWidget {
-  const _WalkoverInfo({
-    required this.match,
-  });
-
-  final TournamentMatch match;
+  const _WalkoverInfo();
 
   @override
   Widget build(BuildContext context) {
+    var matchContext = context.read<MatchContext>();
+    var match = matchContext.match;
+
     if (!match.isWalkover) {
       return const SizedBox();
     }

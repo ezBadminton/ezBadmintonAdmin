@@ -111,14 +111,14 @@ class RankNumber extends StatelessWidget {
 class ProvisionalLeaderboardInfo extends StatelessWidget {
   const ProvisionalLeaderboardInfo({
     super.key,
-    required this.tournament,
+    required this.tPlan,
   });
 
-  final TournamentPlan tournament;
+  final TournamentPlan tPlan;
 
   @override
   Widget build(BuildContext context) {
-    if (tournament.ended) {
+    if (tPlan.ended) {
       return const SizedBox();
     }
 

@@ -1,25 +1,20 @@
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
 import 'package:ez_badminton_admin_app/widgets/minutes_timer/minutes_timer.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
     as display_strings;
 
 class MatchInfo extends StatelessWidget {
   const MatchInfo({
     super.key,
-    required this.tournament,
-    required this.match,
     this.textStyle = const TextStyle(fontSize: 12),
     this.dividerColor,
     this.playingLevelMaxWidth = 50,
   });
-
-  final TournamentPlan tournament;
-  final TournamentMatch match;
 
   final TextStyle textStyle;
 
@@ -32,13 +27,17 @@ class MatchInfo extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
     var navigationCubit = context.read<TabNavigationCubit>();
 
-    String? roundName = display_strings.matchName(l10n, tournament, match);
+    var matchContext = context.read<MatchContext>();
+    var match = matchContext.match;
+    var tPlan = matchContext.tPlan;
+
+    String? roundName = display_strings.matchName(l10n, tPlan, match);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CompetitionLabel(
-          competition: tournament.competition,
+          competition: tPlan.competition,
           abbreviated: true,
           playingLevelMaxWidth: playingLevelMaxWidth,
           textStyle: textStyle,
@@ -79,20 +78,20 @@ class MatchInfo extends StatelessWidget {
 class RunningMatchInfo extends StatelessWidget {
   const RunningMatchInfo({
     super.key,
-    required this.tournament,
-    required this.match,
     this.textStyle = const TextStyle(fontSize: 12),
   });
-
-  final TournamentPlan tournament;
-  final TournamentMatch match;
 
   final TextStyle textStyle;
 
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    String? roundName = display_strings.matchName(l10n, tournament, match);
+
+    var matchContext = context.read<MatchContext>();
+    var match = matchContext.match;
+    var tPlan = matchContext.tPlan;
+
+    String? roundName = display_strings.matchName(l10n, tPlan, match);
 
     return IntrinsicHeight(
       child: Row(

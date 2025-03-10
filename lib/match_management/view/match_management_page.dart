@@ -169,9 +169,12 @@ class _MatchQueueLists extends StatelessWidget {
                           : _buildWaitList(
                               context,
                               waitLists,
-                              (match, waitingStatus) => WaitingMatch(
-                                match: match,
-                                waitingStatus: waitingStatus,
+                              (match, waitingStatus) => MatchContextSubtree(
+                                match,
+                                child: WaitingMatch(
+                                  key: ValueKey(
+                                      'WaitingMatch-${match.match.id}'),
+                                ),
                               ),
                             ),
                     ),
@@ -190,7 +193,14 @@ class _MatchQueueLists extends StatelessWidget {
                       ),
                       list: _buildMatchList(
                         calloutWaitList,
-                        (match) => ReadyForCallOutMatch(match: match),
+                        (match) => MatchContextSubtree(
+                          match,
+                          child: ReadyForCallOutMatch(
+                            key: ValueKey(
+                              'ReadyForCallOutMatch-${match.match.id}',
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 5),
@@ -202,7 +212,12 @@ class _MatchQueueLists extends StatelessWidget {
                       ),
                       list: _buildMatchList(
                         inProgressList,
-                        (match) => RunningMatch(match: match),
+                        (match) => MatchContextSubtree(
+                          match,
+                          child: RunningMatch(
+                            key: ValueKey('RunningMatch-${match.match.id}'),
+                          ),
+                        ),
                       ),
                     ),
                   ],

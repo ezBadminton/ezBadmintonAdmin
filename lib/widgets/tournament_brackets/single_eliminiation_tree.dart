@@ -3,7 +3,9 @@ import 'package:ez_badminton_admin_app/layout/elimination_tree/elimination_tree_
 import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bracket.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'bracket_sizes.dart' as bracket_sizes;
@@ -12,19 +14,14 @@ class SingleEliminationTree extends StatelessWidget
     implements SectionedBracket {
   SingleEliminationTree({
     super.key,
-    required this.tournament,
-    required this.competition,
     required this.rounds,
     this.isEditable = false,
     this.showResults = false,
     this.placeholderLabels = const {},
   }) : _sections = getSections(rounds) {
-    matchNodeSize = getMatchNodeSize(competition.teamSize);
     layoutSize = _getLayoutSize();
   }
 
-  final Tournament tournament;
-  final Competition competition;
   final List<List<TournamentMatch>> rounds;
 
   final bool isEditable;
@@ -41,6 +38,10 @@ class SingleEliminationTree extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
+    var tContext = context.read<TournamentContext>();
+    var competition = tContext.competition;
+
+    matchNodeSize = getMatchNodeSize(competition.teamSize);
     List<List<Widget>> matchNodes = [];
 
     for ((int, List<TournamentMatch>) roundEntry in rounds.indexed) {
@@ -48,14 +49,17 @@ class SingleEliminationTree extends StatelessWidget
       List<TournamentMatch> round = roundEntry.$2;
 
       List<Widget> roundMatchNodes = round.mapIndexed((matchIndex, match) {
-        Widget matchCard = MatchupCard(
-          match: match,
-          tournament: tournament,
-          competition: competition,
-          isEditable: isEditable && roundIndex == 0,
-          placeholderLabels: placeholderLabels,
-          showResult: showResults,
-          width: matchNodeSize.width,
+        Widget matchCard = MatchContextSubtree(
+          MatchContext(
+            tContext.tPlan,
+            match,
+          ),
+          child: MatchupCard(
+            isEditable: isEditable && roundIndex == 0,
+            placeholderLabels: placeholderLabels,
+            showResult: showResults,
+            width: matchNodeSize.width,
+          ),
         );
 
         return matchCard;

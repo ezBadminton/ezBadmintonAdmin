@@ -4,49 +4,47 @@ import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/brack
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bracket.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/utils.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:model_repository/model_repository.dart';
 import 'bracket_sizes.dart' as bracket_sizes;
 
 class DoubleEliminationTree extends StatelessWidget
     implements SectionedBracket {
-  DoubleEliminationTree({
+  const DoubleEliminationTree({
     super.key,
-    required this.tournament,
-    required this.competition,
     this.placeholderLabels = const {},
+    this.sections = const [],
     this.isEditable = false,
     this.showResults = false,
-  }) : _sections = getSections(tournament) {
-    matchNodeSize =
-        SingleEliminationTree.getMatchNodeSize(competition.teamSize);
-    layoutSize = _getLayoutSize();
-  }
-
-  final DoubleElimination tournament;
-  final Competition competition;
+  });
 
   final Map<Slot, Widget> placeholderLabels;
 
   final bool isEditable;
   final bool showResults;
 
-  late final Size matchNodeSize;
-  late final Size layoutSize;
-
-  final List<BracketSection> _sections;
   @override
-  List<BracketSection> get sections => _sections;
+  final List<BracketSection> sections;
 
   @override
   Widget build(BuildContext context) {
-    Map<Slot, Widget> placeholderLabels = _createPlaceholderLabels(context);
+    var tContext = context.read<TournamentContext>()
+        as TournamentContext<DoubleElimination>;
+    var tournament = tContext.tournament;
+    var competition = tContext.competition;
+
+    var matchNodeSize =
+        SingleEliminationTree.getMatchNodeSize(competition.teamSize);
+    var layoutSize = _getLayoutSize(tournament, matchNodeSize);
+
+    Map<Slot, Widget> placeholderLabels =
+        _createPlaceholderLabels(context, tournament);
 
     SingleEliminationTree winnerBracket = SingleEliminationTree(
-      tournament: tournament,
       rounds: tournament.winnerRounds,
-      competition: competition,
       isEditable: isEditable,
       showResults: showResults,
       placeholderLabels: this.placeholderLabels,
@@ -59,13 +57,17 @@ class DoubleEliminationTree extends StatelessWidget
 
     for (List<TournamentMatch> round in rounds) {
       List<Widget> roundMatchNodes = round.map((match) {
-        Widget matchCard = MatchupCard(
-          tournament: tournament,
-          match: match,
-          competition: competition,
-          showResult: showResults,
-          width: matchNodeSize.width,
-          placeholderLabels: placeholderLabels,
+        Widget matchCard = MatchContextSubtree(
+          MatchContext(
+            tContext.tPlan,
+            match,
+            tournament: tournament,
+          ),
+          child: MatchupCard(
+            showResult: showResults,
+            width: matchNodeSize.width,
+            placeholderLabels: placeholderLabels,
+          ),
         );
 
         return matchCard;
@@ -83,7 +85,7 @@ class DoubleEliminationTree extends StatelessWidget
     );
   }
 
-  Size _getLayoutSize() {
+  Size _getLayoutSize(DoubleElimination tournament, Size matchNodeSize) {
     int numRounds = tournament.loserRounds.length;
     int firstRoundSize = tournament.loserRounds.first.length;
 
@@ -97,6 +99,7 @@ class DoubleEliminationTree extends StatelessWidget
 
   Map<Slot, Widget> _createPlaceholderLabels(
     BuildContext context,
+    DoubleElimination tournament,
   ) {
     var l10n = AppLocalizations.of(context)!;
 

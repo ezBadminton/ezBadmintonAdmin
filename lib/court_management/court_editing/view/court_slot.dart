@@ -238,7 +238,11 @@ class _CourtLabel extends StatelessWidget {
                           ? AlignmentDirectional.topStart
                           : AlignmentDirectional.center,
                     ),
-                    if (hasMatch) _MatchOnCourtCard(match: matchOnCourt),
+                    if (hasMatch)
+                      MatchContextSubtree(
+                        matchOnCourt,
+                        child: _MatchOnCourtCard(),
+                      ),
                     if (state.tabChangeReason is TournamentMatch && !hasMatch)
                       _MatchAssignmentButton(
                         match: state.tabChangeReason as TournamentMatch,
@@ -394,14 +398,12 @@ class _MatchAssignmentButton extends StatelessWidget {
 }
 
 class _MatchOnCourtCard extends StatelessWidget {
-  const _MatchOnCourtCard({
-    required this.match,
-  });
-
-  final MatchContext match;
+  const _MatchOnCourtCard();
 
   @override
   Widget build(BuildContext context) {
+    var matchContext = context.read<MatchContext>();
+
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -416,19 +418,14 @@ class _MatchOnCourtCard extends StatelessWidget {
         child: Column(
           children: [
             CompetitionLabel(
-              competition: match.competition,
+              competition: matchContext.competition,
               textStyle: const TextStyle(fontSize: 12),
               dividerPadding: 7,
             ),
             const SizedBox(height: 2),
-            RunningMatchInfo(
-              tournament: match.tPlan,
-              match: match.match,
-            ),
+            RunningMatchInfo(),
             const SizedBox(height: 10),
             MatchupLabel(
-              tournament: match.tPlan,
-              match: match.match,
               orientation: Axis.horizontal,
               participantWidth: 183,
             ),

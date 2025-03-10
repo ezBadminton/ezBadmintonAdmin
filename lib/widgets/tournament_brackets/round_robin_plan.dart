@@ -1,3 +1,4 @@
+import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/interactive_view_blocker_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section_subtree.dart';
@@ -12,14 +13,9 @@ import 'bracket_sizes.dart' as bracket_sizes;
 class RoundRobinPlan extends StatelessWidget {
   const RoundRobinPlan({
     super.key,
-    required this.tPlan,
-    required this.tournament,
     this.isEditable = false,
     this.title,
   });
-
-  final TournamentPlan tPlan;
-  final RoundRobin tournament;
 
   final bool isEditable;
 
@@ -29,23 +25,20 @@ class RoundRobinPlan extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
-    List<Team> participants = tournament.entries;
+    var tContext =
+        context.read<TournamentContext>() as TournamentContext<RoundRobin>;
+    var tournament = tContext.tournament;
 
     return BracketSectionSubtree(
       tournamentDataObject: tournament,
       child: Column(
         children: [
           _RoundRobinTable(
-            participants: participants,
-            competition: tPlan.competition,
             isEditable: isEditable,
             title: title ?? l10n.participant(2),
           ),
           const SizedBox(height: 5),
-          _RoundRobinMatchList(
-            rounds: tournament.rounds,
-            competition: tPlan.competition,
-          ),
+          _RoundRobinMatchList(),
         ],
       ),
     );
@@ -54,14 +47,9 @@ class RoundRobinPlan extends StatelessWidget {
 
 class _RoundRobinTable extends StatelessWidget {
   const _RoundRobinTable({
-    required this.participants,
-    required this.competition,
     required this.isEditable,
     this.title,
   });
-
-  final List<Team> participants;
-  final Competition competition;
 
   final bool isEditable;
 
@@ -70,6 +58,11 @@ class _RoundRobinTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double width = bracket_sizes.roundRobinTableWidth;
+
+    var tContext =
+        context.read<TournamentContext>() as TournamentContext<RoundRobin>;
+    var entries = tContext.tournament.entries;
+    var competition = tContext.competition;
 
     return Card(
       elevation: 0,
@@ -109,7 +102,7 @@ class _RoundRobinTable extends StatelessWidget {
               ),
             ),
           ],
-          for (Team team in participants) ...[
+          for (Team team in entries) ...[
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0),
               child: SlotLabel(
@@ -120,7 +113,7 @@ class _RoundRobinTable extends StatelessWidget {
                 showClub: true,
               ),
             ),
-            if (participants.last != team)
+            if (entries.last != team)
               SizedBox(
                 width: width,
                 child: const Divider(height: 0),
@@ -133,13 +126,7 @@ class _RoundRobinTable extends StatelessWidget {
 }
 
 class _RoundRobinMatchList extends StatefulWidget {
-  const _RoundRobinMatchList({
-    required this.rounds,
-    required this.competition,
-  });
-
-  final List<List<TournamentMatch>> rounds;
-  final Competition competition;
+  const _RoundRobinMatchList();
 
   @override
   State<_RoundRobinMatchList> createState() => _RoundRobinMatchListState();
@@ -167,6 +154,10 @@ class _RoundRobinMatchListState extends State<_RoundRobinMatchList> {
     var l10n = AppLocalizations.of(context)!;
     var interactionBlockerCubit = context.read<InteractiveViewBlockerCubit>();
     double width = bracket_sizes.roundRobinTableWidth;
+
+    var tContext =
+        context.read<TournamentContext>() as TournamentContext<RoundRobin>;
+    var tournament = tContext.tournament;
 
     return SizedBox(
       width: width,
@@ -196,11 +187,11 @@ class _RoundRobinMatchListState extends State<_RoundRobinMatchList> {
               color: Colors.black.withOpacity(.16),
               child: ListView.builder(
                 controller: _scrollController,
-                itemCount: widget.rounds.length,
-                prototypeItem: _buildRound(widget.rounds.first, 0, l10n),
+                itemCount: tournament.rounds.length,
+                prototypeItem: _buildRound(tContext, 0, l10n),
                 shrinkWrap: true,
                 itemBuilder: (context, index) => _buildRound(
-                  widget.rounds[index],
+                  tContext,
                   index,
                   l10n,
                 ),
@@ -213,13 +204,16 @@ class _RoundRobinMatchListState extends State<_RoundRobinMatchList> {
   }
 
   Widget _buildRound(
-    List<TournamentMatch> round,
+    TournamentContext<RoundRobin> tContext,
     int roundIndex,
     AppLocalizations l10n,
   ) {
+    var tournament = tContext.tournament;
+    var rounds = tournament.rounds;
+    var round = rounds[roundIndex];
     return Column(
       children: [
-        if (widget.rounds.first == round) const SizedBox(height: 15),
+        if (roundIndex == 0) const SizedBox(height: 15),
         Text(
           l10n.encounterNumber(roundIndex + 1),
           style: const TextStyle(fontWeight: FontWeight.w600),
@@ -227,11 +221,13 @@ class _RoundRobinMatchListState extends State<_RoundRobinMatchList> {
         for (TournamentMatch match in round)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5.0),
-            child: BracketMatchLabel(
-                match: match, competition: widget.competition),
+            child: MatchContextSubtree(
+              MatchContext(tContext.tPlan, match),
+              child: BracketMatchLabel(),
+            ),
           ),
-        if (widget.rounds.last != round) const SizedBox(height: 10),
-        if (widget.rounds.last == round) const SizedBox(height: 15),
+        if (roundIndex != rounds.length - 1) const SizedBox(height: 10),
+        if (roundIndex == rounds.length - 1) const SizedBox(height: 15),
       ],
     );
   }

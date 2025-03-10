@@ -19,41 +19,31 @@ import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
     as display_strings;
 
 class WaitingMatch extends StatelessWidget {
-  WaitingMatch({
-    required this.match,
-    required this.waitingStatus,
-  }) : super(key: ValueKey('WaitingMatch-${match.match.id}'));
-
-  final ScheduledMatchContext match;
-  final ScheduleStatus waitingStatus;
+  const WaitingMatch({super.key});
 
   @override
   Widget build(BuildContext context) {
+    var matchContext = context.read<MatchContext>() as ScheduledMatchContext;
+    var match = matchContext.scheduledMatch;
+
     return _QueuedMatchCard(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: MatchInfo(
-              tournament: match.tPlan,
-              match: match.match,
-            ),
+            child: MatchInfo(),
           ),
-          MatchupLabel(
-            tournament: match.tPlan,
-            match: match.match,
-          ),
+          MatchupLabel(),
           Expanded(
             child: Align(
               alignment: AlignmentDirectional.centerEnd,
               child: Padding(
                 padding: const EdgeInsets.only(right: 10.0),
-                child: switch (waitingStatus) {
+                child: switch (match.status) {
                   ScheduleStatus.courtWait =>
                     _CourtAssignmentButton(match: match.match),
-                  ScheduleStatus.playerRest => _RestBlockingInfo(match: match),
-                  ScheduleStatus.playerWait =>
-                    _PlayerBlockingInfo(match: match),
+                  ScheduleStatus.playerRest => _RestBlockingInfo(),
+                  ScheduleStatus.playerWait => _PlayerBlockingInfo(),
                   _ => const SizedBox(),
                 },
               ),
@@ -66,13 +56,7 @@ class WaitingMatch extends StatelessWidget {
 }
 
 class ReadyForCallOutMatch extends StatelessWidget {
-  ReadyForCallOutMatch({
-    required this.match,
-  }) : super(
-          key: ValueKey('ReadyForCallOutMatch-${match.match.id}'),
-        );
-
-  final MatchContext match;
+  const ReadyForCallOutMatch({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -85,17 +69,10 @@ class ReadyForCallOutMatch extends StatelessWidget {
               richMessage: WidgetSpan(
                 child: DefaultTextStyle.merge(
                   style: const TextStyle(color: Colors.white),
-                  child: MatchInfo(
-                    tournament: match.tPlan,
-                    match: match.match,
-                    dividerColor: Colors.white54,
-                  ),
+                  child: MatchInfo(dividerColor: Colors.white54),
                 ),
               ),
-              child: MatchupLabel(
-                tournament: match.tPlan,
-                match: match.match,
-              ),
+              child: MatchupLabel(),
             ),
           ),
           Positioned(
@@ -103,14 +80,14 @@ class ReadyForCallOutMatch extends StatelessWidget {
             top: 0,
             right: 6,
             child: Align(
-              child: _CallOutButton(match: match),
+              child: _CallOutButton(),
             ),
           ),
           Positioned(
             bottom: 0,
             top: 0,
             child: Align(
-              child: _BackToWaitlistButton(match: match.match),
+              child: _BackToWaitlistButton(),
             ),
           ),
         ],
@@ -120,15 +97,14 @@ class ReadyForCallOutMatch extends StatelessWidget {
 }
 
 class RunningMatch extends StatelessWidget {
-  RunningMatch({
-    required this.match,
-  }) : super(key: ValueKey('RunningMatch-${match.match.id}'));
-
-  final MatchContext match;
+  const RunningMatch({super.key});
 
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
+
+    var matchContext = context.read<MatchContext>();
+    var match = matchContext.match;
 
     return _QueuedMatchCard(
       child: Row(
@@ -138,16 +114,13 @@ class RunningMatch extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                MatchInfo(
-                  tournament: match.tPlan,
-                  match: match.match,
-                ),
+                MatchInfo(),
                 const SizedBox(height: 7),
-                if (match.match.endTime == null)
+                if (match.endTime == null)
                   MinutesTimer(
-                    timestamp: match.match.startTime!,
+                    timestamp: match.startTime!,
                     // TODO weird null assign
-                    endTime: match.match.endTime,
+                    endTime: match.endTime,
                     textStyle: const TextStyle(fontSize: 12),
                   )
                 else
@@ -158,19 +131,16 @@ class RunningMatch extends StatelessWidget {
               ],
             ),
           ),
-          MatchupLabel(
-            tournament: match.tPlan,
-            match: match.match,
-          ),
+          MatchupLabel(),
           Expanded(
             child: Align(
               alignment: AlignmentDirectional.centerEnd,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _RunningMatchMenuButton(match: match),
+                  _RunningMatchMenuButton(),
                   const SizedBox(width: 12),
-                  _EnterResultButton(match: match),
+                  _EnterResultButton(),
                   const SizedBox(width: 8),
                 ],
               ),
@@ -365,11 +335,7 @@ class _FullAutoSymbol extends StatelessWidget {
 }
 
 class _PlayerBlockingInfo extends StatelessWidget {
-  const _PlayerBlockingInfo({
-    required this.match,
-  });
-
-  final ScheduledMatchContext match;
+  const _PlayerBlockingInfo();
 
   @override
   Widget build(BuildContext context) {
@@ -377,7 +343,10 @@ class _PlayerBlockingInfo extends StatelessWidget {
     var queueCubit = context.read<MatchQueueCubit>();
     var matchDataMap = queueCubit.state.matchDataMap;
 
-    var blocks = match.scheduledMatch.blockingPlayers;
+    var matchContext = context.read<MatchContext>() as ScheduledMatchContext;
+    var match = matchContext.scheduledMatch;
+
+    var blocks = match.blockingPlayers;
     var blockingMatches = <MatchContext>[];
     for (var block in blocks.values) {
       if (block.blockingMatch != null) {
@@ -404,20 +373,19 @@ class _PlayerBlockingInfo extends StatelessWidget {
 }
 
 class _RestBlockingInfo extends StatelessWidget {
-  const _RestBlockingInfo({
-    required this.match,
-  });
-
-  final ScheduledMatchContext match;
+  const _RestBlockingInfo();
 
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
+    var matchContext = context.read<MatchContext>() as ScheduledMatchContext;
+    var match = matchContext.scheduledMatch;
+
     return BlocBuilder<MatchQueueCubit, MatchQueueState>(
       builder: (context, state) {
         Map<Player, DateTime> restingDeadlines = Map.fromEntries(
-          match.scheduledMatch.blockingPlayers.entries
+          match.blockingPlayers.entries
               .where((e) => e.value.restUntil != null)
               .map((e) => MapEntry(e.key, e.value.restUntil!)),
         );
@@ -513,14 +481,15 @@ class _PlayerBlockingDialog extends StatelessWidget {
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: MatchLabel(
-                    tournament: match.tPlan,
-                    match: match.match,
-                    opponentStyle: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: 19,
+                  child: MatchContextSubtree(
+                    match,
+                    child: MatchLabel(
+                      opponentStyle: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: 19,
+                      ),
+                      infoStyle: const TextStyle(fontSize: 14),
                     ),
-                    infoStyle: const TextStyle(fontSize: 14),
                   ),
                 ),
               ),
@@ -539,15 +508,13 @@ class _PlayerBlockingDialog extends StatelessWidget {
 }
 
 class _CallOutButton extends StatelessWidget {
-  const _CallOutButton({
-    required this.match,
-  });
-
-  final MatchContext match;
+  const _CallOutButton();
 
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
+
+    var matchContext = context.read<MatchContext>();
 
     return Tooltip(
       message: l10n.callOutMatch,
@@ -558,7 +525,7 @@ class _CallOutButton extends StatelessWidget {
             showDialog(
               context: context,
               builder: (_) => CallOutScript(
-                callOuts: [match],
+                callOuts: [matchContext],
                 matchStartingCubit: context.read<MatchStartStopCubit>(),
               ),
             );
@@ -575,16 +542,15 @@ class _CallOutButton extends StatelessWidget {
 }
 
 class _BackToWaitlistButton extends StatelessWidget {
-  const _BackToWaitlistButton({
-    required this.match,
-  });
-
-  final TournamentMatch match;
+  const _BackToWaitlistButton();
 
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
     var courtAssignmentCubit = context.read<MatchCourtAssignmentCubit>();
+
+    var matchContext = context.read<MatchContext>();
+    var match = matchContext.match;
 
     return BlocBuilder<MatchQueueCubit, MatchQueueState>(
       buildWhen: (previous, current) => previous.queueMode != current.queueMode,
@@ -618,15 +584,13 @@ class _BackToWaitlistButton extends StatelessWidget {
 }
 
 class _EnterResultButton extends StatelessWidget {
-  const _EnterResultButton({
-    required this.match,
-  });
-
-  final MatchContext match;
+  const _EnterResultButton();
 
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
+
+    var matchContext = context.read<MatchContext>();
 
     return Tooltip(
       message: l10n.enterResult,
@@ -637,8 +601,9 @@ class _EnterResultButton extends StatelessWidget {
             showDialog(
               context: context,
               barrierDismissible: false,
-              builder: (context) => ResultInputDialog(
-                match: match,
+              builder: (context) => MatchContextSubtree(
+                matchContext,
+                child: ResultInputDialog(),
               ),
             );
           },
@@ -661,16 +626,15 @@ class _EnterResultButton extends StatelessWidget {
 }
 
 class _RunningMatchMenuButton extends StatelessWidget {
-  const _RunningMatchMenuButton({
-    required this.match,
-  });
-
-  final MatchContext match;
+  const _RunningMatchMenuButton();
 
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
     var cubit = context.read<MatchStartStopCubit>();
+
+    var matchContext = context.read<MatchContext>();
+    var match = matchContext.match;
 
     return PopupMenuButton<VoidCallback>(
       onSelected: (callback) => callback(),
@@ -684,13 +648,13 @@ class _RunningMatchMenuButton extends StatelessWidget {
         ),
       ),
       itemBuilder: (context) => [
-        if (match.match.endTime == null)
+        if (match.endTime == null)
           PopupMenuItem(
-            value: () => cubit.matchEnded(match.match),
+            value: () => cubit.matchEnded(match),
             child: Text(l10n.unlockCourt),
           ),
         PopupMenuItem(
-          value: () => cubit.matchCanceled(match.match),
+          value: () => cubit.matchCanceled(match),
           child: Text(
             l10n.cancelMatch,
             style: TextStyle(color: Theme.of(context).colorScheme.error),

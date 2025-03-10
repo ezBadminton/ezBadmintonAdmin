@@ -6,37 +6,29 @@ import 'package:ez_badminton_admin_app/widgets/tie_breaker_menu/tie_breaker_menu
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section_subtree.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/slot_label.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/utils.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:model_repository/model_repository.dart';
 
 class RoundRobinResults extends StatelessWidget {
-  const RoundRobinResults({
-    super.key,
-    required this.tPlan,
-    required this.tournament,
-    this.parentTournament,
-  });
-
-  final TournamentPlan tPlan;
-  final RoundRobin tournament;
-
-  final GroupKnockout? parentTournament;
+  const RoundRobinResults({super.key});
 
   @override
   Widget build(BuildContext context) {
+    var tContext =
+        context.read<TournamentContext>() as TournamentContext<RoundRobin>;
+    var tournament = tContext.tournament;
+
     return BracketSectionSubtree(
       tournamentDataObject: tournament,
-      child: Column(
+      child: const Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _RoundRobinLeaderboard(
-            tPlan: tPlan,
-            tournament: tournament,
-            parentTournament: parentTournament,
-          ),
-          const SizedBox(height: 30),
-          _MatchResultList(tPlan: tPlan, tournament: tournament),
+          _RoundRobinLeaderboard(),
+          SizedBox(height: 30),
+          _MatchResultList(),
         ],
       ),
     );
@@ -44,22 +36,15 @@ class RoundRobinResults extends StatelessWidget {
 }
 
 class _RoundRobinLeaderboard extends StatelessWidget {
-  _RoundRobinLeaderboard({
-    required this.tPlan,
-    required this.tournament,
-    this.parentTournament,
-  }) : _brokenTieMap = _mapBrokenTies(tournament);
-
-  final TournamentPlan tPlan;
-  final RoundRobin tournament;
-
-  final GroupKnockout? parentTournament;
-
-  final Map<List<Team>, List<List<Team>>> _brokenTieMap;
+  const _RoundRobinLeaderboard();
 
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
+
+    var tContext =
+        context.read<TournamentContext>() as TournamentContext<RoundRobin>;
+    var tournament = tContext.tournament;
 
     const TextStyle statNameStyle = TextStyle(fontSize: 11);
     TableRow leaderboardHeader = TableRow(
@@ -163,11 +148,20 @@ class _RoundRobinLeaderboard extends StatelessWidget {
   Widget _buildTitle(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
+    var tContext =
+        context.read<TournamentContext>() as TournamentContext<RoundRobin>;
+    var tPlan = tContext.tPlan;
+    var tournament = tContext.tournament;
+    GroupKnockout? parentTournament;
+    if (tPlan.tournament is GroupKnockout) {
+      parentTournament = tPlan.tournament as GroupKnockout;
+    }
+
     if (parentTournament == null) {
       return const SizedBox();
     }
 
-    int groupIndex = parentTournament!.groupPhase.groups.indexOf(tournament);
+    int groupIndex = parentTournament.groupPhase.groups.indexOf(tournament);
 
     return TableCell(
       verticalAlignment: TableCellVerticalAlignment.fill,
@@ -191,11 +185,22 @@ class _RoundRobinLeaderboard extends StatelessWidget {
     List<Team> tiedTeams,
     int rankIndex,
   ) {
+    var tContext =
+        context.read<TournamentContext>() as TournamentContext<RoundRobin>;
+    var tPlan = tContext.tPlan;
+    var tournament = tContext.tournament;
+
     if (!tPlan.ended) {
       return null;
     }
 
-    List<Team>? tieOfRank = _brokenTieMap.entries
+    var brokenTieMap = _mapBrokenTies(tournament);
+    GroupKnockout? parentTournament;
+    if (tPlan.tournament is GroupKnockout) {
+      parentTournament = tPlan.tournament as GroupKnockout;
+    }
+
+    List<Team>? tieOfRank = brokenTieMap.entries
         .firstWhereOrNull(
           (tieMapEntry) => tieMapEntry.value.last.equals(tiedTeams),
         )
@@ -205,7 +210,7 @@ class _RoundRobinLeaderboard extends StatelessWidget {
       return null;
     }
 
-    if (parentTournament != null && parentTournament!.knockoutStarted) {
+    if (parentTournament != null && parentTournament.knockoutStarted) {
       // Do not allow editing of the tie breaker when knockout phase has started
       return null;
     }
@@ -282,17 +287,14 @@ class _RoundRobinLeaderboard extends StatelessWidget {
 }
 
 class _MatchResultList extends StatelessWidget {
-  const _MatchResultList({
-    required this.tPlan,
-    required this.tournament,
-  });
-
-  final TournamentPlan tPlan;
-  final RoundRobin tournament;
+  const _MatchResultList();
 
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
+
+    var tContext = context.read<TournamentContext>();
+    var tournament = tContext.tournament;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -304,12 +306,16 @@ class _MatchResultList extends StatelessWidget {
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
           for (TournamentMatch match in round.where((m) => !m.isBye))
-            MatchupCard(
-              tournament: tPlan.tournament,
-              competition: tPlan.competition,
-              match: match,
-              showResult: true,
-              width: 550,
+            MatchContextSubtree(
+              MatchContext(
+                tContext.tPlan,
+                match,
+                tournament: tournament,
+              ),
+              child: MatchupCard(
+                showResult: true,
+                width: 550,
+              ),
             ),
           const SizedBox(height: 10),
         ],

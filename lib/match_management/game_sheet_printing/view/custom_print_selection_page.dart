@@ -197,26 +197,24 @@ class _SelectionList extends StatelessWidget {
     return selectionList;
   }
 
-  List<_PrintSelectionMatchItem> _mapMatches(
-      List<ScheduledMatchContext> matches) {
+  List<Widget> _mapMatches(List<ScheduledMatchContext> matches) {
     return matches
-        .map((match) => _PrintSelectionMatchItem(match: match))
+        .map((match) =>
+            MatchContextSubtree(match, child: _PrintSelectionMatchItem()))
         .toList();
   }
 }
 
 class _PrintSelectionMatchItem extends StatelessWidget {
-  const _PrintSelectionMatchItem({
-    required this.match,
-  });
-
-  final ScheduledMatchContext match;
+  const _PrintSelectionMatchItem();
 
   @override
   Widget build(BuildContext context) {
     var cubit = context.read<CustomPrintSelectionCubit>();
 
-    onSelect() => cubit.matchToggled(match);
+    var matchContext = context.read<MatchContext>() as ScheduledMatchContext;
+
+    onSelect() => cubit.matchToggled(matchContext);
 
     return InkWell(
       onTap: onSelect,
@@ -226,7 +224,7 @@ class _PrintSelectionMatchItem extends StatelessWidget {
           BlocBuilder<CustomPrintSelectionCubit, CustomPrintSelectionState>(
             builder: (context, state) {
               return Checkbox(
-                value: state.selectedMatches.value.contains(match),
+                value: state.selectedMatches.value.contains(matchContext),
                 onChanged: (_) => onSelect(),
               );
             },
@@ -251,21 +249,17 @@ class _PrintSelectionMatchItem extends StatelessWidget {
                   children: [
                     Expanded(
                       child: MatchInfo(
-                        tournament: match.tPlan,
-                        match: match.match,
                         textStyle: const TextStyle(fontSize: 14),
                         playingLevelMaxWidth: 90,
                       ),
                     ),
                     MatchupLabel(
-                      tournament: match.tPlan,
-                      match: match.match,
                       participantWidth: 250,
                       useFullName: true,
                       boldLastName: true,
                     ),
                     Expanded(
-                      child: _MatchPrintStatus(match: match),
+                      child: _MatchPrintStatus(),
                     )
                   ],
                 ),
@@ -279,17 +273,15 @@ class _PrintSelectionMatchItem extends StatelessWidget {
 }
 
 class _MatchPrintStatus extends StatelessWidget {
-  const _MatchPrintStatus({
-    required this.match,
-  });
-
-  final ScheduledMatchContext match;
+  const _MatchPrintStatus();
 
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
-    bool created = match.match.gameSheetPrinted;
+    var matchContext = context.read<MatchContext>();
+
+    bool created = matchContext.match.gameSheetPrinted;
 
     String tooltip = created ? l10n.sheetCreated : l10n.sheetNotCreated;
 
