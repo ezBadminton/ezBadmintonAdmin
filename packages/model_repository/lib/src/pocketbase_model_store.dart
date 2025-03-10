@@ -44,11 +44,11 @@ class PocketbaseModelStore<M extends Model> extends ModelStore<M> {
   Completer<void> get loadCompleter => _loadCompleter;
 
   @override
-  final StreamController<List<CollectionUpdateEvent<M>>>
-      updateStreamController = StreamController.broadcast();
+  final StreamController<CollectionUpdateEvent<M>> updateStreamController =
+      StreamController.broadcast();
 
   @override
-  Stream<List<CollectionUpdateEvent<M>>> get updateStream async* {
+  Stream<CollectionUpdateEvent<M>> get updateStream async* {
     yield* updateStreamController.stream;
   }
 
@@ -97,7 +97,7 @@ class PocketbaseModelStore<M extends Model> extends ModelStore<M> {
     };
 
     _applyCollectionUpdate(updateEvent);
-    emitUpdateEvents([updateEvent]);
+    emitUpdateEvent(updateEvent);
   }
 
   void _applyCollectionUpdate(CollectionUpdateEvent<M> event) {
@@ -201,8 +201,8 @@ class PocketbaseModelStore<M extends Model> extends ModelStore<M> {
     }
   }
 
-  void emitUpdateEvents(List<CollectionUpdateEvent<M>> events) {
-    updateStreamController.add(events);
+  void emitUpdateEvent(CollectionUpdateEvent<M> event) {
+    updateStreamController.add(event);
   }
 
   @override

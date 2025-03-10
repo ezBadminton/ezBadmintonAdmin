@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
@@ -46,13 +45,10 @@ class PartnerRegistrationCubit
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    List<CollectionUpdateEvent<Model>> updateEvents,
+    CollectionUpdateEvent<Model>? updateEvent,
   ) {
-    bool doUpdate = updateEvents.isEmpty ||
-        updateEvents
-                .firstWhereOrNull((e) => e is CollectionUpdateEvent<Player>) !=
-            null;
-
+    bool doUpdate =
+        updateEvent == null || updateEvent is CollectionUpdateEvent<Player>;
     if (!doUpdate) {
       return;
     }
@@ -125,33 +121,23 @@ class PartnerRegistrationCubit
 
   // If the currently selected partner is registered to another team
   // remove the selection to avoid double registrations
-  void _onTeamCollectionUpdate(List<CollectionUpdateEvent<Team>> events) {
+  void _onTeamCollectionUpdate(CollectionUpdateEvent<Team> event) {
     if (state.partner.value == null) {
       return;
     }
 
-    bool partnerWasUpdated = events.firstWhereOrNull(
-          (e) => e.model.players.contains(state.partner.value),
-        ) !=
-        null;
-
+    bool partnerWasUpdated = event.model.players.contains(state.partner.value);
     if (partnerWasUpdated) {
       partnerChanged(null);
     }
   }
 
-  void _onPlayerCollectionUpdate(List<CollectionUpdateEvent<Player>> events) {
+  void _onPlayerCollectionUpdate(CollectionUpdateEvent<Player> event) {
     if (state.partner.value == null) {
       return;
     }
-
-    CollectionUpdateEvent<Player>? updateEvent =
-        events.reversed.firstWhereOrNull((e) => e.model == state.partner.value);
-
-    if (updateEvent == null) {
-      return;
+    if (event.model == state.partner.value) {
+      partnerChanged(null);
     }
-
-    partnerChanged(null);
   }
 }

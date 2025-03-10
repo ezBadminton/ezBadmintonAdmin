@@ -34,7 +34,7 @@ class CompetitionCategorizationCubit
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    List<CollectionUpdateEvent<Model>> updateEvents,
+    CollectionUpdateEvent<Model>? updateEvent,
   ) {
     CompetitionCategorizationState updatedState = state.copyWith(
       collections: collections,

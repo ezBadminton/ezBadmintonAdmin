@@ -71,9 +71,7 @@ class CompetitionDeletionCubit
   }
 
   @override
-  void onCollectionUpdate(
-    List<List<Model>> collections,
-    List<CollectionUpdateEvent<Model>> updateEvents,
-  ) =>
+  void onCollectionUpdate(List<List<Model>> collections,
+          CollectionUpdateEvent<Model>? updateEvent) =>
       {};
 }

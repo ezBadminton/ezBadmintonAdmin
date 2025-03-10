@@ -7,12 +7,12 @@ abstract class ModelStore<M extends Model> {
   /// Streams a [M] object whenever it is updated
   ///
   /// This happens when the [M] object was created, updated or deleted.
-  Stream<List<CollectionUpdateEvent<M>>> get updateStream;
+  Stream<CollectionUpdateEvent<M>> get updateStream;
 
   ModelRepository get repository;
 
   @protected
-  StreamController<List<CollectionUpdateEvent<M>>> get updateStreamController;
+  StreamController<CollectionUpdateEvent<M>> get updateStreamController;
 
   /// The load completer completes its future when the initial fetch of the
   /// collection was successful

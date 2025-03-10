@@ -52,7 +52,7 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    List<CollectionUpdateEvent<Model>> updateEvents,
+    CollectionUpdateEvent<Model>? updateEvent,
   ) {
     PlayerEditingState updatedState = state.copyWith(
       collections: collections,
@@ -334,7 +334,7 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
 
   /// Reset the registration list when the competition collection
   /// changes while this form is open
-  void _onCompetitionCollectionUpdate(List<CollectionUpdateEvent> _) {
+  void _onCompetitionCollectionUpdate(CollectionUpdateEvent _) {
     if (state.formStatus != FormzSubmissionStatus.success) {
       ListInput<Registration> resetRegistrations =
           state.registrations.copyWithReset();
@@ -343,7 +343,7 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
     }
   }
 
-  void _closeRegistrationFormOnUpdate(List<CollectionUpdateEvent> _) {
+  void _closeRegistrationFormOnUpdate(CollectionUpdateEvent _) {
     if (state.registrationFormShown) {
       registrationCanceled();
     }

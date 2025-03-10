@@ -30,7 +30,7 @@ class AgeGroupEditingCubit extends CollectionQuerierCubit<AgeGroupEditingState>
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    List<CollectionUpdateEvent<Model>> updateEvents,
+    CollectionUpdateEvent<Model>? updateEvent,
   ) {
     AgeGroupEditingState updatedState = state.copyWith(
       collections: collections,

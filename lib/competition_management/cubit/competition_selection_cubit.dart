@@ -23,9 +23,9 @@ class CompetitionSelectionCubit
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    List<CollectionUpdateEvent<Model>> updateEvents,
+    CollectionUpdateEvent<Model>? updateEvent,
   ) {
-    if (updateEvents.isEmpty) {
+    if (updateEvent == null) {
       List<Competition> competitions = collections
           .firstWhere((c) => c is List<Competition>) as List<Competition>;
       CompetitionSelectionState updatedState = state.copyWith(
@@ -81,22 +81,16 @@ class CompetitionSelectionCubit
   }
 
   void _onCompetitionCollectionUpdate(
-    List<CollectionUpdateEvent<Competition>> events,
+    CollectionUpdateEvent<Competition> event,
   ) {
     List<Competition> selected = List.of(state.selectedCompetitions);
 
-    List<Competition> updated =
-        events.map((e) => e.model).where((c) => selected.contains(c)).toList();
-
-    if (updated.isEmpty) {
+    if (!selected.contains(event.model)) {
       return;
     }
 
-    for (Competition u in updated) {
-      selected.removeWhere((c) => c.id == u.id);
-    }
-
-    selected.addAll(updated);
+    selected.removeWhere((c) => c.id == event.model.id);
+    selected.add(event.model);
 
     emit(state.copyWith(selectedCompetitions: selected));
   }

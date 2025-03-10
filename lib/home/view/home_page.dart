@@ -36,11 +36,6 @@ class _HomePageState extends State<HomePage>
   AnimationController tabSwitchController() {
     final AnimationController controller = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 120));
-    controller.addStatusListener((AnimationStatus status) {
-      if (status == AnimationStatus.dismissed) {
-        setState(() {});
-      }
-    });
     return controller;
   }
 

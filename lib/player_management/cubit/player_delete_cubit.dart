@@ -38,5 +38,5 @@ class PlayerDeleteCubit extends CollectionQuerierCubit<PlayerDeleteState>
 
   @override
   void onCollectionUpdate(List<List<Model>> collections,
-      List<CollectionUpdateEvent<Model>> updateEvents) {}
+      CollectionUpdateEvent<Model>? updateEvent) {}
 }

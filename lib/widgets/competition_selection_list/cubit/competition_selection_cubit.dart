@@ -24,7 +24,7 @@ class CompetitionSelectionCubit
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    List<CollectionUpdateEvent<Model>> updateEvents,
+    CollectionUpdateEvent<Model>? updateEvent,
   ) {
     CompetitionSelectionState updatedState = state.copyWith(
       collections: collections,
@@ -55,22 +55,17 @@ class CompetitionSelectionCubit
   }
 
   void _onCompetitionCollectionUpdate(
-    List<CollectionUpdateEvent<Competition>> events,
+    CollectionUpdateEvent<Competition>? event,
   ) {
-    CollectionUpdateEvent<Competition>? selectionUpdate =
-        events.reversed.firstWhereOrNull(
-      (e) => e.model.id == state.selectedCompetition.value?.id,
-    );
-
-    if (selectionUpdate == null) {
+    if (event == null || event.model != state.selectedCompetition.value) {
       return;
     }
 
-    switch (selectionUpdate.updateType) {
+    switch (event.updateType) {
       case UpdateType.update:
         emit(state.copyWith(
           selectedCompetition: SelectionInput.dirty(
-            value: selectionUpdate.model,
+            value: event.model,
           ),
         ));
         break;

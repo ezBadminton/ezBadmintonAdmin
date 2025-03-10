@@ -24,8 +24,10 @@ class GymnasiumSelectionCubit
   }
 
   @override
-  void onCollectionUpdate(List<List<Model>> collections,
-      List<CollectionUpdateEvent<Model>> updateEvents) {
+  void onCollectionUpdate(
+    List<List<Model>> collections,
+    CollectionUpdateEvent<Model>? updateEvent,
+  ) {
     GymnasiumSelectionState updatedState = state.copyWith(
       collections: collections,
       loadingStatus: LoadingStatus.done,
@@ -80,27 +82,23 @@ class GymnasiumSelectionCubit
     return courtsOfGym;
   }
 
-  void _onGymnasiumCollectionUpdate(
-    List<CollectionUpdateEvent<Gymnasium>> events,
-  ) {
-    for (CollectionUpdateEvent<Gymnasium> event in events) {
-      Gymnasium updatedGymnasium = event.model;
+  void _onGymnasiumCollectionUpdate(CollectionUpdateEvent<Gymnasium> event) {
+    Gymnasium updatedGymnasium = event.model;
 
-      switch (event.updateType) {
-        case UpdateType.create:
+    switch (event.updateType) {
+      case UpdateType.create:
+        _selectGymnasium(updatedGymnasium);
+        break;
+      case UpdateType.update:
+        if (updatedGymnasium == state.gymnasium.value) {
           _selectGymnasium(updatedGymnasium);
-          break;
-        case UpdateType.update:
-          if (updatedGymnasium == state.gymnasium.value) {
-            _selectGymnasium(updatedGymnasium);
-          }
-          break;
-        case UpdateType.delete:
-          if (updatedGymnasium == state.gymnasium.value) {
-            _unselectGymnasium();
-          }
-          break;
-      }
+        }
+        break;
+      case UpdateType.delete:
+        if (updatedGymnasium == state.gymnasium.value) {
+          _unselectGymnasium();
+        }
+        break;
     }
   }
 }

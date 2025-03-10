@@ -139,19 +139,17 @@ class CourtAddingCubit extends CollectionQuerierCubit<CourtAddingState> {
   }
 
   void _onGymnasiumCollectionUpdate(
-    List<CollectionUpdateEvent<Gymnasium>> events,
+    CollectionUpdateEvent<Gymnasium> event,
   ) {
-    CollectionUpdateEvent<Gymnasium>? updateEvent = events.reversed
-        .firstWhereOrNull((e) => e.model.id == state.gymnasium.id);
-
-    if (updateEvent == null || updateEvent.updateType != UpdateType.update) {
+    if (event.model != state.gymnasium ||
+        event.updateType != UpdateType.update) {
       return;
     }
 
-    emit(state.copyWith(gymnasium: updateEvent.model));
+    emit(state.copyWith(gymnasium: event.model));
   }
 
   @override
   void onCollectionUpdate(List<List<Model>> collections,
-      List<CollectionUpdateEvent<Model>> updateEvents) {}
+      CollectionUpdateEvent<Model>? updateEvent) {}
 }

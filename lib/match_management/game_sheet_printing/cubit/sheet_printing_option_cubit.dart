@@ -23,7 +23,7 @@ class SheetPrintingOptionCubit
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    List<CollectionUpdateEvent<Model>> updateEvents,
+    CollectionUpdateEvent<Model>? updateEvent,
   ) {
     SheetPrintingOptionState updatedState = state.copyWith(
       collections: collections,

@@ -36,13 +36,11 @@ class PlayerListCubit extends CollectionQuerierCubit<PlayerListState>
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    List<CollectionUpdateEvent<Model>> updateEvents,
+    CollectionUpdateEvent<Model>? updateEvent,
   ) {
-    bool doPlayerUpdate = updateEvents.firstWhereOrNull((e) =>
-                e is CollectionUpdateEvent<Player> ||
-                e is CollectionUpdateEvent<Registration>) !=
-            null ||
-        updateEvents.isEmpty;
+    bool doPlayerUpdate = updateEvent == null ||
+        updateEvent is CollectionUpdateEvent<Player> ||
+        updateEvent is CollectionUpdateEvent<Registration>;
 
     PlayerListState updatedState = state.copyWith(
       collections: collections,

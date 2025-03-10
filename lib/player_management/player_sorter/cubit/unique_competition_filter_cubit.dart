@@ -35,7 +35,7 @@ class UniqueCompetitionFilterCubit
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    List<CollectionUpdateEvent<Model>> updateEvents,
+    CollectionUpdateEvent<Model>? updateEvent,
   ) {
     UniqueCompetitionFilterState updatedState = state.copyWith(
       collections: collections,
@@ -109,19 +109,16 @@ class UniqueCompetitionFilterCubit
   }
 
   void _onCompetitionCollectionUpdate(
-    List<CollectionUpdateEvent<Competition>> events,
+    CollectionUpdateEvent<Competition>? event,
   ) {
-    CollectionUpdateEvent<Competition>? updateEvent = events.reversed
-        .firstWhereOrNull((e) => e.model == state.competition.value);
-
-    if (updateEvent == null) {
+    if (event == null || event.model != state.competition.value) {
       return;
     }
 
-    switch (updateEvent.updateType) {
+    switch (event.updateType) {
       case UpdateType.update:
         emit(state.copyWith(
-          competition: SelectionInput.dirty(value: updateEvent.model),
+          competition: SelectionInput.dirty(value: event.model),
         ));
         break;
       case UpdateType.delete:

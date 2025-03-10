@@ -207,19 +207,17 @@ class TournamentModeAssignmentCubit
   }
 
   void _onCompetitionCollectionUpdate(
-    List<CollectionUpdateEvent<Competition>> events,
+    CollectionUpdateEvent<Competition> event,
   ) {
     List<Competition> newCompetitions = List.of(state.competitions);
 
-    for (CollectionUpdateEvent<Competition> event in events) {
-      switch (event.updateType) {
-        case UpdateType.update:
-          newCompetitions.replaceModel(event.model.id, event.model);
-        case UpdateType.delete:
-          newCompetitions.replaceModel(event.model.id, null);
-        case UpdateType.create:
-          break;
-      }
+    switch (event.updateType) {
+      case UpdateType.update:
+        newCompetitions.replaceModel(event.model.id, event.model);
+      case UpdateType.delete:
+        newCompetitions.replaceModel(event.model.id, null);
+      case UpdateType.create:
+        break;
     }
 
     emit(state.copyWith(competitions: newCompetitions));
@@ -227,5 +225,5 @@ class TournamentModeAssignmentCubit
 
   @override
   void onCollectionUpdate(List<List<Model>> collections,
-      List<CollectionUpdateEvent<Model>> updateEvents) {}
+      CollectionUpdateEvent<Model>? updateEvent) {}
 }

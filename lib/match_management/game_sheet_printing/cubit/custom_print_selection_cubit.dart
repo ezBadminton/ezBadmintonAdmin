@@ -28,7 +28,7 @@ class CustomPrintSelectionCubit
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    List<CollectionUpdateEvent<Model>> updateEvents,
+    CollectionUpdateEvent<Model>? updateEvent,
   ) {
     var updatedState = state.copyWith(
       loadingStatus: LoadingStatus.done,

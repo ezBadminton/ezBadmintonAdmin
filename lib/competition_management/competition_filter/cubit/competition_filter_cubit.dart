@@ -47,7 +47,7 @@ class CompetitionFilterCubit
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    List<CollectionUpdateEvent<Model>> updateEvents,
+    CollectionUpdateEvent<Model>? updateEvent,
   ) {
     CompetitionFilterState updatedState = state.copyWith(
       collections: collections,

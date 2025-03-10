@@ -30,7 +30,7 @@ class CompetitionMultiSelectionCubit
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    List<CollectionUpdateEvent<Model>> updateEvents,
+    CollectionUpdateEvent<Model>? updateEvent,
   ) {
     CompetitionMultiSelectionState updatedState = state.copyWith(
       collections: collections,
@@ -75,31 +75,23 @@ class CompetitionMultiSelectionCubit
   }
 
   void _onCompetitionCollectionUpdate(
-    List<CollectionUpdateEvent<Competition>> events,
+    CollectionUpdateEvent<Competition>? event,
   ) {
-    List<CollectionUpdateEvent<Competition>> updatedSelected = events.reversed
-        .where(
-          (e) => state.selectedCompetitions.contains(e.model),
-        )
-        .toList();
-
-    if (updatedSelected.isEmpty) {
+    if (!state.selectedCompetitions.contains(event?.model)) {
       return;
     }
 
     List<Competition> newSelected = List.of(state.selectedCompetitions);
 
-    for (CollectionUpdateEvent<Competition> update in updatedSelected) {
-      switch (update.updateType) {
-        case UpdateType.update:
-          newSelected.replaceModel(update.model.id, update.model);
-          break;
-        case UpdateType.delete:
-          newSelected.remove(update.model);
-          break;
-        case UpdateType.create:
-          break;
-      }
+    switch (event!.updateType) {
+      case UpdateType.update:
+        newSelected.replaceModel(event.model.id, event.model);
+        break;
+      case UpdateType.delete:
+        newSelected.remove(event.model);
+        break;
+      case UpdateType.create:
+        break;
     }
 
     emit(state.copyWith(selectedCompetitions: newSelected));

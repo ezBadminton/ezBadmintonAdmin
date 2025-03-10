@@ -87,20 +87,17 @@ class PlayerStatusCubit extends CollectionQuerierCubit<PlayerStatusState>
     return FormzSubmissionStatus.success;
   }
 
-  void _onPlayerUpdated(List<CollectionUpdateEvent<Player>> events) {
-    CollectionUpdateEvent<Player>? updateEvent =
-        events.reversed.firstWhereOrNull((e) => e.model == state.player);
-
-    if (updateEvent == null) {
+  void _onPlayerUpdated(CollectionUpdateEvent<Player> event) {
+    if (event.model != state.player) {
       return;
     }
 
-    emit(state.copyWith(player: updateEvent.model));
+    emit(state.copyWith(player: event.model));
   }
 
   @override
   void onCollectionUpdate(List<List<Model>> collections,
-      List<CollectionUpdateEvent<Model>> updateEvents) {}
+      CollectionUpdateEvent<Model>? updateEvent) {}
 }
 
 enum StatusChangeDirection {

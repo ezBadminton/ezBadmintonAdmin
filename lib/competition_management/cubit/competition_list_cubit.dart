@@ -29,7 +29,7 @@ class CompetitionListCubit extends CollectionQuerierCubit<CompetitionListState>
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    List<CollectionUpdateEvent<Model>> updateEvents,
+    CollectionUpdateEvent<Model>? updateEvent,
   ) {
     CompetitionListState updatedState = state.copyWith(
       collections: collections,
