@@ -1,3 +1,4 @@
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/cubit/player_cubit.dart';
 import 'package:model_repository/model_repository.dart';
 // TODO import 'package:ez_badminton_admin_app/draw_management/cubit/draw_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/interactive_view_blocker_cubit.dart';
@@ -205,20 +206,32 @@ class _SlotLabel extends StatelessWidget {
         .toList();
   }
 
-  RichText _getPlayerName(Player player, Color textColor) {
-    return RichText(
-      overflow: TextOverflow.ellipsis,
-      text: TextSpan(
-        style: textStyle ?? TextStyle(color: textColor),
-        children: [
-          if (useFullName) TextSpan(text: '${player.firstName} '),
-          TextSpan(
-            text: player.lastName,
-            style: lastNameTextStyle,
-          ),
-          if (showClub && player.club != null)
-            TextSpan(text: ' (${player.club!.name})'),
-        ],
+  Widget _getPlayerName(player, Color textColor) {
+    return BlocProvider(
+      create: (context) => PlayerCubit(
+        playerStore: context.read(),
+        clubStore: context.read(),
+        player: player,
+      ),
+      child: BlocBuilder<PlayerCubit, PlayerState>(
+        builder: (_, playerState) {
+          var player = playerState.player;
+          return RichText(
+            overflow: TextOverflow.ellipsis,
+            text: TextSpan(
+              style: textStyle ?? TextStyle(color: textColor),
+              children: [
+                if (useFullName) TextSpan(text: '${player.firstName} '),
+                TextSpan(
+                  text: player.lastName,
+                  style: lastNameTextStyle,
+                ),
+                if (showClub && player.club != null)
+                  TextSpan(text: ' (${player.club!.name})'),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
