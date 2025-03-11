@@ -10,14 +10,14 @@ class CourtState extends CollectionQuerierState {
   @override
   final LoadingStatus loadingStatus;
 
-  final Map<Court, ScheduledMatchContext> occupied;
+  final Map<Court, MatchContext> occupied;
 
   @override
   final List<List<Model>> collections;
 
   CourtState copyWith({
     LoadingStatus? loadingStatus,
-    Map<Court, ScheduledMatchContext>? occupied,
+    Map<Court, MatchContext>? occupied,
     List<List<Model>>? collections,
   }) =>
       CourtState(

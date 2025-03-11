@@ -9,7 +9,6 @@ import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bra
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:model_repository/model_repository.dart';
 import 'bracket_sizes.dart' as bracket_sizes;
@@ -25,16 +24,15 @@ class GroupKnockoutResults extends StatelessWidget implements SectionedBracket {
 
   @override
   Widget build(BuildContext context) {
-    var tContext =
-        context.read<TournamentContext>() as TournamentContext<GroupKnockout>;
-    var tournament = tContext.tournament;
+    var tournament = context.readTournament() as GroupKnockout;
 
     List<RoundRobin> groupRoundRobins = tournament.groupPhase.groups;
 
     List<Widget> groupResults = groupRoundRobins
-        .map(
-          (g) => TournamentContextSubtree(
-            tContext.copyWith(g),
+        .mapIndexed(
+          (i, g) => TournamentContextSubtree(
+            tournamentGetter: (plan) =>
+                (plan.tournament as GroupKnockout).groupPhase.groups[i],
             child: const RoundRobinResults(),
           ),
         )
@@ -43,9 +41,12 @@ class GroupKnockoutResults extends StatelessWidget implements SectionedBracket {
     Map<Slot, Widget> placeholders =
         GroupKnockoutPlan.createQualificationPlaceholders(context, tournament);
 
+    koPhaseGetter(TournamentPlan plan) =>
+        (plan.tournament as GroupKnockout).knockoutPhase;
+
     Widget eliminationTree = switch (tournament.knockoutPhase) {
       SingleElimination e => TournamentContextSubtree(
-          tContext.copyWith(e),
+          tournamentGetter: koPhaseGetter,
           child: SingleEliminationTree(
             rounds: e.rounds,
             showResults: true,
@@ -53,7 +54,7 @@ class GroupKnockoutResults extends StatelessWidget implements SectionedBracket {
           ),
         ),
       DoubleElimination e => TournamentContextSubtree(
-          tContext.copyWith(e),
+          tournamentGetter: koPhaseGetter,
           child: DoubleEliminationTree(
             showResults: true,
             sections: DoubleEliminationTree.getSections(e),
@@ -61,7 +62,7 @@ class GroupKnockoutResults extends StatelessWidget implements SectionedBracket {
           ),
         ),
       SingleEliminationWithConsolation e => TournamentContextSubtree(
-          tContext.copyWith(e),
+          tournamentGetter: koPhaseGetter,
           child: ConsolationEliminationTree(
             showResults: true,
             sections: SingleEliminationTree.getSections(e.mainBracket.rounds),
@@ -99,9 +100,8 @@ class _CrossRankTieBreakerButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var tContext =
-        context.read<TournamentContext>() as TournamentContext<GroupKnockout>;
-    var tournament = tContext.tournament;
+    var tPlan = context.readTournamentPlan();
+    var tournament = context.readTournament() as GroupKnockout;
 
     if (tournament.knockoutStarted) {
       // Do not allow editing of the tie breaker when knockout phase has started
@@ -151,7 +151,7 @@ class _CrossRankTieBreakerButtons extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 5.0),
                     child: TieBreakerButton(
-                      competition: tContext.competition,
+                      competition: tPlan.competition,
                       tie: tie,
                       tieRankLabel: l10n.nthPlace(crossTiedRank + 1),
                       buttonLabel: _isTieBroken(tie, teamTies)

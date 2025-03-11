@@ -6,7 +6,6 @@ import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_elimin
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/utils.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:model_repository/model_repository.dart';
 import 'bracket_sizes.dart' as bracket_sizes;
@@ -31,10 +30,9 @@ class DoubleEliminationTree extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
-    var tContext = context.read<TournamentContext>()
-        as TournamentContext<DoubleElimination>;
-    var tournament = tContext.tournament;
-    var competition = tContext.competition;
+    var tPlan = context.readTournamentPlan();
+    var tournament = context.readTournament() as DoubleElimination;
+    var competition = tPlan.competition;
 
     var matchNodeSize =
         SingleEliminationTree.getMatchNodeSize(competition.teamSize);
@@ -58,11 +56,7 @@ class DoubleEliminationTree extends StatelessWidget
     for (List<TournamentMatch> round in rounds) {
       List<Widget> roundMatchNodes = round.map((match) {
         Widget matchCard = MatchContextSubtree(
-          MatchContext(
-            tContext.tPlan,
-            match,
-            tournament: tournament,
-          ),
+          match: match,
           child: MatchupCard(
             showResult: showResults,
             width: matchNodeSize.width,
@@ -78,7 +72,10 @@ class DoubleEliminationTree extends StatelessWidget
 
     return DoubleEliminationTreeLayout(
       winnerBracket: winnerBracket,
-      winnerBracketSize: winnerBracket.layoutSize,
+      winnerBracketSize: SingleEliminationTree.getLayoutSize(
+        rounds,
+        matchNodeSize,
+      ),
       matchNodes: matchNodes,
       layoutSize: layoutSize,
       matchNodeSize: matchNodeSize,

@@ -84,7 +84,7 @@ class _CourtListPageScaffold extends StatelessWidget {
 
                     if (cubit.state.selectedIndex == 2) {
                       // Go back to match page when a court was assigned
-                      cubit.tabChanged(3); // TODO back to 4
+                      cubit.tabChanged(4);
                     }
                   },
                   child: LoadingScreen(

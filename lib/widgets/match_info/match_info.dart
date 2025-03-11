@@ -27,9 +27,8 @@ class MatchInfo extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
     var navigationCubit = context.read<TabNavigationCubit>();
 
-    var matchContext = context.read<MatchContext>();
-    var match = matchContext.match;
-    var tPlan = matchContext.tPlan;
+    var tPlan = context.readTournamentPlan();
+    var match = context.readMatch();
 
     String? roundName = display_strings.matchName(l10n, tPlan, match);
 
@@ -87,9 +86,8 @@ class RunningMatchInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
-    var matchContext = context.read<MatchContext>();
-    var match = matchContext.match;
-    var tPlan = matchContext.tPlan;
+    var tPlan = context.readTournamentPlan();
+    var match = context.readMatch();
 
     String? roundName = display_strings.matchName(l10n, tPlan, match);
 

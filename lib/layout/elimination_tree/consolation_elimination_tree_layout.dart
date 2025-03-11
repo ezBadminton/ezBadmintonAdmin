@@ -125,8 +125,7 @@ class ConsolationEliminationTreeLayout extends StatelessWidget {
           siblingDepth * bracket_sizes.consolationBracketVerticalMargin;
     }
 
-    double localResult =
-        result + node.bracket.layoutSize.height + verticalMargin;
+    double localResult = result + node.layoutSize.height + verticalMargin;
 
     localResult = node.children
             .mapIndexed(
@@ -152,8 +151,7 @@ class ConsolationEliminationTreeLayout extends StatelessWidget {
       horizontalMargin = bracket_sizes.singleEliminationRoundGap;
     }
 
-    double siblingWidth =
-        result + node.bracket.layoutSize.width + horizontalMargin;
+    double siblingWidth = result + node.layoutSize.width + horizontalMargin;
     if (rightHandSiblings.isNotEmpty) {
       _TreeNode nextSibling = rightHandSiblings.first;
       siblingWidth = _getLayoutWidth(
@@ -201,7 +199,7 @@ class _ConsolationEliminationTreeLayoutDelegate
   }
 
   void layoutBrackets(_TreeNode node) {
-    layoutChild(node.id, BoxConstraints.tight(node.bracket.layoutSize));
+    layoutChild(node.id, BoxConstraints.tight(node.layoutSize));
     if (node.bracketLabel != null) {
       layoutChild(node.bracketLabel!.id, const BoxConstraints());
     }
@@ -234,7 +232,7 @@ class _ConsolationEliminationTreeLayoutDelegate
         siblingDepth * bracket_sizes.consolationBracketVerticalMargin;
 
     double childrenVerticalPosition =
-        position.dy + node.bracket.layoutSize.height + verticalMargin;
+        position.dy + node.layoutSize.height + verticalMargin;
 
     double childHorizontalPosition = position.dx;
     for ((int, _TreeNode) childEntry in node.children.indexed) {
@@ -247,8 +245,7 @@ class _ConsolationEliminationTreeLayoutDelegate
       // The consolation brackets are underneath the round where the losers
       // come from or to the right if other brackets already took more width.
       double minHorizontalPosition = bracketOffset *
-          (node.bracket.matchNodeSize.width +
-              bracket_sizes.singleEliminationRoundGap);
+          (node.matchNodeSize.width + bracket_sizes.singleEliminationRoundGap);
       double horizontalPosition =
           max(childHorizontalPosition, minHorizontalPosition);
 
@@ -268,7 +265,7 @@ class _ConsolationEliminationTreeLayoutDelegate
       );
 
       double nextSiblingHorizontalPosition = horizontalPosition +
-          child.bracket.layoutSize.width +
+          child.layoutSize.width +
           bracket_sizes.singleEliminationRoundGap;
 
       childHorizontalPosition = nextSiblingHorizontalPosition;
@@ -282,7 +279,7 @@ class _ConsolationEliminationTreeLayoutDelegate
     required Offset nodePosition,
     required Offset parentPosition,
   }) {
-    Size nodeSize = node.bracket.matchNodeSize;
+    Size nodeSize = node.matchNodeSize;
 
     int bracketSize = node.bracket.rounds.first.length;
     int parentBracketSize =
@@ -295,7 +292,7 @@ class _ConsolationEliminationTreeLayoutDelegate
         parentRoundIndex *
             (nodeSize.width + bracket_sizes.singleEliminationRoundGap);
 
-    Size parentSize = node.sourceNode.parent!.treeWidget.layoutSize;
+    Size parentSize = node.sourceNode.parent!.layoutSize;
 
     double parentVerticalMargin =
         utils.getVerticalNodeMargin(parentRoundIndex, nodeSize.height);
@@ -329,6 +326,8 @@ class ConsolationTreeNode {
     required this.bracket,
     required this.treeWidget,
     required this.consolationBrackets,
+    required this.matchNodeSize,
+    required this.layoutSize,
   });
 
   final ConsolationBracket bracket;
@@ -337,6 +336,9 @@ class ConsolationTreeNode {
 
   ConsolationTreeNode? parent;
   final List<ConsolationTreeNode> consolationBrackets;
+
+  final Size matchNodeSize;
+  final Size layoutSize;
 }
 
 /// A wrapper node for [ConsolationTreeNode] that identifies it to the
@@ -362,6 +364,9 @@ class _TreeNode extends LayoutId {
   final _LoserEdge? loserEdge;
 
   SingleEliminationTree get bracket => super.child as SingleEliminationTree;
+
+  Size get matchNodeSize => sourceNode.matchNodeSize;
+  Size get layoutSize => sourceNode.layoutSize;
 }
 
 class _ConsolationBracketLabel extends LayoutId {

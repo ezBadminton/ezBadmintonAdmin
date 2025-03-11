@@ -8,14 +8,14 @@ import 'package:pdf/widgets.dart' as pw;
 
 class RoundRobinPlan extends TournamentPlan {
   RoundRobinPlan({
-    required super.tContext,
+    required super.tPlan,
     required super.l10n,
     this.title,
   });
 
   final pw.Widget? title;
 
-  bool get _isDoubles => tContext.competition.teamSize == 2;
+  bool get _isDoubles => tPlan.competition.teamSize == 2;
 
   @override
   List<TournamentPlanWidget> layoutPlan() {
@@ -23,7 +23,7 @@ class RoundRobinPlan extends TournamentPlan {
         _isDoubles ? groupTableDoublesHeight : groupTableSinglesHeight;
     double tableWidth = 4 * groupTableStatWidth + groupTableNameWidth;
 
-    List<models.Team> members = tContext.tournament.entries;
+    List<models.Team> members = tPlan.tournament.entries;
 
     pw.Widget headerRow = pw.SizedBox(
       height: groupTableHeaderHeight,
@@ -171,11 +171,11 @@ class RoundRobinPlan extends TournamentPlan {
     );
 
     List<List<MatchCard>> roundMatchCards = [
-      for (List<models.TournamentMatch> round in tContext.tournament.rounds)
+      for (List<models.TournamentMatch> round in tPlan.tournament.rounds)
         [
           for (models.TournamentMatch match in round)
             MatchCard(
-              competition: tContext.competition,
+              competition: tPlan.competition,
               match: match,
               width: tableWidth,
               l10n: l10n,

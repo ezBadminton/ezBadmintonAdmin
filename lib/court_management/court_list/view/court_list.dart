@@ -90,7 +90,7 @@ class CourtList extends StatelessWidget {
   Map<Widget, List<Widget>> _buildCourtMapItems(
     BuildContext context,
     Map<Gymnasium, List<Court>> courtMap,
-    Map<Court, ScheduledMatchContext> matchesOnCourts,
+    Map<Court, MatchContext> matchesOnCourts,
   ) {
     return {
       for (Gymnasium gym in courtMap.keys)
@@ -138,7 +138,7 @@ class CourtList extends StatelessWidget {
   Widget _buildCourtItem(
     BuildContext context,
     Court court,
-    ScheduledMatchContext? matchOnCourt,
+    MatchContext? matchOnCourt,
   ) {
     var selectionCubit = context.read<GymnasiumSelectionCubit>();
     var viewCubit = context.read<GymnasiumCourtViewCubit>();

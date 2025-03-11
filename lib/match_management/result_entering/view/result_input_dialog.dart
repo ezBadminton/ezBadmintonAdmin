@@ -23,11 +23,11 @@ class ResultInputDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
-    var matchContext = context.read<MatchContext>();
-    var match = matchContext.match;
+    var tPlan = context.readTournamentPlan();
+    var match = context.readMatch();
 
     TournamentModeSettings modeSettings =
-        matchContext.competition.tournamentModeSettings!;
+        tPlan.competition.tournamentModeSettings!;
 
     bool alreadyHasScore = match.sets.isNotEmpty;
 
@@ -75,7 +75,7 @@ class ResultInputDialog extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                CompetitionLabel(competition: matchContext.competition),
+                CompetitionLabel(competition: tPlan.competition),
                 const SizedBox(height: 8),
                 RunningMatchInfo(
                   textStyle: const TextStyle(fontSize: 16),
@@ -118,8 +118,7 @@ class _ResultInputForm extends StatelessWidget {
   Widget build(BuildContext context) {
     var resultEnteringCubit = context.read<ResultEnteringCubit>();
 
-    var matchContext = context.read<MatchContext>();
-    var match = matchContext.match;
+    var match = context.readMatch();
 
     Color borderColor = Theme.of(context).colorScheme.onSurface.withOpacity(.6);
 
@@ -301,8 +300,7 @@ class _ResultDeleteButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var matchContext = context.read<MatchContext>();
-    var match = matchContext.match;
+    var match = context.readMatch();
 
     if (match.sets.isEmpty) {
       return const SizedBox();

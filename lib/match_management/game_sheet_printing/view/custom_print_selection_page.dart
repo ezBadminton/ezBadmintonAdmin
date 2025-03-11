@@ -23,12 +23,12 @@ class CustomPrintSelectionPage extends StatelessWidget {
     required this.initialSelection,
   });
 
-  final List<ScheduledMatchContext> initialSelection;
+  final List<MatchContext> initialSelection;
 
-  static Route<List<ScheduledMatchContext>> route(
-    List<ScheduledMatchContext> initialSelection,
+  static Route<List<MatchContext>> route(
+    List<MatchContext> initialSelection,
   ) {
-    return MaterialPageRoute<List<ScheduledMatchContext>>(
+    return MaterialPageRoute<List<MatchContext>>(
       builder: (_) => CustomPrintSelectionPage(
         initialSelection: initialSelection,
       ),
@@ -81,9 +81,9 @@ class _CustomPrintSelectionPageScaffold extends StatelessWidget {
         padding: const EdgeInsets.only(right: 80, bottom: 40),
         child: FloatingActionButton.extended(
           onPressed: () {
-            ListInput<ScheduledMatchContext> selectionInput =
+            ListInput<MatchContext> selectionInput =
                 printSelectionCubit.state.selectedMatches;
-            List<ScheduledMatchContext>? newSelection;
+            List<MatchContext>? newSelection;
             if (!selectionInput.isPure) {
               newSelection = selectionInput.value;
             }
@@ -177,11 +177,11 @@ class _SelectionList extends StatelessWidget {
   }
 
   List<Widget> _createSelectionList(
-    Map<PrintCategory, List<ScheduledMatchContext>> matches,
+    Map<PrintCategory, List<MatchContext>> matches,
     AppLocalizations l10n,
   ) {
     Map<Widget, List<Widget>> sublists = {
-      for (MapEntry<PrintCategory, List<ScheduledMatchContext>> matchList
+      for (MapEntry<PrintCategory, List<MatchContext>> matchList
           in matches.entries)
         _PrintCategoryHeader(category: matchList.key):
             _mapMatches(matchList.value),
@@ -197,10 +197,14 @@ class _SelectionList extends StatelessWidget {
     return selectionList;
   }
 
-  List<Widget> _mapMatches(List<ScheduledMatchContext> matches) {
+  List<Widget> _mapMatches(List<MatchContext> matches) {
     return matches
-        .map((match) =>
-            MatchContextSubtree(match, child: _PrintSelectionMatchItem()))
+        .map(
+          (mContext) => TournamentMatchContextSubtree.fromContext(
+            context: mContext,
+            child: _PrintSelectionMatchItem(),
+          ),
+        )
         .toList();
   }
 }
@@ -212,9 +216,9 @@ class _PrintSelectionMatchItem extends StatelessWidget {
   Widget build(BuildContext context) {
     var cubit = context.read<CustomPrintSelectionCubit>();
 
-    var matchContext = context.read<MatchContext>() as ScheduledMatchContext;
+    var mContext = context.readMatchContext();
 
-    onSelect() => cubit.matchToggled(matchContext);
+    onSelect() => cubit.matchToggled(mContext);
 
     return InkWell(
       onTap: onSelect,
@@ -224,7 +228,7 @@ class _PrintSelectionMatchItem extends StatelessWidget {
           BlocBuilder<CustomPrintSelectionCubit, CustomPrintSelectionState>(
             builder: (context, state) {
               return Checkbox(
-                value: state.selectedMatches.value.contains(matchContext),
+                value: state.selectedMatches.value.contains(mContext),
                 onChanged: (_) => onSelect(),
               );
             },
@@ -279,9 +283,8 @@ class _MatchPrintStatus extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
-    var matchContext = context.read<MatchContext>();
-
-    bool created = matchContext.match.gameSheetPrinted;
+    var match = context.readMatch();
+    bool created = match.gameSheetPrinted;
 
     String tooltip = created ? l10n.sheetCreated : l10n.sheetNotCreated;
 

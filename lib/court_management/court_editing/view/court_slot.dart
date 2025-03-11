@@ -118,9 +118,8 @@ class _CourtOptions extends StatelessWidget {
               padding: const EdgeInsets.all(2.0),
               child: BlocBuilder<CourtCubit, CourtState>(
                 builder: (context, courtState) {
-                  ScheduledMatchContext? matchOnCourt =
-                      courtState.occupied[courtInSlot];
-                  bool hasMatch = matchOnCourt != null;
+                  MatchContext? mContext = courtState.occupied[courtInSlot];
+                  bool hasMatch = mContext != null;
 
                   return Row(
                     mainAxisSize: MainAxisSize.min,
@@ -220,8 +219,8 @@ class _CourtLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<CourtCubit, CourtState>(
       builder: (context, courtState) {
-        ScheduledMatchContext? matchOnCourt = courtState.occupied[courtInSlot];
-        bool hasMatch = matchOnCourt != null;
+        MatchContext? mContext = courtState.occupied[courtInSlot];
+        bool hasMatch = mContext != null;
 
         return BlocBuilder<TabNavigationCubit, TabNavigationState>(
           buildWhen: (previous, current) => current.selectedIndex == 2,
@@ -239,8 +238,8 @@ class _CourtLabel extends StatelessWidget {
                           : AlignmentDirectional.center,
                     ),
                     if (hasMatch)
-                      MatchContextSubtree(
-                        matchOnCourt,
+                      TournamentMatchContextSubtree.fromContext(
+                        context: mContext,
                         child: _MatchOnCourtCard(),
                       ),
                     if (state.tabChangeReason is TournamentMatch && !hasMatch)
@@ -402,7 +401,7 @@ class _MatchOnCourtCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var matchContext = context.read<MatchContext>();
+    var tPlan = context.readTournamentPlan();
 
     return Card(
       elevation: 0,
@@ -418,7 +417,7 @@ class _MatchOnCourtCard extends StatelessWidget {
         child: Column(
           children: [
             CompetitionLabel(
-              competition: matchContext.competition,
+              competition: tPlan.competition,
               textStyle: const TextStyle(fontSize: 12),
               dividerPadding: 7,
             ),

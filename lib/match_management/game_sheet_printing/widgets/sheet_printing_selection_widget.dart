@@ -67,7 +67,7 @@ class _CustomSelectionTitle extends StatelessWidget {
         TextButton(
           onPressed: enabled
               ? () async {
-                  List<ScheduledMatchContext>? newSelection =
+                  List<MatchContext>? newSelection =
                       await Navigator.of(context).push(
                     CustomPrintSelectionPage.route(cubit.state.customSelection),
                   );

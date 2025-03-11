@@ -17,20 +17,22 @@ class TournamentMatch extends Model with _$TournamentMatch {
     required String id,
     @ZeroDateTimeConverter() required DateTime created,
     @ZeroDateTimeConverter() required DateTime updated,
-    @JsonKey(name: 'sets') required MultiRelation<MatchSet> setsRel,
-    @JsonKey(name: 'court') required SingleRelation<Court> courtRel,
-    @JsonKey(name: 'withdrawnTeams')
+    @JsonKey(name: 'sets', defaultValue: MultiRelation.new)
+    required MultiRelation<MatchSet> setsRel,
+    @JsonKey(name: 'court', defaultValue: SingleRelation.new)
+    required SingleRelation<Court> courtRel,
+    @JsonKey(name: 'withdrawnTeams', defaultValue: MultiRelation.new)
     required MultiRelation<Team> withdrawnTeamsRel,
     @NullableDateTimeConverter() DateTime? courtAssignmentTime,
     @NullableDateTimeConverter() DateTime? startTime,
     @NullableDateTimeConverter() DateTime? endTime,
     required Slot slot1,
     required Slot slot2,
-    @JsonKey(name: 'winner', defaultValue: SingleRelation<Team>.new)
+    @JsonKey(name: 'winner', defaultValue: SingleRelation.new)
     required SingleRelation<Team> winnerRel,
     @JsonKey(name: 'walkover') required bool isWalkover,
     String? resultCard,
-    required bool gameSheetPrinted,
+    @JsonKey(defaultValue: false) required bool gameSheetPrinted,
   }) = _TournamentMatch;
 
   List<MatchSet> get sets => setsRel.models;

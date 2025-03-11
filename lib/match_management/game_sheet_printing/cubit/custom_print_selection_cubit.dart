@@ -14,7 +14,7 @@ class CustomPrintSelectionCubit
   CustomPrintSelectionCubit({
     required ModelStore<ScheduledMatch> scheduledMatchStore,
     required ModelStore<ScheduledRound> scheduledRoundStore,
-    required List<ScheduledMatchContext> initalSelection,
+    required List<MatchContext> initalSelection,
   }) : super(
           modelStores: [
             scheduledMatchStore,
@@ -38,8 +38,8 @@ class CustomPrintSelectionCubit
     _emitState(updatedState);
   }
 
-  void matchToggled(ScheduledMatchContext match) {
-    ListInput<ScheduledMatchContext> newSelection;
+  void matchToggled(MatchContext match) {
+    ListInput<MatchContext> newSelection;
 
     if (state.selectedMatches.value.contains(match)) {
       newSelection = state.selectedMatches.copyWithRemovedValue(match);
@@ -51,17 +51,15 @@ class CustomPrintSelectionCubit
   }
 
   void printCategoryToggled(PrintCategory category) {
-    Set<ScheduledMatchContext> categoryMembers =
-        state.matches[category]!.toSet();
+    Set<MatchContext> categoryMembers = state.matches[category]!.toSet();
 
     if (categoryMembers.isEmpty) {
       return;
     }
 
-    Set<ScheduledMatchContext> currentSelection =
-        state.selectedMatches.value.toSet();
+    Set<MatchContext> currentSelection = state.selectedMatches.value.toSet();
 
-    Set<ScheduledMatchContext> selectedCategoryMembers =
+    Set<MatchContext> selectedCategoryMembers =
         currentSelection.intersection(categoryMembers);
 
     if (selectedCategoryMembers.length == categoryMembers.length) {
@@ -70,7 +68,7 @@ class CustomPrintSelectionCubit
       currentSelection.addAll(categoryMembers);
     }
 
-    ListInput<ScheduledMatchContext> newSelection =
+    ListInput<MatchContext> newSelection =
         state.selectedMatches.copyWith(currentSelection.toList());
 
     _emitState(state.copyWith(
@@ -87,13 +85,13 @@ class CustomPrintSelectionCubit
   }
 
   static bool? _getCategorySelectionTristate(
-    Map<PrintCategory, List<ScheduledMatchContext>> matches,
-    Set<ScheduledMatchContext> currentSelection,
+    Map<PrintCategory, List<MatchContext>> matches,
+    Set<MatchContext> currentSelection,
     PrintCategory category,
   ) {
-    Set<ScheduledMatchContext> categoryMembers = matches[category]!.toSet();
+    Set<MatchContext> categoryMembers = matches[category]!.toSet();
 
-    Set<ScheduledMatchContext> selectedCategoryMembers =
+    Set<MatchContext> selectedCategoryMembers =
         currentSelection.intersection(categoryMembers);
 
     if (selectedCategoryMembers.isEmpty) {
@@ -108,22 +106,22 @@ class CustomPrintSelectionCubit
   }
 
   void _emitState(CustomPrintSelectionState state) {
-    Map<PrintCategory, List<ScheduledMatchContext>> newMatches =
+    Map<PrintCategory, List<MatchContext>> newMatches =
         _createSelectableMatches(state, state.filter);
 
-    List<ScheduledMatchContext> selectableMatches =
+    List<MatchContext> selectableMatches =
         newMatches.values.expand((e) => e).toList();
-    Set<ScheduledMatchContext> filteredSelection = state.selectedMatches.value
+    Set<MatchContext> filteredSelection = state.selectedMatches.value
         .map(
           (match) => selectableMatches.firstWhereOrNull((m) => match == m),
         )
-        .whereType<ScheduledMatchContext>()
+        .whereType<MatchContext>()
         .toSet();
 
-    Set<ScheduledMatchContext> currentSelection =
+    Set<MatchContext> currentSelection =
         this.state.selectedMatches.value.toSet();
 
-    ListInput<ScheduledMatchContext> newSelection;
+    ListInput<MatchContext> newSelection;
     if (setEquals(currentSelection, filteredSelection)) {
       newSelection = this.state.selectedMatches;
     } else {
@@ -146,24 +144,27 @@ class CustomPrintSelectionCubit
     ));
   }
 
-  static Map<PrintCategory, List<ScheduledMatchContext>>
-      _createSelectableMatches(
+  static Map<PrintCategory, List<MatchContext>> _createSelectableMatches(
     CustomPrintSelectionState state,
     Map<Type, Predicate> filter,
   ) {
     Predicate? competitionFilter = filter[Competition];
     Predicate? playerFilter = filter[Player];
 
-    List<ScheduledMatchContext> allMatches = state
+    List<MatchContext> allMatches = state
         .getCollection<ScheduledRound>()
         .where(
           // Filter round by competition filter
           (round) => competitionFilter?.call(round.competition) ?? true,
         )
-        .expand((round) => round.matches.map(
-              (m) =>
-                  ScheduledMatchContext(round.competition.tournamentPlan!, m),
-            ))
+        .expand(
+          (round) => round.matches.map(
+            (m) => MatchContext(
+              tournamentPlan: round.competition.tournamentPlan!,
+              scheduledMatch: m,
+            ),
+          ),
+        )
         .where(
           // Filter match by player filter (one match in the players is enough)
           (m) => playerFilter == null
@@ -172,27 +173,27 @@ class CustomPrintSelectionCubit
         )
         .toList();
 
-    Map<PrintCategory, List<ScheduledMatchContext>> matches = {
+    Map<PrintCategory, List<MatchContext>> matches = {
       PrintCategory.readyForCallOut: [],
       PrintCategory.noCourt: [],
       PrintCategory.waitingForQualification: [],
       PrintCategory.alreadyRunning: [],
     };
 
-    for (var scheduledMatch in allMatches) {
-      switch (scheduledMatch.scheduledMatch.status) {
+    for (var mContext in allMatches) {
+      switch (mContext.scheduledMatch.status) {
         case ScheduleStatus.done:
           break;
         case ScheduleStatus.inProgress:
-          matches[PrintCategory.alreadyRunning]!.add(scheduledMatch);
+          matches[PrintCategory.alreadyRunning]!.add(mContext);
         case ScheduleStatus.ready:
-          matches[PrintCategory.readyForCallOut]!.add(scheduledMatch);
+          matches[PrintCategory.readyForCallOut]!.add(mContext);
         case ScheduleStatus.courtWait:
         case ScheduleStatus.playerRest:
         case ScheduleStatus.playerWait:
-          matches[PrintCategory.noCourt]!.add(scheduledMatch);
+          matches[PrintCategory.noCourt]!.add(mContext);
         case ScheduleStatus.wait:
-          matches[PrintCategory.waitingForQualification]!.add(scheduledMatch);
+          matches[PrintCategory.waitingForQualification]!.add(mContext);
       }
     }
 

@@ -26,7 +26,7 @@ class SingleRelation<M extends Model> implements Relation {
     var modelRepo = ModelRepository.instance;
     var modelStore = modelRepo.findStore<M>()!;
 
-    model = modelStore.getModel(relationId) as M;
+    model = modelStore.getModel(relationId);
   }
 
   factory SingleRelation.fromJson(String relationId) {
@@ -57,7 +57,8 @@ class MultiRelation<M extends Model> implements Relation {
     var modelRepo = ModelRepository.instance;
     var modelStore = modelRepo.findStore<M>()!;
 
-    models = relationIds.map((e) => modelStore.getModel(e)!).toList();
+    models =
+        relationIds.map((e) => modelStore.getModel(e)).whereType<M>().toList();
   }
 
   factory MultiRelation.fromJson(List relationIds) {

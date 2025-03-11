@@ -1,22 +1,22 @@
 import 'dart:ui';
 import 'package:ez_badminton_admin_app/assets/pdf_fonts.dart';
 import 'package:ez_badminton_admin_app/printing/pdf_widgets/competition_label.dart';
-import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:flutter/material.dart';
-import 'package:model_repository/model_repository.dart';
+import 'package:model_repository/model_repository.dart' as models;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-abstract class TournamentPlan<T extends Tournament> extends pw.StatelessWidget {
+abstract class TournamentPlan<T extends models.Tournament>
+    extends pw.StatelessWidget {
   TournamentPlan({
-    required this.tContext,
+    required this.tPlan,
     required this.l10n,
   }) {
     _widgets = layoutPlan();
   }
 
-  final TournamentContext<T> tContext;
+  final models.TournamentPlan tPlan;
 
   final AppLocalizations l10n;
 
@@ -109,7 +109,7 @@ abstract class TournamentPlan<T extends Tournament> extends pw.StatelessWidget {
           bottom: 0,
           child: TournamentPlanPageLabel(
             l10n: l10n,
-            tournament: tContext,
+            competition: tPlan.competition,
             numRows: numRows,
             numColumns: numColumns,
             row: row,
@@ -170,7 +170,7 @@ abstract class TournamentPlan<T extends Tournament> extends pw.StatelessWidget {
       bottom: 0,
       child: TournamentPlanPageLabel.withoutPageNumber(
         l10n: l10n,
-        tournament: tContext,
+        competition: tPlan.competition,
       ),
     );
 
@@ -252,7 +252,7 @@ class TournamentPlanWidget extends pw.Positioned {
 class TournamentPlanPageLabel extends pw.StatelessWidget {
   TournamentPlanPageLabel({
     required this.l10n,
-    required this.tournament,
+    required this.competition,
     required int this.numRows,
     required int this.numColumns,
     required int this.row,
@@ -261,14 +261,14 @@ class TournamentPlanPageLabel extends pw.StatelessWidget {
 
   TournamentPlanPageLabel.withoutPageNumber({
     required this.l10n,
-    required this.tournament,
+    required this.competition,
   })  : numRows = null,
         numColumns = null,
         row = null,
         column = null,
         _showPageNumber = false;
 
-  final TournamentContext tournament;
+  final models.Competition competition;
 
   final AppLocalizations l10n;
 
@@ -285,7 +285,7 @@ class TournamentPlanPageLabel extends pw.StatelessWidget {
     pw.TextStyle textStyle = const pw.TextStyle(fontSize: 10);
 
     pw.Widget competitionLabel = CompetitionLabel(
-      competition: tournament.competition,
+      competition: competition,
       l10n: l10n,
       textStyle: textStyle,
     );

@@ -48,7 +48,10 @@ class CallOutScript extends StatelessWidget {
               itemBuilder: (context, index) => Center(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: _CallOutLines(match: callOuts[index]),
+                  child: _CallOutLines(
+                    tPlan: callOuts[index].tournamentPlan,
+                    match: callOuts[index].match,
+                  ),
                 ),
               ),
             ),
@@ -96,23 +99,24 @@ class CallOutScript extends StatelessWidget {
 
 class _CallOutLines extends StatelessWidget {
   const _CallOutLines({
+    required this.tPlan,
     required this.match,
   });
 
-  final MatchContext match;
+  final TournamentPlan tPlan;
+  final TournamentMatch match;
 
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
-    String? roundName =
-        display_strings.matchName(l10n, match.tPlan, match.match);
+    String? roundName = display_strings.matchName(l10n, tPlan, match);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        CompetitionLabel(competition: match.competition),
+        CompetitionLabel(competition: tPlan.competition),
         if (roundName != null) Text(roundName, textAlign: TextAlign.center),
         const SizedBox(height: 20),
         Container(
@@ -134,7 +138,7 @@ class _CallOutLines extends StatelessWidget {
                   child: Align(
                     alignment: AlignmentDirectional.centerEnd,
                     child: _CallOutTeamLabel(
-                      team: match.match.slot1.team!,
+                      team: match.slot1.team!,
                       crossAxisAlignment: CrossAxisAlignment.end,
                     ),
                   ),
@@ -155,7 +159,7 @@ class _CallOutLines extends StatelessWidget {
                   child: Align(
                     alignment: AlignmentDirectional.centerStart,
                     child: _CallOutTeamLabel(
-                      team: match.match.slot2.team!,
+                      team: match.slot2.team!,
                       crossAxisAlignment: CrossAxisAlignment.start,
                     ),
                   ),
@@ -174,11 +178,11 @@ class _CallOutLines extends StatelessWidget {
             ),
             children: [
               TextSpan(
-                text: match.match.court!.name,
+                text: match.court!.name,
                 style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               TextSpan(
-                text: ' (${match.match.court!.gymnasium.name})',
+                text: ' (${match.court!.gymnasium.name})',
               ),
             ],
           ),

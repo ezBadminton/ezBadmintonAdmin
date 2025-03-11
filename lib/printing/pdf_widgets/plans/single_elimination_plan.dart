@@ -12,7 +12,7 @@ import 'package:pdf/widgets.dart' as pw;
 
 class SingleEliminationPlan extends TournamentPlan {
   SingleEliminationPlan({
-    required super.tContext,
+    required super.tPlan,
     List<List<models.TournamentMatch>>? rounds,
     required super.l10n,
     this.placeholders = const {},
@@ -21,17 +21,16 @@ class SingleEliminationPlan extends TournamentPlan {
   final Map<models.Slot, pw.Widget> placeholders;
   final List<List<models.TournamentMatch>>? _rounds;
   List<List<models.TournamentMatch>> get rounds =>
-      _rounds ?? tContext.tournament.rounds;
+      _rounds ?? tPlan.tournament.rounds;
 
   @override
   List<TournamentPlanWidget> layoutPlan() {
-    var rounds = tContext.tournament.rounds;
     List<List<MatchCard>> matchCards = [
       for (List<models.TournamentMatch> round in rounds)
         [
           for (models.TournamentMatch match in round)
             MatchCard(
-              competition: tContext.competition,
+              competition: tPlan.competition,
               match: match,
               l10n: l10n,
               placeholders: placeholders,
@@ -39,7 +38,7 @@ class SingleEliminationPlan extends TournamentPlan {
         ],
     ];
 
-    int numRounds = tContext.tournament.rounds.length;
+    int numRounds = rounds.length;
     List<List<BentLine>> outgoingLines = [
       for (List<models.TournamentMatch> round in rounds.take(numRounds - 1))
         List.generate(

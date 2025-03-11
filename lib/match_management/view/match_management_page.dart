@@ -1,3 +1,4 @@
+import 'package:ez_badminton_admin_app/court_management/cubit/cubit/court_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/match_start_stop_cubit.dart';
@@ -94,27 +95,30 @@ class _MatchQueueLists extends StatelessWidget {
           builder: (context) {
             bool isMatchPageEmpty = state.schedule!.roundQueue.isEmpty;
 
-            List<ScheduledMatchContext> calloutWaitList = [];
-            List<ScheduledMatchContext> inProgressList = [];
-            Map<ScheduleStatus, List<ScheduledMatchContext>> waitLists = {};
+            List<MatchContext> calloutWaitList = [];
+            List<MatchContext> inProgressList = [];
+            Map<ScheduleStatus, List<MatchContext>> waitLists = {};
 
             for (var round in state.schedule!.roundQueue) {
+              var tPlan = round.competition.tournamentPlan!;
               for (var match in round.matches) {
-                var matchContext = ScheduledMatchContext(
-                    round.competition.tournamentPlan!, match);
+                var mContext = MatchContext(
+                  tournamentPlan: tPlan,
+                  scheduledMatch: match,
+                );
                 switch (match.status) {
                   case ScheduleStatus.done:
                     break;
                   case ScheduleStatus.inProgress:
-                    inProgressList.add(matchContext);
+                    inProgressList.add(mContext);
                   case ScheduleStatus.ready:
-                    calloutWaitList.add(matchContext);
+                    calloutWaitList.add(mContext);
                   case ScheduleStatus.courtWait:
                   case ScheduleStatus.playerRest:
                   case ScheduleStatus.playerWait:
                   case ScheduleStatus.wait:
                     waitLists.putIfAbsent(match.status, () => []);
-                    waitLists[match.status]!.add(matchContext);
+                    waitLists[match.status]!.add(mContext);
                 }
               }
             }
@@ -169,11 +173,12 @@ class _MatchQueueLists extends StatelessWidget {
                           : _buildWaitList(
                               context,
                               waitLists,
-                              (match, waitingStatus) => MatchContextSubtree(
-                                match,
+                              (mContext, waitingStatus) =>
+                                  TournamentMatchContextSubtree.fromContext(
+                                context: mContext,
                                 child: WaitingMatch(
                                   key: ValueKey(
-                                      'WaitingMatch-${match.match.id}'),
+                                      'WaitingMatch-${mContext.match.id}'),
                                 ),
                               ),
                             ),
@@ -193,11 +198,11 @@ class _MatchQueueLists extends StatelessWidget {
                       ),
                       list: _buildMatchList(
                         calloutWaitList,
-                        (match) => MatchContextSubtree(
-                          match,
+                        (mContext) => TournamentMatchContextSubtree.fromContext(
+                          context: mContext,
                           child: ReadyForCallOutMatch(
                             key: ValueKey(
-                              'ReadyForCallOutMatch-${match.match.id}',
+                              'ReadyForCallOutMatch-${mContext.match.id}',
                             ),
                           ),
                         ),
@@ -212,10 +217,10 @@ class _MatchQueueLists extends StatelessWidget {
                       ),
                       list: _buildMatchList(
                         inProgressList,
-                        (match) => MatchContextSubtree(
-                          match,
+                        (mContext) => TournamentMatchContextSubtree.fromContext(
+                          context: mContext,
                           child: RunningMatch(
-                            key: ValueKey('RunningMatch-${match.match.id}'),
+                            key: ValueKey('RunningMatch-${mContext.match.id}'),
                           ),
                         ),
                       ),
@@ -232,9 +237,11 @@ class _MatchQueueLists extends StatelessWidget {
 
   Map<Widget, List<Widget>> _buildWaitList(
     BuildContext context,
-    Map<ScheduleStatus, List<ScheduledMatchContext>> waitList,
-    Widget Function(ScheduledMatchContext match, ScheduleStatus waitingStatus)
-        matchItemBuilder,
+    Map<ScheduleStatus, List<MatchContext>> waitList,
+    Widget Function(
+      MatchContext tuple,
+      ScheduleStatus waitingStatus,
+    ) matchItemBuilder,
   ) {
     return waitList.map<Widget, List<Widget>>(
       (waitingStatus, matches) => MapEntry(
@@ -277,7 +284,7 @@ class _MatchQueueLists extends StatelessWidget {
 
   List<Widget> _buildMatchList(
     List<MatchContext> matches,
-    Widget Function(MatchContext match) matchItemBuilder,
+    Widget Function(MatchContext mContext) matchItemBuilder,
   ) {
     return matches.map((match) => matchItemBuilder(match)).toList();
   }
@@ -290,12 +297,22 @@ class _OpenCourtsInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
-    // TODO num courts
-    return Text(
-      l10n.nOpenCourts(42),
-      style: TextStyle(
-        color: Theme.of(context).colorScheme.onSurface.withOpacity(.55),
-      ),
+    return BlocBuilder<CourtCubit, CourtState>(
+      builder: (context, state) {
+        return LoadingScreen(
+          loadingStatus: state.loadingStatus,
+          builder: (context) {
+            var numCourts = state.getCollection<Court>().length;
+            var numOpen = numCourts - state.occupied.length;
+            return Text(
+              l10n.nOpenCourts(numOpen),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(.55),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }
@@ -313,11 +330,13 @@ class _CallOutAllButton extends StatelessWidget {
 
         for (var round in state.schedule!.roundQueue) {
           for (var match in round.matches) {
-            var matchContext =
-                ScheduledMatchContext(round.competition.tournamentPlan!, match);
+            var mContext = MatchContext(
+              tournamentPlan: round.competition.tournamentPlan!,
+              scheduledMatch: match,
+            );
             switch (match.status) {
               case ScheduleStatus.ready:
-                calloutWaitList.add(matchContext);
+                calloutWaitList.add(mContext);
               default:
                 break;
             }

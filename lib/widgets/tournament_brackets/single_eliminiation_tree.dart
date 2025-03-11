@@ -3,6 +3,7 @@ import 'package:ez_badminton_admin_app/layout/elimination_tree/elimination_tree_
 import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bracket.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_context/cubit/tournament_plan_context_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,9 +19,7 @@ class SingleEliminationTree extends StatelessWidget
     this.isEditable = false,
     this.showResults = false,
     this.placeholderLabels = const {},
-  }) : _sections = getSections(rounds) {
-    layoutSize = _getLayoutSize();
-  }
+  }) : _sections = getSections(rounds);
 
   final List<List<TournamentMatch>> rounds;
 
@@ -29,19 +28,16 @@ class SingleEliminationTree extends StatelessWidget
 
   final Map<Slot, Widget> placeholderLabels;
 
-  late final Size matchNodeSize;
-  late final Size layoutSize;
-
   final List<BracketSection> _sections;
   @override
   List<BracketSection> get sections => _sections;
 
   @override
   Widget build(BuildContext context) {
-    var tContext = context.read<TournamentContext>();
-    var competition = tContext.competition;
+    var competition = context.read<TournamentPlanContextCubit>().competition;
 
-    matchNodeSize = getMatchNodeSize(competition.teamSize);
+    var matchNodeSize = getMatchNodeSize(competition.teamSize);
+    var layoutSize = getLayoutSize(rounds, matchNodeSize);
     List<List<Widget>> matchNodes = [];
 
     for ((int, List<TournamentMatch>) roundEntry in rounds.indexed) {
@@ -50,10 +46,7 @@ class SingleEliminationTree extends StatelessWidget
 
       List<Widget> roundMatchNodes = round.mapIndexed((matchIndex, match) {
         Widget matchCard = MatchContextSubtree(
-          MatchContext(
-            tContext.tPlan,
-            match,
-          ),
+          match: match,
           child: MatchupCard(
             isEditable: isEditable && roundIndex == 0,
             placeholderLabels: placeholderLabels,
@@ -85,7 +78,10 @@ class SingleEliminationTree extends StatelessWidget
     );
   }
 
-  Size _getLayoutSize() {
+  static Size getLayoutSize(
+    List<List<TournamentMatch>> rounds,
+    Size matchNodeSize,
+  ) {
     int numRounds = rounds.length;
     int firstRoundLength = rounds.first.length;
 

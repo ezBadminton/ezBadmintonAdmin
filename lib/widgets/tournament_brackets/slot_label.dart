@@ -1,11 +1,10 @@
+import 'package:ez_badminton_admin_app/draw_management/cubit/drawing_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/cubit/player_cubit.dart';
 import 'package:model_repository/model_repository.dart';
-// TODO import 'package:ez_badminton_admin_app/draw_management/cubit/draw_editing_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/interactive_view_blocker_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:local_hero/local_hero.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
     as display_strings;
@@ -304,11 +303,8 @@ class _EditableSlotLabel extends StatelessWidget {
           return droppedTeam.data != team;
         },
         onAcceptWithDetails: (droppedTeam) {
-          // TODO
-          /*
-          var cubit = context.read<DrawEditingCubit>();
+          var cubit = context.read<DrawingCubit>();
           cubit.swapDrawMembers(team, droppedTeam.data);
-          */
         },
         builder: (context, candidateData, rejectedData) => Draggable<Team>(
           onDragStarted: blockerCubit?.removeEdgePanningBlock,

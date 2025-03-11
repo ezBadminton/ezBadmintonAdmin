@@ -23,8 +23,7 @@ class WaitingMatch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var matchContext = context.read<MatchContext>() as ScheduledMatchContext;
-    var match = matchContext.scheduledMatch;
+    var match = context.readScheduledMatch();
 
     return _QueuedMatchCard(
       child: Row(
@@ -103,8 +102,7 @@ class RunningMatch extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
-    var matchContext = context.read<MatchContext>();
-    var match = matchContext.match;
+    var match = context.readMatch();
 
     return _QueuedMatchCard(
       child: Row(
@@ -119,8 +117,6 @@ class RunningMatch extends StatelessWidget {
                 if (match.endTime == null)
                   MinutesTimer(
                     timestamp: match.startTime!,
-                    // TODO weird null assign
-                    endTime: match.endTime,
                     textStyle: const TextStyle(fontSize: 12),
                   )
                 else
@@ -340,17 +336,14 @@ class _PlayerBlockingInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    var queueCubit = context.read<MatchQueueCubit>();
-    var matchDataMap = queueCubit.state.matchDataMap;
 
-    var matchContext = context.read<MatchContext>() as ScheduledMatchContext;
-    var match = matchContext.scheduledMatch;
+    var match = context.readScheduledMatch();
 
     var blocks = match.blockingPlayers;
-    var blockingMatches = <MatchContext>[];
+    var blockingMatches = <TournamentMatch>[];
     for (var block in blocks.values) {
       if (block.blockingMatch != null) {
-        blockingMatches.add(matchDataMap[block.blockingMatch!]!);
+        blockingMatches.add(block.blockingMatch!);
       }
     }
 
@@ -379,8 +372,7 @@ class _RestBlockingInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
-    var matchContext = context.read<MatchContext>() as ScheduledMatchContext;
-    var match = matchContext.scheduledMatch;
+    var match = context.readScheduledMatch();
 
     return BlocBuilder<MatchQueueCubit, MatchQueueState>(
       builder: (context, state) {
@@ -454,7 +446,7 @@ class _PlayerBlockingDialog extends StatelessWidget {
     required this.matches,
   });
 
-  final List<MatchContext> matches;
+  final List<TournamentMatch> matches;
 
   @override
   Widget build(BuildContext context) {
@@ -482,7 +474,7 @@ class _PlayerBlockingDialog extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: MatchContextSubtree(
-                    match,
+                    match: match,
                     child: MatchLabel(
                       opponentStyle: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
@@ -514,7 +506,8 @@ class _CallOutButton extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
-    var matchContext = context.read<MatchContext>();
+    var tPlan = context.readTournamentPlan();
+    var match = context.readMatch();
 
     return Tooltip(
       message: l10n.callOutMatch,
@@ -525,7 +518,7 @@ class _CallOutButton extends StatelessWidget {
             showDialog(
               context: context,
               builder: (_) => CallOutScript(
-                callOuts: [matchContext],
+                callOuts: [MatchContext(tournamentPlan: tPlan, match: match)],
                 matchStartingCubit: context.read<MatchStartStopCubit>(),
               ),
             );
@@ -549,8 +542,7 @@ class _BackToWaitlistButton extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
     var courtAssignmentCubit = context.read<MatchCourtAssignmentCubit>();
 
-    var matchContext = context.read<MatchContext>();
-    var match = matchContext.match;
+    var match = context.readMatch();
 
     return BlocBuilder<MatchQueueCubit, MatchQueueState>(
       buildWhen: (previous, current) => previous.queueMode != current.queueMode,
@@ -590,7 +582,7 @@ class _EnterResultButton extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
-    var matchContext = context.read<MatchContext>();
+    var mContext = context.readMatchContext();
 
     return Tooltip(
       message: l10n.enterResult,
@@ -601,8 +593,8 @@ class _EnterResultButton extends StatelessWidget {
             showDialog(
               context: context,
               barrierDismissible: false,
-              builder: (context) => MatchContextSubtree(
-                matchContext,
+              builder: (context) => TournamentMatchContextSubtree.fromContext(
+                context: mContext,
                 child: ResultInputDialog(),
               ),
             );
@@ -633,8 +625,7 @@ class _RunningMatchMenuButton extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
     var cubit = context.read<MatchStartStopCubit>();
 
-    var matchContext = context.read<MatchContext>();
-    var match = matchContext.match;
+    var match = context.readMatch();
 
     return PopupMenuButton<VoidCallback>(
       onSelected: (callback) => callback(),

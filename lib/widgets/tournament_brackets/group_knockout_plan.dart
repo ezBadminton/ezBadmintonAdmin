@@ -7,7 +7,6 @@ import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bra
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:model_repository/model_repository.dart';
 import 'bracket_sizes.dart' as bracket_sizes;
@@ -27,15 +26,14 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    var tContext =
-        context.read<TournamentContext>() as TournamentContext<GroupKnockout>;
-    var tournament = tContext.tournament;
+    var tournament = context.readTournament() as GroupKnockout;
 
     List<RoundRobin> groupRoundRobins = tournament.groupPhase.groups;
 
     List<Widget> groupPlans = groupRoundRobins
         .mapIndexed((index, group) => TournamentContextSubtree(
-              tContext.copyWith(group),
+              tournamentGetter: (plan) =>
+                  (plan.tournament as GroupKnockout).groupPhase.groups[index],
               child: RoundRobinPlan(
                 isEditable: isEditable,
                 title: l10n.groupNumber(index + 1),
@@ -46,23 +44,26 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
     Map<Slot, Widget> placeholders =
         createQualificationPlaceholders(context, tournament);
 
+    koPhaseGetter(TournamentPlan plan) =>
+        (plan.tournament as GroupKnockout).knockoutPhase;
+
     Widget eliminationTree = switch (tournament.knockoutPhase) {
       SingleElimination e => TournamentContextSubtree(
-          tContext.copyWith(e),
+          tournamentGetter: koPhaseGetter,
           child: SingleEliminationTree(
             rounds: e.rounds,
             placeholderLabels: placeholders,
           ),
         ),
       DoubleElimination e => TournamentContextSubtree(
-          tContext.copyWith(e),
+          tournamentGetter: koPhaseGetter,
           child: DoubleEliminationTree(
             sections: DoubleEliminationTree.getSections(e),
             placeholderLabels: placeholders,
           ),
         ),
       SingleEliminationWithConsolation e => TournamentContextSubtree(
-          tContext.copyWith(e),
+          tournamentGetter: koPhaseGetter,
           child: ConsolationEliminationTree(
             sections: SingleEliminationTree.getSections(e.mainBracket.rounds),
             placeholderLabels: placeholders,

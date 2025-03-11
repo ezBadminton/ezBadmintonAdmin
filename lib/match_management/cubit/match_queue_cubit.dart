@@ -1,4 +1,3 @@
-import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
@@ -30,19 +29,7 @@ class MatchQueueCubit extends CollectionQuerierCubit<MatchQueueState> {
     );
 
     var schedule = updatedState.getCollection<Schedule>().firstOrNull;
-    var matchDataMap = <TournamentMatch, ScheduledMatchContext>{};
-    for (var round in schedule?.roundQueue ?? <ScheduledRound>[]) {
-      for (var match in round.matches) {
-        matchDataMap[match.match] = ScheduledMatchContext(
-          round.competition.tournamentPlan!,
-          match,
-        );
-      }
-    }
-    updatedState = updatedState.copyWith(
-      schedule: schedule,
-      matchDataMap: matchDataMap,
-    );
+    updatedState = updatedState.copyWith(schedule: schedule);
 
     emit(updatedState);
   }

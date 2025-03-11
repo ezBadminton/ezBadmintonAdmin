@@ -29,7 +29,7 @@ class CourtCubit extends CollectionQuerierCubit<CourtState> {
       collections: collections,
     );
 
-    var occupied = <Court, ScheduledMatchContext>{};
+    var occupied = <Court, MatchContext>{};
     for (var round in updatedState.getCollection<ScheduledRound>()) {
       for (var match in round.matches) {
         switch (match.status) {
@@ -44,12 +44,12 @@ class CourtCubit extends CollectionQuerierCubit<CourtState> {
         if (court == null) {
           continue;
         }
-        var matchContext = ScheduledMatchContext(
-          round.competition.tournamentPlan!,
-          match,
-        );
 
-        occupied[court] = matchContext;
+        var mContext = MatchContext(
+          tournamentPlan: round.competition.tournamentPlan!,
+          scheduledMatch: match,
+        );
+        occupied[court] = mContext;
       }
     }
     updatedState = updatedState.copyWith(occupied: occupied);

@@ -8,7 +8,6 @@ import 'package:ez_badminton_admin_app/widgets/tournament_brackets/slot_label.da
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/utils.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:model_repository/model_repository.dart';
 
@@ -17,12 +16,8 @@ class RoundRobinResults extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var tContext =
-        context.read<TournamentContext>() as TournamentContext<RoundRobin>;
-    var tournament = tContext.tournament;
-
     return BracketSectionSubtree(
-      tournamentDataObject: tournament,
+      tournamentDataObject: context.readTournament(),
       child: const Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -42,9 +37,7 @@ class _RoundRobinLeaderboard extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
-    var tContext =
-        context.read<TournamentContext>() as TournamentContext<RoundRobin>;
-    var tournament = tContext.tournament;
+    var tournament = context.readTournament() as RoundRobin;
 
     const TextStyle statNameStyle = TextStyle(fontSize: 11);
     TableRow leaderboardHeader = TableRow(
@@ -148,10 +141,9 @@ class _RoundRobinLeaderboard extends StatelessWidget {
   Widget _buildTitle(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
-    var tContext =
-        context.read<TournamentContext>() as TournamentContext<RoundRobin>;
-    var tPlan = tContext.tPlan;
-    var tournament = tContext.tournament;
+    var tPlan = context.readTournamentPlan();
+    var tournament = context.readTournament() as RoundRobin;
+
     GroupKnockout? parentTournament;
     if (tPlan.tournament is GroupKnockout) {
       parentTournament = tPlan.tournament as GroupKnockout;
@@ -185,14 +177,11 @@ class _RoundRobinLeaderboard extends StatelessWidget {
     List<Team> tiedTeams,
     int rankIndex,
   ) {
-    var tContext =
-        context.read<TournamentContext>() as TournamentContext<RoundRobin>;
-    var tPlan = tContext.tPlan;
-    var tournament = tContext.tournament;
-
+    var tPlan = context.readTournamentPlan();
     if (!tPlan.ended) {
       return null;
     }
+    var tournament = context.readTournament() as RoundRobin;
 
     var brokenTieMap = _mapBrokenTies(tournament);
     GroupKnockout? parentTournament;
@@ -293,8 +282,7 @@ class _MatchResultList extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
-    var tContext = context.read<TournamentContext>();
-    var tournament = tContext.tournament;
+    var tournament = context.readTournament();
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -307,11 +295,7 @@ class _MatchResultList extends StatelessWidget {
           ),
           for (TournamentMatch match in round.where((m) => !m.isBye))
             MatchContextSubtree(
-              MatchContext(
-                tContext.tPlan,
-                match,
-                tournament: tournament,
-              ),
+              match: match,
               child: MatchupCard(
                 showResult: true,
                 width: 550,

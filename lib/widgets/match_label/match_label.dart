@@ -1,7 +1,7 @@
+import 'package:ez_badminton_admin_app/match_management/result_entering/view/result_input_dialog.dart';
 import 'package:ez_badminton_admin_app/tournament_plans/cubit/tournament_plan_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:model_repository/model_repository.dart';
-// TODO import 'package:ez_badminton_admin_app/match_management/result_entering/view/result_input_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
 import 'package:ez_badminton_admin_app/widgets/help_tooltip_icon/help_tooltip_icon.dart';
 import 'package:ez_badminton_admin_app/widgets/match_info/match_info.dart';
@@ -25,9 +25,9 @@ class MatchLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var matchContext = context.read<MatchContext>();
-    var match = matchContext.match;
-    var tPlan = matchContext.tPlan;
+    var tPlan = context.readTournamentPlan();
+    var match = context.readMatch();
+
     return Column(
       children: [
         CompetitionLabel(
@@ -78,9 +78,9 @@ class MatchupLabel extends StatelessWidget {
     TextStyle? lastNameTextStyle =
         boldLastName ? const TextStyle(fontWeight: FontWeight.bold) : null;
 
-    var matchContext = context.read<MatchContext>();
-    var match = matchContext.match;
-    var teamSize = matchContext.competition.teamSize;
+    var tPlan = context.readTournamentPlan();
+    var match = context.readMatch();
+    var teamSize = tPlan.competition.teamSize;
 
     List<Widget> widgets = [
       SlotLabel(
@@ -161,9 +161,9 @@ class MatchupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var matchContext = context.read<MatchContext>();
-    var match = matchContext.match;
-    var competition = matchContext.competition;
+    var tPlan = context.readTournamentPlan();
+    var match = context.readMatch();
+    var competition = tPlan.competition;
 
     Team? winner = showResult ? match.winner : null;
 
@@ -253,9 +253,9 @@ class _Scoreline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var matchContext = context.read<MatchContext>();
-    var match = matchContext.match;
-    var competition = matchContext.competition;
+    var tPlan = context.readTournamentPlan();
+    var match = context.readMatch();
+    var competition = tPlan.competition;
 
     int maxSets = competition.tournamentModeSettings!.winningSets * 2 - 1;
 
@@ -388,9 +388,9 @@ class _ScoreEditButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var matchContext = context.read<MatchContext>();
-    var match = matchContext.match;
-    var tournament = matchContext.tournament;
+    var mContext = context.readMatchContext();
+    var match = context.readMatch();
+    var tournament = context.readTournament();
 
     var l10n = AppLocalizations.of(context)!;
 
@@ -412,13 +412,11 @@ class _ScoreEditButton extends StatelessWidget {
                 showDialog(
                   context: context,
                   barrierDismissible: false,
-                  builder: (context) => Placeholder(), // TODO
-                  /*
-                  builder: (context) => ResultInputDialog(
-                    match: match,
-                    tournamentProgressCubit: progressCubit,
+                  builder: (context) =>
+                      TournamentMatchContextSubtree.fromContext(
+                    context: mContext,
+                    child: ResultInputDialog(),
                   ),
-                  */
                 );
               },
               child: const Icon(Icons.edit),
@@ -435,8 +433,7 @@ class _WalkoverInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var matchContext = context.read<MatchContext>();
-    var match = matchContext.match;
+    var match = context.readMatch();
 
     if (!match.isWalkover) {
       return const SizedBox();

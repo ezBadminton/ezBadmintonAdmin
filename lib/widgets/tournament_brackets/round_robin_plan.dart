@@ -25,12 +25,8 @@ class RoundRobinPlan extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
-    var tContext =
-        context.read<TournamentContext>() as TournamentContext<RoundRobin>;
-    var tournament = tContext.tournament;
-
     return BracketSectionSubtree(
-      tournamentDataObject: tournament,
+      tournamentDataObject: context.readTournament(),
       child: Column(
         children: [
           _RoundRobinTable(
@@ -59,10 +55,10 @@ class _RoundRobinTable extends StatelessWidget {
   Widget build(BuildContext context) {
     double width = bracket_sizes.roundRobinTableWidth;
 
-    var tContext =
-        context.read<TournamentContext>() as TournamentContext<RoundRobin>;
-    var entries = tContext.tournament.entries;
-    var competition = tContext.competition;
+    var tPlan = context.readTournamentPlan();
+    var tournament = context.readTournament();
+    var entries = tournament.entries;
+    var competition = tPlan.competition;
 
     return Card(
       elevation: 0,
@@ -155,9 +151,7 @@ class _RoundRobinMatchListState extends State<_RoundRobinMatchList> {
     var interactionBlockerCubit = context.read<InteractiveViewBlockerCubit>();
     double width = bracket_sizes.roundRobinTableWidth;
 
-    var tContext =
-        context.read<TournamentContext>() as TournamentContext<RoundRobin>;
-    var tournament = tContext.tournament;
+    var tournament = context.readTournament();
 
     return SizedBox(
       width: width,
@@ -188,10 +182,10 @@ class _RoundRobinMatchListState extends State<_RoundRobinMatchList> {
               child: ListView.builder(
                 controller: _scrollController,
                 itemCount: tournament.rounds.length,
-                prototypeItem: _buildRound(tContext, 0, l10n),
+                prototypeItem: _buildRound(context, 0, l10n),
                 shrinkWrap: true,
                 itemBuilder: (context, index) => _buildRound(
-                  tContext,
+                  context,
                   index,
                   l10n,
                 ),
@@ -204,11 +198,11 @@ class _RoundRobinMatchListState extends State<_RoundRobinMatchList> {
   }
 
   Widget _buildRound(
-    TournamentContext<RoundRobin> tContext,
+    BuildContext context,
     int roundIndex,
     AppLocalizations l10n,
   ) {
-    var tournament = tContext.tournament;
+    var tournament = context.readTournament();
     var rounds = tournament.rounds;
     var round = rounds[roundIndex];
     return Column(
@@ -222,7 +216,7 @@ class _RoundRobinMatchListState extends State<_RoundRobinMatchList> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5.0),
             child: MatchContextSubtree(
-              MatchContext(tContext.tPlan, match),
+              match: match,
               child: BracketMatchLabel(),
             ),
           ),

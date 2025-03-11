@@ -16,17 +16,19 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class ConsolationEliminationPlan
     extends TournamentPlan<models.SingleEliminationWithConsolation> {
   ConsolationEliminationPlan({
-    required super.tContext,
+    required super.tPlan,
     required super.l10n,
     this.placeholders = const {},
   });
 
+  models.SingleEliminationWithConsolation get tournament =>
+      tPlan.tournament as models.SingleEliminationWithConsolation;
   final Map<models.Slot, pw.Widget> placeholders;
 
   @override
   List<TournamentPlanWidget> layoutPlan() {
     ConsolationTreeNode consolationTree =
-        _createConsolationTree(tContext.tournament.mainBracket);
+        _createConsolationTree(tournament.mainBracket);
 
     List<TournamentPlanWidget> planWidgets = [];
     _positionBrackets(
@@ -165,7 +167,7 @@ class ConsolationEliminationPlan
         */
 
     SingleEliminationPlan plan = SingleEliminationPlan(
-      tContext: tContext,
+      tPlan: tPlan,
       rounds: bracket.rounds,
       l10n: l10n,
       placeholders: placeholders,

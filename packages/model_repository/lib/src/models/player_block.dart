@@ -11,9 +11,6 @@ class PlayerBlock with _$PlayerBlock {
   const PlayerBlock._();
 
   const factory PlayerBlock({
-    required String id,
-    required DateTime created,
-    required DateTime updated,
     required PlayerBlockMode mode,
     @JsonKey(
       name: 'blockingMatch',

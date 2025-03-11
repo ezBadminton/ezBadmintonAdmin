@@ -23,9 +23,9 @@ class GameSheetPrintingState extends CollectionQuerierState
 
   final PrintSelection printSelection;
 
-  final List<ScheduledMatchContext> matches;
-  final List<ScheduledMatchContext> matchesToPrint;
-  final List<ScheduledMatchContext> customSelection;
+  final List<MatchContext> matches;
+  final List<MatchContext> matchesToPrint;
+  final List<MatchContext> customSelection;
 
   @override
   final SelectionInput<pw.Document> pdfDocument;
@@ -46,9 +46,9 @@ class GameSheetPrintingState extends CollectionQuerierState
     LoadingStatus? loadingStatus,
     FormzSubmissionStatus? formStatus,
     PrintSelection? printSelection,
-    List<ScheduledMatchContext>? matches,
-    List<ScheduledMatchContext>? matchesToPrint,
-    List<ScheduledMatchContext>? customSelection,
+    List<MatchContext>? matches,
+    List<MatchContext>? matchesToPrint,
+    List<MatchContext>? customSelection,
     SelectionInput<pw.Document>? pdfDocument,
     SelectionInput<File>? openedFile,
     SelectionInput<Directory>? openedDirectory,

@@ -4,7 +4,6 @@ import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bra
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:model_repository/model_repository.dart';
 
@@ -28,12 +27,15 @@ class ConsolationEliminationTree extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
-    var tContext = context.read<TournamentContext>()
-        as TournamentContext<SingleEliminationWithConsolation>;
-    var tournament = tContext.tournament;
+    var tPlan = context.readTournamentPlan();
+    var tournament =
+        context.readTournament() as SingleEliminationWithConsolation;
 
-    ConsolationTreeNode consolationTreeRoot =
-        _buildBracketTree(context, tournament.mainBracket);
+    ConsolationTreeNode consolationTreeRoot = _buildBracketTree(
+      context,
+      tournament.mainBracket,
+      tPlan.competition,
+    );
 
     return ConsolationEliminationTreeLayout(
       consolationTreeRoot: consolationTreeRoot,
@@ -43,6 +45,7 @@ class ConsolationEliminationTree extends StatelessWidget
   ConsolationTreeNode _buildBracketTree(
     BuildContext context,
     ConsolationBracket bracket,
+    Competition competition,
   ) {
     Map<Slot, Widget> placeholderLabels = Map.of(this.placeholderLabels)
       ..addAll(_createPlaceholderLabels(context, bracket));
@@ -58,13 +61,21 @@ class ConsolationEliminationTree extends StatelessWidget
         .map((consolationBracket) => _buildBracketTree(
               context,
               consolationBracket,
+              competition,
             ))
         .toList();
+
+    var matchNodeSize =
+        SingleEliminationTree.getMatchNodeSize(competition.teamSize);
+    var layoutSize =
+        SingleEliminationTree.getLayoutSize(bracket.rounds, matchNodeSize);
 
     ConsolationTreeNode node = ConsolationTreeNode(
       bracket: bracket,
       treeWidget: tree,
       consolationBrackets: consolationTrees,
+      matchNodeSize: matchNodeSize,
+      layoutSize: layoutSize,
     );
 
     for (ConsolationTreeNode child in consolationTrees) {

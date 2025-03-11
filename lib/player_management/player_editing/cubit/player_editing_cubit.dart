@@ -242,7 +242,19 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
     assert(state.player.id.isNotEmpty);
     var addedRegistrations =
         state.registrations.getAddedElements().map((registration) {
-      var competition = registration.competition;
+      if (this.state.player.id.isEmpty) {
+        // Replace new player with created player from db
+        var teamMembers = List.of(registration.team.players)
+          ..remove(this.state.player)
+          ..add(state.player);
+
+        var teamWithNewPlayer = registration.team.copyWith(
+          playersRel: MultiRelation.fromModels(teamMembers),
+        );
+        registration = registration.copyWith(
+          teamRel: SingleRelation.fromModel(teamWithNewPlayer),
+        );
+      }
       var registeredTeam =
           registration.getPartnerTeam(state.player) ?? registration.team;
 
@@ -253,19 +265,9 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
           playersRel: MultiRelation.fromModels(teamMembers),
         );
       }
-      if (this.state.player.id.isEmpty) {
-        // Replace new player with created player from db
-        var teamMembers = List.of(registeredTeam.players)
-          ..remove(this.state.player)
-          ..add(state.player);
-
-        registeredTeam = registeredTeam.copyWith(
-          playersRel: MultiRelation.fromModels(teamMembers),
-        );
-      }
 
       return Registration.newRegistration(
-        competition: competition,
+        competition: registration.competition,
         team: registeredTeam,
       );
     }).toList();

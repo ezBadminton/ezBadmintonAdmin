@@ -14,9 +14,12 @@ import 'package:ez_badminton_admin_app/widgets/tournament_brackets/group_knockou
 
 class GroupKnockOutPlan extends TournamentPlan<models.GroupKnockout> {
   GroupKnockOutPlan({
-    required super.tContext,
+    required super.tPlan,
     required super.l10n,
   });
+
+  models.GroupKnockout get tournament =>
+      tPlan.tournament as models.GroupKnockout;
 
   @override
   List<TournamentPlanWidget> layoutPlan() {
@@ -32,11 +35,11 @@ class GroupKnockOutPlan extends TournamentPlan<models.GroupKnockout> {
   }
 
   List<TournamentPlanWidget> _positionGroups() {
-    List<models.RoundRobin> groups = tContext.tournament.groupPhase.groups;
+    List<models.RoundRobin> groups = tournament.groupPhase.groups;
 
     List<RoundRobinPlan> groupPlans = groups
         .mapIndexed((index, g) => RoundRobinPlan(
-              tContext: tContext,
+              tPlan: tPlan,
               title: pw.Text(l10n.groupNumber(index + 1)),
               l10n: l10n,
             ))
@@ -75,20 +78,20 @@ class GroupKnockOutPlan extends TournamentPlan<models.GroupKnockout> {
         lastGroup.boundingBox.right + 2 * eliminationRoundMargin;
 
     Map<models.Slot, pw.Widget> placeholders = _createPlaceholders();
-    TournamentPlan knockOutPlan = switch (tContext.tournament.knockoutPhase) {
+    TournamentPlan knockOutPlan = switch (tournament.knockoutPhase) {
       models.SingleElimination singleElimination => SingleEliminationPlan(
-          tContext: tContext.copyWith(singleElimination),
+          tPlan: tPlan.copyWith(tournament: singleElimination),
           l10n: l10n,
           placeholders: placeholders,
         ),
       models.DoubleElimination doubleElimination => DoubleEliminationPlan(
-          tContext: tContext.copyWith(doubleElimination),
+          tPlan: tPlan.copyWith(tournament: doubleElimination),
           l10n: l10n,
           placeholders: placeholders,
         ),
       models.SingleEliminationWithConsolation consolationElimination =>
         ConsolationEliminationPlan(
-          tContext: tContext.copyWith(consolationElimination),
+          tPlan: tPlan.copyWith(tournament: consolationElimination),
           l10n: l10n,
           placeholders: placeholders,
         ),
@@ -116,7 +119,7 @@ class GroupKnockOutPlan extends TournamentPlan<models.GroupKnockout> {
   Map<models.Slot, pw.Widget> _createPlaceholders() {
     Map<models.Slot, String> labelTexts =
         ko_plan.GroupKnockoutPlan.createQualificationPlaceholderTexts(
-      tContext.tournament,
+      tournament,
       l10n,
     );
 

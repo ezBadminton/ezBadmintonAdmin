@@ -170,6 +170,9 @@ class _AppState extends State<App> {
           value: _modelRepository.findStore<TournamentModeSettings>(),
         ),
         RepositoryProvider.value(
+          value: _modelRepository.findStore<TournamentPlan>(),
+        ),
+        RepositoryProvider.value(
           value: _modelRepository.findStore<Registration>(),
         ),
         RepositoryProvider.value(

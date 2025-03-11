@@ -33,6 +33,7 @@ sealed class Tournament with _$Tournament implements MatchRoundList {
 
   @FreezedUnionValue('SingleElimination')
   @With<DefaultRounds>()
+  @With<DefaultRoundsRelations>()
   @JsonSerializable(explicitToJson: true, createToJson: false)
   const factory Tournament.singleElimination({
     @JsonKey(name: 'editable')
@@ -66,7 +67,8 @@ sealed class Tournament with _$Tournament implements MatchRoundList {
     required List<MultiRelation<TournamentMatch>> winnerRoundsRel,
     @JsonKey(name: 'loserRounds')
     required List<MultiRelation<TournamentMatch>> loserRoundsRel,
-    @JsonKey(name: 'final') required TournamentMatch finalMatch,
+    @JsonKey(name: 'final')
+    required SingleRelation<TournamentMatch> finalMatchRel,
   }) = DoubleElimination;
 
   @FreezedUnionValue('GroupKnockout')
@@ -184,15 +186,23 @@ class GroupPhase {
 }
 
 mixin RoundRobinTies {
+  List<MultiRelation<TournamentMatch>> get roundsRel;
   List<List<Slot>> get tiesRel;
   List<List<Slot>> get unbrokenTiesRel;
 
   List<List<Team>> get ties => Tournament._unwrapTeams(tiesRel);
   List<List<Team>> get unbrokenTies => Tournament._unwrapTeams(unbrokenTiesRel);
+
+  List<Relation> get relations => [
+        ...roundsRel,
+        ...tiesRel.flattened.map((slot) => slot.teamRel),
+        ...unbrokenTiesRel.flattened.map((slot) => slot.teamRel),
+      ];
 }
 
 abstract class MatchRoundList {
   List<List<TournamentMatch>> get rounds;
+  List<Relation> get relations;
 }
 
 mixin DefaultRounds {
@@ -201,25 +211,42 @@ mixin DefaultRounds {
       Tournament._unwrapMatches(roundsRel);
 }
 
+mixin DefaultRoundsRelations {
+  List<MultiRelation<TournamentMatch>> get roundsRel;
+  List<Relation> get relations => roundsRel;
+}
+
 mixin ConsolationRounds {
   ConsolationBracket get mainBracket;
 
   List<List<TournamentMatch>> get rounds {
-    _rounds ??= _makeRounds();
+    if (_rounds == null) {
+      _makeRounds();
+    }
     return _rounds!;
   }
 
-  late final List<List<TournamentMatch>>? _rounds;
+  List<Relation> get relations {
+    if (_relations == null) {
+      _makeRounds();
+    }
+    return _relations!;
+  }
 
-  List<List<TournamentMatch>> _makeRounds() {
+  late final List<List<TournamentMatch>>? _rounds;
+  late final List<Relation>? _relations;
+
+  _makeRounds() {
     var stack = <ConsolationBracket>[mainBracket];
     var orderedBrackets = <ConsolationBracket>[];
+    var relations = <Relation>[];
 
     for (int l = 1; l > 0; l = stack.length) {
       var current = stack[l - 1];
       stack = stack.sublist(0, l - 1);
       stack.addAll(current.consolations);
       orderedBrackets.add(current);
+      relations.addAll(current.roundsRel);
     }
 
     var maxNumRounds = mainBracket.rounds.length;
@@ -232,28 +259,38 @@ mixin ConsolationRounds {
         groupedRounds[groupI].addAll(r);
       }
     }
-    return groupedRounds;
+    _rounds = groupedRounds;
+    _relations = relations;
   }
 }
 
 mixin DoubleEliminationRounds {
   List<MultiRelation<TournamentMatch>> get winnerRoundsRel;
   List<MultiRelation<TournamentMatch>> get loserRoundsRel;
-  TournamentMatch get finalMatch;
+  SingleRelation<TournamentMatch> get finalMatchRel;
 
   List<List<TournamentMatch>> get winnerRounds =>
       Tournament._unwrapMatches(winnerRoundsRel);
   List<List<TournamentMatch>> get loserRounds =>
       Tournament._unwrapMatches(loserRoundsRel);
+  TournamentMatch get finalMatch => finalMatchRel.model!;
 
   List<List<TournamentMatch>> get rounds {
-    _rounds ??= _makeRounds();
+    if (_rounds == null) {
+      _makeRounds();
+    }
     return _rounds!;
   }
 
+  List<Relation> get relations => [
+        ...winnerRoundsRel,
+        ...loserRoundsRel,
+        finalMatchRel,
+      ];
+
   late final List<List<TournamentMatch>>? _rounds;
 
-  List<List<TournamentMatch>> _makeRounds() {
+  _makeRounds() {
     var rounds = <List<TournamentMatch>>[];
 
     for (var i = 0; i < winnerRounds.length; i++) {
@@ -271,17 +308,26 @@ mixin DoubleEliminationRounds {
     }
     rounds.add([finalMatch]);
 
-    return rounds;
+    _rounds = rounds;
   }
 }
 
 mixin GroupKnockoutRounds {
   GroupPhase get groupPhase;
+  Tournament get knockoutPhase;
 
   List<List<TournamentMatch>> get rounds {
     _rounds ??= _makeRounds();
     return _rounds!;
   }
+
+  List<Relation> get relations => [
+        ...groupPhase.crossGroupTiesRel.flattened.map((slot) => slot.teamRel),
+        ...groupPhase.unbrokenCrossGroupTiesRel.flattened
+            .map((slot) => slot.teamRel),
+        for (final g in groupPhase.groups) ...g.relations,
+        ...knockoutPhase.relations,
+      ];
 
   late final List<List<TournamentMatch>>? _rounds;
 
@@ -306,6 +352,9 @@ mixin GroupKnockoutRounds {
       }
       rounds.add(superGroupRound);
     }
+
+    rounds.addAll(knockoutPhase.rounds);
+
     return rounds;
   }
 }

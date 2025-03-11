@@ -24,7 +24,7 @@ class GameSheetPage extends pw.StatelessWidget {
     List<pw.Widget> sheets = matches
         .map(
           (m) => GameSheet(
-            tPlan: m.tPlan,
+            tPlan: m.tournamentPlan,
             match: m.match,
             l10n: l10n,
             padding: sheetSpacing * 0.5,

@@ -12,18 +12,20 @@ import 'package:pdf/widgets.dart' as pw;
 
 class DoubleEliminationPlan extends TournamentPlan<models.DoubleElimination> {
   DoubleEliminationPlan({
-    required super.tContext,
+    required super.tPlan,
     required super.l10n,
     this.placeholders = const {},
   });
 
+  models.DoubleElimination get tournament =>
+      tPlan.tournament as models.DoubleElimination;
   final Map<models.Slot, pw.Widget> placeholders;
 
   @override
   List<TournamentPlanWidget> layoutPlan() {
     SingleEliminationPlan winnerBracket = SingleEliminationPlan(
-      tContext: tContext,
-      rounds: tContext.tournament.winnerRounds,
+      tPlan: tPlan,
+      rounds: tournament.winnerRounds,
       l10n: l10n,
       placeholders: placeholders,
     );
@@ -48,11 +50,11 @@ class DoubleEliminationPlan extends TournamentPlan<models.DoubleElimination> {
 
     Map<models.Slot, pw.Widget> loserPlaceholders = _createPlaceholderLabels();
 
-    List<List<MatchCard>> loserMatches = tContext.tournament.loserRounds
+    List<List<MatchCard>> loserMatches = tournament.loserRounds
         .map((loserRound) => [
               for (models.TournamentMatch match in loserRound)
                 MatchCard(
-                  competition: tContext.competition,
+                  competition: tPlan.competition,
                   match: match,
                   l10n: l10n,
                   placeholders: loserPlaceholders,
@@ -196,8 +198,8 @@ class DoubleEliminationPlan extends TournamentPlan<models.DoubleElimination> {
         matchPlanWidgets.reversed.firstWhere((w) => w.child is MatchCard);
 
     MatchCard finalMatchCard = MatchCard(
-      competition: tContext.competition,
-      match: tContext.tournament.finalMatch,
+      competition: tPlan.competition,
+      match: tournament.finalMatch,
       l10n: l10n,
     );
 
@@ -376,8 +378,7 @@ class DoubleEliminationPlan extends TournamentPlan<models.DoubleElimination> {
 
   Map<models.Slot, pw.Widget> _createPlaceholderLabels() {
     Map<models.Slot, String> labelTexts =
-        DoubleEliminationTree.createPlaceholderLabels(
-            tContext.tournament, l10n);
+        DoubleEliminationTree.createPlaceholderLabels(tournament, l10n);
 
     Map<models.Slot, pw.Widget> labels = wrapPlaceholderLabels(labelTexts);
 

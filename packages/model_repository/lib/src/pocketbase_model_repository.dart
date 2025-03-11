@@ -141,6 +141,7 @@ class PocketbaseModelRepository extends ModelRepository {
           relations.addAll(t.entriesRel.flattened.map((slot) => slot.teamRel));
           relations
               .addAll(t.finalRankingRel.flattened.map((slot) => slot.teamRel));
+          relations.addAll(t.relations);
         case TournamentMatch m:
           relations.add(m.setsRel);
           relations.add(m.courtRel);

@@ -53,26 +53,29 @@ class _MatchScanFocus extends StatelessWidget {
           return;
         }
 
-        MatchContext? scannedMatch;
+        Competition? competition;
         for (var plan in planCubit.state.runningTournaments.values) {
           var matches = plan.tournament.rounds.flattened;
           var match =
               matches.firstWhereOrNull((m) => m == scannedTournamentMatch);
           if (match != null) {
-            scannedMatch = MatchContext(plan, match);
+            competition = plan.competition;
             break;
           }
         }
 
-        if (scannedMatch == null) {
+        if (competition == null) {
           return;
         }
 
         showDialog(
           context: context,
           barrierDismissible: false,
-          builder: (context) =>
-              MatchContextSubtree(scannedMatch!, child: ResultInputDialog()),
+          builder: (context) => TournamentMatchContextSubtree(
+            competition: competition!,
+            match: scannedTournamentMatch,
+            child: ResultInputDialog(),
+          ),
         );
       },
       child: Focus(

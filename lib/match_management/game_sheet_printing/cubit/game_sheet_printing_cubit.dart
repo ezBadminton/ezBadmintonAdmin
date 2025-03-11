@@ -50,7 +50,9 @@ class GameSheetPrintingCubit
 
     var matches = updatedState.getCollection<ScheduledRound>().expand((round) {
       var tPlan = round.competition.tournamentPlan!;
-      return round.matches.map((m) => ScheduledMatchContext(tPlan, m));
+      return round.matches.map(
+        (m) => MatchContext(tournamentPlan: tPlan, scheduledMatch: m),
+      );
     }).toList();
 
     updatedState = updatedState.copyWith(matches: matches);
@@ -98,7 +100,9 @@ class GameSheetPrintingCubit
   /// Changes the [customSelection] to be printed.
   ///
   /// Used for [PrintSelection.custom].
-  void customSelectionChanged(List<ScheduledMatchContext> customSelection) {
+  void customSelectionChanged(
+    List<MatchContext> customSelection,
+  ) {
     _emitStateWithPdf(
       state.copyWith(customSelection: customSelection),
     );
@@ -139,7 +143,7 @@ class GameSheetPrintingCubit
   void _emitStateWithPdf(
     GameSheetPrintingState state,
   ) async {
-    List<ScheduledMatchContext> matches = switch (state.printSelection) {
+    List<MatchContext> matches = switch (state.printSelection) {
       PrintSelection.custom => state.customSelection,
       _ => state.matches,
     };
@@ -149,8 +153,7 @@ class GameSheetPrintingCubit
     bool excludePrinted = tournament.dontReprintGameSheets;
     bool qrCodeEnabled = tournament.printQrCodes;
 
-    List<ScheduledMatchContext> matchPrintSelection =
-        switch (state.printSelection) {
+    List<MatchContext> matchPrintSelection = switch (state.printSelection) {
       PrintSelection.custom => matches,
       _ => _getMatchPrintSelection(
           state.printSelection,
@@ -209,20 +212,21 @@ class GameSheetPrintingCubit
     return pdf;
   }
 
-  List<ScheduledMatchContext> _getMatchPrintSelection(
+  List<MatchContext> _getMatchPrintSelection(
     PrintSelection printSelection,
-    List<ScheduledMatchContext> matches,
+    List<MatchContext> matches,
     bool excludePrinted,
   ) {
-    Iterable<ScheduledMatchContext> unprintedMatches = matches.where(
-      (m) =>
-          !m.match.isBye &&
-          (!excludePrinted || !m.match.gameSheetPrinted) &&
-          m.scheduledMatch.status != ScheduleStatus.inProgress &&
-          m.match.endTime == null,
+    Iterable<MatchContext> unprintedMatches = matches.where(
+      (mContext) =>
+          !mContext.match.isBye &&
+          (!excludePrinted ||
+              !mContext.scheduledMatch.match.gameSheetPrinted) &&
+          mContext.scheduledMatch.status != ScheduleStatus.inProgress &&
+          mContext.match.endTime == null,
     );
 
-    Iterable<ScheduledMatchContext> selectedMatches = switch (printSelection) {
+    Iterable<MatchContext> selectedMatches = switch (printSelection) {
       PrintSelection.allUpcoming => unprintedMatches,
       PrintSelection.playersPartiallyQualified => unprintedMatches.where(
           (m) => m.match.slot1.team != null || m.match.slot2.team != null,
@@ -267,11 +271,13 @@ class GameSheetPrintingCubit
   GameSheetPrintingState _updateCustomPrintSelection(
     GameSheetPrintingState state,
   ) {
-    List<ScheduledMatchContext> updatedSelection = state.customSelection
+    List<MatchContext> updatedSelection = state.customSelection
         .map(
-          (match) => state.matches.firstWhereOrNull((m) => match == m),
+          (match) => state.matches.firstWhereOrNull(
+            (m) => match.match == m.match,
+          ),
         )
-        .whereType<ScheduledMatchContext>()
+        .whereType<MatchContext>()
         .toList();
 
     return state.copyWith(customSelection: updatedSelection);

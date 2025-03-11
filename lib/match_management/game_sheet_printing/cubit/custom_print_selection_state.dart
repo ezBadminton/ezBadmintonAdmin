@@ -13,9 +13,9 @@ class CustomPrintSelectionState extends CollectionQuerierState with FormzMixin {
   @override
   final LoadingStatus loadingStatus;
 
-  final Map<PrintCategory, List<ScheduledMatchContext>> matches;
+  final Map<PrintCategory, List<MatchContext>> matches;
 
-  final ListInput<ScheduledMatchContext> selectedMatches;
+  final ListInput<MatchContext> selectedMatches;
 
   final Map<PrintCategory, bool?> printCategorySelectionTristates;
 
@@ -26,8 +26,8 @@ class CustomPrintSelectionState extends CollectionQuerierState with FormzMixin {
 
   CustomPrintSelectionState copyWith({
     LoadingStatus? loadingStatus,
-    Map<PrintCategory, List<ScheduledMatchContext>>? matches,
-    ListInput<ScheduledMatchContext>? selectedMatches,
+    Map<PrintCategory, List<MatchContext>>? matches,
+    ListInput<MatchContext>? selectedMatches,
     Map<PrintCategory, bool?>? printCategorySelectionTristates,
     Map<Type, Predicate>? filter,
     List<List<Model>>? collections,

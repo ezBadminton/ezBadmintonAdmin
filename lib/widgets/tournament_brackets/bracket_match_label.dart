@@ -1,7 +1,6 @@
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/slot_label.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BracketMatchLabel extends StatelessWidget {
@@ -11,9 +10,9 @@ class BracketMatchLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
-    var matchContext = context.read<MatchContext>();
-    var match = matchContext.match;
-    var competition = matchContext.competition;
+    var tPlan = context.readTournamentPlan();
+    var match = context.readMatch();
+    var competition = tPlan.competition;
 
     return Row(
       children: [
