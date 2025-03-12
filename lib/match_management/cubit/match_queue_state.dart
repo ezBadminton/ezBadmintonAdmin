@@ -3,14 +3,18 @@ part of 'match_queue_cubit.dart';
 class MatchQueueState extends CollectionQuerierState {
   MatchQueueState({
     this.loadingStatus = LoadingStatus.loading,
-    this.schedule,
+    this.queuedRounds = const [],
+    this.readyMatches = const [],
+    this.runningMatches = const [],
     this.collections = const [],
   });
 
   @override
   final LoadingStatus loadingStatus;
 
-  final Schedule? schedule;
+  final List<ScheduledRound> queuedRounds;
+  final List<MatchContext> readyMatches;
+  final List<MatchContext> runningMatches;
 
   @override
   final List<List<Model>> collections;
@@ -21,12 +25,16 @@ class MatchQueueState extends CollectionQuerierState {
 
   MatchQueueState copyWith({
     LoadingStatus? loadingStatus,
-    Schedule? schedule,
+    List<ScheduledRound>? queuedRounds,
+    List<MatchContext>? readyMatches,
+    List<MatchContext>? runningMatches,
     List<List<Model>>? collections,
   }) {
     return MatchQueueState(
       loadingStatus: loadingStatus ?? this.loadingStatus,
-      schedule: schedule ?? this.schedule,
+      queuedRounds: queuedRounds ?? this.queuedRounds,
+      readyMatches: readyMatches ?? this.readyMatches,
+      runningMatches: runningMatches ?? this.runningMatches,
       collections: collections ?? this.collections,
     );
   }

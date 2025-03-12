@@ -5,16 +5,14 @@ class MatchQueueList extends StatelessWidget {
     super.key,
     required this.width,
     required this.title,
-    this.list,
-    this.sublists,
-  }) : assert((list == null) != (sublists == null));
+    required this.list,
+  });
 
   final double width;
 
   final Widget title;
 
-  final List<Widget>? list;
-  final Map<Widget, List<Widget>>? sublists;
+  final List<Widget> list;
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +44,7 @@ class MatchQueueList extends StatelessWidget {
                 slivers: [
                   SliverList(
                     delegate: SliverChildListDelegate(
-                      _buildList(context),
+                      list,
                     ),
                   )
                 ],
@@ -56,27 +54,5 @@ class MatchQueueList extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  List<Widget> _buildList(BuildContext context) {
-    if (list != null) {
-      return _buildSublist(context, null, list!);
-    } else {
-      return [
-        for (Widget title in sublists!.keys)
-          ..._buildSublist(context, title, sublists![title]!),
-      ];
-    }
-  }
-
-  List<Widget> _buildSublist(
-    BuildContext context,
-    Widget? title,
-    List<Widget> sublist,
-  ) {
-    return [
-      if (title != null && sublist.isNotEmpty) title,
-      ...sublist,
-    ];
   }
 }

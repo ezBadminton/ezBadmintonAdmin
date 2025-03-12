@@ -25,7 +25,7 @@ class WaitingMatch extends StatelessWidget {
   Widget build(BuildContext context) {
     var match = context.readScheduledMatch();
 
-    return _QueuedMatchCard(
+    return QueuedMatchCard(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -59,7 +59,7 @@ class ReadyForCallOutMatch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _QueuedMatchCard(
+    return QueuedMatchCard(
       child: Stack(
         children: [
           Center(
@@ -104,7 +104,7 @@ class RunningMatch extends StatelessWidget {
 
     var match = context.readMatch();
 
-    return _QueuedMatchCard(
+    return QueuedMatchCard(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -148,9 +148,10 @@ class RunningMatch extends StatelessWidget {
   }
 }
 
-class _QueuedMatchCard extends StatelessWidget {
-  const _QueuedMatchCard({
+class QueuedMatchCard extends StatelessWidget {
+  const QueuedMatchCard({
     required this.child,
+    super.key,
   });
 
   final Widget child;
