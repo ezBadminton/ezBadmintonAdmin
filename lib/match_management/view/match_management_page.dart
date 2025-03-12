@@ -175,11 +175,11 @@ class _MatchQueueLists extends StatelessWidget {
                               waitLists,
                               (mContext, waitingStatus) =>
                                   TournamentMatchContextSubtree.fromContext(
-                                context: mContext,
-                                child: WaitingMatch(
-                                  key: ValueKey(
-                                      'WaitingMatch-${mContext.match.id}'),
+                                key: ValueKey(
+                                  'WaitingMatch-${mContext.match.id}',
                                 ),
+                                context: mContext,
+                                child: WaitingMatch(),
                               ),
                             ),
                     ),
@@ -199,12 +199,11 @@ class _MatchQueueLists extends StatelessWidget {
                       list: _buildMatchList(
                         calloutWaitList,
                         (mContext) => TournamentMatchContextSubtree.fromContext(
-                          context: mContext,
-                          child: ReadyForCallOutMatch(
-                            key: ValueKey(
-                              'ReadyForCallOutMatch-${mContext.match.id}',
-                            ),
+                          key: ValueKey(
+                            'ReadyForCallOutMatch-${mContext.match.id}',
                           ),
+                          context: mContext,
+                          child: ReadyForCallOutMatch(),
                         ),
                       ),
                     ),
@@ -218,10 +217,9 @@ class _MatchQueueLists extends StatelessWidget {
                       list: _buildMatchList(
                         inProgressList,
                         (mContext) => TournamentMatchContextSubtree.fromContext(
+                          key: ValueKey('RunningMatch-${mContext.match.id}'),
                           context: mContext,
-                          child: RunningMatch(
-                            key: ValueKey('RunningMatch-${mContext.match.id}'),
-                          ),
+                          child: RunningMatch(),
                         ),
                       ),
                     ),
