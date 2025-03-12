@@ -10,13 +10,13 @@ part 'competition_selection_state.dart';
 class CompetitionSelectionCubit
     extends CollectionQuerierCubit<CompetitionSelectionState> {
   CompetitionSelectionCubit({
-    required ModelStore<Competition> competitionRepository,
+    required ModelStore<Competition> competitionStore,
   }) : super(
-          modelStores: [competitionRepository],
+          modelStores: [competitionStore],
           CompetitionSelectionState(),
         ) {
     subscribeToCollectionUpdates(
-      competitionRepository,
+      competitionStore,
       _onCompetitionCollectionUpdate,
     );
   }

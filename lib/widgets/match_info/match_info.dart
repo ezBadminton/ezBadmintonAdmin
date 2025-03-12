@@ -49,7 +49,7 @@ class MatchInfo extends StatelessWidget {
           TextButton(
             onPressed: () => navigationCubit.tabChanged(
               5,
-              reason: [match],
+              reason: [context.readMatchContext()],
               showBackButton: true,
             ),
             style: TextButton.styleFrom(

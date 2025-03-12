@@ -24,7 +24,7 @@ class DrawManagementPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => CompetitionSelectionCubit(
-        competitionRepository: context.read<ModelStore<Competition>>(),
+        competitionStore: context.read<ModelStore<Competition>>(),
       ),
       child: const _DrawManagementPageScaffold(),
     );

@@ -1,25 +1,24 @@
 import 'package:ez_badminton_admin_app/widgets/info_card/info_card.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/slot_label.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/utils.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:flutter/material.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Leaderboard extends StatelessWidget {
-  const Leaderboard({
-    super.key,
-    required this.ranking,
-  });
-
-  final List<List<Team>> ranking;
+  const Leaderboard({super.key});
 
   @override
   Widget build(BuildContext context) {
-    Map<Team, int?> ranks = _createTieableRanks();
+    Map<Team, int?> ranks = _createTieableRanks(context);
     return RawLeaderboard(ranks: ranks);
   }
 
-  Map<Team, int?> _createTieableRanks() {
+  Map<Team, int?> _createTieableRanks(BuildContext context) {
+    var tournament = context.readTournament();
+    var ranking = tournament.finalRanking;
+
     List<int> rankIndices = getRankIndices(ranking);
 
     Map<Team, int?> ranks = {};
@@ -109,15 +108,12 @@ class RankNumber extends StatelessWidget {
 }
 
 class ProvisionalLeaderboardInfo extends StatelessWidget {
-  const ProvisionalLeaderboardInfo({
-    super.key,
-    required this.tPlan,
-  });
-
-  final TournamentPlan tPlan;
+  const ProvisionalLeaderboardInfo({super.key});
 
   @override
   Widget build(BuildContext context) {
+    var tPlan = context.readTournamentPlan();
+
     if (tPlan.ended) {
       return const SizedBox();
     }
