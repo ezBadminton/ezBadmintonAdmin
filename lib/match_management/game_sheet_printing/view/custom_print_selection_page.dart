@@ -201,6 +201,7 @@ class _SelectionList extends StatelessWidget {
     return matches
         .map(
           (mContext) => TournamentMatchContextSubtree.fromContext(
+            key: ValueKey('PrintSelectionMatch-${mContext.match.id}'),
             context: mContext,
             child: _PrintSelectionMatchItem(),
           ),

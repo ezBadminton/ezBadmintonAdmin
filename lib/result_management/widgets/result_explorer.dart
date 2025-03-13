@@ -131,6 +131,7 @@ class _InteractiveResultExplorer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TournamentPlanContextSubtree(
+      key: ValueKey('ResultExplorer-${competition.id}'),
       competition: competition,
       child:
           BlocBuilder<TournamentPlanContextCubit, TournamentPlanContextState>(
@@ -153,7 +154,6 @@ class _InteractiveResultExplorer extends StatelessWidget {
           };
 
           return TournamentBracketExplorer(
-            key: ValueKey('ResultExplorer-${competition.id}'),
             competition: competition,
             tournamentBracket: resultView,
             controlBarOptionsBuilder: (compact) {
@@ -162,6 +162,7 @@ class _InteractiveResultExplorer extends StatelessWidget {
                   context: context,
                   builder: (context) {
                     return TournamentPlanContextSubtree(
+                      key: ValueKey('LeaderboardDialog-${competition.id}'),
                       competition: competition,
                       child: AlertDialog(
                         title: Text(l10n.leaderboard),

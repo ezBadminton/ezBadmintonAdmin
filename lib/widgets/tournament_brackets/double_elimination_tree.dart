@@ -56,6 +56,7 @@ class DoubleEliminationTree extends StatelessWidget
     for (List<TournamentMatch> round in rounds) {
       List<Widget> roundMatchNodes = round.map((match) {
         Widget matchCard = MatchContextSubtree(
+          key: ValueKey('DoubleEliminationMatch-${match.id}'),
           match: match,
           child: MatchupCard(
             showResult: showResults,

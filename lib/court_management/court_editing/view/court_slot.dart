@@ -239,6 +239,7 @@ class _CourtLabel extends StatelessWidget {
                     ),
                     if (hasMatch)
                       TournamentMatchContextSubtree.fromContext(
+                        key: ValueKey('MatchOnCourt-${mContext.match.id}'),
                         context: mContext,
                         child: _MatchOnCourtCard(),
                       ),

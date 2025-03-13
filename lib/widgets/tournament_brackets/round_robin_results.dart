@@ -295,6 +295,7 @@ class _MatchResultList extends StatelessWidget {
           ),
           for (TournamentMatch match in round.where((m) => !m.isBye))
             MatchContextSubtree(
+              key: ValueKey('RoundRobinResultMatch-${match.id}'),
               match: match,
               child: MatchupCard(
                 showResult: true,

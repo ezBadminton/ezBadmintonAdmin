@@ -418,6 +418,7 @@ class _ScoreEditButton extends StatelessWidget {
                   barrierDismissible: false,
                   builder: (context) =>
                       TournamentMatchContextSubtree.fromContext(
+                    key: ValueKey('ResultEditMatch-${mContext.match.id}'),
                     context: mContext,
                     child: ResultInputDialog(),
                   ),

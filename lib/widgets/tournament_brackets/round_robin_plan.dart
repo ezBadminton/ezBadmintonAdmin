@@ -212,6 +212,7 @@ class _RoundRobinMatchListState extends State<_RoundRobinMatchList> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5.0),
             child: MatchContextSubtree(
+              key: ValueKey('RoundRobinMatch-${match.id}'),
               match: match,
               child: BracketMatchLabel(),
             ),

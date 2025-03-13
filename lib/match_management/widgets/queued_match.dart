@@ -479,6 +479,7 @@ class _PlayerBlockingDialog extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TournamentMatchContextSubtree.fromContext(
+                    key: ValueKey('PlayerBlockingMatch-${mContext.match.id}'),
                     context: mContext,
                     child: MatchLabel(
                       opponentStyle: TextStyle(
@@ -599,6 +600,7 @@ class _EnterResultButton extends StatelessWidget {
               context: context,
               barrierDismissible: false,
               builder: (context) => TournamentMatchContextSubtree.fromContext(
+                key: ValueKey('ResultInputMatch-${mContext.match.id}'),
                 context: mContext,
                 child: ResultInputDialog(),
               ),

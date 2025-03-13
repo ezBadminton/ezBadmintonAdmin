@@ -46,6 +46,7 @@ class SingleEliminationTree extends StatelessWidget
 
       List<Widget> roundMatchNodes = round.mapIndexed((matchIndex, match) {
         Widget matchCard = MatchContextSubtree(
+          key: ValueKey('SingleEliminationMatch-${match.id}'),
           match: match,
           child: MatchupCard(
             isEditable: isEditable && roundIndex == 0,

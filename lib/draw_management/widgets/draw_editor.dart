@@ -132,6 +132,7 @@ class _InteractiveDraw extends StatelessWidget {
               key: ValueKey('DrawEditor-${competition.id}'),
               competition: competition,
               tournamentBracket: TournamentPlanContextSubtree(
+                key: ValueKey('DrawEditorContext-${competition.id}'),
                 competition: competition,
                 child: drawView,
               ),

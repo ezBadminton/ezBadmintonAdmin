@@ -72,6 +72,7 @@ class _MatchScanFocus extends StatelessWidget {
           context: context,
           barrierDismissible: false,
           builder: (context) => TournamentMatchContextSubtree(
+            key: ValueKey('QrScannedMatch-${scannedTournamentMatch.id}'),
             competition: competition!,
             match: scannedTournamentMatch,
             child: ResultInputDialog(),

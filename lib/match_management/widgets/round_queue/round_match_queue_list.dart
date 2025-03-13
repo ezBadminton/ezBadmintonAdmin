@@ -28,6 +28,7 @@ class RoundMatchQueueList extends StatelessWidget {
     }
 
     return TournamentPlanContextSubtree(
+      key: ValueKey('RoundMatchQueue-${round.competition}-${round.roundIndex}'),
       competition: round.competition,
       child: MatchQueueList(
         width: 420,
