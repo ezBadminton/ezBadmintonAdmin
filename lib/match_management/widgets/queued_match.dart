@@ -339,12 +339,16 @@ class _PlayerBlockingInfo extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
 
     var match = context.readScheduledMatch();
+    var planStore = context.read<ModelStore<TournamentPlan>>();
 
     var blocks = match.blockingPlayers;
-    var blockingMatches = <TournamentMatch>[];
+    var blockingMatches = <MatchContext>[];
     for (var block in blocks.values) {
       if (block.blockingMatch != null) {
-        blockingMatches.add(block.blockingMatch!);
+        var match = block.blockingMatch!;
+        var tPlan = planStore.getModel(match.tournamentPlanId)!;
+        var mContext = MatchContext(tournamentPlan: tPlan, match: match);
+        blockingMatches.add(mContext);
       }
     }
 
@@ -447,7 +451,7 @@ class _PlayerBlockingDialog extends StatelessWidget {
     required this.matches,
   });
 
-  final List<TournamentMatch> matches;
+  final List<MatchContext> matches;
 
   @override
   Widget build(BuildContext context) {
@@ -459,7 +463,7 @@ class _PlayerBlockingDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (var match in matches) ...[
+            for (var mContext in matches) ...[
               Card(
                 elevation: 0,
                 shape: RoundedRectangleBorder(
@@ -474,8 +478,8 @@ class _PlayerBlockingDialog extends StatelessWidget {
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: MatchContextSubtree(
-                    match: match,
+                  child: TournamentMatchContextSubtree.fromContext(
+                    context: mContext,
                     child: MatchLabel(
                       opponentStyle: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,

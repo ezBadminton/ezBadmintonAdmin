@@ -43,6 +43,8 @@ class TournamentMatch extends Model with _$TournamentMatch {
   List<Player> get players =>
       [slot1, slot2].expand<Player>((s) => s.team?.players ?? []).toList();
 
+  String get tournamentPlanId => 't-${id.substring(2, 17)}';
+
   factory TournamentMatch.fromJson(Map<String, dynamic> json) =>
       _$TournamentMatchFromJson(json);
 
