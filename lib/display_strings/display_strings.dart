@@ -1,3 +1,4 @@
+import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate_producers.dart';
 import 'package:ez_badminton_admin_app/utils/powers_of_two.dart';
@@ -61,16 +62,24 @@ String competitionGenderAndTypeAbbreviation(
 
 String competitionCategory(
   AppLocalizations l10n,
+  Competition competition,
 ) {
-  // TODO: Restore
-  return "einsel";
+  return competitionGenderAndType(
+    l10n,
+    competition.genderCategory,
+    competition.type,
+  );
 }
 
-String competitionCategoryAbbreviation(
+String competitionDisciplineAbbreviation(
   AppLocalizations l10n,
+  CompetitionDiscipline discipline,
 ) {
-  // TODO: Restore
-  return "EE";
+  return competitionGenderAndTypeAbbreviation(
+    l10n,
+    discipline.genderCategory,
+    discipline.competitionType,
+  );
 }
 
 String competitionLabel(
@@ -87,6 +96,7 @@ String competitionLabel(
   }
   label.write(competitionCategory(
     l10n,
+    competition,
   ));
 
   return label.toString();

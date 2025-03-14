@@ -258,7 +258,11 @@ class _CompetitionCategorySelectionForm extends StatelessWidget {
               onToggle: onToggle,
               valueGetter: valueGetter,
               displayStringFunction: (competitionCategory) =>
-                  display_strings.competitionCategory(l10n),
+                  display_strings.competitionGenderAndType(
+                l10n,
+                competitionCategory.genderCategory,
+                competitionCategory.competitionType,
+              ),
               isEnabled: (competitionCategory) => !state
                   .disabledCompetitionDisciplines
                   .contains(competitionCategory),

@@ -233,8 +233,8 @@ mixin ConsolationRounds {
     return _relations!;
   }
 
-  late final List<List<TournamentMatch>>? _rounds;
-  late final List<Relation>? _relations;
+  List<List<TournamentMatch>>? _rounds;
+  List<Relation>? _relations;
 
   _makeRounds() {
     var stack = <ConsolationBracket>[mainBracket];
@@ -288,7 +288,7 @@ mixin DoubleEliminationRounds {
         finalMatchRel,
       ];
 
-  late final List<List<TournamentMatch>>? _rounds;
+  List<List<TournamentMatch>>? _rounds;
 
   _makeRounds() {
     var rounds = <List<TournamentMatch>>[];
@@ -329,7 +329,7 @@ mixin GroupKnockoutRounds {
         ...knockoutPhase.relations,
       ];
 
-  late final List<List<TournamentMatch>>? _rounds;
+  List<List<TournamentMatch>>? _rounds;
 
   List<List<TournamentMatch>> _makeRounds() {
     var rounds = <List<TournamentMatch>>[];

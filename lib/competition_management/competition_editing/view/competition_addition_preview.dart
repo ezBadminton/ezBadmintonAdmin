@@ -296,7 +296,7 @@ class _PreviewListItem extends StatelessWidget {
 
   String _competitionCategoryListToString(AppLocalizations l10n) {
     String categoryList = categoryTuple.baseCategories
-        .map((c) => display_strings.competitionCategoryAbbreviation(l10n))
+        .map((c) => display_strings.competitionDisciplineAbbreviation(l10n, c))
         .join(', ');
 
     return categoryList;

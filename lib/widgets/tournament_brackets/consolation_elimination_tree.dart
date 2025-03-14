@@ -35,6 +35,7 @@ class ConsolationEliminationTree extends StatelessWidget
       context,
       tournament.mainBracket,
       tPlan.competition,
+      true,
     );
 
     return ConsolationEliminationTreeLayout(
@@ -46,13 +47,14 @@ class ConsolationEliminationTree extends StatelessWidget
     BuildContext context,
     ConsolationBracket bracket,
     Competition competition,
+    bool isMainBracket,
   ) {
     Map<Slot, Widget> placeholderLabels = Map.of(this.placeholderLabels)
       ..addAll(_createPlaceholderLabels(context, bracket));
 
     SingleEliminationTree tree = SingleEliminationTree(
       rounds: bracket.rounds,
-      isEditable: isEditable,
+      isEditable: isEditable && isMainBracket,
       showResults: showResults,
       placeholderLabels: placeholderLabels,
     );
@@ -62,6 +64,7 @@ class ConsolationEliminationTree extends StatelessWidget
               context,
               consolationBracket,
               competition,
+              false,
             ))
         .toList();
 

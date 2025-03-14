@@ -311,6 +311,7 @@ class _CompetitionListItem extends StatelessWidget {
                   child: Text(
                     display_strings.competitionCategory(
                       l10n,
+                      competition,
                     ),
                   ),
                 ),
