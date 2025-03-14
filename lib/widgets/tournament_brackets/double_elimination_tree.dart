@@ -74,7 +74,7 @@ class DoubleEliminationTree extends StatelessWidget
     return DoubleEliminationTreeLayout(
       winnerBracket: winnerBracket,
       winnerBracketSize: SingleEliminationTree.getLayoutSize(
-        rounds,
+        tournament.winnerRounds,
         matchNodeSize,
       ),
       matchNodes: matchNodes,
@@ -84,7 +84,7 @@ class DoubleEliminationTree extends StatelessWidget
   }
 
   Size _getLayoutSize(DoubleElimination tournament, Size matchNodeSize) {
-    int numRounds = tournament.loserRounds.length;
+    int numRounds = tournament.loserRounds.length + 1;
     int firstRoundSize = tournament.loserRounds.first.length;
 
     return Size(
