@@ -1,4 +1,5 @@
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
+import 'package:ez_badminton_admin_app/display_strings/match_and_round_names.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate_producers.dart';
 import 'package:ez_badminton_admin_app/utils/powers_of_two.dart';
@@ -104,11 +105,85 @@ String competitionLabel(
 
 String? matchName(
   AppLocalizations l10n,
-  TournamentPlan tournament,
+  Tournament tournament,
   TournamentMatch match,
 ) {
-  // TODO restore
-  return "owoFinal";
+  var (round, roundI) = roundOfMatch(tournament.rounds, match);
+  int matchI = round.indexOf(match);
+
+  switch (tournament) {
+    case RoundRobin _:
+      String roundName = l10n.roundN(roundI + 1);
+      String matchName = l10n.matchN(matchI + 1);
+      return '$roundName\n$matchName';
+    case SingleElimination _:
+      String roundName = l10n.roundOfN((round.length * 2).toString());
+      if (round.length == 1) {
+        return roundName;
+      }
+      return '$roundName ${matchI + 1}';
+    case SingleEliminationWithConsolation t:
+      var bracket = t.bracketOfMatch(match);
+      var (round, roundI) = roundOfMatch(bracket.rounds, match);
+      var matchI = round.indexOf(match);
+      String matchName = l10n.roundOfN((round.length * 2).toString());
+      if (round.length != 1) {
+        matchName = '$matchName ${matchI + 1}';
+      }
+      if (!bracket.isRoot) {
+        (int, int) rankRange = bracket.rankRange;
+        if (round.length == 1) {
+          matchName = l10n.matchForNthPlace(rankRange.$1);
+        } else {
+          String bracketName =
+              l10n.upperToLowerRank(rankRange.$1, rankRange.$2);
+          matchName = '$bracketName\n$matchName';
+        }
+      }
+      return matchName;
+    case DoubleElimination t:
+      if (roundI == t.rounds.length - 3) {
+        if (matchI == 0) {
+          return l10n.smallFinal;
+        } else {
+          return l10n.smallLoserFinal;
+        }
+      }
+      String roundName = roundNameByIndex(l10n, t, roundI);
+      if (round.length == 1) {
+        return roundName;
+      }
+      return '$roundName ${matchI + 1}';
+    case GroupKnockout t:
+      List<RoundRobin> groups = t.groupPhase.groups;
+      int numGroupRounds = groups.last.rounds.length;
+      if (roundI <= numGroupRounds - 1) {
+        int groupI = matchI % groups.length;
+        String groupName = l10n.groupNumber(groupI + 1);
+        String baseRound = l10n.roundN(roundI + 1);
+        matchI ~/= groups.length;
+        String matchName = l10n.matchN(matchI + 1);
+        return '$groupName\n$baseRound\n$matchName';
+      } else {
+        return matchName(l10n, t.knockoutPhase, match);
+      }
+  }
+}
+
+(List<TournamentMatch>, int) roundOfMatch(
+  List<List<TournamentMatch>> rounds,
+  TournamentMatch match,
+) {
+  late List<TournamentMatch> round;
+  late int roundI;
+  for (var (i, r) in rounds.indexed) {
+    if (r.contains(match)) {
+      round = r;
+      roundI = i;
+      break;
+    }
+  }
+  return (round, roundI);
 }
 
 String filterChipGroup(AppLocalizations l10n, FilterGroup filterGroup) {
@@ -206,15 +281,15 @@ String tournamentModeFromType(
   Type tournamentModeSettings,
 ) {
   switch (tournamentModeSettings) {
-    case RoundRobinSettings:
+    case const (RoundRobinSettings):
       return l10n.roundRobin;
-    case SingleEliminationSettings:
+    case const (SingleEliminationSettings):
       return l10n.singleElimination;
-    case GroupKnockoutSettings:
+    case const (GroupKnockoutSettings):
       return l10n.groupKnockout;
-    case DoubleEliminationSettings:
+    case const (DoubleEliminationSettings):
       return l10n.doubleElimination;
-    case SingleEliminationWithConsolationSettings:
+    case const (SingleEliminationWithConsolationSettings):
       return l10n.consolationElimination;
     default:
       return 'OTHER';
@@ -226,15 +301,15 @@ String tournamentModeTooltip(
   Type tournamentModeSettings,
 ) {
   switch (tournamentModeSettings) {
-    case RoundRobinSettings:
+    case RoundRobinSettings _:
       return l10n.roundRobinHelp;
-    case SingleEliminationSettings:
+    case SingleEliminationSettings _:
       return l10n.singleEliminationHelp;
-    case GroupKnockoutSettings:
+    case GroupKnockoutSettings _:
       return l10n.groupKnockoutHelp;
-    case DoubleEliminationSettings:
+    case DoubleEliminationSettings _:
       return l10n.doubleEliminationHelp;
-    case SingleEliminationWithConsolationSettings:
+    case SingleEliminationWithConsolationSettings _:
       return l10n.consolationEliminationHelp;
     default:
       return 'OTHER';

@@ -378,11 +378,11 @@ class _ConsolationBracketLabel extends LayoutId {
         );
 
   static _PlacementText _buildPlacementText(ConsolationTreeNode node) {
-    (int, int) rankRange = (1, 2); // TODO
+    (int, int) rankRange = node.bracket.rankRange;
 
     return _PlacementText(
-      upperBound: rankRange.$1 + 1,
-      lowerBound: rankRange.$2 + 1,
+      upperBound: rankRange.$1,
+      lowerBound: rankRange.$2,
     );
   }
 }

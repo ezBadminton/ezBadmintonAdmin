@@ -20,7 +20,7 @@ sealed class Tournament with _$Tournament implements MatchRoundList {
   @With<RoundRobinTies>()
   @JsonSerializable(explicitToJson: true, createToJson: false)
   const factory Tournament.roundRobin({
-    @JsonKey(name: 'editable')
+    @JsonKey(name: 'editable', defaultValue: MultiRelation.new)
     required MultiRelation<TournamentMatch> editableRel,
     @JsonKey(name: 'rounds')
     required List<MultiRelation<TournamentMatch>> roundsRel,
@@ -36,7 +36,7 @@ sealed class Tournament with _$Tournament implements MatchRoundList {
   @With<DefaultRoundsRelations>()
   @JsonSerializable(explicitToJson: true, createToJson: false)
   const factory Tournament.singleElimination({
-    @JsonKey(name: 'editable')
+    @JsonKey(name: 'editable', defaultValue: MultiRelation.new)
     required MultiRelation<TournamentMatch> editableRel,
     @JsonKey(name: 'rounds')
     required List<MultiRelation<TournamentMatch>> roundsRel,
@@ -48,10 +48,11 @@ sealed class Tournament with _$Tournament implements MatchRoundList {
   @With<ConsolationRounds>()
   @JsonSerializable(explicitToJson: true, createToJson: false)
   factory Tournament.singleEliminationWithConsolation({
-    @JsonKey(name: 'editable')
+    @JsonKey(name: 'editable', defaultValue: MultiRelation.new)
     required MultiRelation<TournamentMatch> editableRel,
     @JsonKey(name: 'entries') required List<List<Slot>> entriesRel,
     @JsonKey(name: 'finalRanking') required List<List<Slot>> finalRankingRel,
+    @JsonKey(readValue: Tournament._markRootBracket)
     required ConsolationBracket mainBracket,
   }) = SingleEliminationWithConsolation;
 
@@ -59,7 +60,7 @@ sealed class Tournament with _$Tournament implements MatchRoundList {
   @With<DoubleEliminationRounds>()
   @JsonSerializable(explicitToJson: true, createToJson: false)
   factory Tournament.doubleElimination({
-    @JsonKey(name: 'editable')
+    @JsonKey(name: 'editable', defaultValue: MultiRelation.new)
     required MultiRelation<TournamentMatch> editableRel,
     @JsonKey(name: 'entries') required List<List<Slot>> entriesRel,
     @JsonKey(name: 'finalRanking') required List<List<Slot>> finalRankingRel,
@@ -75,7 +76,7 @@ sealed class Tournament with _$Tournament implements MatchRoundList {
   @With<GroupKnockoutRounds>()
   @JsonSerializable(explicitToJson: true, createToJson: false)
   factory Tournament.groupKnockout({
-    @JsonKey(name: 'editable')
+    @JsonKey(name: 'editable', defaultValue: MultiRelation.new)
     required MultiRelation<TournamentMatch> editableRel,
     @JsonKey(name: 'entries') required List<List<Slot>> entriesRel,
     @JsonKey(name: 'finalRanking') required List<List<Slot>> finalRankingRel,
@@ -105,6 +106,12 @@ sealed class Tournament with _$Tournament implements MatchRoundList {
     List<MultiRelation<TournamentMatch>> matches,
   ) {
     return matches.map((r) => r.models).toList();
+  }
+
+  static Object? _markRootBracket(Map json, String key) {
+    Map bracketJson = json[key];
+    bracketJson["isRoot"] = true;
+    return bracketJson;
   }
 }
 
@@ -144,20 +151,47 @@ enum ByeStatus {
 
 @JsonSerializable(explicitToJson: true, createToJson: false)
 class ConsolationBracket {
-  const ConsolationBracket({
+  ConsolationBracket({
     required this.roundsRel,
     this.consolations = const [],
+    this.isRoot = false,
   });
 
   @JsonKey(name: 'rounds')
   final List<MultiRelation<TournamentMatch>> roundsRel;
   final List<ConsolationBracket> consolations;
+  @JsonKey(defaultValue: false)
+  final bool isRoot;
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  late final (int, int) rankRange;
 
   List<List<TournamentMatch>> get rounds =>
       Tournament._unwrapMatches(roundsRel);
 
-  factory ConsolationBracket.fromJson(Map<String, dynamic> json) =>
-      _$ConsolationBracketFromJson(json);
+  factory ConsolationBracket.fromJson(Map<String, dynamic> json) {
+    final bracket = _$ConsolationBracketFromJson(json);
+    if (bracket.isRoot) {
+      bracket.determineRankRange((-1, -1), null);
+    }
+    return bracket;
+  }
+
+  determineRankRange(
+    (int, int) parentRange,
+    ConsolationBracket? rightSibling,
+  ) {
+    int bestRank = rightSibling == null
+        ? parentRange.$1 + 2
+        : rightSibling.rankRange.$2 + 1;
+    int worstRank = bestRank + (roundsRel.first.relationIds.length * 2) - 1;
+    rankRange = (bestRank, worstRank);
+    rightSibling = null;
+    for (final child in consolations.reversed) {
+      child.determineRankRange(rankRange, rightSibling);
+      rightSibling = child;
+    }
+  }
 }
 
 @JsonSerializable(explicitToJson: true, createToJson: false)
@@ -228,25 +262,32 @@ mixin ConsolationRounds {
 
   List<Relation> get relations {
     if (_relations == null) {
-      _makeRounds();
+      _collectRelations();
     }
     return _relations!;
   }
 
+  ConsolationBracket bracketOfMatch(TournamentMatch match) {
+    if (_bracketMap == null) {
+      _makeRounds();
+    }
+    return _bracketMap![match]!;
+  }
+
   List<List<TournamentMatch>>? _rounds;
   List<Relation>? _relations;
+  Map<TournamentMatch, ConsolationBracket>? _bracketMap;
 
   _makeRounds() {
     var stack = <ConsolationBracket>[mainBracket];
     var orderedBrackets = <ConsolationBracket>[];
-    var relations = <Relation>[];
+    var bracketMap = <TournamentMatch, ConsolationBracket>{};
 
     for (int l = 1; l > 0; l = stack.length) {
       var current = stack[l - 1];
       stack = stack.sublist(0, l - 1);
       stack.addAll(current.consolations);
       orderedBrackets.add(current);
-      relations.addAll(current.roundsRel);
     }
 
     var maxNumRounds = mainBracket.rounds.length;
@@ -257,9 +298,26 @@ mixin ConsolationRounds {
       for (var (i, r) in bracket.rounds.indexed) {
         var groupI = i + (maxNumRounds - numRounds);
         groupedRounds[groupI].addAll(r);
+        for (var match in r) {
+          bracketMap[match] = bracket;
+        }
       }
     }
     _rounds = groupedRounds;
+    _bracketMap = bracketMap;
+  }
+
+  _collectRelations() {
+    var stack = <ConsolationBracket>[mainBracket];
+    var relations = <Relation>[];
+
+    for (int l = 1; l > 0; l = stack.length) {
+      var current = stack[l - 1];
+      stack = stack.sublist(0, l - 1);
+      stack.addAll(current.consolations);
+      relations.addAll(current.roundsRel);
+    }
+
     _relations = relations;
   }
 }
@@ -325,7 +383,11 @@ mixin GroupKnockoutRounds {
         ...groupPhase.crossGroupTiesRel.flattened.map((slot) => slot.teamRel),
         ...groupPhase.unbrokenCrossGroupTiesRel.flattened
             .map((slot) => slot.teamRel),
-        for (final g in groupPhase.groups) ...g.relations,
+        for (final g in groupPhase.groups) ...[
+          ...g.relations,
+          ...g.entriesRel.flattened.map((slot) => slot.teamRel),
+          ...g.finalRankingRel.flattened.map((slot) => slot.teamRel),
+        ],
         ...knockoutPhase.relations,
       ];
 

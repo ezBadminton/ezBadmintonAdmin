@@ -26,7 +26,10 @@ String roundNameByIndex(
         return l10n.roundOfN("2");
       }
       if (roundI == t.rounds.length - 2) {
-        return l10n.upperFinal;
+        return l10n.loserRoundN(l10n.roundOfN("2"));
+      }
+      if (roundI == t.rounds.length - 3) {
+        return l10n.smallFinal;
       }
       switch (roundI) {
         case int(isEven: true):

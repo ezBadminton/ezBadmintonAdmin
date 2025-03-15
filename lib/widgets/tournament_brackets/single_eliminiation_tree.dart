@@ -3,10 +3,8 @@ import 'package:ez_badminton_admin_app/layout/elimination_tree/elimination_tree_
 import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bracket.dart';
-import 'package:ez_badminton_admin_app/widgets/tournament_context/cubit/tournament_plan_context_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'bracket_sizes.dart' as bracket_sizes;
@@ -34,7 +32,8 @@ class SingleEliminationTree extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
-    var competition = context.read<TournamentPlanContextCubit>().competition;
+    var tPlan = context.readTournamentPlan();
+    var competition = tPlan.competition;
 
     var matchNodeSize = getMatchNodeSize(competition.teamSize);
     var layoutSize = getLayoutSize(rounds, matchNodeSize);

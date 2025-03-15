@@ -150,7 +150,7 @@ class DoubleEliminationTree extends StatelessWidget
     BracketSection upperFinalSection = sections.removeLast();
     upperFinalSection = BracketSection(
       tournamentDataObjects: upperFinalSection.tournamentDataObjects,
-      labelBuilder: (context) => AppLocalizations.of(context)!.upperFinal,
+      labelBuilder: (context) => AppLocalizations.of(context)!.smallFinal,
     );
 
     TournamentMatch finalMatch = tournament.finalMatch;

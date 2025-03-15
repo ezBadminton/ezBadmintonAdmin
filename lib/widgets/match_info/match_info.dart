@@ -30,7 +30,11 @@ class MatchInfo extends StatelessWidget {
     var tPlan = context.readTournamentPlan();
     var match = context.readMatch();
 
-    String? roundName = display_strings.matchName(l10n, tPlan, match);
+    String? roundName = display_strings.matchName(
+      l10n,
+      tPlan.tournament,
+      match,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -89,7 +93,11 @@ class RunningMatchInfo extends StatelessWidget {
     var tPlan = context.readTournamentPlan();
     var match = context.readMatch();
 
-    String? roundName = display_strings.matchName(l10n, tPlan, match);
+    String? roundName = display_strings.matchName(
+      l10n,
+      tPlan.tournament,
+      match,
+    );
 
     return IntrinsicHeight(
       child: Row(
