@@ -2,17 +2,15 @@ part of 'tournament_plan_context_cubit.dart';
 
 class TournamentPlanContextState extends CollectionQuerierState {
   TournamentPlanContextState({
-    this.loadingStatus = LoadingStatus.loading,
-    TournamentPlan? tournamentPlan,
+    this.loadingStatus = LoadingStatus.done,
+    this.tournamentPlan,
     this.collections = const [],
-  }) : _tournamentPlan = tournamentPlan;
+  });
 
   @override
   final LoadingStatus loadingStatus;
 
-  final TournamentPlan? _tournamentPlan;
-
-  TournamentPlan get tournamentPlan => _tournamentPlan!;
+  final TournamentPlan? tournamentPlan;
 
   @override
   final List<List<Model>> collections;
@@ -24,7 +22,7 @@ class TournamentPlanContextState extends CollectionQuerierState {
   }) {
     return TournamentPlanContextState(
       loadingStatus: loadingStatus ?? this.loadingStatus,
-      tournamentPlan: tournamentPlan ?? _tournamentPlan,
+      tournamentPlan: tournamentPlan ?? this.tournamentPlan,
       collections: collections ?? this.collections,
     );
   }

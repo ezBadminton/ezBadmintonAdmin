@@ -33,7 +33,7 @@ class GroupKnockoutResults extends StatelessWidget implements SectionedBracket {
           (i, g) => TournamentContextSubtree(
             tournamentGetter: (plan) =>
                 (plan.tournament as GroupKnockout).groupPhase.groups[i],
-            child: const RoundRobinResults(),
+            child: RoundRobinResults(),
           ),
         )
         .toList();

@@ -2,6 +2,7 @@ import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_state.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_selection_list/cubit/competition_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/leaderboard/leaderboard.dart';
+import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/tournament_bracket_explorer_controller_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/tournament_bracket_explorer.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/consolation_elimination_tree.dart';
@@ -136,93 +137,102 @@ class _InteractiveResultExplorer extends StatelessWidget {
       child:
           BlocBuilder<TournamentPlanContextCubit, TournamentPlanContextState>(
         builder: (context, state) {
-          var l10n = AppLocalizations.of(context)!;
+          return LoadingScreen(
+              loadingStatus: state.tournamentPlan == null
+                  ? LoadingStatus.loading
+                  : LoadingStatus.done,
+              builder: (context) {
+                var l10n = AppLocalizations.of(context)!;
 
-          TournamentPlan tPlan = state.tournamentPlan;
+                TournamentPlan tPlan = state.tournamentPlan!;
 
-          Widget resultView = switch (tPlan.tournament) {
-            SingleElimination tournament => SingleEliminationTree(
-                rounds: tournament.rounds,
-                showResults: true,
-              ),
-            RoundRobin _ => RoundRobinResults(),
-            GroupKnockout _ => GroupKnockoutResults(),
-            DoubleElimination _ => DoubleEliminationTree(showResults: true),
-            SingleEliminationWithConsolation _ => ConsolationEliminationTree(
-                showResults: true,
-              ),
-          };
+                Widget resultView = switch (tPlan.tournament) {
+                  SingleElimination tournament => SingleEliminationTree(
+                      rounds: tournament.rounds,
+                      showResults: true,
+                    ),
+                  RoundRobin _ => RoundRobinResults(),
+                  GroupKnockout _ => GroupKnockoutResults(),
+                  DoubleElimination _ =>
+                    DoubleEliminationTree(showResults: true),
+                  SingleEliminationWithConsolation _ =>
+                    ConsolationEliminationTree(
+                      showResults: true,
+                    ),
+                };
 
-          return TournamentBracketExplorer(
-            competition: competition,
-            tournamentBracket: resultView,
-            controlBarOptionsBuilder: (compact) {
-              onPressed() {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return TournamentPlanContextSubtree(
-                      key: ValueKey('LeaderboardDialog-${competition.id}'),
-                      competition: competition,
-                      child: AlertDialog(
-                        title: Text(l10n.leaderboard),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ProvisionalLeaderboardInfo(),
-                            Flexible(
-                              child: SingleChildScrollView(
-                                child: Leaderboard(),
+                return TournamentBracketExplorer(
+                  competition: competition,
+                  tournamentBracket: resultView,
+                  controlBarOptionsBuilder: (compact) {
+                    onPressed() {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return TournamentPlanContextSubtree(
+                            key:
+                                ValueKey('LeaderboardDialog-${competition.id}'),
+                            competition: competition,
+                            child: AlertDialog(
+                              title: Text(l10n.leaderboard),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ProvisionalLeaderboardInfo(),
+                                  Flexible(
+                                    child: SingleChildScrollView(
+                                      child: Leaderboard(),
+                                    ),
+                                  ),
+                                ],
                               ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: Text(l10n.confirm),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(),
-                            child: Text(l10n.confirm),
+                          );
+                        },
+                      );
+                    }
+
+                    if (compact) {
+                      return Tooltip(
+                        message: l10n.leaderboard,
+                        child: SizedBox(
+                          width: 40,
+                          child: TextButton(
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                            ),
+                            onPressed: onPressed,
+                            child: const Icon(Icons.emoji_events),
                           ),
-                        ],
+                        ),
+                      );
+                    }
+
+                    return TextButton(
+                      onPressed: onPressed,
+                      child: SizedBox(
+                        width: 160,
+                        child: Center(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.emoji_events),
+                              const SizedBox(width: 7),
+                              Text(l10n.leaderboard),
+                            ],
+                          ),
+                        ),
                       ),
                     );
                   },
                 );
-              }
-
-              if (compact) {
-                return Tooltip(
-                  message: l10n.leaderboard,
-                  child: SizedBox(
-                    width: 40,
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                      ),
-                      onPressed: onPressed,
-                      child: const Icon(Icons.emoji_events),
-                    ),
-                  ),
-                );
-              }
-
-              return TextButton(
-                onPressed: onPressed,
-                child: SizedBox(
-                  width: 160,
-                  child: Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.emoji_events),
-                        const SizedBox(width: 7),
-                        Text(l10n.leaderboard),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
-          );
+              });
         },
       ),
     );

@@ -1,5 +1,5 @@
-import 'package:ez_badminton_admin_app/tournament_plans/cubit/tournament_plan_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_context/cubit/tournament_plan_context_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/view/tournament_mode_assignment_page.dart';
@@ -97,53 +97,56 @@ class _InteractiveDraw extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TournamentPlanCubit, TournamentPlanState>(
-      builder: (context, state) {
-        return LoadingScreen(
-          loadingStatus: state.loadingStatus,
-          builder: (context) {
-            TournamentPlan tPlan = state.drawnTournaments[competition] ??
-                state.runningTournaments[competition]!;
+    return TournamentPlanContextSubtree(
+      key: ValueKey('DrawEditorContext-${competition.id}'),
+      competition: competition,
+      child:
+          BlocBuilder<TournamentPlanContextCubit, TournamentPlanContextState>(
+        builder: (context, state) {
+          return LoadingScreen(
+            loadingStatus: state.tournamentPlan == null
+                ? LoadingStatus.loading
+                : LoadingStatus.done,
+            builder: (context) {
+              TournamentPlan tPlan = state.tournamentPlan!;
 
-            Widget drawView = switch (tPlan.tournament) {
-              SingleElimination tournament => SingleEliminationTree(
-                  rounds: tournament.rounds,
-                  isEditable: !tPlan.started,
-                ),
-              RoundRobin _ => RoundRobinPlan(
-                  isEditable: !tPlan.started,
-                ),
-              GroupKnockout t => GroupKnockoutPlan(
-                  isEditable: !tPlan.started,
-                  sections: GroupKnockoutPlan.getSections(t),
-                ),
-              DoubleElimination t => DoubleEliminationTree(
-                  isEditable: !tPlan.started,
-                  sections: DoubleEliminationTree.getSections(t),
-                ),
-              SingleEliminationWithConsolation t => ConsolationEliminationTree(
-                  isEditable: !tPlan.started,
-                  sections:
-                      SingleEliminationTree.getSections(t.mainBracket.rounds),
-                ),
-            };
+              Widget drawView = switch (tPlan.tournament) {
+                SingleElimination tournament => SingleEliminationTree(
+                    rounds: tournament.rounds,
+                    isEditable: !tPlan.started,
+                  ),
+                RoundRobin _ => RoundRobinPlan(
+                    isEditable: !tPlan.started,
+                  ),
+                GroupKnockout t => GroupKnockoutPlan(
+                    isEditable: !tPlan.started,
+                    sections: GroupKnockoutPlan.getSections(t),
+                  ),
+                DoubleElimination t => DoubleEliminationTree(
+                    isEditable: !tPlan.started,
+                    sections: DoubleEliminationTree.getSections(t),
+                  ),
+                SingleEliminationWithConsolation t =>
+                  ConsolationEliminationTree(
+                    isEditable: !tPlan.started,
+                    sections:
+                        SingleEliminationTree.getSections(t.mainBracket.rounds),
+                  ),
+              };
 
-            return TournamentBracketExplorer(
-              key: ValueKey('DrawEditor-${competition.id}'),
-              competition: competition,
-              tournamentBracket: TournamentPlanContextSubtree(
-                key: ValueKey('DrawEditorContext-${competition.id}'),
+              return TournamentBracketExplorer(
+                key: ValueKey('DrawEditor-${competition.id}'),
                 competition: competition,
-                child: drawView,
-              ),
-              controlBarOptionsBuilder: (bool compact) => tPlan.started
-                  ? _ResultLinkButton(
-                      compact: compact, competition: competition)
-                  : _ControlBarDrawOptions(compact: compact),
-            );
-          },
-        );
-      },
+                tournamentBracket: drawView,
+                controlBarOptionsBuilder: (bool compact) => tPlan.started
+                    ? _ResultLinkButton(
+                        compact: compact, competition: competition)
+                    : _ControlBarDrawOptions(compact: compact),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

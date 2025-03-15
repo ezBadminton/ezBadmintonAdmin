@@ -153,12 +153,12 @@ class TournamentMatchContextSubtree extends StatelessWidget {
 extension MatchContextReaders on BuildContext {
   TournamentPlan readTournamentPlan() {
     var tPlanContext = read<TournamentPlanContextCubit>();
-    return tPlanContext.state.tournamentPlan;
+    return tPlanContext.state.tournamentPlan!;
   }
 
   Tournament readTournament() {
     var tPlanContext = read<TournamentPlanContextCubit>();
-    var tPlan = tPlanContext.state.tournamentPlan;
+    var tPlan = tPlanContext.state.tournamentPlan!;
     try {
       var tournamentContext = read<TournamentContextCubit>();
       return tournamentContext.state.tournamentGetter(tPlan);
@@ -179,7 +179,7 @@ extension MatchContextReaders on BuildContext {
 
   MatchContext readMatchContext() {
     var tPlanContext = read<TournamentPlanContextCubit>();
-    var tPlan = tPlanContext.state.tournamentPlan;
+    var tPlan = tPlanContext.state.tournamentPlan!;
     try {
       var scheduledMatch = readScheduledMatch();
       return MatchContext(
