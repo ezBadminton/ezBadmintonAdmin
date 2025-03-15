@@ -394,13 +394,13 @@ class _ScoreEditButton extends StatelessWidget {
   Widget build(BuildContext context) {
     var mContext = context.readMatchContext();
     var match = context.readMatch();
-    var tournament = context.readTournament();
 
     var l10n = AppLocalizations.of(context)!;
 
     return BlocBuilder<TournamentPlanCubit, TournamentPlanState>(
       builder: (context, state) {
-        bool isEditable = tournament.editable.contains(match);
+        bool isEditable =
+            mContext.tournamentPlan.tournament.editable.contains(match);
 
         if (!isEditable) {
           return const SizedBox();
