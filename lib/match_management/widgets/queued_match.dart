@@ -1,4 +1,6 @@
 import 'package:collection/collection.dart';
+import 'package:ez_badminton_admin_app/court_management/cubit/cubit/court_cubit.dart';
+import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/assets/badminton_icons_icons.dart';
@@ -250,55 +252,69 @@ class _AutoCourtAssignmentButton extends StatelessWidget {
     var assignmentCubit = context.read<MatchCourtAssignmentCubit>();
     var l10n = AppLocalizations.of(context)!;
 
-    // TODO grey out when no courts available
+    return BlocBuilder<CourtCubit, CourtState>(
+      builder: (context, state) {
+        return LoadingScreen(
+            loadingStatus: state.loadingStatus,
+            builder: (context) {
+              bool courtsAvailable =
+                  state.occupied.length < state.getCollection<Court>().length;
+              String tooltip =
+                  courtsAvailable ? l10n.assignCourt : l10n.nOpenCourts(0);
 
-    return Tooltip(
-      message: l10n.assignCourt,
-      child: SizedBox.square(
-        dimension: 45,
-        child: ElevatedButton(
-          onPressed: () {
-            assignmentCubit.courtAutoAssignedToMatch(match);
-          },
-          style: ButtonStyle(
-            shape: MaterialStatePropertyAll(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14.0),
-              ),
-            ),
-            padding: const MaterialStatePropertyAll(EdgeInsets.zero),
-          ),
-          child: Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 11, left: 4, right: 4),
-                child: Container(
-                  decoration: const BoxDecoration(),
-                  clipBehavior: Clip.hardEdge,
-                  child: const SizedBox(
-                    width: 26,
-                    height: 20,
-                    child: Icon(
-                      BadmintonIcons.badminton_court_outline,
-                      size: 26,
+              return Tooltip(
+                message: tooltip,
+                child: SizedBox.square(
+                  dimension: 45,
+                  child: ElevatedButton(
+                    onPressed: courtsAvailable
+                        ? () {
+                            assignmentCubit.courtAutoAssignedToMatch(match);
+                          }
+                        : null,
+                    style: ButtonStyle(
+                      shape: MaterialStatePropertyAll(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14.0),
+                        ),
+                      ),
+                      padding: const MaterialStatePropertyAll(EdgeInsets.zero),
+                    ),
+                    child: Stack(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              bottom: 11, left: 4, right: 4),
+                          child: Container(
+                            decoration: const BoxDecoration(),
+                            clipBehavior: Clip.hardEdge,
+                            child: const SizedBox(
+                              width: 26,
+                              height: 20,
+                              child: Icon(
+                                BadmintonIcons.badminton_court_outline,
+                                size: 26,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const Positioned(
+                          bottom: -1,
+                          left: 0,
+                          right: 0,
+                          child: Text(
+                            'AUTO',
+                            style: TextStyle(fontSize: 10),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ),
-              const Positioned(
-                bottom: -1,
-                left: 0,
-                right: 0,
-                child: Text(
-                  'AUTO',
-                  style: TextStyle(fontSize: 10),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+              );
+            });
+      },
     );
   }
 }
