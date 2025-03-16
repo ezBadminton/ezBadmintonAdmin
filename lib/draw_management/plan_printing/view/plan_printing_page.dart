@@ -62,7 +62,11 @@ class PlanPrintingPage extends StatelessWidget {
           var cubit = context.read<PlanPrintingCubit>();
 
           List<TournamentPlan> tournaments = state.selectedCompetitions
-              .map((c) => planCubit.state.drawnTournaments[c])
+              .map(
+                (c) =>
+                    planCubit.state.drawnTournaments[c] ??
+                    planCubit.state.runningTournaments[c],
+              )
               .whereType<TournamentPlan>()
               .toList();
 
