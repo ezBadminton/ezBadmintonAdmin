@@ -70,10 +70,10 @@ class ConsolationEliminationPlan
     planWidgets.add(planWidget);
 
     if (node.parent != null) {
-      (int, int) rankRange = (1, 2); // TODO node.bracket.getRankRange();
+      (int, int) rankRange = node.bracket.rankRange;
       BracketPlaceRangeText rangeText = BracketPlaceRangeText(
-        upperBound: rankRange.$1 + 1,
-        lowerBound: rankRange.$2 + 1,
+        upperBound: rankRange.$1,
+        lowerBound: rankRange.$2,
         l10n: l10n,
       );
 
@@ -158,13 +158,9 @@ class ConsolationEliminationPlan
   ConsolationTreeNode _createConsolationTree(
     models.ConsolationBracket bracket,
   ) {
-    Map<models.Slot, pw.Widget> placeholders = {};
-    // TODO
-    /*
-    Map<models.Slot, pw.Widget> placeholders = bracket.parent == null
+    Map<models.Slot, pw.Widget> placeholders = bracket.isRoot
         ? this.placeholders
         : _createConsolationPlaceholders(bracket);
-        */
 
     SingleEliminationPlan plan = SingleEliminationPlan(
       tPlan: tPlan,

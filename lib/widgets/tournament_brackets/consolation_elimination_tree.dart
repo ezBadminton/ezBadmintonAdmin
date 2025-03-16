@@ -2,6 +2,7 @@ import 'package:ez_badminton_admin_app/layout/elimination_tree/consolation_elimi
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bracket.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/utils.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -92,58 +93,44 @@ class ConsolationEliminationTree extends StatelessWidget
     BuildContext context,
     ConsolationBracket bracket,
   ) {
-    return <Slot, Widget>{};
-    // TODO
-    /*
-    if (bracket.parent == null) {
+    if (bracket.isRoot) {
       return const {};
     }
 
     var l10n = AppLocalizations.of(context)!;
 
-    Map<MatchParticipant, String> labelTexts =
+    Map<Slot, String> labelTexts =
         createConsolationPlaceholderLabels(l10n, bracket);
 
-    Map<MatchParticipant, Widget> labels =
-        wrapPlaceholderLabels(context, labelTexts);
+    Map<Slot, Widget> labels = wrapPlaceholderLabels(context, labelTexts);
 
     return labels;
-    */
   }
 
   static Map<Slot, String> createConsolationPlaceholderLabels(
     AppLocalizations l10n,
     ConsolationBracket bracket,
   ) {
-    return <Slot, String>{};
-    // TODO
-    /*
-    if (bracket.parent == null) {
+    if (bracket.isRoot) {
       return const {};
     }
 
-    List<TournamentMatch> firstRoundMatches =
-        bracket.bracket.rounds.first.matches;
-
-    Map<MatchParticipant, String> labels = Map.fromEntries(
-      firstRoundMatches
-          .expand((match) => [match.a, match.b])
-          .where((participant) => !participant.isBye)
-          .map((participant) {
-        WinnerRanking winnerRanking =
-            participant.placement!.ranking as WinnerRanking;
-        TournamentMatch sourceMatch = winnerRanking.match;
-
-        String matchName = (sourceMatch.round as EliminationRound)
-            .getSingleEliminationMatchName(l10n, sourceMatch);
-
-        String loserLabel = l10n.loserOfMatch(matchName);
-
-        return MapEntry(participant, loserLabel);
-      }),
+    List<TournamentMatch> firstRound = bracket.rounds.first;
+    int bracketSize = firstRound.length * 2;
+    String parentRoundName = l10n.roundOfN((bracketSize * 2).toString());
+    Iterable<Slot> firstRoundSlots = firstRound.expand(
+      (m) => [m.slot1, m.slot2],
     );
 
+    Map<Slot, String> labels = {};
+    for (final (i, slot) in firstRoundSlots.indexed) {
+      if (slot.isBye) {
+        continue;
+      }
+      String placeholder = l10n.loserOfMatch('$parentRoundName ${i + 1}');
+      labels[slot] = placeholder;
+    }
+
     return labels;
-  */
   }
 }
