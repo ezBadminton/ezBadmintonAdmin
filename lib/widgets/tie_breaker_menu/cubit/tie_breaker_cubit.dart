@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
+import 'package:ez_badminton_admin_app/input_models/models.dart';
 import 'package:ez_badminton_admin_app/utils/list_extension/list_extension.dart';
 import 'package:formz/formz.dart';
 import 'package:model_repository/model_repository.dart';
@@ -10,29 +11,31 @@ class TieBreakerCubit extends CollectionQuerierCubit<TieBreakerState> {
   TieBreakerCubit({
     required this.competition,
     required List<Team> tie,
-    required ModelStore<Competition> competitionRepository,
-    required ModelStore<TieBreaker> tieBreakerRepository,
-  })  : existingTieBreaker = _getExistingTieBreaker(tie, competition),
-        super(
-          modelStores: [
-            competitionRepository,
-            tieBreakerRepository,
-          ],
-          TieBreakerState(tie: tie),
+    required ModelStore<Competition> competitionStore,
+    required this.addEndpoint,
+    required this.updateEndpoint,
+  }) : super(
+          modelStores: [competitionStore],
+          TieBreakerState(
+            tieBreaker: _getOrCreateTieBreaker(tie, competition),
+          ),
         ) {
-    if (existingTieBreaker != null) {
-      emit(state.copyWith(tie: existingTieBreaker!.tieBreakerRanking));
-    }
+    subscribeToCollectionUpdates(competitionStore, handleCompetitionUpdate);
   }
+
+  final AddTieBreakerEndpoint addEndpoint;
+  final UpdateTieBreakerEndpoint updateEndpoint;
 
   final Competition competition;
 
-  final TieBreaker? existingTieBreaker;
-
   void tieReordered(int from, int to) {
-    List<Team> reorderedTie = state.tie.moveItem(from, to);
+    List<Team> currentTie = List.of(state.tiedTeams);
+    List<Team> reorderedTie = currentTie.moveItem(from, to);
+    TieBreaker updatedTie = state.tieBreaker.copyWith(
+      tieBreakerRankingRel: MultiRelation.fromModels(reorderedTie),
+    );
 
-    emit(state.copyWith(tie: reorderedTie));
+    emit(state.copyWith(tieBreaker: SelectionInput.dirty(value: updatedTie)));
   }
 
   void tieBreakerSubmitted() async {
@@ -41,40 +44,35 @@ class TieBreakerCubit extends CollectionQuerierCubit<TieBreakerState> {
     }
     emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
-    TieBreaker tieBreaker = existingTieBreaker?.copyWith(
-            tieBreakerRankingRel: MultiRelation.fromModels(state.tie)) ??
-        TieBreaker.newTiebreaker(state.tie);
+    var teamIds = state.tiedTeams.map((t) => t.id).toList();
 
-    TieBreaker? newTieBreaker = await querier.updateOrCreateModel(tieBreaker);
-    if (newTieBreaker == null) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-      return;
-    }
-
-    if (existingTieBreaker != null) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
-      return;
-    }
-
-    List<TieBreaker> competitionTieBreakers = List.of(competition.tieBreakers)
-      ..add(newTieBreaker);
-
-    Competition competitioWithNewTieBreaker = competition.copyWith(
-      tieBreakersRel: MultiRelation.fromModels(competitionTieBreakers),
-    );
-
-    Competition? updatedCompetition =
-        await querier.updateModel(competitioWithNewTieBreaker);
-    if (updatedCompetition == null) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-      return;
+    if (state.tieBreaker.id.isEmpty) {
+      try {
+        await addEndpoint.post(
+          pathParams: {"competition": competition.id},
+          body: {"teams": teamIds},
+        );
+      } catch (_) {
+        emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+        return;
+      }
+    } else {
+      try {
+        await updateEndpoint.patch(
+          pathParams: {"tiebreaker": state.tieBreaker.id},
+          body: {"teams": teamIds},
+        );
+      } catch (_) {
+        emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+        return;
+      }
     }
 
     emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
   }
 
   void existingTieBreakerDeleted() async {
-    if (existingTieBreaker == null) {
+    if (state.tieBreaker.id.isEmpty) {
       return;
     }
 
@@ -83,27 +81,40 @@ class TieBreakerCubit extends CollectionQuerierCubit<TieBreakerState> {
     }
     emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
-    bool tieBreakerDeleted = await querier.deleteModel(existingTieBreaker!);
-    if (!tieBreakerDeleted) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
+    try {
+      await updateEndpoint.delete(
+        pathParams: {"tiebreaker": state.tieBreaker.id},
+      );
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+    } catch (_) {
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
       return;
     }
-
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
   }
 
-  /// Returns the tie breaker that handles the [tie] in the [competition].
-  ///
-  /// Returns null when the [competition] does not have a fitting tie breaker.
-  static TieBreaker? _getExistingTieBreaker(
+  static SelectionInput<TieBreaker> _getOrCreateTieBreaker(
     List<Team> tie,
     Competition competition,
   ) {
     TieBreaker? existingTieBreaker = competition.tieBreakers.firstWhereOrNull(
       (tieBreaker) => tieBreaker.tieBreakerRanking.toSet().containsAll(tie),
     );
+    TieBreaker tieBreaker = existingTieBreaker ?? TieBreaker.newTiebreaker(tie);
 
-    return existingTieBreaker;
+    SelectionInput<TieBreaker> tieBreakerSelection = existingTieBreaker == null
+        ? SelectionInput.dirty(value: tieBreaker)
+        : SelectionInput.pure(value: tieBreaker);
+
+    return tieBreakerSelection;
+  }
+
+  void handleCompetitionUpdate(CollectionUpdateEvent<Competition> event) {
+    if (event.model != competition) {
+      return;
+    }
+    emit(state.copyWith(
+      tieBreaker: _getOrCreateTieBreaker(state.tiedTeams, competition),
+    ));
   }
 
   @override

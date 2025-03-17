@@ -178,22 +178,16 @@ class _RoundRobinLeaderboard extends StatelessWidget {
     int rankIndex,
   ) {
     var tPlan = context.readTournamentPlan();
-    if (!tPlan.ended) {
-      return null;
-    }
     var tournament = context.readTournament() as RoundRobin;
 
-    var brokenTieMap = _mapBrokenTies(tournament);
     GroupKnockout? parentTournament;
     if (tPlan.tournament is GroupKnockout) {
       parentTournament = tPlan.tournament as GroupKnockout;
     }
 
-    List<Team>? tieOfRank = brokenTieMap.entries
-        .firstWhereOrNull(
-          (tieMapEntry) => tieMapEntry.value.last.equals(tiedTeams),
-        )
-        ?.key;
+    List<Team>? tieOfRank = tournament.unbrokenTies.firstWhereOrNull(
+      (tie) => tie.last == tiedTeams.last,
+    );
 
     if (tieOfRank == null || tieOfRank.length == 1) {
       return null;
@@ -240,38 +234,6 @@ class _RoundRobinLeaderboard extends StatelessWidget {
     );
 
     return tieBreakerRow;
-  }
-
-  /// Maps the ties in this [ranking] to their tie broken forms.
-  ///
-  /// If a tie is not broken it is mapped to itself wrapped in a
-  /// one-element list.
-  static Map<List<Team>, List<List<Team>>> _mapBrokenTies(
-    RoundRobin roundRobin,
-  ) {
-    List<List<Team>> unbrokenTiedTanks = roundRobin.unbrokenTies;
-    List<List<Team>> tiedRanks = roundRobin.ties;
-
-    Map<List<Team>, List<List<Team>>> brokenTieMap = {};
-
-    int offset = 0;
-    for (List<Team> tie in unbrokenTiedTanks) {
-      int tieSize = tie.length;
-
-      List<List<Team>> brokenTie = [];
-
-      while (brokenTie.flattened.length < tieSize) {
-        List<Team> brokenTieEntry = tiedRanks[offset];
-        brokenTie.add(brokenTieEntry);
-        offset += 1;
-      }
-
-      assert(brokenTie.flattened.length == tieSize);
-
-      brokenTieMap.putIfAbsent(tie, () => brokenTie);
-    }
-
-    return brokenTieMap;
   }
 }
 

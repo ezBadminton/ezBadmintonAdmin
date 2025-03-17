@@ -21,66 +21,67 @@ class _TieBreakerDialog extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
 
     var cubit = context.read<TieBreakerCubit>();
-
-    Widget dialogContent = SizedBox(
-      width: 500,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(l10n.breakTieInfo),
-          const SizedBox(height: 10),
-          const Divider(
-            height: 35,
-            thickness: 1,
-            indent: 20,
-            endIndent: 20,
-          ),
-          Flexible(child: _TieBreakerList(tie: tie)),
-        ],
-      ),
-    );
-
     String dialogTitle =
-        cubit.existingTieBreaker == null ? l10n.breakTie : l10n.editTieBreaker;
+        cubit.state.tieBreaker.id.isEmpty ? l10n.breakTie : l10n.editTieBreaker;
 
-    return BlocListener<TieBreakerCubit, TieBreakerState>(
+    return BlocConsumer<TieBreakerCubit, TieBreakerState>(
       listenWhen: (previous, current) =>
           previous.formStatus != FormzSubmissionStatus.success &&
           current.formStatus == FormzSubmissionStatus.success,
       listener: (context, state) {
         Navigator.of(context).pop();
       },
-      child: AlertDialog(
-        title: Text(dialogTitle),
-        content: dialogContent,
-        actions: [
-          Row(
+      builder: (context, state) {
+        Widget dialogContent = SizedBox(
+          width: 500,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              if (cubit.existingTieBreaker != null)
-                TextButton(
-                  onPressed: cubit.existingTieBreakerDeleted,
-                  child: Text(
-                    l10n.deleteTieBreaker,
-                    style: TextStyle(
-                      color:
-                          Theme.of(context).colorScheme.error.withOpacity(.7),
-                    ),
-                  ),
-                ),
-              const Expanded(child: SizedBox()),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(l10n.cancel),
+              Text(l10n.breakTieInfo),
+              const SizedBox(height: 10),
+              const Divider(
+                height: 35,
+                thickness: 1,
+                indent: 20,
+                endIndent: 20,
               ),
-              const SizedBox(width: 15),
-              TextButton(
-                onPressed: cubit.tieBreakerSubmitted,
-                child: Text(l10n.save),
-              ),
+              Flexible(child: _TieBreakerList()),
             ],
           ),
-        ],
-      ),
+        );
+
+        return AlertDialog(
+          title: Text(dialogTitle),
+          content: dialogContent,
+          actions: [
+            Row(
+              children: [
+                if (cubit.state.tieBreaker.id.isNotEmpty)
+                  TextButton(
+                    onPressed: cubit.existingTieBreakerDeleted,
+                    child: Text(
+                      l10n.deleteTieBreaker,
+                      style: TextStyle(
+                        color:
+                            Theme.of(context).colorScheme.error.withOpacity(.7),
+                      ),
+                    ),
+                  ),
+                const Expanded(child: SizedBox()),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(l10n.cancel),
+                ),
+                const SizedBox(width: 15),
+                TextButton(
+                  onPressed: state.isDirty ? cubit.tieBreakerSubmitted : null,
+                  child: Text(l10n.save),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -102,8 +103,9 @@ class TieBreakerMenu extends StatelessWidget {
       create: (context) => TieBreakerCubit(
         competition: competition,
         tie: tie,
-        competitionRepository: context.read<ModelStore<Competition>>(),
-        tieBreakerRepository: context.read<ModelStore<TieBreaker>>(),
+        competitionStore: context.read<ModelStore<Competition>>(),
+        addEndpoint: context.read(),
+        updateEndpoint: context.read(),
       ),
       child: _TieBreakerDialog(tie: tie),
     );
@@ -111,34 +113,26 @@ class TieBreakerMenu extends StatelessWidget {
 }
 
 class _TieBreakerList extends StatelessWidget {
-  const _TieBreakerList({
-    required this.tie,
-  });
-
-  final List<Team> tie;
+  const _TieBreakerList();
 
   @override
   Widget build(BuildContext context) {
     var cubit = context.read<TieBreakerCubit>();
+    var state = cubit.state;
 
     return SizedBox(
       width: 500,
-      child: BlocBuilder<TieBreakerCubit, TieBreakerState>(
-        builder: (context, state) {
-          return ReorderableImplicitAnimatedList(
-            elements: state.tie,
-            onReorder: cubit.tieReordered,
-            itemBuilder: _itemBuilder,
-            itemDragBuilder: _itemDragBuilder,
-            itemPlaceholderBuilder: _itemPlaceholderBuilder,
-            itemReorderBuilder: _itemReorderBuilder,
-            duration: const Duration(milliseconds: 100),
-            shrinkWrap: true,
-            draggingEnabled:
-                state.formStatus != FormzSubmissionStatus.inProgress &&
-                    state.formStatus != FormzSubmissionStatus.success,
-          );
-        },
+      child: ReorderableImplicitAnimatedList(
+        elements: state.tiedTeams,
+        onReorder: cubit.tieReordered,
+        itemBuilder: _itemBuilder,
+        itemDragBuilder: _itemDragBuilder,
+        itemPlaceholderBuilder: _itemPlaceholderBuilder,
+        itemReorderBuilder: _itemReorderBuilder,
+        duration: const Duration(milliseconds: 100),
+        shrinkWrap: true,
+        draggingEnabled: state.formStatus != FormzSubmissionStatus.inProgress &&
+            state.formStatus != FormzSubmissionStatus.success,
       ),
     );
   }
@@ -243,7 +237,7 @@ class _TeamItem extends StatelessWidget {
   Widget build(BuildContext context) {
     var cubit = context.read<TieBreakerCubit>();
 
-    int index = cubit.state.tie.indexOf(team);
+    int index = cubit.state.tiedTeams.indexOf(team);
 
     Widget playerNames = buildPlayerNames();
 
