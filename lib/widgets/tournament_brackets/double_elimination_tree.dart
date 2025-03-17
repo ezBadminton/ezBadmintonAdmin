@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:ez_badminton_admin_app/layout/elimination_tree/elimination_tree_layout.dart';
 import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section.dart';
@@ -115,30 +116,50 @@ class DoubleEliminationTree extends StatelessWidget
     DoubleElimination tournament,
     AppLocalizations l10n,
   ) {
-    return <Slot, String>{};
-    // TODO
-    /*
-    Iterable<Slot> loserParticipants =
-        tournament.matches.expand((match) => [match.a, match.b]).where(
-              (participant) =>
-                  participant.placement?.ranking is WinnerRanking &&
-                  participant.placement?.place == 1,
-            );
+    List<TournamentMatch> firstRound = tournament.winnerRounds.first;
+    List<TournamentMatch> firstLoserRound = tournament.loserRounds.first;
+
+    String firstRoundName = l10n.roundOfN((firstRound.length * 2).toString());
+
+    Iterable<Slot> firstLoserSlots = firstLoserRound
+        .expand((m) => [m.slot1, m.slot2])
+        .where((s) => !s.isBye);
 
     Map<Slot, String> participantLabels = {};
+    for (final (i, slot) in firstLoserSlots.indexed) {
+      String label = l10n.loserOfMatch('$firstRoundName ${i + 1}');
+      participantLabels[slot] = label;
+    }
 
-    for (Slot loser in loserParticipants) {
-      BadmintonMatch lostMatch =
-          (loser.placement!.ranking as WinnerRanking).match as BadmintonMatch;
+    Iterable<List<TournamentMatch>> majorLoserRounds =
+        tournament.loserRounds.whereIndexed((i, _) => i.isOdd);
 
-      String matchName = (lostMatch.round as DoubleEliminationRound)
-          .getDoubleEliminationMatchName(l10n, lostMatch);
-
-      participantLabels.putIfAbsent(loser, () => l10n.loserOfMatch(matchName));
+    for (final (i, round) in majorLoserRounds.indexed) {
+      Iterable<Slot> loserSlots = round.map((m) => m.slot1);
+      if (i.isEven) {
+        // Swap halves
+        int halfLength = loserSlots.length ~/ 2;
+        loserSlots =
+            loserSlots.skip(halfLength).followedBy(loserSlots.take(halfLength));
+      }
+      String parentRoundName;
+      if (round.length == 1) {
+        parentRoundName = l10n.smallFinal;
+      } else {
+        parentRoundName = l10n.roundOfN((round.length * 2).toString());
+      }
+      for (final (i, slot) in loserSlots.indexed) {
+        String label;
+        if (round.length == 1) {
+          label = l10n.loserOfMatch(parentRoundName);
+        } else {
+          label = l10n.loserOfMatch('$parentRoundName ${i + 1}');
+        }
+        participantLabels[slot] = label;
+      }
     }
 
     return participantLabels;
-    */
   }
 
   static List<BracketSection> getSections(
