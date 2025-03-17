@@ -200,6 +200,7 @@
   "participant": "{count, plural, other{Teilnehmer}}",
   "groupNumber": "Gruppe {number}",
   "groupQualification": "{place}. Platz, Gruppe {group}",
+  "contestedGroupQualification": "{place}. Platz, abhängig vom Gruppenergebnis",
   "roundOfN": "{participants, select, 2{Finale} 4{Halbfinale} 8{Viertelfinale} 16{Achtelfinale} other{{participants}er Runde}}",
   "roundN": "Runde {roundNumber}",
   "matchN": "Spiel {matchNumber}",

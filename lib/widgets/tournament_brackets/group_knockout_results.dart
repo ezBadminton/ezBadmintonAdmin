@@ -24,6 +24,7 @@ class GroupKnockoutResults extends StatelessWidget implements SectionedBracket {
 
   @override
   Widget build(BuildContext context) {
+    var tPlan = context.readTournamentPlan();
     var tournament = context.readTournament() as GroupKnockout;
 
     List<RoundRobin> groupRoundRobins = tournament.groupPhase.groups;
@@ -39,7 +40,11 @@ class GroupKnockoutResults extends StatelessWidget implements SectionedBracket {
         .toList();
 
     Map<Slot, Widget> placeholders =
-        GroupKnockoutPlan.createQualificationPlaceholders(context, tournament);
+        GroupKnockoutPlan.createQualificationPlaceholders(
+      context,
+      tournament,
+      tPlan.competition,
+    );
 
     koPhaseGetter(TournamentPlan plan) =>
         (plan.tournament as GroupKnockout).knockoutPhase;

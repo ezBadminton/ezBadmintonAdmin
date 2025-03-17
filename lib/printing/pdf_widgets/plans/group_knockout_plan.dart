@@ -120,6 +120,7 @@ class GroupKnockOutPlan extends TournamentPlan<models.GroupKnockout> {
     Map<models.Slot, String> labelTexts =
         ko_plan.GroupKnockoutPlan.createQualificationPlaceholderTexts(
       tournament,
+      tPlan.competition,
       l10n,
     );
 
