@@ -47,15 +47,18 @@ class _MatchQueueSettingsState extends State<MatchQueueSettings> {
                 _SectionTitle(l10n.playerRestTime),
                 const _RestTimeInput(),
                 const SizedBox(height: 25),
-                _SectionTitle(l10n.queueModeSetting),
-                for (QueueMode queueMode in QueueMode.values)
+                _SectionTitle(l10n.courtModeSetting),
+                for (QueueMode queueMode in [
+                  QueueMode.manual,
+                  QueueMode.autoCourtAssignment,
+                ])
                   RadioListTile(
                     value: queueMode,
                     groupValue: state.queueMode,
                     onChanged: (_) => cubit.queueModeChanged(queueMode),
-                    title: Text(l10n.queueMode(queueMode.toString())),
+                    title: Text(l10n.courtMode(queueMode.toString())),
                     secondary: HelpTooltipIcon(
-                      helpText: l10n.queueModeHelp(queueMode.toString()),
+                      helpText: l10n.courtModeHelp(queueMode.toString()),
                     ),
                   ),
               ],

@@ -73,7 +73,7 @@ class QueuedRound extends StatelessWidget {
                       "$numReady / $numTotal",
                       style: TextStyle(fontSize: 17),
                     ),
-                    Text(l10n.matchesReady(numReady)),
+                    Text(l10n.matchesReady(numTotal)),
                   ],
                 ),
                 const SizedBox(width: 10),
