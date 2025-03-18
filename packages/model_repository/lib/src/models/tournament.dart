@@ -90,6 +90,16 @@ sealed class Tournament with _$Tournament implements MatchRoundList {
       Tournament._unwrapTeams(entriesRel).flattened.toList();
   List<List<Team>> get finalRanking => Tournament._unwrapTeams(finalRankingRel);
 
+  bool get matchesEnded {
+    var allMatches = rounds.expand((r) => r);
+    for (final match in allMatches) {
+      if (match.winner == null && !match.isBye && !match.isWalkover) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   factory Tournament.fromJson(Map<String, dynamic> json) =>
       _$TournamentFromJson(json);
 

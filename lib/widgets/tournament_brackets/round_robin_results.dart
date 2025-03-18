@@ -193,9 +193,16 @@ class _RoundRobinLeaderboard extends StatelessWidget {
       return null;
     }
 
-    if (parentTournament != null && parentTournament.knockoutStarted) {
-      // Do not allow editing of the tie breaker when knockout phase has started
-      return null;
+    if (parentTournament != null) {
+      var groups = parentTournament.groupPhase.groups;
+      if (parentTournament.knockoutStarted ||
+          groups.map((g) => g.matchesEnded).contains(false)) {
+        return null;
+      }
+    } else {
+      if (!tournament.matchesEnded) {
+        return null;
+      }
     }
 
     var l10n = AppLocalizations.of(context)!;
