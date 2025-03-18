@@ -1,7 +1,11 @@
+import 'package:ez_badminton_admin_app/tournament_plans/cubit/tournament_plan_cubit.dart';
+import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
 import 'package:ez_badminton_admin_app/widgets/speech_bubble/speech_bubble.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:model_repository/model_repository.dart';
 
 /// The icon for the result tab.
 ///
@@ -26,6 +30,8 @@ class ResultNavigationTabIcon extends StatefulWidget {
 class _ResultNavigationTabIconState extends State<ResultNavigationTabIcon> {
   late final LayerLink layerLink;
 
+  late List<TournamentPlan> tournamentsWithBlockingTies;
+
   OverlayEntry? notificationBubble;
 
   OverlayEntry? notificationIcon;
@@ -33,6 +39,7 @@ class _ResultNavigationTabIconState extends State<ResultNavigationTabIcon> {
   @override
   void initState() {
     super.initState();
+    tournamentsWithBlockingTies = [];
     layerLink = LayerLink();
   }
 
@@ -46,10 +53,56 @@ class _ResultNavigationTabIconState extends State<ResultNavigationTabIcon> {
 
   @override
   Widget build(BuildContext context) {
-    return CompositedTransformTarget(
-      link: layerLink,
-      child: FaIcon(widget.icon),
+    return BlocListener<TournamentPlanCubit, TournamentPlanState>(
+      listener: (context, state) {
+        bool previousTies = tournamentsWithBlockingTies.isNotEmpty;
+
+        setState(() {
+          tournamentsWithBlockingTies = _getTournamentsWithBlockingTies(state);
+        });
+
+        bool currentTies = tournamentsWithBlockingTies.isNotEmpty;
+
+        if (!previousTies && currentTies) {
+          showNotficationBubble();
+          showNotificationIcon();
+        }
+        if (previousTies && !currentTies) {
+          hideNotificationBubble();
+          hideNotificationIcon();
+        }
+      },
+      child: CompositedTransformTarget(
+        link: layerLink,
+        child: FaIcon(widget.icon),
+      ),
     );
+  }
+
+  List<TournamentPlan> _getTournamentsWithBlockingTies(
+    TournamentPlanState state,
+  ) {
+    var withBlockingTies = <TournamentPlan>[];
+    for (final tPlan in state.runningTournaments.values) {
+      var tournament = tPlan.tournament;
+      if (tournament is! GroupKnockout) {
+        continue;
+      }
+      if (tournament.knockoutStarted ||
+          !tournament.groupPhase.groupPhaseEnded) {
+        continue;
+      }
+
+      bool groupTies = tournament.groupPhase.groups.any(
+        (group) => group.ties.isNotEmpty,
+      );
+      bool crossGroupTies = tournament.groupPhase.crossGroupTies.isNotEmpty;
+
+      if (groupTies || crossGroupTies) {
+        withBlockingTies.add(tPlan);
+      }
+    }
+    return withBlockingTies;
   }
 
   void showNotficationBubble() {
@@ -110,6 +163,8 @@ class _ResultNavigationTabIconState extends State<ResultNavigationTabIcon> {
                       Text(l10n.tournamentProgressBlocked),
                       Text(l10n.tieBreakerRequired),
                       const SizedBox(height: 10),
+                      for (TournamentPlan tPlan in tournamentsWithBlockingTies)
+                        CompetitionLabel(competition: tPlan.competition),
                     ],
                   ),
                 ),

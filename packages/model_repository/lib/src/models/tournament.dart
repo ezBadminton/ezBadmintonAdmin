@@ -225,6 +225,8 @@ class GroupPhase {
   List<List<Team>> get unbrokenCrossGroupTies =>
       Tournament._unwrapTeams(unbrokenCrossGroupTiesRel);
 
+  bool get groupPhaseEnded => groups.every((group) => group.matchesEnded);
+
   factory GroupPhase.fromJson(Map<String, dynamic> json) =>
       _$GroupPhaseFromJson(json);
 }
