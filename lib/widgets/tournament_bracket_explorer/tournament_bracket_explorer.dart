@@ -4,7 +4,7 @@ import 'package:ez_badminton_admin_app/widgets/competition_label/competition_lab
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section_navigator.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/bracket_section_navigator_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/interactive_view_blocker_cubit.dart';
-import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/tournament_bracket_explorer_controller_cubit.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/bracket_explorer_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/edge_panning_area.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/tournament_bracket_explorer_controller.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bracket.dart';
@@ -16,11 +16,11 @@ import 'package:model_repository/model_repository.dart';
 
 class TournamentBracketExplorer extends StatefulWidget {
   const TournamentBracketExplorer({
-    super.key,
+    required Key key,
     required this.competition,
     required this.tournamentBracket,
     required this.controlBarOptionsBuilder,
-  });
+  }) : super(key: key);
 
   final Competition competition;
   final Widget tournamentBracket;
@@ -39,8 +39,7 @@ class _TournamentBracketExplorerState extends State<TournamentBracketExplorer>
 
   @override
   void didChangeDependencies() {
-    var controllerCubit =
-        context.read<TournamentBracketExplorerControllerCubit>();
+    var controllerCubit = context.read<BracketExplorerCubit>();
 
     if (_viewController == null) {
       _viewController = controllerCubit.getViewController(widget.competition);
@@ -134,6 +133,7 @@ class _TournamentBracketExplorerState extends State<TournamentBracketExplorer>
                           viewController: _viewController!,
                         ),
                       _ViewControlBar(
+                        viewKey: widget.key!,
                         competition: widget.competition,
                         controlBarOptionsBuilder:
                             widget.controlBarOptionsBuilder,
@@ -162,18 +162,19 @@ class _TournamentBracketExplorerState extends State<TournamentBracketExplorer>
 
 class _ViewControlBar extends StatelessWidget {
   const _ViewControlBar({
+    required this.viewKey,
     required this.competition,
     required this.controlBarOptionsBuilder,
   });
 
+  final Key viewKey;
   final Competition competition;
 
   final Widget Function(bool compact) controlBarOptionsBuilder;
 
   @override
   Widget build(BuildContext context) {
-    var controllerCubit =
-        context.read<TournamentBracketExplorerControllerCubit>();
+    var controllerCubit = context.read<BracketExplorerCubit>();
 
     AnimatedTransformationController viewController =
         controllerCubit.getViewController(competition);

@@ -11,7 +11,7 @@ import 'package:ez_badminton_admin_app/utils/confirmation_cubit/confirmation_cub
 import 'package:ez_badminton_admin_app/widgets/competition_selection_list/cubit/competition_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
 import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
-import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/tournament_bracket_explorer_controller_cubit.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/bracket_explorer_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/tournament_bracket_explorer.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/consolation_elimination_tree.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/double_elimination_tree.dart';
@@ -30,7 +30,7 @@ class DrawEditor extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
 
     return BlocProvider(
-      create: (context) => TournamentBracketExplorerControllerCubit(),
+      create: (context) => BracketExplorerCubit(),
       child: BlocBuilder<CompetitionSelectionCubit, CompetitionSelectionState>(
         builder: (context, state) {
           if (state.selectedCompetition.value == null) {

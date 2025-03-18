@@ -241,14 +241,10 @@ class MatchupCard extends StatelessWidget {
       ),
     );
 
-    if (showResult) {
-      return BracketSectionSubtree(
-        tournamentDataObject: match,
-        child: matchupCard,
-      );
-    } else {
-      return matchupCard;
-    }
+    return BracketSectionSubtree(
+      tournamentDataObject: match,
+      child: matchupCard,
+    );
   }
 }
 

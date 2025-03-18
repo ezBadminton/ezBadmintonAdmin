@@ -3,10 +3,12 @@ import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_state.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_selection_list/cubit/competition_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/leaderboard/leaderboard.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
-import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/tournament_bracket_explorer_controller_cubit.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section_subtree.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/bracket_explorer_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/tournament_bracket_explorer.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/consolation_elimination_tree.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/double_elimination_tree.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/group_knockout_plan.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/group_knockout_results.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/round_robin_results.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
@@ -25,7 +27,7 @@ class ResultExplorer extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
 
     return BlocProvider(
-      create: (context) => TournamentBracketExplorerControllerCubit(),
+      create: (context) => BracketExplorerCubit(),
       child: BlocListener<TabNavigationCubit, TabNavigationState>(
         listenWhen: (previous, current) =>
             current.tabChangeReason != null && current.selectedIndex == 5,
@@ -96,8 +98,7 @@ class ResultExplorer extends StatelessWidget {
     }
 
     var selectionCubit = context.read<CompetitionSelectionCubit>();
-    var controllerCubit =
-        context.read<TournamentBracketExplorerControllerCubit>();
+    var controllerCubit = context.read<BracketExplorerCubit>();
 
     selectionCubit.competitionSelected(competition);
 
@@ -111,7 +112,10 @@ class ResultExplorer extends StatelessWidget {
         tabChangeReason.map((mContext) => mContext.match);
 
     List<GlobalKey> keys = matches
-        .map((tournamentDataObject) => GlobalObjectKey(tournamentDataObject))
+        .map((tournamentDataObject) => getBracketSectionKey(
+              context,
+              tournamentDataObject,
+            ))
         .toList();
 
     Future.delayed(
@@ -152,16 +156,24 @@ class _InteractiveResultExplorer extends StatelessWidget {
                       showResults: true,
                     ),
                   RoundRobin _ => RoundRobinResults(),
-                  GroupKnockout _ => GroupKnockoutResults(),
-                  DoubleElimination _ =>
-                    DoubleEliminationTree(showResults: true),
-                  SingleEliminationWithConsolation _ =>
+                  GroupKnockout t => GroupKnockoutResults(
+                      sections: GroupKnockoutPlan.getSections(t),
+                    ),
+                  DoubleElimination t => DoubleEliminationTree(
+                      showResults: true,
+                      sections: DoubleEliminationTree.getSections(t),
+                    ),
+                  SingleEliminationWithConsolation t =>
                     ConsolationEliminationTree(
                       showResults: true,
+                      sections: SingleEliminationTree.getSections(
+                        t.mainBracket.rounds,
+                      ),
                     ),
                 };
 
                 return TournamentBracketExplorer(
+                  key: ValueKey('ResultExplorer-${competition.id}'),
                   competition: competition,
                   tournamentBracket: resultView,
                   controlBarOptionsBuilder: (compact) {

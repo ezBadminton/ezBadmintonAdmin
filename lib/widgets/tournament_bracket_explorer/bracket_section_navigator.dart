@@ -2,23 +2,22 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section_subtree.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/bracket_section_navigator_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/tournament_bracket_explorer_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 const double _height = 30;
-const double _indicatorHeigt = 2;
+const double _indicatorHeight = 2;
 
 class BracketSectionNavigator extends StatefulWidget {
   BracketSectionNavigator({
     super.key,
-    required this.constraints,
+    required BoxConstraints constraints,
     required this.sections,
     required this.viewController,
   }) : _navigatorWidth = constraints.maxWidth;
-
-  final BoxConstraints constraints;
 
   final List<BracketSection> sections;
 
@@ -54,29 +53,15 @@ class _BracketSectionNavigatorState extends State<BracketSectionNavigator> {
   @override
   void didUpdateWidget(BracketSectionNavigator oldWidget) {
     super.didUpdateWidget(oldWidget);
-
-    if (oldWidget.sections == widget.sections) {
-      return;
-    }
-
-    if (oldWidget.sections.length != widget.sections.length) {
+    if (!oldWidget.sections.equals(widget.sections)) {
       _updateSectionRects();
-      return;
     }
-
-    List<Rect> rects = _sectionRects!.values.toList();
-    Map<BracketSection, Rect> newSectionRects = Map.fromEntries(widget.sections
-        .mapIndexed((index, key) => MapEntry(key, rects[index])));
-
-    setState(() {
-      _sectionRects = newSectionRects;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     if (_sectionRects == null) {
-      return const SizedBox(height: _height + _indicatorHeigt);
+      return const SizedBox(height: _height + _indicatorHeight);
     }
 
     double totalWidth = widget.viewController.sceneSize.width;
@@ -85,33 +70,30 @@ class _BracketSectionNavigatorState extends State<BracketSectionNavigator> {
     return Column(
       children: [
         Row(
-          children: _sectionRects!.entries
-              .map((entry) {
-                BracketSection section = entry.key;
-                double sectionWidth = entry.value.width;
+          children: _sectionRects!.entries.expand((entry) {
+            BracketSection section = entry.key;
+            double sectionWidth = entry.value.width;
 
-                double? distanceToNextSection =
-                    _getDistanceToNextSection(section);
+            double? distanceToNextSection = _getDistanceToNextSection(section);
 
-                return [
-                  _SectionButton(
-                      width: widthScale * sectionWidth,
-                      controller: widget.viewController,
-                      section: section),
-                  if (distanceToNextSection != null)
-                    Container(
-                      color: Theme.of(context).scaffoldBackgroundColor,
-                      height: _height,
-                      width: widthScale * distanceToNextSection,
-                    ),
-                ];
-              })
-              .expand((list) => list)
-              .toList(),
+            return [
+              _SectionButton(
+                width: widthScale * sectionWidth,
+                controller: widget.viewController,
+                section: section,
+              ),
+              if (distanceToNextSection != null)
+                Container(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  height: _height,
+                  width: widthScale * distanceToNextSection,
+                ),
+            ];
+          }).toList(),
         ),
         _SectionIndicator(
           width: widget.viewController.viewConstraints!.maxWidth,
-          height: _indicatorHeigt,
+          height: _indicatorHeight,
         ),
       ],
     );
@@ -132,7 +114,7 @@ class _BracketSectionNavigatorState extends State<BracketSectionNavigator> {
               List<GlobalKey> keys = section.tournamentDataObjects
                   .map(
                     (tournamentDataObject) =>
-                        GlobalObjectKey(tournamentDataObject),
+                        getBracketSectionKey(context, tournamentDataObject),
                   )
                   .toList();
 
@@ -183,9 +165,10 @@ class _SectionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<GlobalKey> keys = section.tournamentDataObjects
-        .map(
-          (tournamentDataObject) => GlobalObjectKey(tournamentDataObject),
-        )
+        .map((tournamentDataObject) => getBracketSectionKey(
+              context,
+              tournamentDataObject,
+            ))
         .toList();
 
     return Container(

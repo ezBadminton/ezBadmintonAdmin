@@ -1,3 +1,4 @@
+import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section_subtree.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/interactive_view_blocker_cubit.dart';
@@ -24,15 +25,18 @@ class RoundRobinPlan extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
-    return Column(
-      children: [
-        _RoundRobinTable(
-          isEditable: isEditable,
-          title: title ?? l10n.participant(2),
-        ),
-        const SizedBox(height: 5),
-        _RoundRobinMatchList(),
-      ],
+    return BracketSectionSubtree(
+      tournamentDataObject: context.readTournament(),
+      child: Column(
+        children: [
+          _RoundRobinTable(
+            isEditable: isEditable,
+            title: title ?? l10n.participant(2),
+          ),
+          const SizedBox(height: 5),
+          _RoundRobinMatchList(),
+        ],
+      ),
     );
   }
 }
