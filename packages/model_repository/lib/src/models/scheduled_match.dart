@@ -61,15 +61,17 @@ enum ScheduleStatus {
   @JsonValue(0)
   done,
   @JsonValue(1)
-  inProgress,
+  scoreUnknown,
   @JsonValue(2)
-  ready,
+  inProgress,
   @JsonValue(3)
-  courtWait,
+  ready,
   @JsonValue(4)
-  playerRest,
+  courtWait,
   @JsonValue(5)
-  playerWait,
+  playerRest,
   @JsonValue(6)
+  playerWait,
+  @JsonValue(7)
   wait,
 }

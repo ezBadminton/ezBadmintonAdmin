@@ -31,8 +31,9 @@ class MatchManagementPage extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => MatchStartStopCubit(
-            cancelEndpoint: context.read<CancelMatchEndpoint>(),
-            startEndpoint: context.read<StartMatchEndpoint>(),
+            cancelEndpoint: context.read(),
+            endEndpoint: context.read(),
+            startEndpoint: context.read(),
           ),
         ),
         BlocProvider(

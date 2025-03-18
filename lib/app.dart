@@ -245,6 +245,12 @@ class _AppState extends State<App> {
           ),
         ),
         RepositoryProvider.value(
+          value: EndMatchEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
           value: CancelMatchEndpoint(
             pocketBase: _pocketBaseProvider.pocketBase,
             modelRepository: _modelRepository,

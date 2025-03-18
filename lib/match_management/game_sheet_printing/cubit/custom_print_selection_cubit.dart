@@ -183,6 +183,7 @@ class CustomPrintSelectionCubit
     for (var mContext in allMatches) {
       switch (mContext.scheduledMatch.status) {
         case ScheduleStatus.done:
+        case ScheduleStatus.scoreUnknown:
           break;
         case ScheduleStatus.inProgress:
           matches[PrintCategory.alreadyRunning]!.add(mContext);

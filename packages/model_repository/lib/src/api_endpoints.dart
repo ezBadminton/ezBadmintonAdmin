@@ -82,6 +82,13 @@ class CancelMatchEndpoint extends ApiEndpointRepository {
   }) : super(url: "/matches/matchdata/cancel");
 }
 
+class EndMatchEndpoint extends ApiEndpointRepository {
+  EndMatchEndpoint({
+    required super.pocketBase,
+    required super.modelRepository,
+  }) : super(url: "/matches/matchdata/end");
+}
+
 class SetScoreEndpoint extends ApiEndpointRepository {
   SetScoreEndpoint({
     required super.pocketBase,

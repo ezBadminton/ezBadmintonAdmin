@@ -9,10 +9,12 @@ class MatchStartStopCubit extends Cubit<MatchStartStopState>
     with DialogCubit<MatchStartStopState> {
   MatchStartStopCubit({
     required this.startEndpoint,
+    required this.endEndpoint,
     required this.cancelEndpoint,
   }) : super(MatchStartStopState());
 
   final StartMatchEndpoint startEndpoint;
+  final EndMatchEndpoint endEndpoint;
   final CancelMatchEndpoint cancelEndpoint;
 
   Future<void> matchStarted(TournamentMatch matchData) async {
@@ -51,8 +53,6 @@ class MatchStartStopCubit extends Cubit<MatchStartStopState>
   ///
   /// This frees the court for the next match. The score can be entered later.
   void matchEnded(TournamentMatch matchData) async {
-    // TODO maybe
-    /*
     assert(matchData.court != null &&
         matchData.startTime != null &&
         matchData.endTime == null);
@@ -63,18 +63,11 @@ class MatchStartStopCubit extends Cubit<MatchStartStopState>
 
     emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
 
-    DateTime now = DateTime.now().toUtc();
-
-    TournamentMatch matchDataWithEndTime = matchData.copyWith(endTime: now);
-
-    TournamentMatch? updatedTournamentMatch =
-        await querier.updateModel(matchDataWithEndTime);
-    if (updatedTournamentMatch == null) {
+    try {
+      await endEndpoint.post(pathParams: {"matchdata": matchData.id});
+      emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
+    } catch (_) {
       emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-      return;
     }
-
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
-    */
   }
 }

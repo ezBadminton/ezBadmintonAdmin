@@ -50,6 +50,7 @@ class MatchQueueCubit extends CollectionQuerierCubit<MatchQueueState> {
         switch (match.status) {
           case ScheduleStatus.done:
             break;
+          case ScheduleStatus.scoreUnknown:
           case ScheduleStatus.inProgress:
             runningMatches.add(mContext);
           case ScheduleStatus.ready:
