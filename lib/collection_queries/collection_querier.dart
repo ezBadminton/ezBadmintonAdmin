@@ -157,7 +157,13 @@ abstract class CollectionQuerierCubit<S> extends Cubit<S> {
     required Iterable<ModelStore<Model>> modelStores,
     PocketBase? pocketBase,
   }) : querier = CollectionQuerier(modelStores, pb: pocketBase) {
-    ModelRepository.instance.loadStream.listen(_waitForRepositoryLoading);
+    var repository = ModelRepository.instance;
+    if (repository.isLoaded) {
+      _notifyCollectionUpdate();
+    }
+    var repoSubscription =
+        ModelRepository.instance.loadStream.listen(_handleRepsitoryLoading);
+    collectionUpdateSubscriptions.add(repoSubscription);
     for (ModelStore<Model> store in modelStores) {
       subscribeToCollectionUpdates(store, _notifyCollectionUpdate);
     }
@@ -221,13 +227,23 @@ abstract class CollectionQuerierCubit<S> extends Cubit<S> {
     }
   }
 
-  void _waitForRepositoryLoading(RepositoryEvent e) {
+  void _onReset() {
+    if (state is CollectionQuerierState) {
+      S resetState = (state as dynamic).copyWith(
+        loadingStatus: LoadingStatus.loading,
+        collections: <List<Model>>[],
+      );
+
+      emit(resetState);
+    }
+  }
+
+  void _handleRepsitoryLoading(RepositoryEvent e) {
     switch (e) {
       case RepositoryEvent.loaded:
         _notifyCollectionUpdate();
       case RepositoryEvent.reset:
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        _onReset();
     }
   }
 

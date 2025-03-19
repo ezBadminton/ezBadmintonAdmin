@@ -1,4 +1,5 @@
 {
+  "connectingToServer": "Connecting to server",
   "login": "Sign in",
   "logout": "Sign out",
   "signUp": "Sign up",

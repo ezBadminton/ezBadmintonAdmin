@@ -11,6 +11,7 @@ class CompetitionCategorizationState extends CollectionQuerierState
   CompetitionCategorizationState({
     this.loadingStatus = LoadingStatus.loading,
     this.formStatus = FormzSubmissionStatus.initial,
+    this.categorizationEditable = false,
     this.dialog = const CubitDialog(reason: Object()),
     this.collections = const [],
   });
@@ -18,6 +19,8 @@ class CompetitionCategorizationState extends CollectionQuerierState
   @override
   final LoadingStatus loadingStatus;
   final FormzSubmissionStatus formStatus;
+
+  final bool categorizationEditable;
 
   @override
   final CubitDialog dialog;
@@ -30,6 +33,7 @@ class CompetitionCategorizationState extends CollectionQuerierState
   CompetitionCategorizationState copyWith({
     LoadingStatus? loadingStatus,
     FormzSubmissionStatus? formStatus,
+    bool? categorizationEditable,
     CubitDialog? dialog,
     List<List<Model>>? collections,
   }) {
@@ -40,6 +44,8 @@ class CompetitionCategorizationState extends CollectionQuerierState
     return CompetitionCategorizationState(
       loadingStatus: loadingStatus ?? this.loadingStatus,
       formStatus: formStatus ?? this.formStatus,
+      categorizationEditable:
+          categorizationEditable ?? this.categorizationEditable,
       dialog: dialog ?? this.dialog,
       collections: collections ?? this.collections,
     );

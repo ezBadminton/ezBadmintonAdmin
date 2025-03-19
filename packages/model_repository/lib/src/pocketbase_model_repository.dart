@@ -35,7 +35,7 @@ class PocketbaseModelRepository extends ModelRepository {
       case AuthenticationStatus.authenticated:
         loadModels();
       default:
-      // TODO reset repository
+        _resetModels();
     }
   }
 
@@ -61,6 +61,12 @@ class PocketbaseModelRepository extends ModelRepository {
 
     _isLoaded = true;
     _controller.add(RepositoryEvent.loaded);
+  }
+
+  _resetModels() {
+    _isLoaded = false;
+    reverseRelations.clear();
+    _controller.add(RepositoryEvent.reset);
   }
 
   @override

@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/age_group_editing/view/age_group_editing_popup.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_categorization_cubit.dart';
@@ -13,7 +12,6 @@ import 'package:ez_badminton_admin_app/widgets/long_tooltip/long_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:formz/formz.dart';
 
 class TournamentCategorizationOptions extends StatelessWidget {
   const TournamentCategorizationOptions({
@@ -25,8 +23,23 @@ class TournamentCategorizationOptions extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
     return BlocBuilder<CompetitionCategorizationCubit,
         CompetitionCategorizationState>(
-      buildWhen: (previous, current) =>
-          previous.loadingStatus != current.loadingStatus,
+      buildWhen: (previous, current) {
+        if (current.loadingStatus == LoadingStatus.loading) {
+          return false;
+        }
+        var prevTEvent = previous.getCollection<TournamentEvent>().first;
+        var tEvent = current.getCollection<TournamentEvent>().first;
+        bool loadingStatusChanged =
+            previous.loadingStatus != current.loadingStatus;
+        bool editabilityChanged =
+            previous.categorizationEditable != current.categorizationEditable;
+        bool categorizationChanged =
+            prevTEvent.useAgeGroups != tEvent.useAgeGroups ||
+                prevTEvent.usePlayingLevels != tEvent.usePlayingLevels;
+        return loadingStatusChanged ||
+            editabilityChanged ||
+            categorizationChanged;
+      },
       builder: (context, state) {
         return LoadingScreen(
           loadingStatus: state.loadingStatus,
@@ -84,7 +97,7 @@ class TournamentCategorizationOptions extends StatelessWidget {
                     ],
                   );
                 },
-                child: const _CategorizationSwitches(),
+                child: _CategorizationSwitches(),
               ),
             );
           },
@@ -127,50 +140,41 @@ class _CategorizationSwitches extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var cubit = context.read<CompetitionCategorizationCubit>();
     var l10n = AppLocalizations.of(context)!;
-    return BlocBuilder<CompetitionCategorizationCubit,
-        CompetitionCategorizationState>(
-      builder: (context, state) {
-        bool areNoCompetitionsRunning =
-            state.getCollection<Competition>().firstWhereOrNull(
-                      (competition) => competition.matches.isNotEmpty,
-                    ) ==
-                null;
 
-        bool switchesEnabled = areNoCompetitionsRunning &&
-            state.formStatus != FormzSubmissionStatus.inProgress;
+    var cubit = context.read<CompetitionCategorizationCubit>();
+    var state = cubit.state;
 
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: _CategoryPanel(
-                valueGetter: (state) => state.tournament.useAgeGroups,
-                onChanged: cubit.useAgeGroupsChanged,
-                label: l10n.activateAgeGroups,
-                helpMessage: l10n.categorizationHint(l10n.ageGroup(2)),
-                editButtonLabel: l10n.editSubject(l10n.ageGroup(2)),
-                editWidget: const AgeGroupEditingPopup(),
-                enabled: switchesEnabled,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _CategoryPanel(
-                valueGetter: (state) => state.tournament.usePlayingLevels,
-                onChanged: cubit.usePlayingLevelsChanged,
-                label: l10n.activatePlayingLevels,
-                helpMessage: l10n.categorizationHint(l10n.playingLevel(2)),
-                editButtonLabel: l10n.editSubject(l10n.playingLevel(2)),
-                editWidget: const PlayingLevelEditingPopup(),
-                enabled: switchesEnabled,
-              ),
-            ),
-          ],
-        );
-      },
+    bool switchesEnabled = state.categorizationEditable;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: _CategoryPanel(
+            valueGetter: (state) => state.tournament.useAgeGroups,
+            onChanged: cubit.useAgeGroupsChanged,
+            label: l10n.activateAgeGroups,
+            helpMessage: l10n.categorizationHint(l10n.ageGroup(2)),
+            editButtonLabel: l10n.editSubject(l10n.ageGroup(2)),
+            editWidget: const AgeGroupEditingPopup(),
+            enabled: switchesEnabled,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _CategoryPanel(
+            valueGetter: (state) => state.tournament.usePlayingLevels,
+            onChanged: cubit.usePlayingLevelsChanged,
+            label: l10n.activatePlayingLevels,
+            helpMessage: l10n.categorizationHint(l10n.playingLevel(2)),
+            editButtonLabel: l10n.editSubject(l10n.playingLevel(2)),
+            editWidget: const PlayingLevelEditingPopup(),
+            enabled: switchesEnabled,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -202,46 +206,42 @@ class _CategoryPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CompetitionCategorizationCubit,
-        CompetitionCategorizationState>(
-      buildWhen: (previous, current) =>
-          valueGetter(previous) != valueGetter(current),
-      builder: (context, state) {
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          height: 50,
-          decoration: BoxDecoration(
-            color: Theme.of(context)
-                .colorScheme
-                .background
-                .withOpacity(valueGetter(state) ? .5 : .25),
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.zero,
-              bottom: Radius.circular(15),
+    var cubit = context.read<CompetitionCategorizationCubit>();
+    var state = cubit.state;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      height: 50,
+      decoration: BoxDecoration(
+        color: Theme.of(context)
+            .colorScheme
+            .background
+            .withOpacity(valueGetter(state) ? .5 : .25),
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.zero,
+          bottom: Radius.circular(15),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _CategorySwitchWithHelpIcon(
+            label: label,
+            valueGetter: valueGetter,
+            enabled: enabled,
+            onChanged: onChanged,
+            helpMessage: helpMessage,
+          ),
+          TextButton(
+            onPressed: () => showDialog(
+              context: context,
+              useRootNavigator: false,
+              builder: (context) => editWidget,
             ),
+            child: Text(editButtonLabel),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _CategorySwitchWithHelpIcon(
-                label: label,
-                valueGetter: valueGetter,
-                enabled: enabled,
-                onChanged: onChanged,
-                helpMessage: helpMessage,
-              ),
-              TextButton(
-                onPressed: () => showDialog(
-                  context: context,
-                  useRootNavigator: false,
-                  builder: (context) => editWidget,
-                ),
-                child: Text(editButtonLabel),
-              ),
-            ],
-          ),
-        );
-      },
+        ],
+      ),
     );
   }
 }

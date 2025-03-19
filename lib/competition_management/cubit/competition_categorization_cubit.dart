@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_categorization_state.dart';
@@ -39,6 +40,15 @@ class CompetitionCategorizationCubit
     CompetitionCategorizationState updatedState = state.copyWith(
       collections: collections,
       loadingStatus: LoadingStatus.done,
+    );
+
+    bool categorizationEditable =
+        updatedState.getCollection<Competition>().none(
+              (competition) => competition.matches.isNotEmpty,
+            );
+
+    updatedState = updatedState.copyWith(
+      categorizationEditable: categorizationEditable,
     );
 
     emit(updatedState);

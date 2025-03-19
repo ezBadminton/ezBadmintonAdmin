@@ -20,20 +20,16 @@ class BlocSwitch<B extends StateStreamable<S>, S> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<B, S>(
-      buildWhen: (previous, current) =>
-          valueGetter(previous) != valueGetter(current),
-      builder: (context, state) {
-        return Row(
-          children: [
-            Switch(
-              value: valueGetter(state),
-              onChanged: onChanged,
-            ),
-            Text(label),
-          ],
-        );
-      },
+    var cubit = context.read<B>();
+    var state = cubit.state;
+    return Row(
+      children: [
+        Switch(
+          value: valueGetter(state),
+          onChanged: onChanged,
+        ),
+        Text(label),
+      ],
     );
   }
 }

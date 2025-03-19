@@ -171,7 +171,8 @@ class _RestTimeInputState extends State<_RestTimeInput> {
     var l10n = AppLocalizations.of(context)!;
     return BlocConsumer<MatchQueueSettingsCubit, MatchQueueSettingsState>(
       listenWhen: (previous, current) =>
-          current.formStatus != FormzSubmissionStatus.inProgress,
+          current.formStatus != FormzSubmissionStatus.inProgress &&
+          current.loadingStatus != LoadingStatus.loading,
       listener: (context, state) {
         String restTime = state.playerRestTime.toString();
         if (_controller.text != restTime) {
@@ -179,6 +180,7 @@ class _RestTimeInputState extends State<_RestTimeInput> {
         }
       },
       buildWhen: (previous, current) =>
+          current.loadingStatus != LoadingStatus.loading &&
           previous.playerRestTime != current.playerRestTime,
       builder: (context, state) => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),

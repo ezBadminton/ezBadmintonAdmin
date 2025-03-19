@@ -358,15 +358,16 @@ class _AppViewState extends State<AppView> {
                   HomePage.route(),
                   (route) => false,
                 );
-                break;
               case AuthenticationStatus.unauthenticated:
                 _navigator.pushAndRemoveUntil<void>(
                   LoginPage.route(),
                   (route) => false,
                 );
-                break;
               case AuthenticationStatus.unknown:
-                break;
+                _navigator.pushAndRemoveUntil<void>(
+                  SplashPage.route(),
+                  (route) => false,
+                );
             }
           },
           child: child,

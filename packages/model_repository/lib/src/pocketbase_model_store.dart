@@ -48,6 +48,8 @@ class PocketbaseModelStore<M extends Model> extends ModelStore<M> {
   @override
   bool get isLoaded => _isLoaded;
 
+  Future<void> Function()? _unsubscribe;
+
   @override
   final StreamController<CollectionUpdateEvent<M>> updateStreamController =
       StreamController.broadcast();
@@ -59,8 +61,11 @@ class PocketbaseModelStore<M extends Model> extends ModelStore<M> {
 
   @override
   Future<void> load() async {
+    if (_unsubscribe != null) {
+      await _unsubscribe!();
+    }
     await _fetchCollection();
-    _pocketBase.collection(_collectionName).subscribe(
+    _unsubscribe = await _pocketBase.collection(_collectionName).subscribe(
           '*',
           _handleCollectionUpdate,
         );
