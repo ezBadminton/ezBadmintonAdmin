@@ -10,10 +10,8 @@ abstract class ModelRepository {
     instance = this;
   }
 
-  // The load completer completes its future when all RecordStores
-  // have loaded their models.
-  Completer<void> get loadCompleter;
-  bool get isLoaded => loadCompleter.isCompleted;
+  bool get isLoaded;
+  Stream<RepositoryEvent> get loadStream;
 
   loadModels();
 
@@ -27,4 +25,9 @@ abstract class ModelRepository {
 
   /// child ID -> parent ID -> relations from parent to child
   Map<String, Map<String, List<Relation>>> reverseRelations = {};
+}
+
+enum RepositoryEvent {
+  loaded,
+  reset,
 }

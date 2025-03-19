@@ -14,14 +14,12 @@ abstract class ModelStore<M extends Model> {
   @protected
   StreamController<CollectionUpdateEvent<M>> get updateStreamController;
 
-  /// The load completer completes its future when the initial fetch of the
-  /// collection was successful
-  Completer<void> get loadCompleter;
-  bool get isLoaded => loadCompleter.isCompleted;
+  Stream<void> get loadStream;
+  bool get isLoaded;
 
   /// Triggers the initial collection load the should eventually complete
   /// the [loadCompleter].
-  void load();
+  Future<void> load();
 
   /// Returns a single collection member by [id].
   ///

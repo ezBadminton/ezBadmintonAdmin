@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
 
+import 'package:authentication_repository/authentication_repository.dart';
 import 'package:collection/collection.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:pocketbase_provider/pocketbase_provider.dart';
@@ -8,18 +9,35 @@ import 'package:pocketbase_provider/pocketbase_provider.dart';
 class PocketbaseModelRepository extends ModelRepository {
   PocketbaseModelRepository({
     required PocketBaseProvider pocketbaseProvider,
+    required AuthenticationRepository authRepository,
   })  : _pbProvider = pocketbaseProvider,
-        _stores = <Type, ModelStore>{} {
+        _stores = <Type, ModelStore>{},
+        _isLoaded = false,
+        _controller = StreamController.broadcast() {
     _initStores();
+    authRepository.status.listen(handleAuthChange);
   }
 
   final PocketBaseProvider _pbProvider;
 
   final Map<Type, ModelStore<dynamic>> _stores;
 
-  Completer<void> _loadCompleter = Completer();
+  bool _isLoaded;
   @override
-  Completer<void> get loadCompleter => _loadCompleter;
+  bool get isLoaded => _isLoaded;
+
+  final StreamController<RepositoryEvent> _controller;
+  @override
+  Stream<RepositoryEvent> get loadStream => _controller.stream;
+
+  void handleAuthChange(AuthenticationStatus status) {
+    switch (status) {
+      case AuthenticationStatus.authenticated:
+        loadModels();
+      default:
+      // TODO reset repository
+    }
+  }
 
   @override
   ModelStore<M>? findStore<M extends Model>() {
@@ -30,19 +48,8 @@ class PocketbaseModelRepository extends ModelRepository {
   }
 
   @override
-  loadModels() {
-    _pbProvider.whenAvailable.then<void>(_loadModels);
-  }
-
-  FutureOr<void> _loadModels(void _) async {
-    if (_loadCompleter.isCompleted) {
-      _loadCompleter = Completer();
-    }
-
-    var loadFutures = _stores.values.map((store) => store.loadCompleter.future);
-    for (final modelStore in _stores.values) {
-      modelStore.load();
-    }
+  loadModels() async {
+    var loadFutures = _stores.values.map((store) => store.load());
 
     await Future.wait(loadFutures);
 
@@ -52,7 +59,8 @@ class PocketbaseModelRepository extends ModelRepository {
         .cast<Model>();
     expandRelations(allModels);
 
-    _loadCompleter.complete();
+    _isLoaded = true;
+    _controller.add(RepositoryEvent.loaded);
   }
 
   @override

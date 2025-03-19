@@ -1,26 +1,43 @@
+import 'dart:async';
+
 import 'package:pocketbase/pocketbase.dart';
 
 class PocketBaseProvider {
   final PocketBase pocketBase;
-  // This Future resolves when the PocketBase server has been reached
-  late Future<void> whenAvailable;
+
+  final StreamController<ConnectionEvent> _conntectivityStreamController;
+  bool _isConnected = false;
+
+  // This boradcast stream emits an event whenever the connection to the
+  // PocketBase server is established or broken
+  Stream<ConnectionEvent> get connectivitySteam =>
+      _conntectivityStreamController.stream;
 
   PocketBaseProvider([String pocketbaseUrl = 'http://127.0.0.1:8090'])
-      : pocketBase = PocketBase(pocketbaseUrl) {
-    whenAvailable = _waitForAvailability();
+      : pocketBase = PocketBase(pocketbaseUrl),
+        _conntectivityStreamController = StreamController.broadcast() {
+    _waitForConnection();
   }
 
-  Future<void> _waitForAvailability() async {
-    while (!(await _isAvailable())) {}
+  Future<void> _waitForConnection() async {
+    while (!_isConnected) {
+      await _checkConnection();
+    }
     return;
   }
 
-  Future<bool> _isAvailable() async {
+  Future<void> _checkConnection() async {
     try {
       await pocketBase.health.check();
-      return true;
+      _isConnected = true;
+      _conntectivityStreamController.add(ConnectionEvent.connected);
     } on ClientException {
-      return false;
+      return;
     }
   }
+}
+
+enum ConnectionEvent {
+  connected,
+  disconnected,
 }

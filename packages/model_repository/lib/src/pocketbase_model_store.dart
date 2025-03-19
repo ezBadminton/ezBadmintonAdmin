@@ -22,7 +22,9 @@ class PocketbaseModelStore<M extends Model> extends ModelStore<M> {
     required PocketBase pocketBase,
   })  : _modelConstructor = modelConstructor,
         _pocketBase = pocketBase,
-        _collectionName = _collectionNames[M]!;
+        _collectionName = _collectionNames[M]!,
+        _controller = StreamController.broadcast(),
+        _isLoaded = false;
 
   @override
   final ModelRepository repository;
@@ -38,10 +40,13 @@ class PocketbaseModelStore<M extends Model> extends ModelStore<M> {
   final String _collectionName;
   final M Function(Map<String, dynamic> recordModelMap) _modelConstructor;
 
-  Completer<void> _loadCompleter = Completer();
-
+  final StreamController<void> _controller;
   @override
-  Completer<void> get loadCompleter => _loadCompleter;
+  Stream<void> get loadStream => _controller.stream;
+
+  bool _isLoaded;
+  @override
+  bool get isLoaded => _isLoaded;
 
   @override
   final StreamController<CollectionUpdateEvent<M>> updateStreamController =
@@ -54,11 +59,6 @@ class PocketbaseModelStore<M extends Model> extends ModelStore<M> {
 
   @override
   Future<void> load() async {
-    if (_loadCompleter.isCompleted) {
-      _loadCompleter = Completer();
-    }
-
-    _pocketBase.collection(_collectionName).unsubscribe('*');
     await _fetchCollection();
     _pocketBase.collection(_collectionName).subscribe(
           '*',
@@ -70,8 +70,8 @@ class PocketbaseModelStore<M extends Model> extends ModelStore<M> {
     List<RecordModel> records;
     try {
       records = await _pocketBase.collection(_collectionName).getFullList();
-    } on ClientException catch (e) {
-      loadCompleter.completeError(e);
+    } on ClientException catch (_) {
+      _controller.addError("collection fetch failed");
       return;
     }
 
@@ -79,7 +79,8 @@ class PocketbaseModelStore<M extends Model> extends ModelStore<M> {
         records.map<M>((record) => _modelConstructor(record.toJson())).toList();
     _unomdifiableCollection = List.unmodifiable(_collection);
 
-    loadCompleter.complete();
+    _isLoaded = true;
+    _controller.add(null);
   }
 
   void _handleCollectionUpdate(RecordSubscriptionEvent realtimeEvent) {

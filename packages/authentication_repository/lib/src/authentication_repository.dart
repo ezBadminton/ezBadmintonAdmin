@@ -5,20 +5,31 @@ import 'package:pocketbase/pocketbase.dart';
 enum AuthenticationStatus { unknown, authenticated, unauthenticated }
 
 class AuthenticationRepository {
-  final _controller = StreamController<AuthenticationStatus>();
+  final _controller = StreamController<AuthenticationStatus>.broadcast();
   final PocketBaseProvider _pocketBaseProvider;
   final PocketBase pocketBase;
+
+  AuthenticationStatus _status = AuthenticationStatus.unknown;
 
   AuthenticationRepository({required PocketBaseProvider pocketBaseProvider})
       : _pocketBaseProvider = pocketBaseProvider,
         pocketBase = pocketBaseProvider.pocketBase {
-    _pocketBaseProvider.whenAvailable
-        .then((_) => _controller.add(AuthenticationStatus.unauthenticated));
+    _pocketBaseProvider.connectivitySteam.listen(handlePocketBaseConnection);
   }
 
-  Stream<AuthenticationStatus> get status async* {
-    yield AuthenticationStatus.unknown;
-    yield* _controller.stream;
+  Stream<AuthenticationStatus> get status => _controller.stream;
+
+  void handlePocketBaseConnection(ConnectionEvent e) {
+    switch (e) {
+      case ConnectionEvent.connected:
+        _status = _pocketBaseProvider.pocketBase.authStore.isValid
+            ? AuthenticationStatus.authenticated
+            : AuthenticationStatus.unauthenticated;
+        _controller.add(_status);
+      case ConnectionEvent.disconnected:
+        _status = AuthenticationStatus.unknown;
+        _controller.add(_status);
+    }
   }
 
   /// Queries the server to find wether an organizer user is registered

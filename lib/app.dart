@@ -49,6 +49,7 @@ class _AppState extends State<App> {
       pocketBaseProvider: _pocketBaseProvider,
     );
     _modelRepository = PocketbaseModelRepository(
+      authRepository: _authenticationRepository,
       pocketbaseProvider: _pocketBaseProvider,
     );
   }
@@ -319,17 +320,10 @@ class _AppState extends State<App> {
       ],
       child: BlocProvider(
         create: (_) => AuthenticationBloc(
-            authenticationRepository: _authenticationRepository,
-            userRepository: _userRepository),
-        child: BlocListener<AuthenticationBloc, AuthenticationState>(
-          listenWhen: (previous, current) =>
-              current.status == AuthenticationStatus.authenticated &&
-              previous.status != AuthenticationStatus.authenticated,
-          listener: (context, state) {
-            _modelRepository.loadModels();
-          },
-          child: const AppView(),
+          authenticationRepository: _authenticationRepository,
+          userRepository: _userRepository,
         ),
+        child: const AppView(),
       ),
     );
   }
