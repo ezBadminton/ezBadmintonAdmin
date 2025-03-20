@@ -1,10 +1,14 @@
 import 'package:ez_badminton_admin_app/utils/selection_cubit/selection_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
 import 'package:ez_badminton_admin_app/widgets/map_listview/map_listview.dart';
+import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:model_repository/model_repository.dart';
+import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
+    as display_strings;
 
 /// A widget that lists competitions with matches that a player withdraws
 /// from or reenters into, thus changes their participation status in them.
@@ -161,15 +165,30 @@ class _MatchInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //var l10n = AppLocalizations.of(context)!;
-    // TODO restore matchup label
+    var l10n = AppLocalizations.of(context)!;
+
+    var planStore = context.read<ModelStore<TournamentPlan>>();
+    var tPlan = planStore.getModel(match.tournamentPlanId)!;
 
     return Row(
       children: [
         Text(
-          "MatchData ID: ${match.id}",
+          display_strings.matchName(l10n, tPlan.tournament, match)!,
           style: const TextStyle(fontSize: 14),
         ),
+        TournamentMatchContextSubtree(
+          competition: tPlan.competition,
+          match: match,
+          child: MatchupLabel(
+            orientation: Axis.horizontal,
+            textStyle: TextStyle(
+              fontSize: 16,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            useFullName: true,
+            participantWidth: 270,
+          ),
+        )
       ],
     );
   }
