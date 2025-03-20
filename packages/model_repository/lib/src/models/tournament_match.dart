@@ -17,8 +17,7 @@ class TournamentMatch extends Model with _$TournamentMatch {
     required String id,
     @ZeroDateTimeConverter() required DateTime created,
     @ZeroDateTimeConverter() required DateTime updated,
-    @JsonKey(name: 'sets', defaultValue: MultiRelation.new)
-    required MultiRelation<MatchSet> setsRel,
+    @JsonKey(defaultValue: <MatchSet>[]) required List<MatchSet> sets,
     @JsonKey(name: 'court', defaultValue: SingleRelation.new)
     required SingleRelation<Court> courtRel,
     @JsonKey(name: 'withdrawnTeams', defaultValue: MultiRelation.new)
@@ -35,7 +34,6 @@ class TournamentMatch extends Model with _$TournamentMatch {
     @JsonKey(defaultValue: false) required bool gameSheetPrinted,
   }) = _TournamentMatch;
 
-  List<MatchSet> get sets => setsRel.models;
   Court? get court => courtRel.model;
   List<Team> get withdrawnTeams => withdrawnTeamsRel.models;
   Team? get winner => winnerRel.model;

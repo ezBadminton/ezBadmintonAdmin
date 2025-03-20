@@ -157,7 +157,6 @@ class PocketbaseModelRepository extends ModelRepository {
               .addAll(t.finalRankingRel.flattened.map((slot) => slot.teamRel));
           relations.addAll(t.relations);
         case TournamentMatch m:
-          relations.add(m.setsRel);
           relations.add(m.courtRel);
           relations.add(m.withdrawnTeamsRel);
           relations.add(m.winnerRel);
@@ -227,11 +226,6 @@ class PocketbaseModelRepository extends ModelRepository {
     _stores[Gymnasium] = PocketbaseModelStore<Gymnasium>(
       repository: this,
       modelConstructor: Gymnasium.fromJson,
-      pocketBase: _pbProvider.pocketBase,
-    );
-    _stores[MatchSet] = PocketbaseModelStore<MatchSet>(
-      repository: this,
-      modelConstructor: MatchSet.fromJson,
       pocketBase: _pbProvider.pocketBase,
     );
     _stores[Player] = PocketbaseModelStore<Player>(

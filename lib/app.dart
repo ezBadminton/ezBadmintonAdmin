@@ -153,9 +153,6 @@ class _AppState extends State<App> {
           value: _modelRepository.findStore<Court>(),
         ),
         RepositoryProvider.value(
-          value: _modelRepository.findStore<MatchSet>(),
-        ),
-        RepositoryProvider.value(
           value: _modelRepository.findStore<TournamentMatch>(),
         ),
         RepositoryProvider.value(
