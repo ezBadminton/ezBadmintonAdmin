@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/expansion_radio_cubit.dart';
+import 'package:ez_badminton_admin_app/widgets/toggleable_tween_animation/toggleable_tween_animation_builder.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/constants.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_list_cubit.dart';
@@ -26,111 +27,6 @@ class PlayerExpansionPanel extends StatefulWidget {
 
   @override
   State<PlayerExpansionPanel> createState() => _PlayerExpansionPanelState();
-
-  static Widget _headerBuilder(
-    Player player,
-    PlayerListState listState,
-    BuildContext context,
-    bool isExpanded,
-  ) {
-    var l10n = AppLocalizations.of(context)!;
-    bool needsPartner = _playerNeedsPartner(
-      listState.competitionRegistrations[player] ?? [],
-    );
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const SizedBox(),
-        Row(
-          children: [
-            const SizedBox(width: 20),
-            SizedBox(
-              width: 190,
-              child: Text(
-                display_strings.playerName(player),
-                overflow: TextOverflow.fade,
-                style: TextStyle(
-                  fontWeight: isExpanded ? FontWeight.w600 : FontWeight.normal,
-                ),
-              ),
-            ),
-            Flexible(
-              flex: 1,
-              child: Container(),
-            ),
-            SizedBox(
-              width: 190,
-              child: Text(
-                player.club?.name ?? '-',
-                overflow: TextOverflow.fade,
-              ),
-            ),
-            Flexible(
-              flex: 1,
-              child: Container(),
-            ),
-            SizedBox(
-              width: 100,
-              child: _RegistrationList(
-                registrations: listState.competitionRegistrations[player] ?? [],
-              ),
-            ),
-            Flexible(
-              flex: 1,
-              child: Container(),
-            ),
-            SizedBox(
-              child: SizedBox(
-                width: 45,
-                child: Tooltip(
-                  message: _statusTooltip(l10n, player, needsPartner),
-                  child: Row(
-                    children: [
-                      Icon(
-                        playerStatusIcons[player.status],
-                        size: 21,
-                      ),
-                      if (needsPartner)
-                        const Icon(
-                          partnerMissingIcon,
-                          size: 21,
-                        )
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-          ],
-        ),
-        _TeamDivider(player: player),
-      ],
-    );
-  }
-
-  static String _statusTooltip(
-    AppLocalizations l10n,
-    Player player,
-    bool needsPartner,
-  ) {
-    String statusTooltip = l10n.playerStatus(player.status.name);
-    if (needsPartner) {
-      statusTooltip += '\n${l10n.partnerNeeded}';
-    }
-    return statusTooltip;
-  }
-
-  static bool _playerNeedsPartner(
-    Iterable<Registration> registrations,
-  ) {
-    for (Registration registration in registrations) {
-      if (registration.team.players.length <
-          registration.competition.teamSize) {
-        return true;
-      }
-    }
-    return false;
-  }
 }
 
 class _PlayerExpansionPanelState extends State<PlayerExpansionPanel> {
@@ -166,36 +62,176 @@ class _PlayerExpansionPanelState extends State<PlayerExpansionPanel> {
 
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
-      title: PlayerExpansionPanel._headerBuilder(
-        widget.player,
-        widget.listState,
-        context,
-        false,
-      ),
-      trailing: const SizedBox.shrink(),
-      initiallyExpanded: radioCubit.state.selected == widget.player,
-      showTrailingIcon: false,
-      tilePadding: EdgeInsets.zero,
-      expansionAnimationStyle: AnimationStyle(
-        duration: const Duration(milliseconds: 120),
-      ),
-      controller: _controller,
-      onExpansionChanged: (value) {
-        if (value) {
-          radioCubit.expand(_controller, widget.player);
-        } else {
-          radioCubit.collapse();
-        }
+    return BlocBuilder<ExpansionRadioCubit, ExpansionRadioState>(
+      buildWhen: (previous, current) =>
+          (previous.selected == widget.player) !=
+          (current.selected == widget.player),
+      builder: (context, state) {
+        return ExpansionTile(
+          title: _PlayerExpansionPanelTitle(player: widget.player),
+          trailing: const SizedBox.shrink(),
+          initiallyExpanded: radioCubit.state.selected == widget.player,
+          showTrailingIcon: false,
+          tilePadding: EdgeInsets.zero,
+          expansionAnimationStyle: AnimationStyle(
+            duration: const Duration(milliseconds: 120),
+          ),
+          textColor: Colors.black,
+          controller: _controller,
+          onExpansionChanged: (value) {
+            if (value) {
+              radioCubit.expand(_controller, widget.player);
+            } else {
+              radioCubit.collapse();
+            }
+          },
+          children: [
+            PlayerExpansionPanelBody(
+              player: widget.player,
+              registrations:
+                  widget.listState.competitionRegistrations[widget.player] ??
+                      [],
+            ),
+          ],
+        );
       },
-      children: [
-        PlayerExpansionPanelBody(
-          player: widget.player,
-          registrations:
-              widget.listState.competitionRegistrations[widget.player] ?? [],
-        ),
-      ],
     );
+  }
+}
+
+class _PlayerExpansionPanelTitle extends StatelessWidget {
+  const _PlayerExpansionPanelTitle({
+    required this.player,
+  });
+
+  final Player player;
+
+  @override
+  Widget build(BuildContext context) {
+    var listCubit = context.read<PlayerListCubit>();
+    var listState = listCubit.state;
+
+    var radioCubit = context.read<ExpansionRadioCubit>();
+    bool isExpanded = radioCubit.state.selected == player;
+
+    var l10n = AppLocalizations.of(context)!;
+    bool needsPartner = _playerNeedsPartner(
+      listState.competitionRegistrations[player] ?? [],
+    );
+    return ToggleableTweenAnimationBuilder(
+      animationRunning: isExpanded,
+      tween: Tween(begin: 0.0, end: 1.0),
+      curve: Curves.linear,
+      duration: Duration(milliseconds: 120),
+      builder: (context, value, child) {
+        var textStyle = DefaultTextStyle.of(context);
+        return Padding(
+          padding: EdgeInsets.symmetric(vertical: 10 * value + 9),
+          child: DefaultTextStyle(
+            style: textStyle.style.copyWith(
+              fontWeight: FontWeight.lerp(
+                FontWeight.normal,
+                FontWeight.w600,
+                value,
+              ),
+            ),
+            child: child!,
+          ),
+        );
+      },
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const SizedBox(),
+          Row(
+            children: [
+              const SizedBox(width: 20),
+              SizedBox(
+                width: 190,
+                child: Text(
+                  display_strings.playerName(player),
+                  overflow: TextOverflow.fade,
+                ),
+              ),
+              Flexible(
+                flex: 1,
+                child: Container(),
+              ),
+              SizedBox(
+                width: 190,
+                child: Text(
+                  player.club?.name ?? '-',
+                  overflow: TextOverflow.fade,
+                ),
+              ),
+              Flexible(
+                flex: 1,
+                child: Container(),
+              ),
+              SizedBox(
+                width: 100,
+                child: _RegistrationList(
+                  registrations:
+                      listState.competitionRegistrations[player] ?? [],
+                ),
+              ),
+              Flexible(
+                flex: 1,
+                child: Container(),
+              ),
+              SizedBox(
+                child: SizedBox(
+                  width: 45,
+                  child: Tooltip(
+                    message: _statusTooltip(l10n, player, needsPartner),
+                    child: Row(
+                      children: [
+                        Icon(
+                          playerStatusIcons[player.status],
+                          size: 21,
+                          color: Colors.grey[600],
+                        ),
+                        if (needsPartner)
+                          const Icon(
+                            partnerMissingIcon,
+                            size: 21,
+                          )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+            ],
+          ),
+          _TeamDivider(player: player),
+        ],
+      ),
+    );
+  }
+
+  static String _statusTooltip(
+    AppLocalizations l10n,
+    Player player,
+    bool needsPartner,
+  ) {
+    String statusTooltip = l10n.playerStatus(player.status.name);
+    if (needsPartner) {
+      statusTooltip += '\n${l10n.partnerNeeded}';
+    }
+    return statusTooltip;
+  }
+
+  static bool _playerNeedsPartner(
+    Iterable<Registration> registrations,
+  ) {
+    for (Registration registration in registrations) {
+      if (registration.team.players.length <
+          registration.competition.teamSize) {
+        return true;
+      }
+    }
+    return false;
   }
 }
 

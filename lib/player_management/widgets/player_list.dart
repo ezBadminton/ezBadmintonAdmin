@@ -124,8 +124,11 @@ class _PlayerListBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: ListView.separated(
-        itemCount: listState.filteredPlayers.length,
+        itemCount: listState.filteredPlayers.length + 1,
         itemBuilder: (context, index) {
+          if (index == listState.filteredPlayers.length) {
+            return SizedBox(height: 260);
+          }
           var player = listState.filteredPlayers[index];
           return PlayerExpansionPanel(
             player,
@@ -135,7 +138,10 @@ class _PlayerListBody extends StatelessWidget {
           );
         },
         separatorBuilder: (context, index) {
-          return const SizedBox();
+          return const Divider(
+            height: 0,
+            thickness: 1,
+          );
         },
       ),
     );
