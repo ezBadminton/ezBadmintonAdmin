@@ -355,9 +355,9 @@ class _PlayerStatusSwitcher extends StatelessWidget {
 }
 
 class _PlayerNotes extends StatelessWidget {
-  const _PlayerNotes({
+  _PlayerNotes({
     required this.player,
-  });
+  }) : super(key: ValueKey('${player.id}-playernotes'));
 
   final Player player;
 
@@ -375,9 +375,7 @@ class _PlayerNotes extends StatelessWidget {
                   color: Theme.of(context).disabledColor,
                 ),
               )
-            : SelectableText(
-                player.notes!,
-              ),
+            : SelectableText(player.notes!),
       ),
     );
   }

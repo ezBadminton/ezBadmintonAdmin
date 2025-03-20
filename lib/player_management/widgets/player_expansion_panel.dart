@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:ez_badminton_admin_app/player_management/cubit/expansion_radio_cubit.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/constants.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_list_cubit.dart';
@@ -11,25 +12,20 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
     as display_strings;
 
-class PlayerExpansionPanel extends ExpansionPanelRadio {
-  PlayerExpansionPanel(
+class PlayerExpansionPanel extends StatefulWidget {
+  const PlayerExpansionPanel(
     this.player,
     this.listState,
-    BuildContext context,
-  ) : super(
-          value: player.id,
-          headerBuilder: (BuildContext context, bool isExpanded) =>
-              _headerBuilder(player, listState, context, isExpanded),
-          body: PlayerExpansionPanelBody(
-            player: player,
-            registrations: listState.competitionRegistrations[player] ?? [],
-          ),
-          canTapOnHeader: true,
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        );
+    this.index, {
+    super.key,
+  });
 
+  final int index;
   final Player player;
   final PlayerListState listState;
+
+  @override
+  State<PlayerExpansionPanel> createState() => _PlayerExpansionPanelState();
 
   static Widget _headerBuilder(
     Player player,
@@ -134,6 +130,72 @@ class PlayerExpansionPanel extends ExpansionPanelRadio {
       }
     }
     return false;
+  }
+}
+
+class _PlayerExpansionPanelState extends State<PlayerExpansionPanel> {
+  late final ExpansionTileController _controller;
+  late ExpansionRadioCubit radioCubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = ExpansionTileController();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    radioCubit = context.read<ExpansionRadioCubit>();
+    var state = radioCubit.state;
+    if (state.selected == widget.player) {
+      radioCubit.expand(_controller, widget.player);
+    }
+  }
+
+  @override
+  void deactivate() {
+    super.deactivate();
+  }
+
+  @override
+  void dispose() {
+    radioCubit.dispose(_controller);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ExpansionTile(
+      title: PlayerExpansionPanel._headerBuilder(
+        widget.player,
+        widget.listState,
+        context,
+        false,
+      ),
+      trailing: const SizedBox.shrink(),
+      initiallyExpanded: radioCubit.state.selected == widget.player,
+      showTrailingIcon: false,
+      tilePadding: EdgeInsets.zero,
+      expansionAnimationStyle: AnimationStyle(
+        duration: const Duration(milliseconds: 120),
+      ),
+      controller: _controller,
+      onExpansionChanged: (value) {
+        if (value) {
+          radioCubit.expand(_controller, widget.player);
+        } else {
+          radioCubit.collapse();
+        }
+      },
+      children: [
+        PlayerExpansionPanelBody(
+          player: widget.player,
+          registrations:
+              widget.listState.competitionRegistrations[widget.player] ?? [],
+        ),
+      ],
+    );
   }
 }
 

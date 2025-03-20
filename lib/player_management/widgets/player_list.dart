@@ -9,8 +9,6 @@ import 'package:ez_badminton_admin_app/widgets/sortable_column_header/sortable_c
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:ez_badminton_admin_app/widgets/custom_expansion_panel_list/expansion_panel_list.dart'
-    as custom_expansion_panel;
 
 class PlayerList extends StatelessWidget {
   const PlayerList({super.key});
@@ -125,19 +123,20 @@ class _PlayerListBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            custom_expansion_panel.ExpansionPanelList.radio(
-              hasExpandIcon: false,
-              elevation: 0,
-              children: listState.filteredPlayers
-                  .map((p) => PlayerExpansionPanel(p, listState, context))
-                  .toList(),
-            ),
-            const SizedBox(height: 300),
-          ],
-        ),
+      child: ListView.separated(
+        itemCount: listState.filteredPlayers.length,
+        itemBuilder: (context, index) {
+          var player = listState.filteredPlayers[index];
+          return PlayerExpansionPanel(
+            player,
+            listState,
+            index,
+            key: ValueKey('${player.id}-expansion-panel'),
+          );
+        },
+        separatorBuilder: (context, index) {
+          return const SizedBox();
+        },
       ),
     );
   }
