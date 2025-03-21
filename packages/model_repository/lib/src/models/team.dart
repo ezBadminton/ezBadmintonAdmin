@@ -21,7 +21,6 @@ class Team extends Model with _$Team {
     required DateTime updated,
     @JsonKey(name: 'players')
     required MultiRelation<Player> playersRel,
-    required bool resigned,
   }) = _Team;
 
   List<Player> get players => playersRel.models;
@@ -32,7 +31,6 @@ class Team extends Model with _$Team {
       created: DateTime.now().toUtc(),
       updated: DateTime.now().toUtc(),
       playersRel: MultiRelation.fromModels(players),
-      resigned: false,
     );
   }
 
