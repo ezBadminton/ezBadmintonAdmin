@@ -39,7 +39,7 @@ class GroupKnockOutPlan extends TournamentPlan<models.GroupKnockout> {
 
     List<RoundRobinPlan> groupPlans = groups
         .mapIndexed((index, g) => RoundRobinPlan(
-              tPlan: tPlan,
+              tPlan: tPlan.copyWith(tournament: g),
               title: pw.Text(l10n.groupNumber(index + 1)),
               l10n: l10n,
             ))
