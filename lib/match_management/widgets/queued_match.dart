@@ -187,7 +187,9 @@ class _CourtAssignmentButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<MatchQueueCubit, MatchQueueState>(
-      buildWhen: (previous, current) => current.loadingStatus != LoadingStatus.loading && previous.queueMode != current.queueMode,
+      buildWhen: (previous, current) =>
+          current.loadingStatus != LoadingStatus.loading &&
+          previous.queueMode != current.queueMode,
       builder: (context, state) {
         return switch (state.queueMode) {
           QueueMode.manual => _ManualCourtAssignmentButton(match: match),
@@ -567,7 +569,9 @@ class _BackToWaitlistButton extends StatelessWidget {
     var match = context.readMatch();
 
     return BlocBuilder<MatchQueueCubit, MatchQueueState>(
-      buildWhen: (previous, current) => previous.queueMode != current.queueMode,
+      buildWhen: (previous, current) =>
+          current.loadingStatus != LoadingStatus.loading &&
+          previous.queueMode != current.queueMode,
       builder: (context, state) {
         if (state.queueMode == QueueMode.auto) {
           return const SizedBox();
