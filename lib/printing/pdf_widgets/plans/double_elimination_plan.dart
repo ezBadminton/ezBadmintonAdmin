@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:ez_badminton_admin_app/layout/elimination_tree/utils.dart';
 import 'package:ez_badminton_admin_app/printing/pdf_widgets/bent_line.dart';
 import 'package:ez_badminton_admin_app/printing/pdf_widgets/pdf_widgets.dart';
+import 'package:ez_badminton_admin_app/printing/pdf_widgets/s_line.dart';
 import 'package:ez_badminton_admin_app/printing/pdf_widgets/utils.dart';
 import 'package:ez_badminton_admin_app/widgets/line_painters/bent_line.dart'
     as bl;
@@ -320,60 +323,39 @@ class DoubleEliminationPlan extends TournamentPlan<models.DoubleElimination> {
     SingleEliminationPlan winnerBracket,
     List<TournamentPlanWidget> loserBracketWidgets,
   ) {
-    return [];
-    // TODO
-    /*
-    List<TournamentPlanWidget> lastMatchesOfWinnerRounds =
-        winnerBracket.widgets.where((w) {
-      if (w.child is! MatchCard) {
-        return false;
-      }
+    var dashedLines = <TournamentPlanWidget>[];
+    for (final (i, round) in tournament.winnerRounds.indexed) {
+      var dashedLineOriginMatch = round.last;
+      var dashedLineOriginWidget = winnerBracket.widgets.firstWhere(
+        (w) =>
+            (w.child is MatchCard) &&
+            (w.child as MatchCard).match == dashedLineOriginMatch,
+      );
 
-      models.TournamentMatch match = (w.child as MatchCard).match;
-      List<models.TournamentMatch> round =
-          match.round as DoubleEliminationRound<BadmintonMatch>;
+      var loserRoundI = max(0, 2 * (i - 1) + 1);
+      var dashedLineTargetMatch = tournament.loserRounds[loserRoundI].first;
+      var dashedLineTargetWidget = loserBracketWidgets.firstWhere(
+        (w) =>
+            (w.child is MatchCard) &&
+            (w.child as MatchCard).match == dashedLineTargetMatch,
+      );
 
-      return round.winnerRound?.matches.last == match;
-    }).toList();
+      Rect boundingBox = Rect.fromPoints(
+        dashedLineOriginWidget.boundingBox.bottomCenter,
+        dashedLineTargetWidget.boundingBox.topCenter,
+      );
 
-    List<TournamentPlanWidget> firstMatchesOfLoserRounds =
-        loserBracketWidgets.where((w) {
-      if (w.child is! MatchCard) {
-        return false;
-      }
+      var dashedLine = TournamentPlanWidget(
+        boundingBox: boundingBox,
+        child: pw.SizedBox.fromSize(
+          size: PdfPoint(boundingBox.size.width, boundingBox.size.height),
+          child: SLine(color: PdfColors.grey400),
+        ),
+      );
 
-      BadmintonMatch match = (w.child as MatchCard).match;
-      DoubleEliminationRound<BadmintonMatch> round =
-          match.round as DoubleEliminationRound<BadmintonMatch>;
-
-      return round.loserRound?.matches.first == match;
-    }).toList();
-
-    List<TournamentPlanWidget> dashedLines =
-        lastMatchesOfWinnerRounds.mapIndexed(
-      (index, winnerMatch) {
-        TournamentPlanWidget loserMatch = switch (index) {
-          == 0 => firstMatchesOfLoserRounds[index],
-          _ => firstMatchesOfLoserRounds[2 * index - 1],
-        };
-
-        Rect boundingBox = Rect.fromPoints(
-          winnerMatch.boundingBox.bottomCenter,
-          loserMatch.boundingBox.topCenter,
-        );
-
-        return TournamentPlanWidget(
-          boundingBox: boundingBox,
-          child: pw.SizedBox.fromSize(
-            size: PdfPoint(boundingBox.size.width, boundingBox.size.height),
-            child: SLine(color: PdfColors.grey400),
-          ),
-        );
-      },
-    ).toList();
-
+      dashedLines.add(dashedLine);
+    }
     return dashedLines;
-    */
   }
 
   Map<models.Slot, pw.Widget> _createPlaceholderLabels() {
