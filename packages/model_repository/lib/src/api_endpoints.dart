@@ -103,6 +103,13 @@ class ResetMatchEndpoint extends ApiEndpointRepository {
   }) : super(url: "/matches/matchdata/reset");
 }
 
+class MarkMatchPrintedEndpoint extends ApiEndpointRepository {
+  MarkMatchPrintedEndpoint({
+    required super.pocketBase,
+    required super.modelRepository,
+  }) : super(url: "/matches/markprint");
+}
+
 class RegisterTeamEndpoint extends ApiEndpointRepository {
   RegisterTeamEndpoint({
     required super.pocketBase,

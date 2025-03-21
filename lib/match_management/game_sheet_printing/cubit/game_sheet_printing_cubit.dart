@@ -24,6 +24,7 @@ class GameSheetPrintingCubit
     with PdfPrintingCubit {
   GameSheetPrintingCubit({
     required this.l10n,
+    required this.markPrintEndpoint,
     required ModelStore<TournamentEvent> tournamentStore,
     required ModelStore<ScheduledMatch> scheduledMatchStore,
     required ModelStore<ScheduledRound> scheduledRoundStore,
@@ -37,6 +38,8 @@ class GameSheetPrintingCubit
         );
 
   final AppLocalizations l10n;
+
+  final MarkMatchPrintedEndpoint markPrintEndpoint;
 
   @override
   void onCollectionUpdate(
@@ -124,20 +127,14 @@ class GameSheetPrintingCubit
   }
 
   Future<FormzSubmissionStatus> _markMatchesAsPrinted() async {
-    // TODO
-    /*
-    List<MatchData> matchDataWithPrintedFlag = state.matchesToPrint
-        .map((m) => m.matchData.copyWith(gameSheetPrinted: true))
-        .toList();
+    List<String> idList = state.matchesToPrint.map((m) => m.match.id).toList();
 
-    List<MatchData?> updatedMatchData =
-        await querier.updateModels(matchDataWithPrintedFlag);
-    if (updatedMatchData.contains(null)) {
+    try {
+      await markPrintEndpoint.post(body: {"matches": idList});
+      return FormzSubmissionStatus.success;
+    } catch (_) {
       return FormzSubmissionStatus.failure;
     }
-    */
-
-    return FormzSubmissionStatus.success;
   }
 
   void _emitStateWithPdf(

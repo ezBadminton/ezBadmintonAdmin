@@ -29,6 +29,7 @@ class GameSheetPrintingPage extends StatelessWidget {
         BlocProvider(
           lazy: false,
           create: (context) => GameSheetPrintingCubit(
+            markPrintEndpoint: context.read(),
             tournamentStore: context.read<ModelStore<TournamentEvent>>(),
             scheduledMatchStore: context.read<ModelStore<ScheduledMatch>>(),
             scheduledRoundStore: context.read<ModelStore<ScheduledRound>>(),

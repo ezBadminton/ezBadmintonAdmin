@@ -267,6 +267,12 @@ class _AppState extends State<App> {
           ),
         ),
         RepositoryProvider.value(
+          value: MarkMatchPrintedEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
           value: RegisterTeamEndpoint(
             pocketBase: _pocketBaseProvider.pocketBase,
             modelRepository: _modelRepository,
