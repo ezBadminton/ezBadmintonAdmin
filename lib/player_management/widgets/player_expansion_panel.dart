@@ -354,10 +354,13 @@ class _TeamDivider extends StatelessWidget {
         if (isLastTeamMember &&
             state.filteredPlayers.last != player &&
             uniqueFiltered.teamSize > 1) {
-          return Divider(
-            height: 0,
-            thickness: 1.5,
-            color: Theme.of(context).disabledColor,
+          return Transform.translate(
+            offset: Offset(0, 14),
+            child: Divider(
+              height: 0,
+              thickness: 1.5,
+              color: Theme.of(context).disabledColor,
+            ),
           );
         } else {
           return const SizedBox();
