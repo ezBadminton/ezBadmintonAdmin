@@ -342,7 +342,11 @@ class _TeamDivider extends StatelessWidget {
           return const SizedBox();
         }
         var cubit = context.read<UniqueCompetitionFilterCubit>();
-        Competition uniqueFiltered = cubit.state.competition.value!;
+        Competition? uniqueFiltered = cubit.state.competition.value;
+        if (uniqueFiltered == null) {
+          return const SizedBox();
+        }
+
         List<Team> teams = uniqueFiltered.registrations;
 
         Team team = teams.firstWhere((t) => t.players.contains(player));
