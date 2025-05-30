@@ -38,7 +38,7 @@ class CallOutScript extends StatelessWidget {
         children: [
           SizedBox(
             width: 800,
-            height: 250,
+            height: 270,
             child: PageView.builder(
               controller: controller,
               itemCount: callOuts.length,

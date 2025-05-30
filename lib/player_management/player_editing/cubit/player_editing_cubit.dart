@@ -259,8 +259,7 @@ class PlayerEditingCubit extends CollectionQuerierCubit<PlayerEditingState> {
           registration.getPartnerTeam(state.player) ?? registration.team;
 
       if (registeredTeam.id.isNotEmpty) {
-        var teamMembers = List.of(registeredTeam.players)
-          ..add(this.state.player);
+        var teamMembers = List.of(registeredTeam.players)..add(state.player);
         registeredTeam = registeredTeam.copyWith(
           playersRel: MultiRelation.fromModels(teamMembers),
         );

@@ -19,8 +19,7 @@ class Registration extends Model with _$Registration {
     required DateTime updated,
     @JsonKey(name: 'competition')
     required SingleRelation<Competition> competitionRel,
-    @JsonKey(name: 'team')
-    required SingleRelation<Team> teamRel,
+    @JsonKey(name: 'team') required SingleRelation<Team> teamRel,
     required bool withdrawn,
   }) = _Registration;
 
@@ -44,7 +43,6 @@ class Registration extends Model with _$Registration {
       );
 
   Player? getPartner(Player player) {
-    assert(team.players.contains(player));
     return team.players.whereNot((p) => p == player).firstOrNull;
   }
 
