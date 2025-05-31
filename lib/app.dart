@@ -382,6 +382,18 @@ class _AppState extends State<App> {
             modelRepository: _modelRepository,
           ),
         ),
+        RepositoryProvider.value(
+          value: LampionImportEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
+          value: LampionUploadEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
       ],
       child: BlocProvider(
         create: (_) => AuthenticationBloc(

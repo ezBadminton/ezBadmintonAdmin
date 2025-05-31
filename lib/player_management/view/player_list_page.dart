@@ -1,4 +1,5 @@
 import 'package:ez_badminton_admin_app/list_selection/cubit/model_selection_cubit.dart';
+import 'package:ez_badminton_admin_app/lampion_turnier/cubit/lampion_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/expansion_radio_cubit.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/player_sorter/comparators/team_comparator.dart';
@@ -77,6 +78,11 @@ class PlayerListPage extends StatelessWidget {
           ),
         ),
         BlocProvider(create: (_) => ExpansionRadioCubit()),
+        BlocProvider(
+          create: (_) => LampionCubit(
+            importEndpoint: context.read(),
+          ),
+        )
       ],
       child: const _PlayerListPageScaffold(),
     );
@@ -107,10 +113,31 @@ class _PlayerListPageScaffold extends StatelessWidget {
           padding: const EdgeInsets.only(right: 80, bottom: 40),
           child: FloatingActionButton.extended(
             onPressed: () {
-              var listCubit = context.read<PlayerListCubit>();
-              if (listCubit.state.loadingStatus == LoadingStatus.done) {
-                Navigator.of(context).push(PlayerEditingPage.route());
-              }
+              showDialog(
+                context: context,
+                builder: (_) => AlertDialog(
+                  title: const Text("Lampion import?"),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        var listCubit = context.read<PlayerListCubit>();
+                        if (listCubit.state.loadingStatus ==
+                            LoadingStatus.done) {
+                          Navigator.of(context).push(PlayerEditingPage.route());
+                        }
+                      },
+                      child: Text(l10n.addSubject(l10n.player(2))),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        var importCubit = context.read<LampionCubit>();
+                        importCubit.importLampionTournament();
+                      },
+                      child: const Text("Lampion importieren"),
+                    ),
+                  ],
+                ),
+              );
             },
             icon: const Icon(Icons.person_add_alt_1),
             label: Text(l10n.add),

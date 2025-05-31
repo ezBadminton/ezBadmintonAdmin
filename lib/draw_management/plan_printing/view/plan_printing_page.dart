@@ -1,4 +1,6 @@
+import 'package:ez_badminton_admin_app/draw_management/plan_printing/cubit/lampion_plan_upload_cubit.dart';
 import 'package:ez_badminton_admin_app/tournament_plans/cubit/tournament_plan_cubit.dart';
+import 'package:flutter/services.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/draw_management/plan_printing/cubit/plan_printing_cubit.dart';
 import 'package:ez_badminton_admin_app/printing/open_pdf_button.dart';
@@ -91,87 +93,114 @@ class _PlanPrintingPageScaffold extends StatelessWidget {
         buildWhen: (previous, current) =>
             previous.pdfDocument != current.pdfDocument,
         builder: (context, state) {
-          return Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: 370,
-                child: CompetitionMutliSelectionList(
-                  emptyListPlaceholder: Text(
-                    l10n.noDrawnCompetitions,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withOpacity(.25),
-                      fontSize: 21,
-                    ),
-                  ),
-                ),
-              ),
-              const VerticalDivider(
-                thickness: 1,
-                width: 1,
-                color: Colors.black26,
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 40),
-                      Text(
-                        l10n.matchPlanPrintPages,
-                        style: const TextStyle(fontSize: 22),
+          return CallbackShortcuts(
+            bindings: <ShortcutActivator, VoidCallback>{
+              SingleActivator(
+                LogicalKeyboardKey.keyU,
+                control: true,
+              ): () {
+                var cubit = context.read<LampionPlanUploadCubit>();
+                cubit.createAndUploadPlans();
+
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text("Manual Lampion App Upload done"),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, null),
+                        child: Text(l10n.close),
                       ),
-                      const Divider(height: 25, indent: 20, endIndent: 20),
-                      const _PlanPrintingPageFormatOptions(),
-                      const SizedBox(height: 30),
-                      const OpenPdfButton<PlanPrintingCubit,
-                          PlanPrintingState>(),
-                      const SizedBox(height: 8),
-                      const OpenPdfSaveLocationButton<PlanPrintingCubit,
-                          PlanPrintingState>(),
-                      const SizedBox(height: 30),
-                      Text(
-                        l10n.preview,
-                        style: const TextStyle(fontSize: 22),
-                      ),
-                      const Divider(height: 25, indent: 20, endIndent: 20),
-                      if (state.pdfDocument.value == null) ...[
-                        const SizedBox(height: 30),
-                        Text(
-                          l10n.noMatchPlans,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withOpacity(.25),
-                            fontSize: 25,
-                          ),
-                        ),
-                      ] else
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(
-                            maxWidth: 1100,
-                            maxHeight: 750,
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 15.0,
-                            ),
-                            child: PdfDocumentPreview(
-                              document: state.pdfDocument.value,
-                            ),
-                          ),
-                        ),
                     ],
                   ),
-                ),
+                );
+              }
+            },
+            child: Focus(
+              autofocus: true,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 370,
+                    child: CompetitionMutliSelectionList(
+                      emptyListPlaceholder: Text(
+                        l10n.noDrawnCompetitions,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(.25),
+                          fontSize: 21,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const VerticalDivider(
+                    thickness: 1,
+                    width: 1,
+                    color: Colors.black26,
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 40),
+                          Text(
+                            l10n.matchPlanPrintPages,
+                            style: const TextStyle(fontSize: 22),
+                          ),
+                          const Divider(height: 25, indent: 20, endIndent: 20),
+                          const _PlanPrintingPageFormatOptions(),
+                          const SizedBox(height: 30),
+                          const OpenPdfButton<PlanPrintingCubit,
+                              PlanPrintingState>(),
+                          const SizedBox(height: 8),
+                          const OpenPdfSaveLocationButton<PlanPrintingCubit,
+                              PlanPrintingState>(),
+                          const SizedBox(height: 30),
+                          Text(
+                            l10n.preview,
+                            style: const TextStyle(fontSize: 22),
+                          ),
+                          const Divider(height: 25, indent: 20, endIndent: 20),
+                          if (state.pdfDocument.value == null) ...[
+                            const SizedBox(height: 30),
+                            Text(
+                              l10n.noMatchPlans,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withOpacity(.25),
+                                fontSize: 25,
+                              ),
+                            ),
+                          ] else
+                            ConstrainedBox(
+                              constraints: const BoxConstraints(
+                                maxWidth: 1100,
+                                maxHeight: 750,
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 15.0,
+                                ),
+                                child: PdfDocumentPreview(
+                                  document: state.pdfDocument.value,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           );
         },
       ),

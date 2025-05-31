@@ -24,6 +24,21 @@ class RoundRobinPlan extends TournamentPlan {
     double tableWidth = 4 * groupTableStatWidth + groupTableNameWidth;
 
     List<models.Team> members = tPlan.tournament.entries;
+    List<models.MatchMetrics> metrics =
+        (tPlan.tournament as models.RoundRobin).metrics;
+
+    List<pw.Widget> winNumbers = [];
+    List<pw.Widget> setNumbers = [];
+    List<pw.Widget> pointNumbers = [];
+
+    for (final metric in metrics) {
+      var winText = '${metric.wins}:${metric.losses}';
+      var setText = '${metric.setWins}:${metric.setLosses}';
+      var pointText = '${metric.pointWins}:${metric.pointLosses}';
+      winNumbers.add(pw.Text(winText, style: pw.TextStyle(fontSize: 8)));
+      setNumbers.add(pw.Text(setText, style: pw.TextStyle(fontSize: 8)));
+      pointNumbers.add(pw.Text(pointText, style: pw.TextStyle(fontSize: 6)));
+    }
 
     pw.Widget headerRow = pw.SizedBox(
       height: groupTableHeaderHeight,
@@ -92,7 +107,7 @@ class RoundRobinPlan extends TournamentPlan {
     );
 
     List<pw.Widget> memberRows = [
-      for (models.Team team in members) ...[
+      for (final (i, team) in members.indexed) ...[
         pw.SizedBox(
           width: tableWidth,
           child: pw.Divider(height: 0),
@@ -120,17 +135,26 @@ class RoundRobinPlan extends TournamentPlan {
               height: rowHeight,
               child: pw.VerticalDivider(width: 0),
             ),
-            pw.SizedBox(width: groupTableStatWidth),
+            pw.SizedBox(
+              width: groupTableStatWidth,
+              child: pw.Center(child: winNumbers.elementAtOrNull(i)),
+            ),
             pw.SizedBox(
               height: rowHeight,
               child: pw.VerticalDivider(width: 0),
             ),
-            pw.SizedBox(width: groupTableStatWidth),
+            pw.SizedBox(
+              width: groupTableStatWidth,
+              child: pw.Center(child: setNumbers.elementAtOrNull(i)),
+            ),
             pw.SizedBox(
               height: rowHeight,
               child: pw.VerticalDivider(width: 0),
             ),
-            pw.SizedBox(width: groupTableStatWidth),
+            pw.SizedBox(
+              width: groupTableStatWidth,
+              child: pw.Center(child: pointNumbers.elementAtOrNull(i)),
+            ),
           ]),
         ),
       ],

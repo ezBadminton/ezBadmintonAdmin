@@ -2,6 +2,7 @@ import 'package:ez_badminton_admin_app/assets/badminton_icons_icons.dart';
 import 'package:ez_badminton_admin_app/competition_management/view/competition_list_page.dart';
 import 'package:ez_badminton_admin_app/court_management/cubit/cubit/court_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/view/court_list_page.dart';
+import 'package:ez_badminton_admin_app/draw_management/plan_printing/cubit/lampion_plan_upload_cubit.dart';
 import 'package:ez_badminton_admin_app/draw_management/view/draw_management_page.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_state.dart';
@@ -146,6 +147,7 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -169,6 +171,13 @@ class _HomePageState extends State<HomePage>
             unassignEndpoint: context.read(),
           ),
         ),
+        BlocProvider.value(
+          value: LampionPlanUploadCubit(
+            l10n: l10n,
+            uploadEndpoint: context.read(),
+            tournamentStore: context.read(),
+          ),
+        )
       ],
       child: BlocBuilder<TabNavigationCubit, TabNavigationState>(
         builder: (context, tabNavigationState) {

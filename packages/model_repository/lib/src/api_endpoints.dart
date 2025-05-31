@@ -186,3 +186,17 @@ class QualificationOverrideResetEndpoint extends ApiEndpointRepository {
     required super.modelRepository,
   }) : super(url: "/qualificationoverride/competition");
 }
+
+class LampionImportEndpoint extends ApiEndpointRepository {
+  LampionImportEndpoint({
+    required super.pocketBase,
+    required super.modelRepository,
+  }) : super(url: "/lampion");
+}
+
+class LampionUploadEndpoint extends ApiEndpointRepository {
+  LampionUploadEndpoint({
+    required super.pocketBase,
+    required super.modelRepository,
+  }) : super(url: "/lampion/upload");
+}

@@ -16,6 +16,7 @@ dependencies:
     path: ../pocketbase_provider
   authentication_repository:
     path: ../authentication_repository
+  http: ^1.4.0
 
 dev_dependencies:
   freezed: ^2.5.8

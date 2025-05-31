@@ -1,5 +1,6 @@
 import 'package:model_repository/model_repository.dart';
 import 'package:pocketbase/pocketbase.dart';
+import 'package:http/http.dart' as http;
 
 const String baseUrl = "/api/ezbadminton/admin";
 
@@ -39,6 +40,10 @@ class ApiEndpointRepository<M> {
     Map<String, String>? pathParams,
   }) async {
     return _request("POST", body: body, pathParams: pathParams);
+  }
+
+  Future<void> postFiles(List<http.MultipartFile> files) async {
+    pocketBase.send(url.toString(), method: "POST", files: files);
   }
 
   Future<void> patch({

@@ -81,6 +81,9 @@ class Scoreboard extends pw.StatelessWidget {
                   left: pw.BorderSide(),
                 ),
               ),
+              child: pw.Center(
+                child: scoreNumbers.elementAtOrNull(i),
+              ),
             ),
         ],
       ),
