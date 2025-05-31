@@ -78,6 +78,7 @@
   "dismissChanges": "Verwerfen",
   "expand": "Ausklappen",
   "status": "Status",
+  "bulkEditStatus": "{count, plural, =1{Status von 1 Spieler bearbeiten} other{Status von {count} Spielern bearbeiten}}",
   "none": "keine",
   "playerStatus": "{type, select, notAttending{Nicht anwesend} attending{Anwesend} forfeited{Aufgegeben} injured{Verletzt} disqualified{Disqualifiziert} other{Sonst.}}",
   "changeStatus": "Status ändern",

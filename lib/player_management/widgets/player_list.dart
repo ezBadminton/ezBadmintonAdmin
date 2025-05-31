@@ -1,3 +1,5 @@
+import 'package:ez_badminton_admin_app/list_selection/cubit/model_selection_cubit.dart';
+import 'package:ez_badminton_admin_app/player_management/cubit/bulk_player_status_cubit.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/list_sorting/comparator/list_sorting_comparator.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/player_list_cubit.dart';
@@ -15,9 +17,14 @@ class PlayerList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PlayerListCubit, PlayerListState>(
+    return BlocConsumer<PlayerListCubit, PlayerListState>(
+      listenWhen: (previous, current) =>
+          previous.filteredPlayers != current.filteredPlayers,
+      listener: (context, state) {
+        var selectionCubit = context.read<ModelSelectionCubit<Player>>();
+        selectionCubit.displayModelsChanged(state.filteredPlayers);
+      },
       builder: (context, listState) {
-        var l10n = AppLocalizations.of(context)!;
         int filteredLength = listState.filteredPlayers.length;
         int fullLength = listState.getCollection<Player>().length;
         return Expanded(
@@ -25,16 +32,9 @@ class PlayerList extends StatelessWidget {
             width: 1150,
             child: Column(
               children: [
-                Text(
-                  '${l10n.nPlayersShown(filteredLength)} (${l10n.ofN(fullLength)})',
-                  style: TextStyle(
-                    color: Theme.of(context)
-                        .textTheme
-                        .bodyMedium!
-                        .color!
-                        .withOpacity(.4),
-                    fontSize: 12,
-                  ),
+                PlayerSelectionOptions(
+                  filteredLength: filteredLength,
+                  fullLength: fullLength,
                 ),
                 const SizedBox(height: 12),
                 const _PlayerListHeader(),
@@ -44,6 +44,144 @@ class PlayerList extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class PlayerSelectionOptions extends StatelessWidget {
+  const PlayerSelectionOptions({
+    super.key,
+    required this.filteredLength,
+    required this.fullLength,
+  });
+
+  final int filteredLength;
+  final int fullLength;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+    var greyColor =
+        Theme.of(context).textTheme.bodyMedium!.color!.withValues(alpha: .4);
+    return BlocBuilder<ModelSelectionCubit<Player>,
+        ModelSelectionState<Player>>(
+      builder: (context, state) {
+        int numSelected = state.selectedModels.length;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 100),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withValues(alpha: numSelected == 0 ? 0 : .25),
+            ),
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 5.0),
+            child: Row(
+              children: [
+                Text(
+                  '${l10n.nPlayersShown(filteredLength)} (${l10n.ofN(fullLength)})',
+                  style: TextStyle(
+                    color: greyColor,
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Text(
+                  l10n.nSubjectsSelected(
+                    numSelected,
+                    l10n.player(numSelected),
+                  ),
+                  style: TextStyle(
+                    color: numSelected == 0 ? greyColor : null,
+                    fontSize: 12,
+                  ),
+                ),
+                const Expanded(child: SizedBox()),
+                AnimatedOpacity(
+                  duration: const Duration(milliseconds: 100),
+                  opacity: numSelected == 0 ? 0.0 : 1.0,
+                  child: ElevatedButton(
+                    onPressed: numSelected == 0
+                        ? null
+                        : () {
+                            showDialog(
+                              context: context,
+                              builder: (_) => _BulkPlayerStatusDialog(
+                                outerContext: context,
+                              ),
+                            );
+                          },
+                    child: Text(l10n.editSubject(l10n.status)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _BulkPlayerStatusDialog extends StatelessWidget {
+  const _BulkPlayerStatusDialog({
+    required this.outerContext,
+  });
+
+  final BuildContext outerContext;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+    var selectionCubit = outerContext.read<ModelSelectionCubit<Player>>();
+    var players = selectionCubit.state.selectedModels;
+    return BlocProvider(
+      create: (context) => BulkPlayerStatusCubit(
+        bulkStatusEndpoint: context.read(),
+        players: players,
+      ),
+      child: BlocBuilder<BulkPlayerStatusCubit, BulkPlayerStatusState>(
+        builder: (context, state) {
+          var editingCubit = context.read<BulkPlayerStatusCubit>();
+          return AlertDialog(
+            title: Text(l10n.bulkEditStatus(players.length)),
+            content: DropdownButtonFormField(
+              value: state.playerStatus.value,
+              items: PlayerStatus.values
+                  .map(
+                    (status) => DropdownMenuItem(
+                      value: status,
+                      child: Text(l10n.playerStatus(status.name)),
+                    ),
+                  )
+                  .toList(),
+              decoration: InputDecoration(labelText: l10n.status),
+              onChanged: editingCubit.statusChanged,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text(l10n.cancel),
+              ),
+              TextButton(
+                onPressed: state.playerStatus.value == null
+                    ? null
+                    : () {
+                        editingCubit.submitBulkPlayerStatus();
+                        Navigator.of(context).pop();
+                      },
+                child: Text(l10n.save),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }
@@ -73,7 +211,22 @@ class _PlayerListHeader extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 15),
           child: Row(
             children: [
-              const SizedBox(width: 20),
+              Transform.scale(
+                scale: 1.2,
+                child: BlocBuilder<ModelSelectionCubit<Player>,
+                    ModelSelectionState<Player>>(
+                  builder: (context, state) {
+                    var selectionCubit =
+                        context.read<ModelSelectionCubit<Player>>();
+                    return Checkbox(
+                      value: state.selectionTristate,
+                      onChanged: (_) => selectionCubit.allModelsToggled(),
+                      tristate: true,
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 11),
               _SortableColumnHeader<NameComparator>(
                 width: 190,
                 title: l10n.name,

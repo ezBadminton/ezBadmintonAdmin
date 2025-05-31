@@ -195,6 +195,12 @@ class _AppState extends State<App> {
           ),
         ),
         RepositoryProvider.value(
+          value: BulkPlayerStatusEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
           value: AssignCourtEndpoint(
             pocketBase: _pocketBaseProvider.pocketBase,
             modelRepository: _modelRepository,

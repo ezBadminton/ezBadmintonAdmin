@@ -44,7 +44,7 @@ class PlayerStatusCubit extends CollectionQuerierCubit<PlayerStatusState>
   Future<FormzSubmissionStatus> _confirmThenSetStatus(
     PlayerStatus status,
   ) async {
-    var statusIndex = PlayerStatus.values.indexOf(status);
+    var statusIndex = status.index;
     WithdrawalPreview preview = await previewEndpoint.get(pathParams: {
       "player": state.player.id,
       "status": statusIndex.toString(),

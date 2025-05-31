@@ -19,6 +19,13 @@ class PlayerStatusEndpoint extends ApiEndpointRepository {
   }) : super(url: "/playerstatus/player");
 }
 
+class BulkPlayerStatusEndpoint extends ApiEndpointRepository {
+  BulkPlayerStatusEndpoint({
+    required super.pocketBase,
+    required super.modelRepository,
+  }) : super(url: "/playerstatus/bulk");
+}
+
 class AssignCourtEndpoint extends ApiEndpointRepository {
   AssignCourtEndpoint({
     required super.pocketBase,

@@ -1,3 +1,4 @@
+import 'package:ez_badminton_admin_app/list_selection/cubit/model_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/expansion_radio_cubit.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/player_sorter/comparators/team_comparator.dart';
@@ -68,6 +69,11 @@ class PlayerListPage extends StatelessWidget {
             playingLevelStore: context.read<ModelStore<PlayingLevel>>(),
             ageGroupStore: context.read<ModelStore<AgeGroup>>(),
             clubStore: context.read<ModelStore<Club>>(),
+          ),
+        ),
+        BlocProvider(
+          create: (_) => ModelSelectionCubit<Player>(
+            store: context.read<ModelStore<Player>>(),
           ),
         ),
         BlocProvider(create: (_) => ExpansionRadioCubit()),

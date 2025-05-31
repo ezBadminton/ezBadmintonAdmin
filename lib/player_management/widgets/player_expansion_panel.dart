@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:ez_badminton_admin_app/list_selection/cubit/model_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/expansion_radio_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/toggleable_tween_animation/toggleable_tween_animation_builder.dart';
 import 'package:model_repository/model_repository.dart';
@@ -145,7 +146,17 @@ class _PlayerExpansionPanelTitle extends StatelessWidget {
           const SizedBox(),
           Row(
             children: [
-              const SizedBox(width: 20),
+              BlocBuilder<ModelSelectionCubit<Player>,
+                  ModelSelectionState<Player>>(
+                builder: (context, state) {
+                  var cubit = context.read<ModelSelectionCubit<Player>>();
+                  return Checkbox(
+                    value: state.selectedModels.contains(player),
+                    onChanged: (_) => cubit.modelToggled(player),
+                  );
+                },
+              ),
+              const SizedBox(width: 10),
               SizedBox(
                 width: 190,
                 child: Text(
