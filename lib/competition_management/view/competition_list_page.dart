@@ -1,9 +1,9 @@
+import 'package:ez_badminton_admin_app/list_selection/cubit/model_selection_cubit.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_editing/view/competition_editing_page.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_filter/competition_filter.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_filter/view/competition_filter.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_list_cubit.dart';
-import 'package:ez_badminton_admin_app/competition_management/cubit/competition_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_start_stop_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/view/competition_list.dart';
 import 'package:ez_badminton_admin_app/competition_management/view/competition_selection_options.dart';
@@ -59,8 +59,8 @@ class CompetitionListPage extends StatelessWidget {
           ),
         ),
         BlocProvider(
-          create: (context) => CompetitionSelectionCubit(
-            competitionRepository: context.read<ModelStore<Competition>>(),
+          create: (context) => ModelSelectionCubit<Competition>(
+            store: context.read<ModelStore<Competition>>(),
           ),
         ),
         BlocProvider(
@@ -121,8 +121,8 @@ class _CompetitionListWithControls extends StatelessWidget {
             buildWhen: (previous, current) =>
                 previous.loadingStatus != current.loadingStatus,
             builder: (context, filterState) {
-              return BlocBuilder<CompetitionSelectionCubit,
-                  CompetitionSelectionState>(
+              return BlocBuilder<ModelSelectionCubit<Competition>,
+                  ModelSelectionState<Competition>>(
                 builder: (context, selectionState) {
                   return LoadingScreen(
                     loadingStatus: loadingStatusConjunction(

@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
+import 'package:ez_badminton_admin_app/list_selection/cubit/model_selection_cubit.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_deletion_cubit.dart';
-import 'package:ez_badminton_admin_app/competition_management/cubit/competition_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_start_stop_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/view/tournament_mode_assignment_page.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
@@ -23,16 +23,17 @@ class CompetitionSelectionOptions extends StatelessWidget {
         competitionRepository: context.read<ModelStore<Competition>>(),
         competitionDeleteEndpoint: context.read<CompetitionDeleteEndpoint>(),
       ),
-      child: BlocConsumer<CompetitionSelectionCubit, CompetitionSelectionState>(
+      child: BlocConsumer<ModelSelectionCubit<Competition>,
+          ModelSelectionState<Competition>>(
         listener: (context, state) {
           var deletionCubit = context.read<CompetitionDeletionCubit>();
           var startingCubit = context.read<CompetitionStartStopCubit>();
 
-          deletionCubit.selectedCompetitionsChanged(state.selectedCompetitions);
-          startingCubit.selectedCompetitionsChanged(state.selectedCompetitions);
+          deletionCubit.selectedCompetitionsChanged(state.selectedModels);
+          startingCubit.selectedCompetitionsChanged(state.selectedModels);
         },
         builder: (context, state) {
-          int numSelected = state.selectedCompetitions.length;
+          int numSelected = state.selectedModels.length;
           return AnimatedContainer(
             duration: const Duration(milliseconds: 100),
             decoration: BoxDecoration(
@@ -80,9 +81,10 @@ class _CompetitionSelectionOptionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CompetitionSelectionCubit, CompetitionSelectionState>(
+    return BlocBuilder<ModelSelectionCubit<Competition>,
+        ModelSelectionState<Competition>>(
       builder: (context, state) {
-        int numSelected = state.selectedCompetitions.length;
+        int numSelected = state.selectedModels.length;
         return AnimatedOpacity(
             duration: const Duration(milliseconds: 100),
             opacity: numSelected == 0 ? 0.0 : 1.0,
@@ -92,11 +94,11 @@ class _CompetitionSelectionOptionButtons extends StatelessWidget {
                 const _CompetitionStartButton(),
                 const SizedBox(width: 20),
                 _AssignTournamentModeButton(
-                  selectedCompetitions: state.selectedCompetitions,
+                  selectedCompetitions: state.selectedModels,
                 ),
                 const SizedBox(width: 60),
                 _CompetitionDeleteButton(
-                  selectedCompetitions: state.selectedCompetitions,
+                  selectedCompetitions: state.selectedModels,
                 ),
               ],
             ));

@@ -1,8 +1,8 @@
+import 'package:ez_badminton_admin_app/list_selection/cubit/model_selection_cubit.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_sorter/comparators/competition_comparator.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_sorter/cubit/competition_sorting_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_list_cubit.dart';
-import 'package:ez_badminton_admin_app/competition_management/cubit/competition_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/cubit/competition_start_stop_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
 import 'package:ez_badminton_admin_app/competition_management/tournament_mode_assignment/view/tournament_mode_assignment_page.dart';
@@ -78,8 +78,8 @@ class _CompetitionList extends StatelessWidget {
       listenWhen: (previous, current) =>
           previous.displayCompetitionList != current.displayCompetitionList,
       listener: (context, state) {
-        var selectionCubit = context.read<CompetitionSelectionCubit>();
-        selectionCubit.displayCompetitionsChanged(state.displayCompetitionList);
+        var selectionCubit = context.read<ModelSelectionCubit<Competition>>();
+        selectionCubit.displayModelsChanges(state.displayCompetitionList);
       },
       builder: (context, state) {
         bool useAgeGroups =
@@ -118,11 +118,12 @@ class _CompetitionListHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    return BlocBuilder<CompetitionSelectionCubit, CompetitionSelectionState>(
+    return BlocBuilder<ModelSelectionCubit<Competition>,
+        ModelSelectionState<Competition>>(
       buildWhen: (previous, current) =>
           previous.selectionTristate != current.selectionTristate,
       builder: (context, state) {
-        var selectionCubit = context.read<CompetitionSelectionCubit>();
+        var selectionCubit = context.read<ModelSelectionCubit<Competition>>();
         return DefaultTextStyle(
           style: Theme.of(context)
               .textTheme
@@ -146,7 +147,7 @@ class _CompetitionListHeader extends StatelessWidget {
                     scale: 1.2,
                     child: Checkbox(
                       value: state.selectionTristate,
-                      onChanged: (_) => selectionCubit.allCompetitionsToggled(),
+                      onChanged: (_) => selectionCubit.allModelsToggled(),
                       tristate: true,
                     ),
                   ),
@@ -271,17 +272,18 @@ class _CompetitionListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    var selectionCubit = context.read<CompetitionSelectionCubit>();
+    var selectionCubit = context.read<ModelSelectionCubit<Competition>>();
 
-    return BlocBuilder<CompetitionSelectionCubit, CompetitionSelectionState>(
+    return BlocBuilder<ModelSelectionCubit<Competition>,
+        ModelSelectionState<Competition>>(
       buildWhen: (previous, current) =>
-          previous.selectedCompetitions != current.selectedCompetitions,
+          previous.selectedModels != current.selectedModels,
       builder: (context, state) {
         return CheckboxListTile(
           contentPadding: const EdgeInsetsDirectional.only(start: 16),
           controlAffinity: ListTileControlAffinity.leading,
-          value: state.selectedCompetitions.contains(competition),
-          onChanged: (_) => selectionCubit.competitionToggled(competition),
+          value: state.selectedModels.contains(competition),
+          onChanged: (_) => selectionCubit.modelToggled(competition),
           title: DefaultTextStyle.merge(
             style: const TextStyle(fontSize: 14),
             child: Row(
