@@ -79,7 +79,7 @@ class _CompetitionList extends StatelessWidget {
           previous.displayCompetitionList != current.displayCompetitionList,
       listener: (context, state) {
         var selectionCubit = context.read<ModelSelectionCubit<Competition>>();
-        selectionCubit.displayModelsChanges(state.displayCompetitionList);
+        selectionCubit.displayModelsChanged(state.displayCompetitionList);
       },
       builder: (context, state) {
         bool useAgeGroups =

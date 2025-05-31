@@ -34,7 +34,7 @@ class ModelSelectionCubit<M extends Model>
     }
   }
 
-  void displayModelsChanges(List<M> displayModels) {
+  void displayModelsChanged(List<M> displayModels) {
     ModelSelectionState<M> updatedState =
         state.copyWith(displayModels: displayModels);
     updatedState = _updateSelection(updatedState);
