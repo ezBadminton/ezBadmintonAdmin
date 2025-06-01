@@ -1,3 +1,4 @@
+import 'package:ez_badminton_admin_app/competition_management/competition_sorter/comparators/competition_comparator.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/widgets/choice_chip_tab/choice_chip_tab.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
@@ -9,9 +10,10 @@ class CompetitionSelectionList extends StatelessWidget {
   const CompetitionSelectionList({
     super.key,
     required this.noCompetitionsHint,
-  });
+  }) : comparator = const CompetitionComparator();
 
   final String noCompetitionsHint;
+  final CompetitionComparator comparator;
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +22,7 @@ class CompetitionSelectionList extends StatelessWidget {
     return BlocBuilder<CompetitionSelectionCubit, CompetitionSelectionState>(
       builder: (context, state) {
         List<Competition> competitions = state.getCollection<Competition>();
+        competitions.sort(comparator.comparator);
 
         if (competitions.isEmpty) {
           return Padding(
