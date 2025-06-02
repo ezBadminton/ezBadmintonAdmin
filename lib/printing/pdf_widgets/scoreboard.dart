@@ -13,8 +13,8 @@ class Scoreboard extends pw.StatelessWidget {
     this.byePlaceholder,
   });
 
-  final Competition competition;
-  final TournamentMatch match;
+  final Competition? competition;
+  final TournamentMatch? match;
 
   final double height;
   final double scoreFieldWidth;
@@ -27,35 +27,50 @@ class Scoreboard extends pw.StatelessWidget {
 
   @override
   pw.Widget build(pw.Context context) {
-    int maxSets = 2 * competition.tournamentModeSettings!.winningSets - 1;
+    int winningSets = competition == null
+        ? 2
+        : competition!.tournamentModeSettings!.winningSets;
+    int maxSets = 2 * winningSets - 1;
 
     return pw.Column(
       mainAxisSize: pw.MainAxisSize.min,
       children: [
-        _buildScoreLine(match.slot1, maxSets),
+        _buildScoreLine(match?.slot1, maxSets),
         pw.Divider(
           height: 0,
           indent: 0.1,
           endIndent: 0.1,
         ),
-        _buildScoreLine(match.slot2, maxSets),
+        _buildScoreLine(match?.slot2, maxSets),
       ],
     );
   }
 
-  pw.Widget _buildScoreLine(Slot slot, int maxSets) {
+  pw.Widget _buildScoreLine(Slot? slot, int maxSets) {
+    int slotIndex = slot == match?.slot1 ? 0 : 1;
+    List<pw.Widget> scoreNumbers = [];
+
+    for (var set in match?.sets ?? []) {
+      int score = slotIndex == 0 ? set.team1Points : set.team2Points;
+      scoreNumbers.add(pw.Text(score.toString()));
+    }
+
+    pw.Widget slotLabel = slot == null
+        ? pw.SizedBox(height: 10)
+        : SlotLabel(
+            slot: slot,
+            textStyle: textStyle,
+            placeholder: placeholders[slot],
+            byePlaceholder: byePlaceholder,
+          );
+
     return pw.SizedBox(
       height: height / 2,
       child: pw.Row(
         crossAxisAlignment: pw.CrossAxisAlignment.center,
         children: [
           pw.Expanded(
-            child: SlotLabel(
-              slot: slot,
-              textStyle: textStyle,
-              placeholder: placeholders[slot],
-              byePlaceholder: byePlaceholder,
-            ),
+            child: slotLabel,
           ),
           pw.SizedBox(width: 3),
           for (int i = 0; i < maxSets; i += 1)

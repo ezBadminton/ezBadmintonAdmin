@@ -14,8 +14,8 @@ class GameSheet extends pw.StatelessWidget {
     required this.qrCodeEnabled,
   });
 
-  final TournamentPlan tPlan;
-  final TournamentMatch match;
+  final TournamentPlan? tPlan;
+  final TournamentMatch? match;
   final AppLocalizations l10n;
 
   final double padding;
@@ -24,6 +24,14 @@ class GameSheet extends pw.StatelessWidget {
 
   @override
   pw.Widget build(pw.Context context) {
+    pw.Widget matchInfo = tPlan == null
+        ? pw.SizedBox(height: 61.1)
+        : MatchInfo(
+            tPlan: tPlan!,
+            match: match!,
+            l10n: l10n,
+          );
+
     return pw.LayoutBuilder(
       builder: (context, constraints) {
         double width = constraints!.maxWidth * 0.5;
@@ -44,13 +52,9 @@ class GameSheet extends pw.StatelessWidget {
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
                       pw.Expanded(
-                        child: MatchInfo(
-                          tPlan: tPlan,
-                          match: match,
-                          l10n: l10n,
-                        ),
+                        child: matchInfo,
                       ),
-                      if (qrCodeEnabled) ModelIdQRCode(match),
+                      if (qrCodeEnabled && match != null) ModelIdQRCode(match!),
                     ],
                   ),
                 ),
@@ -60,7 +64,7 @@ class GameSheet extends pw.StatelessWidget {
                   indent: 0.1,
                   endIndent: 0.1,
                 ),
-                Scoreboard(competition: tPlan.competition, match: match),
+                Scoreboard(competition: tPlan?.competition, match: match),
               ],
             ),
           ),

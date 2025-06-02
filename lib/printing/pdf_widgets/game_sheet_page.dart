@@ -12,7 +12,7 @@ class GameSheetPage extends pw.StatelessWidget {
     required this.qrCodeEnabled,
   }) : sheetSpacing = sheetSpacing * PdfPageFormat.cm;
 
-  final List<MatchContext> matches;
+  final List<MatchContext?> matches;
   final AppLocalizations l10n;
 
   final double sheetSpacing;
@@ -24,8 +24,8 @@ class GameSheetPage extends pw.StatelessWidget {
     List<pw.Widget> sheets = matches
         .map(
           (m) => GameSheet(
-            tPlan: m.tournamentPlan,
-            match: m.match,
+            tPlan: m?.tournamentPlan,
+            match: m?.match,
             l10n: l10n,
             padding: sheetSpacing * 0.5,
             qrCodeEnabled: qrCodeEnabled,

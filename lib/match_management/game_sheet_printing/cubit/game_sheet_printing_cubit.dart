@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:ez_badminton_admin_app/assets/pdf_fonts.dart';
+import 'package:ez_badminton_admin_app/competition_management/competition_sorter/comparators/competition_comparator.dart';
 import 'package:ez_badminton_admin_app/printing/pdf_printing_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
@@ -28,7 +29,8 @@ class GameSheetPrintingCubit
     required ModelStore<TournamentEvent> tournamentStore,
     required ModelStore<ScheduledMatch> scheduledMatchStore,
     required ModelStore<ScheduledRound> scheduledRoundStore,
-  }) : super(
+  })  : _competitionComparator = const CompetitionComparator(),
+        super(
           modelStores: [
             tournamentStore,
             scheduledMatchStore,
@@ -41,6 +43,8 @@ class GameSheetPrintingCubit
 
   final MarkMatchPrintedEndpoint markPrintEndpoint;
 
+  final CompetitionComparator _competitionComparator;
+
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
@@ -51,7 +55,10 @@ class GameSheetPrintingCubit
       collections: collections,
     );
 
-    var matches = updatedState.getCollection<ScheduledRound>().expand((round) {
+    var rounds = List.of(updatedState.getCollection<ScheduledRound>());
+    rounds.sort(_compareScheduledRounds);
+
+    var matches = rounds.expand((round) {
       var tPlan = round.competition.tournamentPlan!;
       return round.matches.map(
         (m) => MatchContext(tournamentPlan: tPlan, scheduledMatch: m),
@@ -175,6 +182,17 @@ class GameSheetPrintingCubit
     List<MatchContext> matchesToPrint,
     bool qrCodeEnabled,
   ) async {
+    int numPages = (matchesToPrint.length / 6).ceil();
+    List<MatchContext?> printSortedMatches =
+        List<MatchContext?>.generate(numPages * 6, (_) => null);
+
+    for (final (i, match) in matchesToPrint.indexed) {
+      int pageNumber = i % numPages;
+      int indexOnPage = i ~/ numPages;
+      int printIndex = pageNumber * 6 + indexOnPage;
+      printSortedMatches[printIndex] = match;
+    }
+
     pw.Document pdf = pw.Document();
 
     double pageMargin = 0.65;
@@ -196,7 +214,7 @@ class GameSheetPrintingCubit
             fontSize: 10,
           ),
           child: GameSheetPage(
-            matches: matchesToPrint,
+            matches: printSortedMatches,
             l10n: l10n,
             qrCodeEnabled: qrCodeEnabled,
           ),
@@ -294,5 +312,22 @@ class GameSheetPrintingCubit
     }
 
     return gameSheetDir;
+  }
+
+  // For the sheet printing the rounds are sorted by competition first
+  // then the scheduled round order is kept
+  // This ensures that during physical printing the game sheets of the
+  // competitions end up in one pile
+  int _compareScheduledRounds(ScheduledRound r0, ScheduledRound r1) {
+    int competitionComparison = _competitionComparator.comparator(
+      r0.competition,
+      r1.competition,
+    );
+
+    if (competitionComparison != 0) {
+      return competitionComparison;
+    }
+
+    return r0.roundIndex.compareTo(r1.roundIndex);
   }
 }
