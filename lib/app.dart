@@ -19,7 +19,12 @@ import 'package:ffi/ffi.dart';
 import 'package:win32/win32.dart';
 
 class App extends StatefulWidget {
-  const App({super.key});
+  const App({
+    super.key,
+    this.ip,
+  });
+
+  final String? ip;
 
   @override
   State<App> createState() => _AppState();
@@ -35,11 +40,15 @@ class _AppState extends State<App> {
   void initState() {
     super.initState();
 
-    _runLocalSever();
+    if (widget.ip == null) {
+      _runLocalSever();
+    }
 
-    String pocketbaseUrl = TestEnvironment().isTest
+    String defaultUrl = TestEnvironment().isTest
         ? 'http://127.0.0.1:8096'
         : 'http://127.0.0.1:8090';
+
+    String pocketbaseUrl = widget.ip ?? defaultUrl;
 
     _pocketBaseProvider = PocketBaseProvider(pocketbaseUrl);
     _authenticationRepository = AuthenticationRepository(

@@ -77,6 +77,8 @@ dependencies:
   window_manager: ^0.4.3
   win32: ^5.2.0
   ffi: ^2.1.0
+  http: ^1.4.0
+  args: ^2.7.0
 
 dev_dependencies:
   flutter_test:
