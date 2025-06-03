@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
@@ -28,6 +29,10 @@ class LampionPlanUploadCubit
           modelStores: [tournamentStore],
           LampionPlanUploadState(),
         ) {
+    bool doUpload = Platform.environment.containsKey("LAMPION_API_KEY");
+    if (!doUpload) {
+      return;
+    }
     timer = Timer.periodic(
       const Duration(minutes: 3),
       (timer) {
