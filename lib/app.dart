@@ -5,7 +5,7 @@ import 'package:authentication_repository/authentication_repository.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/utils/test_environment.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ez_badminton_admin_app/l10n/l10n.dart';
 import 'package:ez_badminton_admin_app/authentication/bloc/authentication_bloc.dart';
 import 'package:ez_badminton_admin_app/home/view/home_page.dart';
 import 'package:ez_badminton_admin_app/login/view/login_page.dart';

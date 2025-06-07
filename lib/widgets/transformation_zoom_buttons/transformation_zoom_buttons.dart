@@ -1,6 +1,6 @@
 import 'package:ez_badminton_admin_app/utils/animated_transformation_controller/animated_transformation_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ez_badminton_admin_app/l10n/l10n.dart';
 
 class ZoomButtons extends StatelessWidget {
   const ZoomButtons({

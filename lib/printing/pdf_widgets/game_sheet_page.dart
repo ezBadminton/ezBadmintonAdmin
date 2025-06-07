@@ -2,7 +2,7 @@ import 'package:ez_badminton_admin_app/printing/pdf_widgets/game_sheet.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ez_badminton_admin_app/l10n/l10n.dart';
 
 class GameSheetPage extends pw.StatelessWidget {
   GameSheetPage({

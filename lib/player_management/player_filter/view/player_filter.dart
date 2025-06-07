@@ -9,7 +9,7 @@ import 'package:ez_badminton_admin_app/predicate_filter/predicate_producers.dart
 import 'package:ez_badminton_admin_app/widgets/filter_forms/filter_forms.dart';
 import 'package:ez_badminton_admin_app/widgets/filter_menu/filter_chips.dart';
 import 'package:ez_badminton_admin_app/widgets/filter_menu/filter_menu.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ez_badminton_admin_app/l10n/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

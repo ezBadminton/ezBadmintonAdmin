@@ -3,7 +3,7 @@ import 'package:ez_badminton_admin_app/printing/pdf_widgets/model_id_qr_code.dar
 import 'package:ez_badminton_admin_app/printing/pdf_widgets/scoreboard.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ez_badminton_admin_app/l10n/l10n.dart';
 
 class GameSheet extends pw.StatelessWidget {
   GameSheet({

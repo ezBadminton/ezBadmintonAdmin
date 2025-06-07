@@ -10,7 +10,7 @@ import 'package:ez_badminton_admin_app/player_management/widgets/player_expansio
 import 'package:ez_badminton_admin_app/widgets/sortable_column_header/sortable_column_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ez_badminton_admin_app/l10n/l10n.dart';
 
 class PlayerList extends StatelessWidget {
   const PlayerList({super.key});

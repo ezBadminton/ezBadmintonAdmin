@@ -8,7 +8,7 @@ import 'package:ez_badminton_admin_app/match_management/game_sheet_printing/widg
 import 'package:ez_badminton_admin_app/widgets/help_tooltip_icon/help_tooltip_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ez_badminton_admin_app/l10n/l10n.dart';
 import 'package:model_repository/model_repository.dart';
 
 class GameSheetPrintingPage extends StatelessWidget {

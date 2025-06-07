@@ -7,7 +7,7 @@ import 'package:ez_badminton_admin_app/court_management/court_numbering/models/c
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
 import 'package:flutter/widgets.dart';
 import 'package:formz/formz.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ez_badminton_admin_app/l10n/l10n.dart';
 
 part 'court_numbering_state.dart';
 

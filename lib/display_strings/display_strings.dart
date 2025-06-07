@@ -3,7 +3,7 @@ import 'package:ez_badminton_admin_app/display_strings/match_and_round_names.dar
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate_producers.dart';
 import 'package:ez_badminton_admin_app/utils/powers_of_two.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ez_badminton_admin_app/l10n/l10n.dart';
 
 String ageGroup(AppLocalizations l10n, AgeGroup ageGroup) {
   return '${l10n.ageGroupAbbreviated(ageGroup.type.name)}${ageGroup.age}';

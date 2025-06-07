@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
     as display_strings;
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ez_badminton_admin_app/l10n/l10n.dart';
 import 'package:formz/formz.dart';
 import 'package:model_repository/model_repository.dart';
 

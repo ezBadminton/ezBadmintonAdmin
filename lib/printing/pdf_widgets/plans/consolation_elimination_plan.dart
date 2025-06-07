@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:model_repository/model_repository.dart' as models;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ez_badminton_admin_app/l10n/l10n.dart';
 
 class ConsolationEliminationPlan
     extends TournamentPlan<models.SingleEliminationWithConsolation> {

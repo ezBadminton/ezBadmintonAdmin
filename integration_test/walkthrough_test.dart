@@ -38,7 +38,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:ez_badminton_admin_app/app.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ez_badminton_admin_app/l10n/l10n.dart';
 import 'package:io/io.dart';
 import 'package:process_run/shell.dart';
 import 'package:window_manager/window_manager.dart';

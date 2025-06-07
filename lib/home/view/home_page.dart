@@ -16,7 +16,7 @@ import 'package:ez_badminton_admin_app/result_management/view/result_management_
 import 'package:ez_badminton_admin_app/tournament_plans/cubit/tournament_plan_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ez_badminton_admin_app/l10n/l10n.dart';
 import 'package:model_repository/model_repository.dart';
 
 class HomePage extends StatefulWidget {

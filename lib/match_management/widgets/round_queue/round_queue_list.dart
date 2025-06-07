@@ -8,7 +8,7 @@ import 'package:ez_badminton_admin_app/widgets/pop_in_animation/pop_in_animation
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:model_repository/model_repository.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ez_badminton_admin_app/l10n/l10n.dart';
 
 class RoundQueueList extends StatelessWidget {
   const RoundQueueList({super.key});

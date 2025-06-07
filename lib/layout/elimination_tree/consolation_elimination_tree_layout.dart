@@ -5,7 +5,7 @@ import 'package:ez_badminton_admin_app/utils/log2/log2.dart';
 import 'package:ez_badminton_admin_app/widgets/line_painters/s_line.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ez_badminton_admin_app/l10n/l10n.dart';
 import 'package:ez_badminton_admin_app/layout/elimination_tree/utils.dart'
     as utils;
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/bracket_sizes.dart'

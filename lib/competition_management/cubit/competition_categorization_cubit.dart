@@ -7,7 +7,7 @@ import 'package:ez_badminton_admin_app/competition_management/utils/competition_
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:formz/formz.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ez_badminton_admin_app/l10n/l10n.dart';
 
 class CompetitionCategorizationCubit
     extends CollectionQuerierCubit<CompetitionCategorizationState>

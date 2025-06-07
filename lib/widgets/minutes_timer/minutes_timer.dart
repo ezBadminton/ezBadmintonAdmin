@@ -1,7 +1,7 @@
 import 'package:ez_badminton_admin_app/utils/timer/timer_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:ez_badminton_admin_app/l10n/l10n.dart';
 
 class MinutesTimer extends StatelessWidget {
   const MinutesTimer({
