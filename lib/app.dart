@@ -380,6 +380,8 @@ class _AppViewState extends State<AppView> {
 
   @override
   Widget build(BuildContext context) {
+    var pocketBase = context.read<PlayerStatusEndpoint>().pocketBase;
+
     return MaterialApp(
       title: 'ez Badminton Admin',
       navigatorKey: _navigatorKey,
@@ -402,7 +404,7 @@ class _AppViewState extends State<AppView> {
                 );
               case AuthenticationStatus.unknown:
                 _navigator.pushAndRemoveUntil<void>(
-                  SplashPage.route(),
+                  SplashPage.route(pocketBase.baseURL),
                   (route) => false,
                 );
             }
@@ -410,7 +412,7 @@ class _AppViewState extends State<AppView> {
           child: child,
         );
       },
-      onGenerateRoute: (_) => SplashPage.route(),
+      onGenerateRoute: (_) => SplashPage.route(pocketBase.baseURL),
     );
   }
 }

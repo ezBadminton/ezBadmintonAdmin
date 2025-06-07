@@ -2,10 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:ez_badminton_admin_app/l10n/l10n.dart';
 
 class SplashPage extends StatelessWidget {
-  const SplashPage({super.key});
+  const SplashPage({
+    super.key,
+    required this.serverAddress,
+  });
 
-  static Route<void> route() {
-    return MaterialPageRoute<void>(builder: (_) => const SplashPage());
+  final String serverAddress;
+
+  static Route<void> route(String serverAddress) {
+    return MaterialPageRoute<void>(
+      builder: (_) => SplashPage(serverAddress: serverAddress),
+    );
   }
 
   @override
@@ -20,7 +27,7 @@ class SplashPage extends StatelessWidget {
             const CircularProgressIndicator(),
             const SizedBox(height: 20),
             Text(
-              l10n.connectingToServer,
+              "${l10n.connectingToServer} $serverAddress",
               style: TextStyle(fontSize: 18),
             ),
           ],

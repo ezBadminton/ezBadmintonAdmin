@@ -26,6 +26,13 @@ void main(List<String> arguments) async {
   ArgResults argResults = argParser.parse(arguments);
   String? ip = argResults.option("address");
 
+  if (ip == null) {
+    Map<String, String> env = Platform.environment;
+    if (env.containsKey("EZBADMINTON_SERVER")) {
+      ip = env["EZBADMINTON_SERVER"];
+    }
+  }
+
   HttpOverrides.global = PrivateIPCertOverride();
 
   runApp(App(ip: ip));
