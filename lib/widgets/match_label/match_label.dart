@@ -1,5 +1,3 @@
-import 'package:ez_badminton_admin_app/match_management/result_entering/view/result_input_dialog.dart';
-import 'package:ez_badminton_admin_app/tournament_plans/cubit/tournament_plan_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
@@ -10,7 +8,6 @@ import 'package:ez_badminton_admin_app/widgets/tournament_brackets/bracket_sizes
     as bracket_sizes;
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/slot_label.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ez_badminton_admin_app/l10n/l10n.dart';
 
 class MatchLabel extends StatelessWidget {
@@ -188,7 +185,6 @@ class MatchupCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             _WalkoverInfo(),
-            _ScoreEditButton(),
             Expanded(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -379,52 +375,6 @@ class _ScoreContainer extends StatelessWidget {
       width: 40,
       color: backgroundColor,
       child: child,
-    );
-  }
-}
-
-class _ScoreEditButton extends StatelessWidget {
-  const _ScoreEditButton();
-
-  @override
-  Widget build(BuildContext context) {
-    var mContext = context.readMatchContext();
-    var match = context.readMatch();
-
-    var l10n = AppLocalizations.of(context)!;
-
-    return BlocBuilder<TournamentPlanCubit, TournamentPlanState>(
-      builder: (context, state) {
-        bool isEditable =
-            mContext.tournamentPlan.tournament.editable.contains(match);
-
-        if (!isEditable) {
-          return const SizedBox();
-        }
-
-        return Tooltip(
-          message: l10n.editResult,
-          child: SizedBox(
-            width: 36,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(padding: EdgeInsets.zero),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (context) =>
-                      TournamentMatchContextSubtree.fromContext(
-                    key: ValueKey('ResultEditMatch-${mContext.match.id}'),
-                    context: mContext,
-                    child: ResultInputDialog(),
-                  ),
-                );
-              },
-              child: const Icon(Icons.edit),
-            ),
-          ),
-        );
-      },
     );
   }
 }

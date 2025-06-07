@@ -25,6 +25,9 @@ class DrawManagementPage extends StatelessWidget {
     return BlocProvider(
       create: (context) => CompetitionSelectionCubit(
         competitionStore: context.read<ModelStore<Competition>>(),
+        tPlanStore: context.read(),
+        commandRepository:
+            context.read<PocketbaseRealtimeRepository<InfoscreenCommand>>(),
       ),
       child: const _DrawManagementPageScaffold(),
     );

@@ -88,7 +88,8 @@ class AnimatedTransformationController extends TransformationController {
 
     animateTo(
       focused,
-      curve: Curves.easeOutQuad,
+      duration: const Duration(milliseconds: 120),
+      curve: Curves.linear,
     );
   }
 

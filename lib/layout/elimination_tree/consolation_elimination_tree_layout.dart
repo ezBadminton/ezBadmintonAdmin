@@ -400,7 +400,10 @@ class _PlacementText extends StatelessWidget {
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
-    TextStyle style = const TextStyle(fontSize: 32);
+    TextStyle style = const TextStyle(
+      fontSize: 32,
+      color: Color.fromARGB(255, 224, 224, 224),
+    );
 
     if (upperBound == 3 && lowerBound == 4) {
       return Text(
@@ -420,7 +423,7 @@ class _LoserEdge extends LayoutId {
   _LoserEdge({
     required this.node,
   }) : super(
-          child: const SLine(color: Colors.black26),
+          child: const SLine(color: Colors.white54),
           id: ('loserEdge', node),
         );
 

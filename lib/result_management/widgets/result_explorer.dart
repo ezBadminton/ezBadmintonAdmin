@@ -1,7 +1,6 @@
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_state.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_selection_list/cubit/competition_selection_cubit.dart';
-import 'package:ez_badminton_admin_app/widgets/leaderboard/leaderboard.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section_subtree.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/bracket_explorer_cubit.dart';
@@ -11,6 +10,7 @@ import 'package:ez_badminton_admin_app/widgets/tournament_brackets/double_elimin
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/group_knockout_plan.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/group_knockout_results.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/round_robin_results.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bracket.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/cubit/tournament_plan_context_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
@@ -146,16 +146,16 @@ class _InteractiveResultExplorer extends StatelessWidget {
                   ? LoadingStatus.loading
                   : LoadingStatus.done,
               builder: (context) {
-                var l10n = AppLocalizations.of(context)!;
-
                 TournamentPlan tPlan = state.tournamentPlan!;
 
-                Widget resultView = switch (tPlan.tournament) {
+                SectionedBracket resultView = switch (tPlan.tournament) {
                   SingleElimination tournament => SingleEliminationTree(
                       rounds: tournament.rounds,
                       showResults: true,
                     ),
-                  RoundRobin _ => RoundRobinResults(),
+                  RoundRobin t => RoundRobinResults(
+                      sections: RoundRobinResults.getSections(t),
+                    ),
                   GroupKnockout t => GroupKnockoutResults(
                       sections: GroupKnockoutPlan.getSections(t),
                     ),
@@ -176,73 +176,6 @@ class _InteractiveResultExplorer extends StatelessWidget {
                   key: ValueKey('ResultExplorer-${competition.id}'),
                   competition: competition,
                   tournamentBracket: resultView,
-                  controlBarOptionsBuilder: (compact) {
-                    onPressed() {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return TournamentPlanContextSubtree(
-                            key:
-                                ValueKey('LeaderboardDialog-${competition.id}'),
-                            competition: competition,
-                            child: AlertDialog(
-                              title: Text(l10n.leaderboard),
-                              content: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  ProvisionalLeaderboardInfo(),
-                                  Flexible(
-                                    child: SingleChildScrollView(
-                                      child: Leaderboard(),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.of(context).pop(),
-                                  child: Text(l10n.confirm),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      );
-                    }
-
-                    if (compact) {
-                      return Tooltip(
-                        message: l10n.leaderboard,
-                        child: SizedBox(
-                          width: 40,
-                          child: TextButton(
-                            style: TextButton.styleFrom(
-                              padding: EdgeInsets.zero,
-                            ),
-                            onPressed: onPressed,
-                            child: const Icon(Icons.emoji_events),
-                          ),
-                        ),
-                      );
-                    }
-
-                    return TextButton(
-                      onPressed: onPressed,
-                      child: SizedBox(
-                        width: 160,
-                        child: Center(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.emoji_events),
-                              const SizedBox(width: 7),
-                              Text(l10n.leaderboard),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
                 );
               });
         },

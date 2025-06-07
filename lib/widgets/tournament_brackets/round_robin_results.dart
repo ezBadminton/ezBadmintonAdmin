@@ -3,7 +3,9 @@ import 'package:ez_badminton_admin_app/widgets/leaderboard/leaderboard.dart';
 import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
 import 'package:ez_badminton_admin_app/widgets/mouse_hover_builder/mouse_hover_builder.dart';
 import 'package:ez_badminton_admin_app/widgets/tie_breaker_menu/tie_breaker_menu.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section_subtree.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bracket.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/slot_label.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/utils.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
@@ -11,8 +13,17 @@ import 'package:flutter/material.dart';
 import 'package:ez_badminton_admin_app/l10n/l10n.dart';
 import 'package:model_repository/model_repository.dart';
 
-class RoundRobinResults extends StatelessWidget {
-  const RoundRobinResults({super.key});
+class RoundRobinResults extends StatelessWidget implements SectionedBracket {
+  const RoundRobinResults({
+    super.key,
+    this.sections = const [],
+  });
+
+  @override
+  final List<BracketSection> sections;
+
+  @override
+  bool get navigatable => false;
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +38,18 @@ class RoundRobinResults extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  static List<BracketSection> getSections(RoundRobin t) {
+    return [
+      BracketSection(
+        tournamentDataObjects: [t],
+        labelBuilder: (context) {
+          var l10n = AppLocalizations.of(context)!;
+          return l10n.roundRobin;
+        },
+      ),
+    ];
   }
 }
 
@@ -117,25 +140,39 @@ class _RoundRobinLeaderboard extends StatelessWidget {
     const double statNumberWidth = 50;
     const double dualStatNumberWidth = 70;
 
-    return Table(
-      columnWidths: const {
-        0: FixedColumnWidth(rankWidth),
-        1: FixedColumnWidth(teamWidth),
-        2: FixedColumnWidth(statNumberWidth),
-        3: FixedColumnWidth(dualStatNumberWidth),
-        4: FixedColumnWidth(dualStatNumberWidth),
-        5: FixedColumnWidth(dualStatNumberWidth),
-      },
-      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-      border: TableBorder.all(
-        color: Theme.of(context).colorScheme.onSurface.withOpacity(.2),
-        borderRadius: BorderRadius.circular(10),
-      ),
+    var scoreboard = Stack(
       children: [
-        leaderboardHeader,
-        ...leaderboardEntries,
+        Positioned.fill(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        ),
+        Table(
+          columnWidths: const {
+            0: FixedColumnWidth(rankWidth),
+            1: FixedColumnWidth(teamWidth),
+            2: FixedColumnWidth(statNumberWidth),
+            3: FixedColumnWidth(dualStatNumberWidth),
+            4: FixedColumnWidth(dualStatNumberWidth),
+            5: FixedColumnWidth(dualStatNumberWidth),
+          },
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+          border: TableBorder.all(
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(.2),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          children: [
+            leaderboardHeader,
+            ...leaderboardEntries,
+          ],
+        ),
       ],
     );
+
+    return scoreboard;
   }
 
   Widget _buildTitle(BuildContext context) {
@@ -260,7 +297,10 @@ class _MatchResultList extends StatelessWidget {
         for (var (i, round) in tournament.rounds.indexed) ...[
           Text(
             l10n.encounterNumber(i + 1),
-            style: const TextStyle(fontWeight: FontWeight.w600),
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              color: Color.fromARGB(255, 206, 206, 206),
+            ),
           ),
           for (TournamentMatch match in round.where((m) => !m.isBye))
             MatchContextSubtree(

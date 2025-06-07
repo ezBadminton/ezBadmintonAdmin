@@ -9,7 +9,6 @@ import 'package:ez_badminton_admin_app/home/widgets/court_navigation_tab_icon.da
 import 'package:ez_badminton_admin_app/home/widgets/navigation_tab.dart';
 import 'package:ez_badminton_admin_app/home/widgets/result_navigation_tab_icon.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/match_court_assignment_cubit.dart';
-import 'package:ez_badminton_admin_app/match_management/result_entering/widgets/match_scan_listener.dart';
 import 'package:ez_badminton_admin_app/match_management/view/match_management_page.dart';
 import 'package:ez_badminton_admin_app/player_management/view/player_list_page.dart';
 import 'package:ez_badminton_admin_app/result_management/view/result_management_page.dart';
@@ -172,84 +171,10 @@ class _HomePageState extends State<HomePage>
       ],
       child: BlocBuilder<TabNavigationCubit, TabNavigationState>(
         builder: (context, tabNavigationState) {
-          return MatchScanListener(
-            child: Row(
-              children: [
-                NavigationRail(
-                  onDestinationSelected: (index) =>
-                      context.read<TabNavigationCubit>().tabChanged(index),
-                  destinations: tabs
-                      .map((tab) => NavigationRailDestination(
-                            icon: tab.iconBuilder(tab.unselectedIcon, false),
-                            selectedIcon:
-                                tab.iconBuilder(tab.selectedIcon, true),
-                            label: Text(tab.label),
-                          ))
-                      .toList(),
-                  selectedIndex: tabNavigationState.selectedIndex,
-                  backgroundColor:
-                      Theme.of(context).drawerTheme.backgroundColor,
-                  minWidth: 103,
-                  labelType: NavigationRailLabelType.all,
-                  useIndicator: true,
-                  indicatorColor:
-                      Theme.of(context).colorScheme.primary.withAlpha(100),
-                  selectedLabelTextStyle: TextStyle(
-                      color: Theme.of(context).primaryColorDark,
-                      fontWeight: FontWeight.bold),
-                  unselectedLabelTextStyle: const TextStyle(
-                    color: Colors.black87,
-                  ),
-                  trailing: Expanded(
-                    child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: SizedBox(
-                        width: 103,
-                        height: 30,
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.of(context).push(SettingsPage.route());
-                          },
-                          style: ButtonStyle(
-                            backgroundColor: WidgetStatePropertyAll(
-                              Theme.of(context)
-                                  .colorScheme
-                                  .secondary
-                                  .withAlpha(62),
-                            ),
-                          ),
-                          child: Icon(Icons.settings),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const VerticalDivider(thickness: 1, width: 1),
-                Expanded(
-                  child: Scaffold(
-                    body: SafeArea(
-                      top: false,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: tabs.map((NavigationTab tab) {
-                          final int index = tab.index;
-                          final Widget view = tabViews[index];
-                          if (index == tabNavigationState.selectedIndex) {
-                            switchAnimationControllers[index].forward();
-                            return Offstage(offstage: false, child: view);
-                          } else {
-                            switchAnimationControllers[index].reverse();
-                            if (switchAnimationControllers[index].isAnimating) {
-                              return IgnorePointer(child: view);
-                            }
-                            return Offstage(child: view);
-                          }
-                        }).toList(),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+          return Scaffold(
+            body: SafeArea(
+              top: false,
+              child: ResultManagementPage(),
             ),
           );
         },

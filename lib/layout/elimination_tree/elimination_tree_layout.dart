@@ -388,9 +388,8 @@ class _TreeEdgeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color treeArmColor =
-        Theme.of(context).colorScheme.onSurface.withOpacity(.85);
-    double treeArmThickness = 1.3;
+    Color treeArmColor = Colors.white70;
+    double treeArmThickness = 3;
 
     return switch (type) {
       _TreeEdgeType.incoming => Divider(

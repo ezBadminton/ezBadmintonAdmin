@@ -414,7 +414,7 @@ class _LoserEdge extends LayoutId {
   _LoserEdge({
     required this.index,
   }) : super(
-          child: const SLine(color: Colors.black26),
+          child: const SLine(color: Colors.white54),
           id: 'LoserEdge-$index',
         );
 

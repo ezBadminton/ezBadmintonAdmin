@@ -69,27 +69,39 @@ class _BracketSectionNavigatorState extends State<BracketSectionNavigator> {
 
     return Column(
       children: [
-        Row(
-          children: _sectionRects!.entries.expand((entry) {
-            BracketSection section = entry.key;
-            double sectionWidth = entry.value.width;
-
-            double? distanceToNextSection = _getDistanceToNextSection(section);
-
-            return [
-              _SectionButton(
-                width: widthScale * sectionWidth,
-                controller: widget.viewController,
-                section: section,
+        Stack(
+          children: [
+            Positioned.fill(
+              child: Container(
+                color: Theme.of(context)
+                    .colorScheme
+                    .surface
+                    .withValues(alpha: 0.33),
               ),
-              if (distanceToNextSection != null)
-                Container(
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  height: _height,
-                  width: widthScale * distanceToNextSection,
-                ),
-            ];
-          }).toList(),
+            ),
+            Row(
+              children: _sectionRects!.entries.expand((entry) {
+                BracketSection section = entry.key;
+                double sectionWidth = entry.value.width;
+
+                double? distanceToNextSection =
+                    _getDistanceToNextSection(section);
+
+                return [
+                  _SectionButton(
+                    width: widthScale * sectionWidth,
+                    controller: widget.viewController,
+                    section: section,
+                  ),
+                  if (distanceToNextSection != null)
+                    SizedBox(
+                      height: _height,
+                      width: widthScale * distanceToNextSection,
+                    ),
+                ];
+              }).toList(),
+            ),
+          ],
         ),
         _SectionIndicator(
           width: widget.viewController.viewConstraints!.maxWidth,

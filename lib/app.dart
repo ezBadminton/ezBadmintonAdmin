@@ -347,6 +347,13 @@ class _AppState extends State<App> {
             authCollectionName: infoscreenAuthCollectionName,
           ),
         ),
+        RepositoryProvider.value(
+          value: PocketbaseRealtimeRepository<InfoscreenCommand>(
+            topic: "infoscreencontrol",
+            pocketBase: _pocketBaseProvider.pocketBase,
+            constructor: InfoscreenCommand.fromJson,
+          ),
+        ),
       ],
       child: BlocProvider(
         create: (_) => AuthenticationBloc(

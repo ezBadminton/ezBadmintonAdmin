@@ -86,6 +86,20 @@ class TournamentBracketExplorerController
 
     double fittingScale = clampDouble(min(xScale, yScale), 0.001, 1.33);
 
+    // The minimum distance of the top of the widget from the top edge of the view.
+    // It is needed to give space to the UI overlay at the top.
+    double minTopMargin = 73;
+    double verticalMargin =
+        (viewSize.height - widgetSize.height * fittingScale) * .5;
+
+    double missingMargin = minTopMargin - verticalMargin;
+    if (missingMargin > 0) {
+      double yScale = (viewSize.height - missingMargin) / widgetSize.height;
+
+      fittingScale = clampDouble(min(xScale, yScale), 0.001, 1.33);
+      widgetCenter -= Offset(0, missingMargin * 0.5 / fittingScale);
+    }
+
     focusPoint(widgetCenter, fittingScale);
   }
 }

@@ -2,7 +2,6 @@ import 'package:ez_badminton_admin_app/result_management/widgets/result_explorer
 import 'package:ez_badminton_admin_app/widgets/competition_selection_list/competition_selection_list.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_selection_list/cubit/competition_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
-import 'package:ez_badminton_admin_app/widgets/tab_navigation_back_button/tab_navigation_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ez_badminton_admin_app/l10n/l10n.dart';
@@ -15,54 +14,52 @@ class ResultManagementPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => CompetitionSelectionCubit(
-        competitionStore: context.read<ModelStore<Competition>>(),
+        competitionStore: context.read(),
+        tPlanStore: context.read(),
+        commandRepository:
+            context.read<PocketbaseRealtimeRepository<InfoscreenCommand>>(),
+        cyclingInterval: const Duration(seconds: 15),
       ),
-      child: const _ResultManagementPageScaffold(),
+      child: const ResultManagementPageScaffold(),
     );
   }
 }
 
-class _ResultManagementPageScaffold extends StatelessWidget {
-  const _ResultManagementPageScaffold();
+class ResultManagementPageScaffold extends StatelessWidget {
+  const ResultManagementPageScaffold({super.key});
 
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
 
-    return TabNavigationBackButtonBuilder(
-      builder: (context, backButton) => Scaffold(
-        appBar: AppBar(
-          title: Text(l10n.resultManagement),
-          leading: backButton,
-        ),
-        body: BlocBuilder<CompetitionSelectionCubit, CompetitionSelectionState>(
-          builder: (context, state) {
-            return LoadingScreen(
-              loadingStatus: state.loadingStatus,
-              builder: (context) => Row(
-                children: [
-                  SizedBox(
-                    width: 260,
-                    child: Align(
-                      alignment: Alignment.topCenter,
-                      child: CompetitionSelectionList(
-                        noCompetitionsHint: l10n.noCompetitionsResultHint,
-                      ),
+    return Scaffold(
+      body: BlocBuilder<CompetitionSelectionCubit, CompetitionSelectionState>(
+        builder: (context, state) {
+          return LoadingScreen(
+            loadingStatus: state.loadingStatus,
+            builder: (context) => Row(
+              children: [
+                SizedBox(
+                  width: 175,
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: CompetitionSelectionList(
+                      noCompetitionsHint: l10n.noCompetitionsResultHint,
                     ),
                   ),
-                  const VerticalDivider(
-                    thickness: 1,
-                    width: 1,
-                    color: Colors.black26,
-                  ),
-                  const Expanded(
-                    child: ResultExplorer(),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
+                ),
+                const VerticalDivider(
+                  thickness: 1,
+                  width: 1,
+                  color: Colors.black26,
+                ),
+                const Expanded(
+                  child: ResultExplorer(),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

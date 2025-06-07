@@ -41,33 +41,29 @@ class CompetitionSelectionList extends StatelessWidget {
           );
         }
 
-        return SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 25),
-              for (Competition competition in competitions) ...[
-                ChoiceChipTab(
-                  onSelected: (_) {
-                    cubit.competitionToggled(competition);
-                  },
-                  selected: state.selectedCompetition.value == competition,
-                  label: SizedBox(
-                    width: 210,
-                    child: CompetitionLabel(
-                      competition: competition,
-                      abbreviated: true,
-                      playingLevelMaxWidth: 100,
-                    ),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            for (Competition competition in competitions) ...[
+              ChoiceChipTab(
+                onSelected: (_) {
+                  cubit.competitionToggled(competition);
+                },
+                selected: state.selectedCompetition.value == competition,
+                label: SizedBox(
+                  width: 130,
+                  child: CompetitionLabel(
+                    competition: competition,
+                    abbreviated: true,
+                    playingLevelMaxWidth: 100,
                   ),
                 ),
-                const SizedBox(
-                  height: 8,
-                ),
-              ],
-              const SizedBox(height: 200),
+              ),
+              const SizedBox(height: 8),
             ],
-          ),
+            const SizedBox(height: 130),
+          ],
         );
       },
     );

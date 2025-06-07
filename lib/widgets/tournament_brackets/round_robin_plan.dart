@@ -1,4 +1,6 @@
+import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section_subtree.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bracket.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/interactive_view_blocker_cubit.dart';
@@ -10,16 +12,23 @@ import 'package:flutter_scroll_shadow/flutter_scroll_shadow.dart';
 import 'package:ez_badminton_admin_app/l10n/l10n.dart';
 import 'bracket_sizes.dart' as bracket_sizes;
 
-class RoundRobinPlan extends StatelessWidget {
+class RoundRobinPlan extends StatelessWidget implements SectionedBracket {
   const RoundRobinPlan({
     super.key,
     this.isEditable = false,
     this.title,
+    this.sections = const [],
   });
 
   final bool isEditable;
 
   final String? title;
+
+  @override
+  final List<BracketSection> sections;
+
+  @override
+  bool get navigatable => false;
 
   @override
   Widget build(BuildContext context) {

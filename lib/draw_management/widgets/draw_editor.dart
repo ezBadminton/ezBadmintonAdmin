@@ -1,4 +1,5 @@
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bracket.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/cubit/tournament_plan_context_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:model_repository/model_repository.dart';
@@ -6,11 +7,8 @@ import 'package:ez_badminton_admin_app/competition_management/tournament_mode_as
 import 'package:ez_badminton_admin_app/draw_management/cubit/draw_deletion_cubit.dart';
 import 'package:ez_badminton_admin_app/draw_management/cubit/drawing_cubit.dart';
 import 'package:ez_badminton_admin_app/draw_management/widgets/tournament_mode_card.dart';
-import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
-import 'package:ez_badminton_admin_app/utils/confirmation_cubit/confirmation_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_selection_list/cubit/competition_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/dialog_listener.dart';
-import 'package:ez_badminton_admin_app/widgets/dialogs/confirm_dialog.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/bracket_explorer_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/tournament_bracket_explorer.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/consolation_elimination_tree.dart';
@@ -110,7 +108,7 @@ class _InteractiveDraw extends StatelessWidget {
             builder: (context) {
               TournamentPlan tPlan = state.tournamentPlan!;
 
-              Widget drawView = switch (tPlan.tournament) {
+              SectionedBracket drawView = switch (tPlan.tournament) {
                 SingleElimination tournament => SingleEliminationTree(
                     rounds: tournament.rounds,
                     isEditable: !tPlan.started,
@@ -138,10 +136,6 @@ class _InteractiveDraw extends StatelessWidget {
                 key: ValueKey('DrawEditor-${competition.id}'),
                 competition: competition,
                 tournamentBracket: drawView,
-                controlBarOptionsBuilder: (bool compact) => tPlan.started
-                    ? _ResultLinkButton(
-                        compact: compact, competition: competition)
-                    : _ControlBarDrawOptions(compact: compact),
               );
             },
           );
@@ -276,189 +270,4 @@ class _TournamentModeAssignmentButton extends StatelessWidget {
       );
     }
   }
-}
-
-class _ControlBarDrawOptions extends StatelessWidget {
-  const _ControlBarDrawOptions({
-    required this.compact,
-  });
-
-  final bool compact;
-
-  @override
-  Widget build(BuildContext context) {
-    var l10n = AppLocalizations.of(context)!;
-
-    var drawingCubit = context.read<DrawingCubit>();
-    var drawDeletionCubit = context.read<DrawDeletionCubit>();
-
-    return BlocProvider(
-      create: (context) => ConfirmationCubit(),
-      child: DialogListener<ConfirmationCubit, ConfirmationState, bool>(
-        builder: (context, state, reason) {
-          String title = switch (reason as _ConfirmReason) {
-            _ConfirmReason.undoManualDraw => l10n.undoManualDraw,
-            _ConfirmReason.redraw => l10n.redraw,
-            _ConfirmReason.deleteDraw => l10n.deleteSubject(l10n.draw(1)),
-          };
-
-          String body = switch (reason) {
-            _ConfirmReason.undoManualDraw => l10n.undoManualDrawWarning,
-            _ConfirmReason.redraw => l10n.redrawWarning,
-            _ConfirmReason.deleteDraw => l10n.deleteDrawWarning,
-          };
-
-          return ConfirmDialog(
-            title: Text(title),
-            content: Text(body),
-            confirmButtonLabel: l10n.confirm,
-            cancelButtonLabel: l10n.cancel,
-          );
-        },
-        child: Builder(builder: (context) {
-          var confirmationCubit = context.read<ConfirmationCubit>();
-
-          undoManualDraw() => confirmationCubit.executeWithConfirmation(
-                drawingCubit.makeDraw,
-                reason: _ConfirmReason.undoManualDraw,
-              );
-
-          redraw() => confirmationCubit.executeWithConfirmation(
-                drawingCubit.redraw,
-                reason: _ConfirmReason.redraw,
-              );
-
-          deleteDraw() => confirmationCubit.executeWithConfirmation(
-                drawDeletionCubit.deleteDraw,
-                reason: _ConfirmReason.deleteDraw,
-              );
-
-          if (compact) {
-            return PopupMenuButton<VoidCallback>(
-              onSelected: (callback) => callback(),
-              tooltip: '',
-              splashRadius: 19,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                child: Icon(
-                  Icons.more_vert,
-                  color: Theme.of(context).primaryColor,
-                ),
-              ),
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: undoManualDraw,
-                  child: Text(l10n.undoManualDraw),
-                ),
-                PopupMenuItem(
-                  value: redraw,
-                  child: Text(l10n.redraw),
-                ),
-                PopupMenuItem(
-                  value: deleteDraw,
-                  child: Text(
-                    l10n.deleteSubject(l10n.draw(1)),
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-                ),
-              ],
-            );
-          } else {
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Tooltip(
-                  message: l10n.undoManualDraw,
-                  waitDuration: const Duration(milliseconds: 500),
-                  child: TextButton(
-                    onPressed: undoManualDraw,
-                    child: const Icon(Icons.restore),
-                  ),
-                ),
-                Tooltip(
-                  message: l10n.redraw,
-                  waitDuration: const Duration(milliseconds: 500),
-                  child: TextButton(
-                    onPressed: redraw,
-                    child: const Icon(Icons.casino_outlined),
-                  ),
-                ),
-                Tooltip(
-                  message: l10n.deleteSubject(l10n.draw(1)),
-                  waitDuration: const Duration(milliseconds: 500),
-                  child: TextButton(
-                    onPressed: deleteDraw,
-                    child: const Icon(Icons.delete),
-                  ),
-                ),
-              ],
-            );
-          }
-        }),
-      ),
-    );
-  }
-}
-
-class _ResultLinkButton extends StatelessWidget {
-  const _ResultLinkButton({
-    required this.compact,
-    required this.competition,
-  });
-
-  final bool compact;
-
-  final Competition competition;
-
-  @override
-  Widget build(BuildContext context) {
-    var l10n = AppLocalizations.of(context)!;
-
-    var navigationCubit = context.read<TabNavigationCubit>();
-
-    onPressed() {
-      navigationCubit.tabChanged(5, reason: competition);
-    }
-
-    if (compact) {
-      return Tooltip(
-        message: l10n.result(2),
-        child: SizedBox(
-          width: 40,
-          child: TextButton(
-            style: TextButton.styleFrom(
-              padding: EdgeInsets.zero,
-            ),
-            onPressed: onPressed,
-            child: const Icon(Icons.emoji_events),
-          ),
-        ),
-      );
-    }
-
-    return TextButton(
-      onPressed: onPressed,
-      child: SizedBox(
-        width: 155,
-        child: Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.emoji_events),
-              const SizedBox(width: 7),
-              Text(l10n.result(2)),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-enum _ConfirmReason {
-  undoManualDraw,
-  redraw,
-  deleteDraw,
 }

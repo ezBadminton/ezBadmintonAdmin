@@ -27,6 +27,9 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
   final List<BracketSection> sections;
 
   @override
+  bool get navigatable => true;
+
+  @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
     var tPlan = context.readTournamentPlan();
