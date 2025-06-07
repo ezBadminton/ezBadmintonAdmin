@@ -98,7 +98,7 @@ class _SlotLabel extends StatelessWidget {
     required this.showClub,
     required this.useFullName,
     this.leadingWidget,
-    // ignore: unused_element
+    // ignore: unused_element_parameter
     this.trailingWidget,
     this.placeholderLabel,
     required this.alignment,
@@ -205,8 +205,9 @@ class _SlotLabel extends StatelessWidget {
         .toList();
   }
 
-  Widget _getPlayerName(player, Color textColor) {
+  Widget _getPlayerName(Player player, Color textColor) {
     return BlocProvider(
+      key: ValueKey(player.id),
       create: (context) => PlayerCubit(
         playerStore: context.read(),
         clubStore: context.read(),

@@ -503,6 +503,7 @@ class _TeamCard extends StatelessWidget {
 
   Widget _buildPlayerName(Player player) {
     return BlocProvider(
+      key: ValueKey(player.id),
       create: (context) => PlayerCubit(
         player: player,
         playerStore: context.read(),
