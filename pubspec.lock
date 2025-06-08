@@ -710,10 +710,10 @@ packages:
     dependency: "direct main"
     description:
       name: pocketbase
-      sha256: "807a82d0123a7d2e753aeef43deda6eac375962b73cd5e40725045a778e0c658"
+      sha256: "98572a1b3da2e2e4021bef5e3c72d98b072734cc290b2e89a5d8180c86855277"
       url: "https://pub.dev"
     source: hosted
-    version: "0.21.0"
+    version: "0.23.0"
   pocketbase_provider:
     dependency: "direct main"
     description:

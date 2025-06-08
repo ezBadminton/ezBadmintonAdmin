@@ -11,7 +11,7 @@ dependencies:
     sdk: flutter
   equatable: ^2.0.7
   collection: ^1.19.0
-  pocketbase: ^0.21.0
+  pocketbase: ^0.23.0
   pocketbase_provider:
     path: ../pocketbase_provider
   authentication_repository:
