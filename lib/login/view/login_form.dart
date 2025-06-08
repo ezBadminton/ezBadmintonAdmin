@@ -27,14 +27,7 @@ class LoginForm extends StatelessWidget {
         }
       },
       builder: (context, state) {
-        if (state.registrationStatus == RegistrationStatus.unknown) {
-          return const SizedBox();
-        }
-
-        String formTitle =
-            state.registrationStatus == RegistrationStatus.registered
-                ? l10n.login
-                : l10n.signUp;
+        String formTitle = l10n.login;
 
         return Align(
           alignment: const Alignment(0, -1 / 4),
@@ -56,11 +49,6 @@ class LoginForm extends StatelessWidget {
                 const SizedBox(height: 24),
                 _PasswordInput(),
                 const SizedBox(height: 24),
-                if (state.registrationStatus ==
-                    RegistrationStatus.notRegistered) ...[
-                  _PasswordConfirmationInput(),
-                  const SizedBox(height: 24),
-                ],
                 _SubmitButton(),
               ],
             ),
@@ -129,44 +117,9 @@ class _PasswordInput extends StatelessWidget {
         return null;
       case LoginState(password: NonEmptyInput(error: NonEmptyError.empty)):
         return l10n.invalidPassword;
-      case LoginState(
-          registrationStatus: RegistrationStatus.notRegistered,
-          password: NonEmptyInput(error: NonEmptyError.tooShort),
-        ):
-        return l10n.passwordTooShort;
       default:
         return null;
     }
-  }
-}
-
-class _PasswordConfirmationInput extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<LoginBloc, LoginState>(
-      buildWhen: (previous, current) =>
-          previous.passwordConfirmation != current.passwordConfirmation ||
-          previous.showValidationErrors != current.showValidationErrors,
-      builder: (context, state) {
-        return TextField(
-          key: const Key('loginForm_passwordConfirmationInput_textField'),
-          controller: context.read<LoginBloc>().passwordConfirmationController,
-          onChanged: (password) => context
-              .read<LoginBloc>()
-              .add(LoginPasswordConfirmationChanged(password)),
-          onSubmitted: (_) =>
-              context.read<LoginBloc>().add(const LoginSubmitted()),
-          obscureText: true,
-          decoration: InputDecoration(
-            labelText: AppLocalizations.of(context)!.passwordConfirmation,
-            errorText: !state.showValidationErrors ||
-                    state.passwordConfirmation.isValid
-                ? null
-                : AppLocalizations.of(context)!.invalidPasswordConfirmation,
-          ),
-        );
-      },
-    );
   }
 }
 
@@ -175,26 +128,19 @@ class _SubmitButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<LoginBloc, LoginState>(
       buildWhen: (previous, current) =>
-          previous.registrationStatus != current.registrationStatus ||
           previous.status != current.status ||
           previous.isValid != current.isValid,
       builder: (context, state) {
         var l10n = AppLocalizations.of(context)!;
-        String buttonLabel =
-            state.registrationStatus == RegistrationStatus.registered
-                ? l10n.login
-                : l10n.signUp;
+        String buttonLabel = l10n.login;
 
         return state.status.isInProgress
             ? const CircularProgressIndicator()
             : ElevatedButton(
                 key: const Key('loginForm_submit_raisedButton'),
-                onPressed: state.registrationStatus ==
-                        RegistrationStatus.unknown
-                    ? null
-                    : () {
-                        context.read<LoginBloc>().add(const LoginSubmitted());
-                      },
+                onPressed: () {
+                  context.read<LoginBloc>().add(const LoginSubmitted());
+                },
                 child: Text(buttonLabel),
               );
       },

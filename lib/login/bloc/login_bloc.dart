@@ -4,7 +4,6 @@ import 'package:authentication_repository/authentication_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:ez_badminton_admin_app/constants.dart';
-import 'package:ez_badminton_admin_app/input_models/equal_input.dart';
 import 'package:ez_badminton_admin_app/input_models/non_empty.dart';
 import 'package:flutter/material.dart';
 import 'package:formz/formz.dart';
@@ -14,18 +13,14 @@ part 'login_state.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   LoginBloc({
-    required AuthenticationRepository<OrganizerAuthCollectionName>
+    required AuthenticationRepository<InfoscreenAuthCollectionName>
         authenticationRepository,
   })  : _authenticationRepository = authenticationRepository,
         super(const LoginState()) {
     on<LoginUsernameChanged>(_onUsernameChanged);
     on<LoginPasswordChanged>(_onPasswordChanged);
-    on<LoginPasswordConfirmationChanged>(_onPasswordConfirmationChanged);
     on<LoginSubmitted>(_onSubmitted);
     on<LoginFailureDismissed>(_onLoginFailureDismissed);
-    on<RegistrationStatusChanged>(_onRegistrationStatusChanged);
-
-    _fetchRegistrationStatus();
   }
 
   final AuthenticationRepository _authenticationRepository;
@@ -34,28 +29,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final TextEditingController passwordInputController = TextEditingController();
   final TextEditingController passwordConfirmationController =
       TextEditingController();
-
-  void _fetchRegistrationStatus() async {
-    add(const RegistrationStatusChanged(RegistrationStatus.unknown));
-
-    bool isRegistered = await _authenticationRepository.isRegistered();
-
-    if (isRegistered) {
-      add(const RegistrationStatusChanged(RegistrationStatus.registered));
-    } else {
-      add(const RegistrationStatusChanged(RegistrationStatus.notRegistered));
-    }
-  }
-
-  void _onRegistrationStatusChanged(
-    RegistrationStatusChanged event,
-    Emitter<LoginState> emit,
-  ) {
-    LoginState newState = state.copyWith(
-      registrationStatus: event.registrationStatus,
-    );
-    emit(newState);
-  }
 
   void _onUsernameChanged(
     LoginUsernameChanged event,
@@ -70,31 +43,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     Emitter<LoginState> emit,
   ) {
     final password = state.password.copyWith(event.password);
-
-    EqualInput passwordConfirmation = state.passwordConfirmation;
-    if (state.registrationStatus == RegistrationStatus.notRegistered) {
-      passwordConfirmation = EqualInput.dirty(
-        event.password,
-        state.passwordConfirmation.value,
-      );
-    }
-
-    emit(state.copyWith(
-      password: password,
-      passwordConfirmation: passwordConfirmation,
-    ));
-  }
-
-  void _onPasswordConfirmationChanged(
-    LoginPasswordConfirmationChanged event,
-    Emitter<LoginState> emit,
-  ) {
-    final passwordConfirmation = EqualInput.dirty(
-      state.password.value,
-      event.passwordConfirmation,
-    );
-
-    emit(state.copyWith(passwordConfirmation: passwordConfirmation));
+    emit(state.copyWith(password: password));
   }
 
   Future<void> _onSubmitted(
@@ -109,26 +58,15 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
     emit(state.copyWith(status: FormzSubmissionStatus.inProgress));
     try {
-      if (state.registrationStatus == RegistrationStatus.registered) {
-        await _authenticationRepository.logIn(
-          username: state.username.value,
-          password: state.password.value,
-        );
-      } else if (state.registrationStatus == RegistrationStatus.notRegistered) {
-        await _authenticationRepository.signUp(
-          username: state.username.value,
-          password: state.password.value,
-        );
-      } else {
-        throw LoginException("Can't submit with unknown registration status");
-      }
-      _fetchRegistrationStatus();
+      await _authenticationRepository.logIn(
+        username: state.username.value,
+        password: state.password.value,
+      );
 
       emit(state.copyWith(
         status: FormzSubmissionStatus.success,
         username: const NonEmptyInput.pure(),
         password: const NonEmptyInput.pure(minLength: 5),
-        passwordConfirmation: const EqualInput.pure(''),
         showValidationErrors: false,
       ));
       usernameInputController.text = '';
@@ -139,7 +77,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         status: FormzSubmissionStatus.failure,
         loginStatusCode: e.statusCode,
       ));
-      _fetchRegistrationStatus();
     }
   }
 

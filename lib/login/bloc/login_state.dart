@@ -8,8 +8,6 @@ class LoginState extends Equatable with FormzMixin {
     this.loginStatusCode = '',
     this.username = const NonEmptyInput.pure(),
     this.password = const NonEmptyInput.pure(minLength: 5),
-    this.passwordConfirmation = const EqualInput.pure(''),
-    this.registrationStatus = RegistrationStatus.unknown,
   });
 
   final FormzSubmissionStatus status;
@@ -17,8 +15,6 @@ class LoginState extends Equatable with FormzMixin {
   final String loginStatusCode;
   final NonEmptyInput username;
   final NonEmptyInput password;
-  final EqualInput passwordConfirmation;
-  final RegistrationStatus registrationStatus;
 
   LoginState copyWith({
     FormzSubmissionStatus? status,
@@ -26,8 +22,6 @@ class LoginState extends Equatable with FormzMixin {
     String? loginStatusCode,
     NonEmptyInput? username,
     NonEmptyInput? password,
-    EqualInput? passwordConfirmation,
-    RegistrationStatus? registrationStatus,
   }) {
     return LoginState(
       status: status ?? this.status,
@@ -35,8 +29,6 @@ class LoginState extends Equatable with FormzMixin {
       loginStatusCode: loginStatusCode ?? this.loginStatusCode,
       username: username ?? this.username,
       password: password ?? this.password,
-      passwordConfirmation: passwordConfirmation ?? this.passwordConfirmation,
-      registrationStatus: registrationStatus ?? this.registrationStatus,
     );
   }
 
@@ -47,16 +39,8 @@ class LoginState extends Equatable with FormzMixin {
         loginStatusCode,
         username,
         password,
-        passwordConfirmation,
-        registrationStatus,
       ];
 
   @override
-  List<FormzInput> get inputs => [username, password, passwordConfirmation];
-}
-
-enum RegistrationStatus {
-  unknown,
-  registered,
-  notRegistered,
+  List<FormzInput> get inputs => [username, password];
 }

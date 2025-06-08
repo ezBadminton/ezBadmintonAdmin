@@ -33,7 +33,7 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   late final PocketBaseProvider _pocketBaseProvider;
-  late final AuthenticationRepository<OrganizerAuthCollectionName>
+  late final AuthenticationRepository<InfoscreenAuthCollectionName>
       _authenticationRepository;
   late final UserRepository _userRepository;
   late final ModelRepository _modelRepository;
@@ -55,7 +55,7 @@ class _AppState extends State<App> {
     _pocketBaseProvider = PocketBaseProvider(pocketbaseUrl);
     _authenticationRepository = AuthenticationRepository(
       pocketBaseProvider: _pocketBaseProvider,
-      authCollectionName: organizerAuthCollectionName,
+      authCollectionName: infoscreenAuthCollectionName,
     );
     _userRepository = UserRepository(
       pocketBaseProvider: _pocketBaseProvider,

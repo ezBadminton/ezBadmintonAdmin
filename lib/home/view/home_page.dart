@@ -12,7 +12,6 @@ import 'package:ez_badminton_admin_app/match_management/cubit/match_court_assign
 import 'package:ez_badminton_admin_app/match_management/view/match_management_page.dart';
 import 'package:ez_badminton_admin_app/player_management/view/player_list_page.dart';
 import 'package:ez_badminton_admin_app/result_management/view/result_management_page.dart';
-import 'package:ez_badminton_admin_app/settings/view/settings_page.dart';
 import 'package:ez_badminton_admin_app/tournament_plans/cubit/tournament_plan_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
