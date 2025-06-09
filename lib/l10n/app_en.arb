@@ -7,11 +7,14 @@
   "password": "Password",
   "passwordConfirmation": "Confirm password",
   "eMail": "e-mail",
+  "user": "user",
   "invalidUsername": "Please enter username",
+  "usernameTooShort": "Please use at least 3 characters",
   "invalidPassword": "Please enter password",
   "invalidPasswordConfirmation": "Password doesn't match",
   "passwordTooShort": "Please use at least 5 characters",
   "loginError" : "{errorCode, select, 400{Invalid credentials} other{Unknown sign-in error}}",
+  "signUpError": "Sign up failed",
   "overAge": "over",
   "underAge": "under",
   "overAgeAbbreviated": "O",
@@ -358,5 +361,10 @@
   "multiPagePlan": "Distribute over pages",
   "bigPagePlan": "One big page",
   "multiPagePlanHelp": "The match plan is distributed across multiple pages if needed. After printing the plan can be cut out and pieced together.",
-  "bigPagePlanHelp": "The plan is put onto a single page. The page size follows the format of the plan. Note: The text can get an unreadable size when printing large plans."
+  "bigPagePlanHelp": "The plan is put onto a single page. The page size follows the format of the plan. Note: The text can get an unreadable size when printing large plans.",
+  "infoscreens": "Information screens",
+  "infoscreenCredentials": "Info Screen Logins",
+  "infoscreenHelp": "By using the info-screen-client for ezBadminton, the tournament administration can use public screens to display the standings to the viewers and players in the venue. The login credentials for logging in with this client have to be created here. Ideally one login is created per screen.",
+  "signUpInfoscreenUser": "Create Info Screen Login",
+  "reallyDeleteInfoscreenUser": "Really delete login?"
 }

@@ -289,5 +289,10 @@ class PocketbaseModelRepository extends ModelRepository {
       modelConstructor: TournamentPlan.fromJson,
       pocketBase: _pbProvider.pocketBase,
     );
+    _stores[InfoscreenUser] = PocketbaseModelStore<InfoscreenUser>(
+      repository: this,
+      modelConstructor: InfoscreenUser.fromJson,
+      pocketBase: _pbProvider.pocketBase,
+    );
   }
 }

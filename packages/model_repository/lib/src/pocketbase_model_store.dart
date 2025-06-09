@@ -264,4 +264,5 @@ const Map<Type, String> _collectionNames = {
   ScheduledMatch: 'scheduled_matches',
   TournamentPlan: 'tournament_plans',
   TournamentMatch: 'tournament_matches',
+  InfoscreenUser: 'infoscreen_users',
 };

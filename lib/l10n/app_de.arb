@@ -7,11 +7,14 @@
   "password": "Passwort",
   "passwordConfirmation": "Passwort bestätigen",
   "eMail": "E-Mail",
+  "user": "Benutzer",
   "invalidUsername": "Bitte Benutzernamen eingeben",
+  "usernameTooShort": "Bitte min. 3 Zeichen verwenden",
   "invalidPassword": "Bitte Passwort eingeben",
   "invalidPasswordConfirmation": "Passwort stimmt nicht überein",
   "passwordTooShort": "Bitte min. 5 Zeichen verwenden",
-  "loginError" : "{errorCode, select, 400{Ungültige Anmeldeinformationen} other{Unbekannter Fehler beim Anmelden}}",
+  "loginError": "{errorCode, select, 400{Ungültige Anmeldeinformationen} other{Unbekannter Fehler beim Anmelden}}",
+  "signUpError": "Registrierung fehlgeschlagen",
   "overAge": "Über",
   "underAge": "Unter",
   "overAgeAbbreviated": "O",
@@ -358,5 +361,10 @@
   "multiPagePlan": "Auf Seiten verteilen",
   "bigPagePlan": "Eine zusammenhängende Seite",
   "multiPagePlanHelp": "Der Spielplan wird ggf. auf mehrere Seiten aufgeteilt und kann nach dem Drucken ausgeschnitten und zusammengesetzt werden",
-  "bigPagePlanHelp": "Der Spielplan wird auf einer einzelnen Seite erstellt. Die Seitengröße folgt dem Format des Plans. Hinweis: Die Schrift kann beim Drucken größerer Pläne eine unlesbare Größe bekommen."
+  "bigPagePlanHelp": "Der Spielplan wird auf einer einzelnen Seite erstellt. Die Seitengröße folgt dem Format des Plans. Hinweis: Die Schrift kann beim Drucken größerer Pläne eine unlesbare Größe bekommen.",
+  "infoscreens": "Informationsbildschirme",
+  "infoscreenCredentials": "Infobildschirm-Zugänge",
+  "infoscreenHelp": "Mit dem Infobildschirm-Client für ezBadminton kann man als Turnierveranstalter den Zuschauern und Teilnehmern auf Bildschirmen in der Halle die aktuellen Spielstände zeigen. Die Zugangsdaten, mit denen man sich in dem Client anmelden kann, werden hier registriert. Idealerweise erstellt man einen Zugang pro Bildschirm.",
+  "signUpInfoscreenUser": "Infobildschirm-Zugang einrichten",
+  "reallyDeleteInfoscreenUser": "Zugang wirklich löschen?"
 }

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:authentication_repository/authentication_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:ez_badminton_admin_app/constants.dart';
 import 'package:ez_badminton_admin_app/input_models/equal_input.dart';
 import 'package:ez_badminton_admin_app/input_models/non_empty.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,8 @@ part 'login_state.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   LoginBloc({
-    required AuthenticationRepository authenticationRepository,
+    required AuthenticationRepository<OrganizerAuthCollectionName>
+        authenticationRepository,
   })  : _authenticationRepository = authenticationRepository,
         super(const LoginState()) {
     on<LoginUsernameChanged>(_onUsernameChanged);

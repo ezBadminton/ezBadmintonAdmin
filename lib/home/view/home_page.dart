@@ -13,6 +13,7 @@ import 'package:ez_badminton_admin_app/match_management/result_entering/widgets/
 import 'package:ez_badminton_admin_app/match_management/view/match_management_page.dart';
 import 'package:ez_badminton_admin_app/player_management/view/player_list_page.dart';
 import 'package:ez_badminton_admin_app/result_management/view/result_management_page.dart';
+import 'package:ez_badminton_admin_app/settings/view/settings_page.dart';
 import 'package:ez_badminton_admin_app/tournament_plans/cubit/tournament_plan_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -198,6 +199,29 @@ class _HomePageState extends State<HomePage>
                       fontWeight: FontWeight.bold),
                   unselectedLabelTextStyle: const TextStyle(
                     color: Colors.black87,
+                  ),
+                  trailing: Expanded(
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: SizedBox(
+                        width: 103,
+                        height: 30,
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.of(context).push(SettingsPage.route());
+                          },
+                          style: ButtonStyle(
+                            backgroundColor: WidgetStatePropertyAll(
+                              Theme.of(context)
+                                  .colorScheme
+                                  .secondary
+                                  .withAlpha(62),
+                            ),
+                          ),
+                          child: Icon(Icons.settings),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
                 const VerticalDivider(thickness: 1, width: 1),

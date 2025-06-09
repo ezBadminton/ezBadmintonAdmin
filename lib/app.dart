@@ -2,6 +2,7 @@ import 'dart:ffi';
 import 'dart:io';
 
 import 'package:authentication_repository/authentication_repository.dart';
+import 'package:ez_badminton_admin_app/constants.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/utils/test_environment.dart';
 import 'package:flutter/foundation.dart';
@@ -32,7 +33,8 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   late final PocketBaseProvider _pocketBaseProvider;
-  late final AuthenticationRepository _authenticationRepository;
+  late final AuthenticationRepository<OrganizerAuthCollectionName>
+      _authenticationRepository;
   late final UserRepository _userRepository;
   late final ModelRepository _modelRepository;
 
@@ -53,6 +55,7 @@ class _AppState extends State<App> {
     _pocketBaseProvider = PocketBaseProvider(pocketbaseUrl);
     _authenticationRepository = AuthenticationRepository(
       pocketBaseProvider: _pocketBaseProvider,
+      authCollectionName: organizerAuthCollectionName,
     );
     _userRepository = UserRepository(
       pocketBaseProvider: _pocketBaseProvider,
@@ -190,6 +193,9 @@ class _AppState extends State<App> {
         ),
         RepositoryProvider.value(
           value: _modelRepository.findStore<ScheduledMatch>(),
+        ),
+        RepositoryProvider.value(
+          value: _modelRepository.findStore<InfoscreenUser>(),
         ),
         RepositoryProvider.value(
           value: WithdrawalPreviewEndpoint(
@@ -333,6 +339,12 @@ class _AppState extends State<App> {
           value: PlayingLevelReorderEndpoint(
             pocketBase: _pocketBaseProvider.pocketBase,
             modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
+          value: SignupRepository<InfoscreenAuthCollectionName>(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            authCollectionName: infoscreenAuthCollectionName,
           ),
         ),
       ],

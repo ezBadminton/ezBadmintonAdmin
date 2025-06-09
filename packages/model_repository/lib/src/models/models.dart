@@ -20,3 +20,4 @@ export 'scheduled_round.dart';
 export 'schedule.dart';
 export 'tournament.dart';
 export 'tournament_plan.dart';
+export 'infoscreen_user.dart';
