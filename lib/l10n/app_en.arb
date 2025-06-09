@@ -366,5 +366,6 @@
   "infoscreenCredentials": "Info Screen Logins",
   "infoscreenHelp": "By using the info-screen-client for ezBadminton, the tournament administration can use public screens to display the standings to the viewers and players in the venue. The login credentials for logging in with this client have to be created here. Ideally one login is created per screen.",
   "signUpInfoscreenUser": "Create Info Screen Login",
-  "reallyDeleteInfoscreenUser": "Really delete login?"
+  "reallyDeleteInfoscreenUser": "Really delete login?",
+  "controlMe": "Control me!"
 }

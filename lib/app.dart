@@ -342,10 +342,7 @@ class _AppState extends State<App> {
           ),
         ),
         RepositoryProvider.value(
-          value: SignupRepository<InfoscreenAuthCollectionName>(
-            pocketBase: _pocketBaseProvider.pocketBase,
-            authCollectionName: infoscreenAuthCollectionName,
-          ),
+          value: _authenticationRepository,
         ),
         RepositoryProvider.value(
           value: PocketbaseRealtimeRepository<InfoscreenCommand>(
