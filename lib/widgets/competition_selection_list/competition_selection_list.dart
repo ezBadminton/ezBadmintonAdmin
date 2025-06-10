@@ -22,7 +22,6 @@ class CompetitionSelectionList extends StatelessWidget {
     return BlocBuilder<CompetitionSelectionCubit, CompetitionSelectionState>(
       builder: (context, state) {
         List<Competition> competitions = state.getCollection<Competition>();
-        competitions.sort(comparator.comparator);
 
         if (competitions.isEmpty) {
           return Padding(
@@ -62,7 +61,6 @@ class CompetitionSelectionList extends StatelessWidget {
               ),
               const SizedBox(height: 8),
             ],
-            const SizedBox(height: 130),
           ],
         );
       },

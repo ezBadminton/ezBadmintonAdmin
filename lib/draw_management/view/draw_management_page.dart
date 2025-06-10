@@ -22,10 +22,13 @@ class DrawManagementPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
     return BlocProvider(
       create: (context) => CompetitionSelectionCubit(
         competitionStore: context.read<ModelStore<Competition>>(),
         tPlanStore: context.read(),
+        infoscreenUserStore: context.read(),
+        l10n: l10n,
         commandRepository:
             context.read<PocketbaseRealtimeRepository<InfoscreenCommand>>(),
       ),

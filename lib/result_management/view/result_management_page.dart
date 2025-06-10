@@ -14,12 +14,15 @@ class ResultManagementPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
     return BlocProvider(
       create: (context) => CompetitionSelectionCubit(
         competitionStore: context.read(),
         tPlanStore: context.read(),
+        infoscreenUserStore: context.read(),
         commandRepository:
             context.read<PocketbaseRealtimeRepository<InfoscreenCommand>>(),
+        l10n: l10n,
         cyclingInterval: const Duration(seconds: 15),
       ),
       child: const ResultManagementPageScaffold(),
@@ -43,6 +46,7 @@ class ResultManagementPageScaffold extends StatelessWidget {
               children: [
                 Column(
                   children: [
+                    const Expanded(child: SizedBox()),
                     SizedBox(
                       width: 175,
                       child: Align(

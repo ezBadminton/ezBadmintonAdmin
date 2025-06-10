@@ -1,11 +1,15 @@
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:collection/collection.dart';
+import 'package:ez_badminton_admin_app/competition_management/competition_sorter/comparators/competition_comparator.dart';
+import 'package:ez_badminton_admin_app/l10n/gen/app_localizations.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
-import 'package:ez_badminton_admin_app/utils/sorting.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
+import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
+    as display_strings;
 
 part 'competition_selection_state.dart';
 
@@ -14,12 +18,15 @@ class CompetitionSelectionCubit
   CompetitionSelectionCubit({
     required ModelStore<Competition> competitionStore,
     required ModelStore<TournamentPlan> tPlanStore,
+    required ModelStore<InfoscreenUser> infoscreenUserStore,
     required this.commandRepository,
+    required this.l10n,
     this.cyclingInterval = Duration.zero,
   }) : super(
           modelStores: [
             competitionStore,
             tPlanStore,
+            infoscreenUserStore,
           ],
           CompetitionSelectionState(),
         ) {
@@ -28,11 +35,13 @@ class CompetitionSelectionCubit
       _onCompetitionCollectionUpdate,
     );
     _commandSubscription = commandRepository.messageStream.listen(
-      (_) => pauseCycle(),
+      handleCommand,
     );
   }
 
+  final AppLocalizations l10n;
   final RealtimeRepository<InfoscreenCommand> commandRepository;
+  final CompetitionComparator _competitionComparator = CompetitionComparator();
   late final StreamSubscription _commandSubscription;
 
   final Duration? cyclingInterval;
@@ -43,6 +52,10 @@ class CompetitionSelectionCubit
     List<List<Model>> collections,
     CollectionUpdateEvent<Model>? updateEvent,
   ) {
+    List<Competition> oldCompetitions = state.hasCollection<Competition>()
+        ? state.getCollection<Competition>()
+        : [];
+
     CompetitionSelectionState updatedState = state.copyWith(
       collections: collections,
       loadingStatus: LoadingStatus.done,
@@ -51,11 +64,13 @@ class CompetitionSelectionCubit
     List<Competition> sortedCompetitions = updatedState
         .getCollection<Competition>()
         .where((competition) => competition.tournamentPlan?.started ?? false)
-        .sorted(compareCompetitions);
+        .sorted(_competitionComparator.comparator);
 
     updatedState.overrideCollection(sortedCompetitions);
 
     emit(updatedState);
+
+    postDisplayCompetitions(oldCompetitions, sortedCompetitions);
 
     if (cyclingInterval != null && _timer == null) {
       cycleCompetition();
@@ -75,7 +90,6 @@ class CompetitionSelectionCubit
     emit(state.copyWith(
       selectedCompetition: SelectionInput.dirty(value: selectedCompetition),
     ));
-    pauseCycle();
   }
 
   void cycleCompetition() {
@@ -99,12 +113,70 @@ class CompetitionSelectionCubit
     }
   }
 
+  void handleCommand(InfoscreenCommand command) {
+    pauseCycle();
+    if (command.select == "") {
+      return;
+    }
+    Competition? selected = state
+        .getCollection<Competition>()
+        .firstWhereOrNull((competition) => competition.id == command.select);
+    if (selected == null) {
+      return;
+    }
+    competitionSelected(selected);
+  }
+
   void pauseCycle() {
     if (_timer == null || cyclingInterval == null) {
       return;
     }
     _timer!.cancel();
     _timer = Timer(Duration(seconds: 40), cycleCompetition);
+  }
+
+  void postDisplayCompetitions(
+    List<Competition> oldCompetitions,
+    List<Competition> competitions,
+  ) {
+    if (oldCompetitions.equals(competitions)) {
+      return;
+    }
+
+    InfoscreenUser? infoscreenUser =
+        state.getCollection<InfoscreenUser>().firstOrNull;
+
+    if (infoscreenUser == null) {
+      return;
+    }
+
+    LinkedHashMap<String, String> displayNames =
+        LinkedHashMap<String, String>();
+
+    for (final competition in competitions) {
+      List<String> nameParts = [];
+      if (competition.playingLevel != null) {
+        nameParts.add(competition.playingLevel!.name);
+      }
+      if (competition.ageGroup != null) {
+        nameParts.add(display_strings.ageGroup(l10n, competition.ageGroup!));
+      }
+      nameParts.add(display_strings.competitionGenderAndType(
+        l10n,
+        competition.genderCategory,
+        competition.type,
+      ));
+
+      String displayName = nameParts.join(" • ");
+
+      displayNames[competition.id] = displayName;
+    }
+
+    infoscreenUser = infoscreenUser.copyWith(
+      infoItems: displayNames,
+    );
+
+    querier.updateModel(infoscreenUser);
   }
 
   void _onCompetitionCollectionUpdate(

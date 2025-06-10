@@ -16,6 +16,7 @@ class InfoscreenUser extends Model with _$InfoscreenUser {
     required DateTime updated,
     required String username,
     required String initToken,
+    required Map<String, dynamic> infoItems,
   }) = _InfoscreenUser;
 
   factory InfoscreenUser.fromJson(Map<String, dynamic> json) =>

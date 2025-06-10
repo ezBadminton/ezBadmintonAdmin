@@ -16,6 +16,7 @@ class InfoscreenCommand with _$InfoscreenCommand {
     @JsonKey(defaultValue: false) required bool zoomIn,
     @JsonKey(defaultValue: false) required bool zoomOut,
     @JsonKey(defaultValue: false) required bool reset,
+    @JsonKey(defaultValue: "") required String select,
   }) = _InfoScreen;
 
   factory InfoscreenCommand.fromJson(Map<String, dynamic> json) =>

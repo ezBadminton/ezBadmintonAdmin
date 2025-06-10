@@ -1,5 +1,7 @@
+import 'package:authentication_repository/authentication_repository.dart';
 import 'package:ez_badminton_admin_app/assets/badminton_icons_icons.dart';
 import 'package:ez_badminton_admin_app/competition_management/view/competition_list_page.dart';
+import 'package:ez_badminton_admin_app/constants.dart';
 import 'package:ez_badminton_admin_app/court_management/cubit/cubit/court_cubit.dart';
 import 'package:ez_badminton_admin_app/court_management/view/court_list_page.dart';
 import 'package:ez_badminton_admin_app/draw_management/view/draw_management_page.dart';
@@ -144,39 +146,51 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => TabNavigationCubit(),
-        ),
-        BlocProvider(
-          create: (context) => TournamentPlanCubit(
-            tournamentPlanStore: context.read<ModelStore<TournamentPlan>>(),
+    var authRepository =
+        context.read<AuthenticationRepository<InfoscreenAuthCollectionName>>();
+    var loggedInUser = authRepository.pocketBase.authStore.record;
+    String userId = loggedInUser!.id;
+
+    return RepositoryProvider.value(
+      value: PocketbaseRealtimeRepository<InfoscreenCommand>(
+        topic: "infoscreencontrol:$userId",
+        pocketBase: authRepository.pocketBase,
+        constructor: InfoscreenCommand.fromJson,
+      ),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => TabNavigationCubit(),
           ),
-        ),
-        BlocProvider(
-          create: (context) => CourtCubit(
-            courtStore: context.read<ModelStore<Court>>(),
-            scheduledMatchStore: context.read<ModelStore<ScheduledMatch>>(),
-            scheduledRoundStore: context.read<ModelStore<ScheduledRound>>(),
-          ),
-        ),
-        BlocProvider(
-          create: (context) => MatchCourtAssignmentCubit(
-            assignEndpoint: context.read(),
-            unassignEndpoint: context.read(),
-          ),
-        ),
-      ],
-      child: BlocBuilder<TabNavigationCubit, TabNavigationState>(
-        builder: (context, tabNavigationState) {
-          return Scaffold(
-            body: SafeArea(
-              top: false,
-              child: ResultManagementPage(),
+          BlocProvider(
+            create: (context) => TournamentPlanCubit(
+              tournamentPlanStore: context.read<ModelStore<TournamentPlan>>(),
             ),
-          );
-        },
+          ),
+          BlocProvider(
+            create: (context) => CourtCubit(
+              courtStore: context.read<ModelStore<Court>>(),
+              scheduledMatchStore: context.read<ModelStore<ScheduledMatch>>(),
+              scheduledRoundStore: context.read<ModelStore<ScheduledRound>>(),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => MatchCourtAssignmentCubit(
+              assignEndpoint: context.read(),
+              unassignEndpoint: context.read(),
+            ),
+          ),
+        ],
+        child: BlocBuilder<TabNavigationCubit, TabNavigationState>(
+          builder: (context, tabNavigationState) {
+            return Scaffold(
+              body: SafeArea(
+                top: false,
+                child: ResultManagementPage(),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
