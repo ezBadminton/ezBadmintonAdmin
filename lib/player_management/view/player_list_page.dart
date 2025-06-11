@@ -115,7 +115,7 @@ class _PlayerListPageScaffold extends StatelessWidget {
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (_) => AlertDialog(
+                builder: (dialogContext) => AlertDialog(
                   title: const Text("Lampion import?"),
                   actions: [
                     TextButton(
@@ -124,6 +124,7 @@ class _PlayerListPageScaffold extends StatelessWidget {
                         if (listCubit.state.loadingStatus ==
                             LoadingStatus.done) {
                           Navigator.of(context).push(PlayerEditingPage.route());
+                          Navigator.of(dialogContext).pop();
                         }
                       },
                       child: Text(l10n.addSubject(l10n.player(2))),
@@ -132,6 +133,7 @@ class _PlayerListPageScaffold extends StatelessWidget {
                       onPressed: () {
                         var importCubit = context.read<LampionCubit>();
                         importCubit.importLampionTournament();
+                        Navigator.of(dialogContext).pop();
                       },
                       child: const Text("Lampion importieren"),
                     ),
