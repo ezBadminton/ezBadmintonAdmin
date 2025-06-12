@@ -16,8 +16,17 @@ class InfoscreenUser extends Model with _$InfoscreenUser {
     required DateTime updated,
     required String username,
     required String initToken,
-    required Map<String, dynamic> infoItems,
+    @JsonKey(readValue: InfoscreenUser._readInfoItems)
+    required List<dynamic> infoItems,
   }) = _InfoscreenUser;
+
+  static Object? _readInfoItems(Map json, String name) {
+    var infoItems = json[name];
+    if (infoItems is List) {
+      return infoItems;
+    }
+    return [];
+  }
 
   factory InfoscreenUser.fromJson(Map<String, dynamic> json) =>
       _$InfoscreenUserFromJson(json);

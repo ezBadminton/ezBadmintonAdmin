@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:collection/collection.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_sorter/comparators/competition_comparator.dart';
@@ -150,8 +149,8 @@ class CompetitionSelectionCubit
       return;
     }
 
-    LinkedHashMap<String, String> displayNames =
-        LinkedHashMap<String, String>();
+    List<String> competitionIds = [];
+    List<String> competitionDisplayNames = [];
 
     for (final competition in competitions) {
       List<String> nameParts = [];
@@ -169,11 +168,12 @@ class CompetitionSelectionCubit
 
       String displayName = nameParts.join(" • ");
 
-      displayNames[competition.id] = displayName;
+      competitionIds.add(competition.id);
+      competitionDisplayNames.add(displayName);
     }
 
     infoscreenUser = infoscreenUser.copyWith(
-      infoItems: displayNames,
+      infoItems: [competitionIds, competitionDisplayNames],
     );
 
     querier.updateModel(infoscreenUser);
