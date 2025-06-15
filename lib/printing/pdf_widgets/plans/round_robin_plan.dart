@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:ez_badminton_admin_app/printing/pdf_widgets/pdf_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:model_repository/model_repository.dart' as models;
@@ -23,10 +24,12 @@ class RoundRobinPlan extends TournamentPlan {
         _isDoubles ? groupTableDoublesHeight : groupTableSinglesHeight;
     double tableWidth = 4 * groupTableStatWidth + groupTableNameWidth;
 
-    List<models.Team> members = tPlan.tournament.entries;
+    List<models.Team> members = tPlan.tournament.finalRanking.flattenedToList;
     List<models.MatchMetrics> metrics =
         (tPlan.tournament as models.RoundRobin).metrics;
 
+    List<pw.Widget> rankNumbers =
+        _getRankNumbers(tPlan.tournament.finalRanking);
     List<pw.Widget> winNumbers = [];
     List<pw.Widget> setNumbers = [];
     List<pw.Widget> pointNumbers = [];
@@ -115,7 +118,10 @@ class RoundRobinPlan extends TournamentPlan {
         pw.SizedBox(
           height: rowHeight,
           child: pw.Row(children: [
-            pw.SizedBox(width: groupTableStatWidth),
+            pw.SizedBox(
+              width: groupTableStatWidth,
+              child: pw.Center(child: rankNumbers.elementAtOrNull(i)),
+            ),
             pw.SizedBox(
               height: rowHeight,
               child: pw.VerticalDivider(width: 0),
@@ -255,5 +261,18 @@ class RoundRobinPlan extends TournamentPlan {
       memberTable,
       ...roundMatches,
     ];
+  }
+
+  List<pw.Widget> _getRankNumbers(List<List<models.Team>> ranks) {
+    int index = 0;
+    List<pw.Widget> indices = [];
+    for (List rank in ranks) {
+      indices.add(pw.Text("${index + 1}."));
+      for (int i = 0; i < rank.length - 1; i += 1) {
+        indices.add(pw.SizedBox());
+      }
+      index += rank.length;
+    }
+    return indices;
   }
 }
