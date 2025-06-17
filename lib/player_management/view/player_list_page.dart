@@ -81,6 +81,7 @@ class PlayerListPage extends StatelessWidget {
         BlocProvider(
           create: (_) => LampionCubit(
             importEndpoint: context.read(),
+            pbProvider: context.read(),
           ),
         )
       ],
