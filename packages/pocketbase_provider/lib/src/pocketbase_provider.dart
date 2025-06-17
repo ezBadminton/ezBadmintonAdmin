@@ -36,6 +36,14 @@ class PocketBaseProvider {
     _isConnected = false;
     _conntectivityStreamController.add(ConnectionEvent.disconnected);
   }
+
+  void reconnect() {
+    _conntectivityStreamController.add(ConnectionEvent.disconnected);
+    Future.delayed(
+      const Duration(milliseconds: 100),
+      () => _conntectivityStreamController.add(ConnectionEvent.connected),
+    );
+  }
 }
 
 enum ConnectionEvent {

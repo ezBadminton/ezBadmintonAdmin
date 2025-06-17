@@ -8,17 +8,23 @@ part 'seeding_state.dart';
 class SeedingCubit extends CollectionQuerierCubit<SeedingState> {
   SeedingCubit({
     required Competition competition,
-    required ModelStore<Competition> competitionRepository,
+    required ModelStore<Competition> competitionStore,
+    required ModelStore<Player> playerStore,
     required this.seedsEndpoint,
   }) : super(
           modelStores: [
-            competitionRepository,
+            competitionStore,
+            playerStore,
           ],
           SeedingState(competition: competition),
         ) {
     subscribeToCollectionUpdates(
-      competitionRepository,
+      competitionStore,
       _onCompetitionCollectionUpdate,
+    );
+    subscribeToCollectionUpdates(
+      playerStore,
+      _onPlayerCollectionUpdate,
     );
   }
 
@@ -85,6 +91,16 @@ class SeedingCubit extends CollectionQuerierCubit<SeedingState> {
   ) {
     if (event.model == state.competition) {
       emit(state.copyWith(competition: event.model));
+    }
+  }
+
+  void _onPlayerCollectionUpdate(
+    CollectionUpdateEvent<Player> event,
+  ) {
+    List<Player> players =
+        state.competition.registrations.expand((team) => team.players).toList();
+    if (players.contains(event.model)) {
+      emit(state);
     }
   }
 

@@ -35,7 +35,8 @@ class EntryList extends StatelessWidget {
       key: ValueKey('EntryListSeedingCubit-${competition.id}'),
       create: (context) => SeedingCubit(
         competition: competition,
-        competitionRepository: context.read(),
+        competitionStore: context.read(),
+        playerStore: context.read(),
         seedsEndpoint: context.read(),
       ),
       child: BlocBuilder<SeedingCubit, SeedingState>(
