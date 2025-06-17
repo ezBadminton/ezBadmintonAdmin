@@ -21,6 +21,10 @@ class LampionCubit extends Cubit<FormzSubmissionStatus> {
       emit(FormzSubmissionStatus.failure);
     }
 
-    emit(FormzSubmissionStatus.success);
+    importEndpoint.modelRepository!.reloadModels();
+
+    if (!isClosed) {
+      emit(FormzSubmissionStatus.success);
+    }
   }
 }
