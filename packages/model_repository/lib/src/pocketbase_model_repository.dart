@@ -63,6 +63,12 @@ class PocketbaseModelRepository extends ModelRepository {
     _controller.add(RepositoryEvent.loaded);
   }
 
+  @override
+  reloadModels() async {
+    _resetModels();
+    return loadModels();
+  }
+
   _resetModels() {
     _isLoaded = false;
     reverseRelations.clear();

@@ -14,6 +14,7 @@ abstract class ModelRepository {
   Stream<RepositoryEvent> get loadStream;
 
   loadModels();
+  reloadModels();
 
   ModelStore<M>? findStore<M extends Model>();
 
