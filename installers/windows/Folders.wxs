@@ -1,9 +1,7 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Fragment>
     <StandardDirectory Id="ProgramFiles6432Folder">
-      <Directory Id="INSTALLFOLDER" Name="!(bind.Property.ProductName)">
-        <Directory Id="SERVERFOLDER" Name="local_server"></Directory>
-      </Directory>
+      <Directory Id="INSTALLFOLDER" Name="!(bind.Property.ProductName)"></Directory>
     </StandardDirectory>
   </Fragment>
 </Wix>

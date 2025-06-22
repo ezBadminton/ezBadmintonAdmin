@@ -4,17 +4,16 @@
 
       <!-- These component groups are harvested during the build. Configured in windows.wixproj HarvestDirectory and HarvestFile tags. -->
       <ComponentGroupRef Id="FileComponents"/>
-      <ComponentGroupRef Id="ServerComponents"/>
 
       <Component Directory="DesktopFolder"
                  Condition="CREATEDESKTOPSHORTCUT">
 
         <Shortcut Id="DesktopShortcut"
-                  Name="ezBadminton"
-                  Target="[!ezBadminton.exe]"
+                  Name="ezBadminton Infoscreen"
+                  Target="[!ezBadmintonInfoscreen.exe]"
                   WorkingDirectory="INSTALLFOLDER" />
 
-        <RemoveFile Id="RemoveDesktopShortcut" Name="ezBadminton.lnk" On="uninstall" />
+        <RemoveFile Id="RemoveDesktopShortcut" Name="ezBadminton Infoscreen.lnk" On="uninstall" />
 
         <RegistryValue Root='HKCU' Key='Software\[Manufacturer]\[ProductName]' Type='string' Value='' KeyPath='yes' />
 
