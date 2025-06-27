@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:collection/collection.dart';
 import 'package:ez_badminton_admin_app/utils/powers_of_two.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section.dart';
@@ -158,85 +160,19 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
   }
 }
 
-class GroupQualification implements Comparable {
+class GroupQualification {
   GroupQualification(
     this.group,
     this.place, {
     this.isContested = false,
+    this.isBye = false,
+    this.inPool = true,
   });
   final int group;
   final int place;
   final bool isContested;
-
-  @override
-  int compareTo(other) {
-    if (other is! GroupQualification) {
-      throw ArgumentError("Other is not a GroupQualification");
-    }
-    int placeComparison = place.compareTo(other.place);
-    if (placeComparison != 0) {
-      return placeComparison;
-    }
-
-    int groupComparison = group.compareTo(other.group);
-    return groupComparison;
-  }
-
-  int compareWithInvertedGroup(other) {
-    if (other is! GroupQualification) {
-      throw ArgumentError("Other is not a GroupQualification");
-    }
-    int placeComparison = place.compareTo(other.place);
-    if (placeComparison != 0) {
-      return placeComparison;
-    }
-
-    int groupComparison = -1 * group.compareTo(other.group);
-    return groupComparison;
-  }
-}
-
-class QualificationMatchup implements Comparable {
-  QualificationMatchup(this.a, this.b);
-  final GroupQualification a;
-  final GroupQualification? b;
-
-  GroupQualification getHigherPlaced() {
-    if (b == null) {
-      return a;
-    }
-
-    int comparison = a.compareTo(b);
-    if (comparison == -1) {
-      return a;
-    } else {
-      return b!;
-    }
-  }
-
-  bool hasOverlappingGroups(QualificationMatchup? other) {
-    if (other == null) {
-      return false;
-    }
-    var groups = {a.group, if (b != null) b!.group};
-    var otherGroups = {other.a.group, if (other.b != null) other.b!.group};
-    return groups.intersection(otherGroups).isNotEmpty;
-  }
-
-  @override
-  int compareTo(other) {
-    if (other is! QualificationMatchup) {
-      throw ArgumentError("Other is not a QualificationMatchup");
-    }
-    return getHigherPlaced().compareTo(other.getHigherPlaced());
-  }
-
-  int compareWithInvertedGroups(other) {
-    if (other is! QualificationMatchup) {
-      throw ArgumentError("Other is not a QualificationMatchup");
-    }
-    return getHigherPlaced().compareWithInvertedGroup(other.getHigherPlaced());
-  }
+  final bool isBye;
+  bool inPool;
 }
 
 List<GroupQualification> orderGroupQualifications(
@@ -264,99 +200,194 @@ List<GroupQualification> orderGroupQualifications(
     ));
   }
 
-  int firstRoundSize = previousPowerOfTwo(qualifications.length);
-  int preRoundSize = qualifications.length - firstRoundSize;
-  int numFirstRoundSlots = qualifications.length - 2 * preRoundSize;
-  var firstQuals = qualifications.take(numFirstRoundSlots);
-  var preQuals = qualifications.skip(numFirstRoundSlots).toList();
+  int firstRoundSize = nextPowerOfTwo(qualifications.length);
 
-  var preMatchups = <QualificationMatchup>[];
+  List<GroupQualification> pool = List.of(qualifications);
+  pool.addAll(
+    List.generate(
+      firstRoundSize - qualifications.length,
+      (_) => GroupQualification(-1, -1, isBye: true),
+    ),
+  );
 
-  for (final qual in firstQuals) {
-    preMatchups.add(QualificationMatchup(qual, null));
-  }
+  List<List<GroupQualification>> matchups = [pool];
 
-  for (int i = 0; i < preRoundSize; i += 1) {
-    var (a, b) = getPreRoundMatchup(preQuals);
-    preMatchups.add(QualificationMatchup(a, b));
-  }
-
-  preMatchups.sort();
-
-  var firstNamed = preMatchups.take(preMatchups.length ~/ 2);
-  var pool = preMatchups.skip(preMatchups.length ~/ 2).toList();
-  pool.sort((a, b) => a.compareWithInvertedGroups(b));
-
-  var secondNamed = <QualificationMatchup>[];
-  for (final first in firstNamed) {
-    var second = getLowestMatchup(pool, first) ?? getLowestMatchup(pool, null)!;
-    secondNamed.add(second);
-  }
-
-  var matchupOrder = <int>[0, 1];
-  while (matchupOrder.length < firstRoundSize ~/ 2) {
-    var nextLength = 2 * matchupOrder.length;
-    for (final (i, orderI) in matchupOrder.indexed.toList()) {
-      matchupOrder.replaceRange(
-        2 * i,
-        2 * i + 1,
-        [orderI, nextLength - 1 - orderI],
-      );
+  while (matchups[0].length != 2) {
+    List<List<GroupQualification>> nextMatchups = [];
+    for (final subPool in matchups) {
+      final (upper, lower) = splitQualifications(subPool);
+      nextMatchups.add(upper);
+      nextMatchups.add(lower);
     }
+    matchups = nextMatchups;
   }
 
-  var orderedMatchups = IterableZip([firstNamed, secondNamed]).toList();
-  orderedMatchups = orderedMatchups
-      .mapIndexed((i, _) => orderedMatchups[matchupOrder[i]])
-      .toList();
-
-  var orderedQuals = <GroupQualification>[];
-  for (final matchup in orderedMatchups.flattened) {
-    orderedQuals.add(matchup.a);
-    if (matchup.b != null) {
-      orderedQuals.add(matchup.b!);
-    }
-  }
-
-  return orderedQuals;
+  return matchups.flattened.where((qual) => !qual.isBye).toList();
 }
 
-(GroupQualification, GroupQualification) getPreRoundMatchup(
+(List<GroupQualification>, List<GroupQualification>) splitQualifications(
   List<GroupQualification> qualifications,
 ) {
-  var highest = qualifications.removeAt(0);
-  var lowest = getLowestQualification(qualifications, highest.group) ??
-      getLowestQualification(qualifications, -1)!;
+  for (final qual in qualifications) {
+    qual.inPool = true;
+  }
 
-  return (highest, lowest);
+  int numQuals = qualifications.length;
+  int numRounds = getNumRounds(numQuals);
+  List<(int, int)> seedMatchups = arrangeSeeds(numRounds);
+
+  List<(int, int)> upperSeedMatchups =
+      seedMatchups.sublist(0, seedMatchups.length ~/ 2);
+  List<(int, int)> lowerSeedMatchups =
+      seedMatchups.sublist(seedMatchups.length ~/ 2);
+
+  List<int> upperSeeds = List.filled(seedMatchups.length, -1);
+  List<int> lowerSeeds = List.filled(seedMatchups.length, -1);
+
+  for (final (i, matchup) in upperSeedMatchups.indexed) {
+    upperSeeds[i] = matchup.$1;
+    upperSeeds[seedMatchups.length - 1 - i] = matchup.$2;
+  }
+  for (final (i, matchup) in lowerSeedMatchups.indexed) {
+    lowerSeeds[i] = matchup.$1;
+    lowerSeeds[seedMatchups.length - 1 - i] = matchup.$2;
+  }
+
+  Map<int, int> upperGroups = {};
+  Map<int, int> lowerGroups = {};
+
+  List<GroupQualification?> upper = List.filled(numQuals, null);
+  List<GroupQualification?> lower = List.filled(numQuals, null);
+
+  for (final seed in upperSeeds) {
+    final qualification =
+        pickSeedWithGroupConstraint(qualifications, seed, upperGroups);
+    int group = qualification.group;
+    if (group >= 0) {
+      final current = upperGroups[group] ?? 0;
+      upperGroups[group] = current + 1;
+    }
+    upper[seed] = qualification;
+  }
+
+  for (final seed in lowerSeeds) {
+    final qualification =
+        pickSeedWithGroupConstraint(qualifications, seed, lowerGroups);
+    int group = qualification.group;
+    if (group >= 0) {
+      final current = lowerGroups[group] ?? 0;
+      lowerGroups[group] = current + 1;
+    }
+    lower[seed] = qualification;
+  }
+
+  List<GroupQualification> upperBracket =
+      upper.whereType<GroupQualification>().toList();
+  List<GroupQualification> lowerBracket =
+      lower.whereType<GroupQualification>().toList();
+
+  return (upperBracket, lowerBracket);
 }
 
-GroupQualification? getLowestQualification(
-  List<GroupQualification> qualifications,
-  int groupConstraint,
+GroupQualification pickSeedWithGroupConstraint(
+  List<GroupQualification> pool,
+  int seed,
+  Map<int, int> groupConstraint,
 ) {
-  GroupQualification? lowest;
-  for (final qual in qualifications.reversed) {
-    if (qual.group != groupConstraint) {
-      lowest = qual;
-      qualifications.remove(qual);
-      break;
+  GroupQualification directCandidate = pool[seed];
+  int constraint = groupConstraint[directCandidate.group] ?? 0;
+  if (directCandidate.inPool && constraint == 0) {
+    directCandidate.inPool = false;
+    return directCandidate;
+  }
+
+  for (final alternativeCandidate in pool) {
+    final inPool = alternativeCandidate.inPool;
+    final samePlayer = alternativeCandidate.place == directCandidate.place;
+    final noGroupConflict = groupConstraint[alternativeCandidate.group] == 0;
+    if (inPool && samePlayer && noGroupConflict) {
+      alternativeCandidate.inPool = false;
+      return alternativeCandidate;
     }
   }
-  return lowest;
+
+  List<GroupQualification> alternativeCandidates =
+      pool.where((qual) => qual.inPool && !qual.isBye).toList();
+
+  mergeSort(
+    alternativeCandidates,
+    compare: (a, b) {
+      if (a == directCandidate) {
+        return -1;
+      }
+      if (b == directCandidate) {
+        return 1;
+      }
+      if (a.place == b.place) {
+        return 0;
+      }
+
+      final aDistance = a.place - directCandidate.place;
+      final bDistance = b.place - directCandidate.place;
+
+      final aAbsDistance = aDistance.abs();
+      final bAbsDistance = bDistance.abs();
+
+      if (aAbsDistance == bAbsDistance) {
+        if (aDistance > 0) {
+          return -1;
+        } else {
+          return 1;
+        }
+      } else if (aAbsDistance < bAbsDistance) {
+        return -1;
+      } else {
+        return 1;
+      }
+    },
+  );
+
+  mergeSort(
+    alternativeCandidates,
+    compare: (a, b) {
+      final aConstraint = groupConstraint[a.group] ?? 0;
+      final bConstraint = groupConstraint[b.group] ?? 0;
+      return aConstraint.compareTo(bConstraint);
+    },
+  );
+
+  alternativeCandidates[0].inPool = false;
+  return alternativeCandidates[0];
 }
 
-QualificationMatchup? getLowestMatchup(
-  List<QualificationMatchup> pool,
-  QualificationMatchup? groupConstraint,
-) {
-  QualificationMatchup? lowest;
-  for (final matchup in pool.reversed) {
-    if (!matchup.hasOverlappingGroups(groupConstraint)) {
-      lowest = matchup;
-      pool.remove(matchup);
-      break;
-    }
+int getNumRounds(int numSlots) {
+  int rounds = 0;
+  while (numSlots > 1) {
+    numSlots >>= 1;
+    rounds += 1;
   }
-  return lowest;
+  return rounds;
+}
+
+List<(int, int)> arrangeSeeds(int rounds) {
+  // The root node (the final) where the paths of seed 0 and 1 meet.
+  List<(int, int)> seedMatchups = [(0, 1)];
+
+  for (int r = 1; r < rounds; r += 1) {
+    // Determine the matchups of the next 2^r seeds
+
+    List<(int, int)> nextSeedMatchups = [];
+    int totalSeeds = pow(2, r + 1) as int;
+    for ((int, int) parentMatchup in seedMatchups) {
+      int opponent1 = parentMatchup.$1;
+      int opponent2 = parentMatchup.$2;
+
+      nextSeedMatchups.add((opponent1, totalSeeds - 1 - opponent1));
+      nextSeedMatchups.add((opponent2, totalSeeds - 1 - opponent2));
+    }
+    // Go up the tournament tree
+    seedMatchups = nextSeedMatchups;
+  }
+
+  return seedMatchups;
 }
