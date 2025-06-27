@@ -17,6 +17,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:formz/formz.dart';
 import 'package:ez_badminton_admin_app/l10n/l10n.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 part 'game_sheet_printing_state.dart';
 
@@ -193,6 +194,9 @@ class GameSheetPrintingCubit
       printSortedMatches[printIndex] = match;
     }
 
+    ByteData tgcLogoData = await rootBundle.load("lib/assets/tgc_logo.jpg");
+    pw.MemoryImage tgcLogo = pw.MemoryImage(tgcLogoData.buffer.asUint8List());
+
     pw.Document pdf = pw.Document();
 
     double pageMargin = 0.65;
@@ -217,6 +221,7 @@ class GameSheetPrintingCubit
             matches: printSortedMatches,
             l10n: l10n,
             qrCodeEnabled: qrCodeEnabled,
+            logo: tgcLogo,
           ),
         ),
       ],

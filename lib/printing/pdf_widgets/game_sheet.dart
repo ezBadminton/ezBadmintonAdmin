@@ -12,6 +12,7 @@ class GameSheet extends pw.StatelessWidget {
     required this.l10n,
     required this.padding,
     required this.qrCodeEnabled,
+    required this.logo,
   });
 
   final TournamentPlan? tPlan;
@@ -21,6 +22,8 @@ class GameSheet extends pw.StatelessWidget {
   final double padding;
 
   final bool qrCodeEnabled;
+
+  final pw.ImageProvider logo;
 
   @override
   pw.Widget build(pw.Context context) {
@@ -51,10 +54,22 @@ class GameSheet extends pw.StatelessWidget {
                   child: pw.Row(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
+                      matchInfo,
                       pw.Expanded(
-                        child: matchInfo,
+                        child: pw.Align(
+                          alignment: qrCodeEnabled
+                              ? pw.Alignment.center
+                              : pw.Alignment.centerRight,
+                          child: pw.Image(
+                            logo,
+                            height: 60,
+                            width: 60,
+                          ),
+                        ),
                       ),
-                      if (qrCodeEnabled && match != null) ModelIdQRCode(match!),
+                      if (qrCodeEnabled && match != null) ...[
+                        ModelIdQRCode(match!),
+                      ],
                     ],
                   ),
                 ),
