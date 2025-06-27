@@ -301,15 +301,15 @@ String tournamentModeTooltip(
   Type tournamentModeSettings,
 ) {
   switch (tournamentModeSettings) {
-    case RoundRobinSettings _:
+    case const (RoundRobinSettings):
       return l10n.roundRobinHelp;
-    case SingleEliminationSettings _:
+    case const (SingleEliminationSettings):
       return l10n.singleEliminationHelp;
-    case GroupKnockoutSettings _:
+    case const (GroupKnockoutSettings):
       return l10n.groupKnockoutHelp;
-    case DoubleEliminationSettings _:
+    case const (DoubleEliminationSettings):
       return l10n.doubleEliminationHelp;
-    case SingleEliminationWithConsolationSettings _:
+    case const (SingleEliminationWithConsolationSettings):
       return l10n.consolationEliminationHelp;
     default:
       return 'OTHER';
