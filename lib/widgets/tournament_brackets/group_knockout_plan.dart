@@ -232,6 +232,10 @@ List<GroupQualification> orderGroupQualifications(
     qual.inPool = true;
   }
 
+  Map<GroupQualification, int> originalSeeds = {
+    for (final (i, qual) in qualifications.indexed) qual: i,
+  };
+
   int numQuals = qualifications.length;
   int numRounds = getNumRounds(numQuals);
   List<(int, int)> seedMatchups = arrangeSeeds(numRounds);
@@ -256,8 +260,8 @@ List<GroupQualification> orderGroupQualifications(
   Map<int, int> upperGroups = {};
   Map<int, int> lowerGroups = {};
 
-  List<GroupQualification?> upper = List.filled(numQuals, null);
-  List<GroupQualification?> lower = List.filled(numQuals, null);
+  List<GroupQualification> upper = [];
+  List<GroupQualification> lower = [];
 
   for (final seed in upperSeeds) {
     final qualification =
@@ -267,7 +271,7 @@ List<GroupQualification> orderGroupQualifications(
       final current = upperGroups[group] ?? 0;
       upperGroups[group] = current + 1;
     }
-    upper[seed] = qualification;
+    upper.add(qualification);
   }
 
   for (final seed in lowerSeeds) {
@@ -278,15 +282,13 @@ List<GroupQualification> orderGroupQualifications(
       final current = lowerGroups[group] ?? 0;
       lowerGroups[group] = current + 1;
     }
-    lower[seed] = qualification;
+    lower.add(qualification);
   }
 
-  List<GroupQualification> upperBracket =
-      upper.whereType<GroupQualification>().toList();
-  List<GroupQualification> lowerBracket =
-      lower.whereType<GroupQualification>().toList();
+  upper.sortBy<num>((qual) => originalSeeds[qual]!);
+  lower.sortBy<num>((qual) => originalSeeds[qual]!);
 
-  return (upperBracket, lowerBracket);
+  return (upper, lower);
 }
 
 GroupQualification pickSeedWithGroupConstraint(
