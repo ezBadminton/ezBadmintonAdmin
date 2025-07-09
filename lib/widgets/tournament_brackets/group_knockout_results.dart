@@ -111,7 +111,7 @@ class _CrossRankTieBreakerButtons extends StatelessWidget {
     var tPlan = context.readTournamentPlan();
     var tournament = context.readTournament() as GroupKnockout;
 
-    if (tournament.knockoutStarted) {
+    if (!tournament.groupPhase.groupPhaseEnded || tournament.knockoutStarted) {
       // Do not allow editing of the tie breaker when knockout phase has started
       return const SizedBox();
     }
