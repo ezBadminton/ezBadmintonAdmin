@@ -367,5 +367,8 @@
   "infoscreenCredentials": "Infobildschirm-Zugänge",
   "infoscreenHelp": "Mit dem Infobildschirm-Client für ezBadminton kann man als Turnierveranstalter den Zuschauern und Teilnehmern auf Bildschirmen in der Halle die aktuellen Spielstände zeigen. Die Zugangsdaten, mit denen man sich in dem Client anmelden kann, werden hier registriert. Idealerweise erstellt man einen Zugang pro Bildschirm.",
   "signUpInfoscreenUser": "Infobildschirm-Zugang einrichten",
-  "reallyDeleteInfoscreenUser": "Zugang wirklich löschen?"
+  "reallyDeleteInfoscreenUser": "Zugang wirklich löschen?",
+  "version": "Version",
+  "clientVersion": "Client-Version",
+  "serverVersion": "Server-Version"
 }
