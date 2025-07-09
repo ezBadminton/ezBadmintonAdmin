@@ -1,4 +1,4 @@
-Source: ezbadminton
+Source: ezbadminton-infoscreen
 Section: unknown
 Priority: optional
 Maintainer: Simon Gerstmeier <ezBadminton@gerstmeier.dev>
@@ -6,7 +6,7 @@ Build-Depends: debhelper-compat (= 13)
 Standards-Version: 4.6.0
 Rules-Requires-Root: no
 
-Package: ezbadminton
+Package: ezbadminton-infoscreen
 Architecture: any
-Description: A desktop app for managing Badminton tournaments
+Description: A client for ezBadminton that shows the current state of the tournament.
  This is a pre-release version.

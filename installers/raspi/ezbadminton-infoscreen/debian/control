@@ -1,0 +1,13 @@
+Source: ezbadminton-infoscreen
+Section: unknown
+Priority: optional
+Maintainer: Simon Gerstmeier <ezBadminton@gerstmeier.dev>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.0
+Rules-Requires-Root: no
+
+Package: ezbadminton-infoscreen
+Depends: git, cmake, libgl1-mesa-dev, libgles2-mesa-dev, libegl1-mesa-dev, libdrm-dev, libgbm-dev, ttf-mscorefonts-installer, fontconfig, libsystemd-dev, libinput-dev, libudev-dev, libxkbcommon-dev
+Architecture: any
+Description: A small client for ezBadminton that displays tournament infos.
+ This is a pre-release version.

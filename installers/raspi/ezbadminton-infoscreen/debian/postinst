@@ -1,0 +1,15 @@
+#!/bin/bash
+fc-cache
+
+if [ ! -f /usr/local/bin/flutter-pi ]
+then
+	cd /tmp/flutter-pi
+	mkdir build && cd build
+	cmake ..
+	make -j`nproc`
+	make install
+	cd ..
+fi
+
+rm -rf /tmp/flutter-pi
+
