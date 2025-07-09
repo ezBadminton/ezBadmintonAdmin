@@ -1,6 +1,4 @@
-import 'package:authentication_repository/authentication_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
-import 'package:ez_badminton_admin_app/constants.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:model_repository/model_repository.dart';
 
@@ -10,13 +8,11 @@ class InfoscreenControlQrCubit
     extends CollectionQuerierCubit<InfoscreenControlQrState> {
   InfoscreenControlQrCubit({
     required ModelStore<InfoscreenUser> infoscreenUserStore,
-    required this.authRepository,
-  })  : hostAddress = Uri.parse(authRepository.pocketBase.baseURL),
+  })  : hostAddress = Uri.parse("ezbadresults.tgcamberg1848.de"),
         super(
           modelStores: [infoscreenUserStore],
           InfoscreenControlQrState(),
         );
-  final AuthenticationRepository<InfoscreenAuthCollectionName> authRepository;
   final Uri hostAddress;
 
   @override
@@ -34,7 +30,7 @@ class InfoscreenControlQrCubit
 
     if (user != null) {
       updatedState = updatedState.copyWith(
-        controllerURL: "http://${hostAddress.host}?token=${user.initToken}",
+        controllerURL: "https://${hostAddress.host}?token=${user.initToken}",
       );
     }
 

@@ -88,7 +88,6 @@ class ControlQrCode extends StatelessWidget {
 
     return BlocProvider(
       create: (context) => InfoscreenControlQrCubit(
-        authRepository: context.read(),
         infoscreenUserStore: context.read(),
       ),
       child: BlocBuilder<InfoscreenControlQrCubit, InfoscreenControlQrState>(
