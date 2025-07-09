@@ -8,7 +8,7 @@ class InfoscreenControlQrCubit
     extends CollectionQuerierCubit<InfoscreenControlQrState> {
   InfoscreenControlQrCubit({
     required ModelStore<InfoscreenUser> infoscreenUserStore,
-  })  : hostAddress = Uri.parse("ezbadresults.tgcamberg1848.de"),
+  })  : hostAddress = Uri.parse("https://ezbadresults.tgcamberg1848.de"),
         super(
           modelStores: [infoscreenUserStore],
           InfoscreenControlQrState(),
