@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:authentication_repository/authentication_repository.dart';
 import 'package:ez_badminton_admin_app/constants.dart';
+import 'package:logger/logger.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/utils/test_environment.dart';
 import 'package:flutter/foundation.dart';
@@ -23,9 +24,13 @@ class App extends StatefulWidget {
   const App({
     super.key,
     this.ip,
+    this.username,
+    this.password,
   });
 
   final String? ip;
+  final String? username;
+  final String? password;
 
   @override
   State<App> createState() => _AppState();
@@ -64,6 +69,24 @@ class _AppState extends State<App> {
       authRepository: _authenticationRepository,
       pocketbaseProvider: _pocketBaseProvider,
     );
+
+    // Command line log in
+    if (widget.username != null && widget.password != null) {
+      _authenticationRepository
+          .logIn(
+        username: widget.username!,
+        password: widget.password!,
+      )
+          .catchError(
+        (_) {
+          Logger logger = Logger(
+            filter: ProductionFilter(),
+            printer: SimplePrinter(),
+          );
+          logger.e("Log in failed. Are the credentials correct?");
+        },
+      );
+    }
   }
 
   void _runLocalSever() async {

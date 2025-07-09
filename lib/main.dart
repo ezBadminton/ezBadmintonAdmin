@@ -13,7 +13,9 @@ import 'app.dart';
 void main(List<String> arguments) async {
   final argParser = ArgParser()
     ..addOption("address")
-    ..addFlag("version", defaultsTo: false, abbr: "v");
+    ..addFlag("version", defaultsTo: false, abbr: "v")
+    ..addOption("username", abbr: "u")
+    ..addOption("password", abbr: "p");
   ArgResults argResults = argParser.parse(arguments);
 
   bool showVersion = argResults.flag("version");
@@ -29,6 +31,8 @@ void main(List<String> arguments) async {
   }
 
   String? ip = argResults.option("address");
+  String? username = argResults.option("username");
+  String? password = argResults.option("password");
 
   WidgetsFlutterBinding.ensureInitialized();
   await PdfFonts.ensureInitialized();
@@ -38,5 +42,9 @@ void main(List<String> arguments) async {
 
   HttpOverrides.global = PrivateIPCertOverride();
 
-  runApp(App(ip: ip));
+  runApp(App(
+    ip: ip,
+    username: username,
+    password: password,
+  ));
 }
