@@ -12,13 +12,13 @@ class ConsolationEliminationTree extends StatelessWidget
     implements SectionedBracket {
   const ConsolationEliminationTree({
     super.key,
-    this.isEditable = false,
+    this.onDragAndDrop,
     this.showResults = false,
     this.sections = const [],
     this.placeholderLabels = const {},
   });
 
-  final bool isEditable;
+  final void Function(Team a, Team b)? onDragAndDrop;
   final bool showResults;
 
   final Map<Slot, Widget> placeholderLabels;
@@ -55,7 +55,7 @@ class ConsolationEliminationTree extends StatelessWidget
 
     SingleEliminationTree tree = SingleEliminationTree(
       rounds: bracket.rounds,
-      isEditable: isEditable && isMainBracket,
+      onDragAndDrop: isMainBracket ? onDragAndDrop : null,
       showResults: showResults,
       placeholderLabels: placeholderLabels,
     );

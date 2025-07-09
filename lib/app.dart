@@ -347,6 +347,18 @@ class _AppState extends State<App> {
             authCollectionName: infoscreenAuthCollectionName,
           ),
         ),
+        RepositoryProvider.value(
+          value: QualificationOverrideSwapEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
+          value: QualificationOverrideResetEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
       ],
       child: BlocProvider(
         create: (_) => AuthenticationBloc(

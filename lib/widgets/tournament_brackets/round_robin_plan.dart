@@ -13,11 +13,11 @@ import 'bracket_sizes.dart' as bracket_sizes;
 class RoundRobinPlan extends StatelessWidget {
   const RoundRobinPlan({
     super.key,
-    this.isEditable = false,
+    this.onDragAndDrop,
     this.title,
   });
 
-  final bool isEditable;
+  final void Function(Team a, Team b)? onDragAndDrop;
 
   final String? title;
 
@@ -30,7 +30,7 @@ class RoundRobinPlan extends StatelessWidget {
       child: Column(
         children: [
           _RoundRobinTable(
-            isEditable: isEditable,
+            onDragAndDrop: onDragAndDrop,
             title: title ?? l10n.participant(2),
           ),
           const SizedBox(height: 5),
@@ -43,11 +43,11 @@ class RoundRobinPlan extends StatelessWidget {
 
 class _RoundRobinTable extends StatelessWidget {
   const _RoundRobinTable({
-    required this.isEditable,
+    required this.onDragAndDrop,
     this.title,
   });
 
-  final bool isEditable;
+  final void Function(Team a, Team b)? onDragAndDrop;
 
   final String? title;
 
@@ -104,7 +104,7 @@ class _RoundRobinTable extends StatelessWidget {
               child: SlotLabel(
                 Slot.fromTeam(team),
                 teamSize: competition.teamSize,
-                isEditable: isEditable,
+                onDragAndDrop: onDragAndDrop,
                 width: width,
                 showClub: true,
               ),

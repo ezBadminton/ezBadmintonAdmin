@@ -19,7 +19,6 @@ class BracketMatchLabel extends StatelessWidget {
         SlotLabel(
           match.slot1,
           teamSize: competition.teamSize,
-          isEditable: false,
           width: 200,
           alignment: CrossAxisAlignment.end,
           byeLabel: Text(
@@ -36,7 +35,6 @@ class BracketMatchLabel extends StatelessWidget {
         SlotLabel(
           match.slot2,
           teamSize: competition.teamSize,
-          isEditable: false,
           width: 200,
           byeLabel: Text(
             l10n.freeOfPlay,

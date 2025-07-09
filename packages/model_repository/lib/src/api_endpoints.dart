@@ -172,3 +172,17 @@ class PlayingLevelReorderEndpoint extends ApiEndpointRepository {
     required super.modelRepository,
   }) : super(url: "/playinglevels/reorder");
 }
+
+class QualificationOverrideSwapEndpoint extends ApiEndpointRepository {
+  QualificationOverrideSwapEndpoint({
+    required super.pocketBase,
+    required super.modelRepository,
+  }) : super(url: "/qualificationoverride/competition/swap");
+}
+
+class QualificationOverrideResetEndpoint extends ApiEndpointRepository {
+  QualificationOverrideResetEndpoint({
+    required super.pocketBase,
+    required super.modelRepository,
+  }) : super(url: "/qualificationoverride/competition");
+}

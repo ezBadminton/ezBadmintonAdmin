@@ -17,11 +17,11 @@ import 'bracket_sizes.dart' as bracket_sizes;
 class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
   const GroupKnockoutPlan({
     super.key,
-    required this.isEditable,
+    required this.onDragAndDrop,
     required this.sections,
   });
 
-  final bool isEditable;
+  final void Function(Team a, Team b)? onDragAndDrop;
 
   @override
   final List<BracketSection> sections;
@@ -39,7 +39,7 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
               tournamentGetter: (plan) =>
                   (plan.tournament as GroupKnockout).groupPhase.groups[index],
               child: RoundRobinPlan(
-                isEditable: isEditable,
+                onDragAndDrop: onDragAndDrop,
                 title: l10n.groupNumber(index + 1),
               ),
             ))
@@ -57,6 +57,7 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
           child: SingleEliminationTree(
             rounds: e.rounds,
             placeholderLabels: placeholders,
+            onDragAndDrop: onDragAndDrop,
           ),
         ),
       DoubleElimination e => TournamentContextSubtree(
@@ -64,6 +65,7 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
           child: DoubleEliminationTree(
             sections: DoubleEliminationTree.getSections(e),
             placeholderLabels: placeholders,
+            onDragAndDrop: onDragAndDrop,
           ),
         ),
       SingleEliminationWithConsolation e => TournamentContextSubtree(
@@ -71,6 +73,7 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
           child: ConsolationEliminationTree(
             sections: SingleEliminationTree.getSections(e.mainBracket.rounds),
             placeholderLabels: placeholders,
+            onDragAndDrop: onDragAndDrop,
           ),
         ),
       _ => throw Exception(

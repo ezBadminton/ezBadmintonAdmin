@@ -57,7 +57,6 @@ class RawLeaderboard extends StatelessWidget {
           SlotLabel(
             Slot.fromTeam(team),
             teamSize: team.players.length,
-            isEditable: false,
             padding: const EdgeInsets.all(8.0),
           ),
         ],

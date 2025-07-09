@@ -1,3 +1,4 @@
+import 'package:ez_badminton_admin_app/draw_management/cubit/qualification_override_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/cubit/tournament_plan_context_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
@@ -79,6 +80,16 @@ class DrawEditor extends StatelessWidget {
                   deleteEndpoint: context.read(),
                 ),
               ),
+              BlocProvider(
+                key: ValueKey(
+                  'QualificationOverrideCubit-${selectedCompetition.id}',
+                ),
+                create: (context) => QualificationOverrideCubit(
+                  competition: selectedCompetition,
+                  overrideEndpoint: context.read(),
+                  overrideResetEndpoint: context.read(),
+                ),
+              )
             ],
             child: drawView,
           );
@@ -110,38 +121,70 @@ class _InteractiveDraw extends StatelessWidget {
             builder: (context) {
               TournamentPlan tPlan = state.tournamentPlan!;
 
+              void Function(Team a, Team b)? onDragAndDrop;
+
+              bool qualificationOverrideEnabled = false;
+              if (tPlan.tournament is GroupKnockout) {
+                final groupKnockout = tPlan.tournament as GroupKnockout;
+                final groupsEnded = groupKnockout.groupPhase.groupPhaseEnded;
+                final koStarted = groupKnockout.knockoutStarted;
+                qualificationOverrideEnabled = groupsEnded && !koStarted;
+              }
+
+              if (!tPlan.started) {
+                final drawCubit = context.read<DrawingCubit>();
+                onDragAndDrop = (a, b) => drawCubit.swapDrawMembers(a, b);
+              } else if (qualificationOverrideEnabled) {
+                final qualificationOverrideCubit =
+                    context.read<QualificationOverrideCubit>();
+                onDragAndDrop = (a, b) => qualificationOverrideCubit
+                    .swapQualificationOverridePositions(a, b);
+              }
+
               Widget drawView = switch (tPlan.tournament) {
                 SingleElimination tournament => SingleEliminationTree(
                     rounds: tournament.rounds,
-                    isEditable: !tPlan.started,
+                    onDragAndDrop: onDragAndDrop,
                   ),
                 RoundRobin _ => RoundRobinPlan(
-                    isEditable: !tPlan.started,
+                    onDragAndDrop: onDragAndDrop,
                   ),
                 GroupKnockout t => GroupKnockoutPlan(
-                    isEditable: !tPlan.started,
+                    onDragAndDrop: onDragAndDrop,
                     sections: GroupKnockoutPlan.getSections(t),
                   ),
                 DoubleElimination t => DoubleEliminationTree(
-                    isEditable: !tPlan.started,
+                    onDragAndDrop: onDragAndDrop,
                     sections: DoubleEliminationTree.getSections(t),
                   ),
                 SingleEliminationWithConsolation t =>
                   ConsolationEliminationTree(
-                    isEditable: !tPlan.started,
+                    onDragAndDrop: onDragAndDrop,
                     sections:
                         SingleEliminationTree.getSections(t.mainBracket.rounds),
                   ),
               };
 
+              Widget controlBarBuilder(bool compact) {
+                if (!tPlan.started) {
+                  return _ControlBarDrawOptions(compact: compact);
+                } else if (qualificationOverrideEnabled) {
+                  return _ControlBarQualificationOverrideOptions(
+                    compact: compact,
+                  );
+                } else {
+                  return _ResultLinkButton(
+                    compact: compact,
+                    competition: competition,
+                  );
+                }
+              }
+
               return TournamentBracketExplorer(
                 key: ValueKey('DrawEditor-${competition.id}'),
                 competition: competition,
                 tournamentBracket: drawView,
-                controlBarOptionsBuilder: (bool compact) => tPlan.started
-                    ? _ResultLinkButton(
-                        compact: compact, competition: competition)
-                    : _ControlBarDrawOptions(compact: compact),
+                controlBarOptionsBuilder: controlBarBuilder,
               );
             },
           );
@@ -396,6 +439,58 @@ class _ControlBarDrawOptions extends StatelessWidget {
               ],
             );
           }
+        }),
+      ),
+    );
+  }
+}
+
+class _ControlBarQualificationOverrideOptions extends StatelessWidget {
+  const _ControlBarQualificationOverrideOptions({
+    required this.compact,
+  });
+
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+
+    var qualificationOverrideCubit = context.read<QualificationOverrideCubit>();
+
+    return BlocProvider(
+      create: (context) => ConfirmationCubit(),
+      child: DialogListener<ConfirmationCubit, ConfirmationState, bool>(
+        builder: (context, state, reason) {
+          String title = l10n.undoManualDraw;
+          String body = l10n.undoQualificationOverrideWarning;
+
+          return ConfirmDialog(
+            title: Text(title),
+            content: Text(body),
+            confirmButtonLabel: l10n.confirm,
+            cancelButtonLabel: l10n.cancel,
+          );
+        },
+        child: Builder(builder: (context) {
+          var confirmationCubit = context.read<ConfirmationCubit>();
+
+          undoQualificationOverride() =>
+              confirmationCubit.executeWithConfirmation(
+                qualificationOverrideCubit.resetQualificationOverride,
+              );
+
+          return Tooltip(
+            message: l10n.undoManualDraw,
+            waitDuration: const Duration(milliseconds: 500),
+            child: TextButton(
+              onPressed: undoQualificationOverride,
+              child: SizedBox(
+                width: compact ? 40 : 155,
+                child: const Icon(Icons.restore),
+              ),
+            ),
+          );
         }),
       ),
     );

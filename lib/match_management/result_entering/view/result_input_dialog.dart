@@ -284,7 +284,6 @@ class _SlotLabel extends StatelessWidget {
     return SlotLabel(
       slot,
       teamSize: slot.team!.players.length,
-      isEditable: false,
       alignment: CrossAxisAlignment.end,
       textStyle: TextStyle(
         color: Theme.of(context).colorScheme.onSurface,

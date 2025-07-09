@@ -86,7 +86,6 @@ class MatchupLabel extends StatelessWidget {
       SlotLabel(
         match.slot1,
         teamSize: teamSize,
-        isEditable: false,
         width: participantWidth,
         alignment: orientation == Axis.vertical
             ? CrossAxisAlignment.center
@@ -112,7 +111,6 @@ class MatchupLabel extends StatelessWidget {
       SlotLabel(
         match.slot2,
         teamSize: teamSize,
-        isEditable: false,
         width: participantWidth,
         alignment: orientation == Axis.vertical
             ? CrossAxisAlignment.center
@@ -148,13 +146,15 @@ class MatchupLabel extends StatelessWidget {
 class MatchupCard extends StatelessWidget {
   const MatchupCard({
     super.key,
-    this.isEditable = false,
+    this.onDragAndDrop,
+    this.labelKeySuffix = "",
     this.width,
     this.placeholderLabels = const {},
     this.showResult = false,
   });
 
-  final bool isEditable;
+  final void Function(Team a, Team b)? onDragAndDrop;
+  final String labelKeySuffix;
   final double? width;
   final Map<Slot, Widget> placeholderLabels;
   final bool showResult;
@@ -200,7 +200,8 @@ class MatchupCard extends StatelessWidget {
                   SlotLabel(
                     match.slot1,
                     teamSize: competition.teamSize,
-                    isEditable: isEditable,
+                    onDragAndDrop: onDragAndDrop,
+                    labelKeySuffix: labelKeySuffix,
                     placeholderLabel: placeholderLabels.containsKey(match.slot1)
                         ? placeholderLabels[match.slot1]!
                         : null,
@@ -218,7 +219,8 @@ class MatchupCard extends StatelessWidget {
                   SlotLabel(
                     match.slot2,
                     teamSize: competition.teamSize,
-                    isEditable: isEditable,
+                    onDragAndDrop: onDragAndDrop,
+                    labelKeySuffix: labelKeySuffix,
                     placeholderLabel: placeholderLabels.containsKey(match.slot2)
                         ? placeholderLabels[match.slot2]!
                         : null,

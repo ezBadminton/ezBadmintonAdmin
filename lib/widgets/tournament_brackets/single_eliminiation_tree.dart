@@ -14,14 +14,14 @@ class SingleEliminationTree extends StatelessWidget
   SingleEliminationTree({
     super.key,
     required this.rounds,
-    this.isEditable = false,
+    this.onDragAndDrop,
     this.showResults = false,
     this.placeholderLabels = const {},
   }) : _sections = getSections(rounds);
 
   final List<List<TournamentMatch>> rounds;
 
-  final bool isEditable;
+  final void Function(Team a, Team b)? onDragAndDrop;
   final bool showResults;
 
   final Map<Slot, Widget> placeholderLabels;
@@ -34,6 +34,11 @@ class SingleEliminationTree extends StatelessWidget
   Widget build(BuildContext context) {
     var tPlan = context.readTournamentPlan();
     var competition = tPlan.competition;
+
+    String labelKeySuffix = "";
+    if (tPlan.tournament is GroupKnockout) {
+      labelKeySuffix = "_knockout";
+    }
 
     var matchNodeSize = getMatchNodeSize(competition.teamSize);
     var layoutSize = getLayoutSize(rounds, matchNodeSize);
@@ -48,7 +53,8 @@ class SingleEliminationTree extends StatelessWidget
           key: ValueKey('SingleEliminationMatch-${match.id}'),
           match: match,
           child: MatchupCard(
-            isEditable: isEditable && roundIndex == 0,
+            onDragAndDrop: roundIndex == 0 ? onDragAndDrop : null,
+            labelKeySuffix: labelKeySuffix,
             placeholderLabels: placeholderLabels,
             showResult: showResults,
             width: matchNodeSize.width,

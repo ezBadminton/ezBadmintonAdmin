@@ -17,13 +17,13 @@ class DoubleEliminationTree extends StatelessWidget
     super.key,
     this.placeholderLabels = const {},
     this.sections = const [],
-    this.isEditable = false,
+    this.onDragAndDrop,
     this.showResults = false,
   });
 
   final Map<Slot, Widget> placeholderLabels;
 
-  final bool isEditable;
+  final void Function(Team a, Team b)? onDragAndDrop;
   final bool showResults;
 
   @override
@@ -44,7 +44,7 @@ class DoubleEliminationTree extends StatelessWidget
 
     SingleEliminationTree winnerBracket = SingleEliminationTree(
       rounds: tournament.winnerRounds,
-      isEditable: isEditable,
+      onDragAndDrop: onDragAndDrop,
       showResults: showResults,
       placeholderLabels: this.placeholderLabels,
     );

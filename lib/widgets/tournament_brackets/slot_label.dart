@@ -1,4 +1,3 @@
-import 'package:ez_badminton_admin_app/draw_management/cubit/drawing_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/cubit/player_cubit.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/cubit/interactive_view_blocker_cubit.dart';
@@ -14,7 +13,8 @@ class SlotLabel extends StatelessWidget {
     this.slot, {
     super.key,
     required this.teamSize,
-    required this.isEditable,
+    this.onDragAndDrop,
+    this.labelKeySuffix = "",
     this.width,
     this.showClub = false,
     this.useFullName = true,
@@ -29,7 +29,8 @@ class SlotLabel extends StatelessWidget {
   final Slot slot;
   final int teamSize;
 
-  final bool isEditable;
+  final void Function(Team a, Team b)? onDragAndDrop;
+  final String labelKeySuffix;
 
   final double? width;
 
@@ -58,10 +59,12 @@ class SlotLabel extends StatelessWidget {
           style: TextStyle(color: Theme.of(context).disabledColor),
         );
 
-    if (isEditable && team != null) {
-      return _EditableSlotLabel(
+    if (onDragAndDrop != null && team != null) {
+      return _DraggableSlotLabel(
         slot: slot,
         teamSize: teamSize,
+        onDragAndDrop: onDragAndDrop!,
+        labelKeySuffix: labelKeySuffix,
         width: width,
         alignment: alignment,
         padding: padding,
@@ -73,8 +76,9 @@ class SlotLabel extends StatelessWidget {
         slot: slot,
         teamSize: teamSize,
         width: width,
-        leadingWidget:
-            isEditable ? SizedBox(width: iconSize + 8, height: iconSize) : null,
+        leadingWidget: onDragAndDrop != null && labelKeySuffix == ""
+            ? SizedBox(width: iconSize + 8, height: iconSize)
+            : null,
         showClub: showClub,
         useFullName: useFullName,
         placeholderLabel: placeholderLabel,
@@ -237,10 +241,12 @@ class _SlotLabel extends StatelessWidget {
   }
 }
 
-class _EditableSlotLabel extends StatelessWidget {
-  const _EditableSlotLabel({
+class _DraggableSlotLabel extends StatelessWidget {
+  const _DraggableSlotLabel({
     required this.slot,
     required this.teamSize,
+    required this.onDragAndDrop,
+    required this.labelKeySuffix,
     required this.width,
     required this.alignment,
     required this.padding,
@@ -249,6 +255,9 @@ class _EditableSlotLabel extends StatelessWidget {
 
   final Slot slot;
   final int teamSize;
+
+  final void Function(Team a, Team b) onDragAndDrop;
+  final String labelKeySuffix;
 
   final double? width;
 
@@ -283,8 +292,8 @@ class _EditableSlotLabel extends StatelessWidget {
     );
 
     return LocalHero(
-      key: ValueKey<String>('local_hero${team.id}'),
-      tag: team.id,
+      key: ValueKey<String>('local_hero${team.id}$labelKeySuffix'),
+      tag: '${team.id}_$labelKeySuffix',
       enabled: true,
       flightShuttleBuilder: (context, animation, child) => _SlotLabel(
         slot: slot,
@@ -304,8 +313,7 @@ class _EditableSlotLabel extends StatelessWidget {
           return droppedTeam.data != team;
         },
         onAcceptWithDetails: (droppedTeam) {
-          var cubit = context.read<DrawingCubit>();
-          cubit.swapDrawMembers(team, droppedTeam.data);
+          onDragAndDrop(team, droppedTeam.data);
         },
         builder: (context, candidateData, rejectedData) => Draggable<Team>(
           onDragStarted: blockerCubit?.removeEdgePanningBlock,
