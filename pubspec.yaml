@@ -74,7 +74,6 @@ dependencies:
   path_drawing: ^1.0.1
   process_run: ^1.2.2+1
   io: ^1.0.4
-  window_manager: ^0.5.0
   win32: ^5.14.0
   ffi: ^2.1.0
   http: ^1.4.0
