@@ -79,6 +79,7 @@ dependencies:
   ffi: ^2.1.0
   http: ^1.4.0
   args: ^2.7.0
+  logger: ^2.6.0
 
 dev_dependencies:
   flutter_test:
