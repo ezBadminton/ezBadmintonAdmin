@@ -1,8 +1,17 @@
 #!/bin/bash
-if [ $# -ge 2 ]; then
-	if [ $1 == "--address" ]; then
-		export EZBADMINTON_SERVER=$2
+for (( i=1; i < "$#"; i++ )); do
+	next=$((i+1))
+	arg=${!i}
+	nextArg=${!next}
+	if [ $arg == "--address" ]; then
+		export EZBADMINTON_SERVER=$nextArg
 	fi
-fi
+	if [ $arg == "--username" ] || [ $arg == "-u" ]; then
+		export EZBADMINTON_USERNAME=$nextArg
+	fi
+	if [ $arg == "--password" ] || [ $arg == "-p" ]; then
+		export EZBADMINTON_PASSWORD=$nextArg
+	fi
+done
 
 flutter-pi --release /opt/ezbadminton-infoscreen/bin
