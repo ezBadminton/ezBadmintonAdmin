@@ -35,6 +35,11 @@ void main(List<String> arguments) async {
   String? username = argResults.option("username");
   String? password = argResults.option("password");
 
+  Map<String, String> env = Platform.environment;
+  ip ??= env["EZBADMINTON_SERVER"];
+  username ??= env["EZBADMINTON_USERNAME"];
+  password ??= env["EZBADMINTON_PASSWORD"];
+
   WidgetsFlutterBinding.ensureInitialized();
   await PdfFonts.ensureInitialized();
   await windowManager.ensureInitialized();
@@ -45,13 +50,6 @@ void main(List<String> arguments) async {
     _onKey(e);
     return false;
   });
-
-  if (ip == null) {
-    Map<String, String> env = Platform.environment;
-    if (env.containsKey("EZBADMINTON_SERVER")) {
-      ip = env["EZBADMINTON_SERVER"];
-    }
-  }
 
   HttpOverrides.global = PrivateIPCertOverride();
 
