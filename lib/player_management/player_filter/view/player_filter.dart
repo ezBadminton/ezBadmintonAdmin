@@ -175,9 +175,14 @@ class PlayerFilterMenus extends StatelessWidget {
   }
 }
 
-class _SearchField extends StatelessWidget {
-  _SearchField();
+class _SearchField extends StatefulWidget {
+  const _SearchField();
 
+  @override
+  State<_SearchField> createState() => _SearchFieldState();
+}
+
+class _SearchFieldState extends State<_SearchField> {
   final TextEditingController _controller = TextEditingController();
 
   @override
@@ -208,6 +213,12 @@ class _SearchField extends StatelessWidget {
         );
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }
 
