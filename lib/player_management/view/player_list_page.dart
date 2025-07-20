@@ -39,9 +39,9 @@ class PlayerListPage extends StatelessWidget {
                 CompetitionTypePredicateProducer(),
             statusPredicateProducer: StatusPredicateProducer(),
             searchPredicateProducer: SearchPredicateProducer(),
-            playingLevelRepository: context.read<ModelStore<PlayingLevel>>(),
-            ageGroupRepository: context.read<ModelStore<AgeGroup>>(),
-            tournamentRepository: context.read<ModelStore<TournamentEvent>>(),
+            playingLevelStore: context.read<ModelStore<PlayingLevel>>(),
+            ageGroupStore: context.read<ModelStore<AgeGroup>>(),
+            tournamentStore: context.read<ModelStore<TournamentEvent>>(),
           ),
         ),
         BlocProvider(

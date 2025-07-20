@@ -18,9 +18,9 @@ class PlayerFilterCubit extends CollectionQuerierCubit<PlayerFilterState>
     with PredicateConsumer
     implements PredicateConsumerCubit<PlayerFilterState> {
   PlayerFilterCubit({
-    required ModelStore<PlayingLevel> playingLevelRepository,
-    required ModelStore<AgeGroup> ageGroupRepository,
-    required ModelStore<TournamentEvent> tournamentRepository,
+    required ModelStore<PlayingLevel> playingLevelStore,
+    required ModelStore<AgeGroup> ageGroupStore,
+    required ModelStore<TournamentEvent> tournamentStore,
     required AgeGroupPredicateProducer ageGroupPredicateProducer,
     required PlayingLevelPredicateProducer playingLevelPredicateProducer,
     required GenderCategoryPredicateProducer genderPredicateProducer,
@@ -30,9 +30,9 @@ class PlayerFilterCubit extends CollectionQuerierCubit<PlayerFilterState>
   }) : super(
           const PlayerFilterState(),
           modelStores: [
-            playingLevelRepository,
-            ageGroupRepository,
-            tournamentRepository,
+            playingLevelStore,
+            ageGroupStore,
+            tournamentStore,
           ],
         ) {
     initPredicateProducers([

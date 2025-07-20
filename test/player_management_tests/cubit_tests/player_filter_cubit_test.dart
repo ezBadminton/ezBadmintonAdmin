@@ -72,9 +72,9 @@ void main() {
 
   PlayerFilterCubit createSut() {
     return PlayerFilterCubit(
-      playingLevelRepository: playingLevelRepository,
-      ageGroupRepository: ageGroupRepository,
-      tournamentRepository: tournamentRepository,
+      playingLevelStore: playingLevelRepository,
+      ageGroupStore: ageGroupRepository,
+      tournamentStore: tournamentRepository,
       ageGroupPredicateProducer: ageGroupPredicateProducer,
       genderPredicateProducer: genderPredicateProducer,
       playingLevelPredicateProducer: playingLevelPredicateProducer,
