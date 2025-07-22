@@ -9,6 +9,7 @@ class MatchCard extends pw.StatelessWidget {
     required this.competition,
     required this.match,
     required this.l10n,
+    required this.showScore,
     this.placeholders = const {},
     this.byePlaceholder,
     this.width,
@@ -17,6 +18,8 @@ class MatchCard extends pw.StatelessWidget {
   final Competition competition;
   final TournamentMatch match;
   final AppLocalizations l10n;
+
+  final bool showScore;
 
   final Map<Slot, pw.Widget> placeholders;
 
@@ -43,6 +46,7 @@ class MatchCard extends pw.StatelessWidget {
     pw.Widget scoreboard = Scoreboard(
       competition: competition,
       match: match,
+      showScore: showScore,
       height: size.y,
       scoreFieldWidth: scoreFieldWidth,
       textStyle: const pw.TextStyle(fontSize: 9),

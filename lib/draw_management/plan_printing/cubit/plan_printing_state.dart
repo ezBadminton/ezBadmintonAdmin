@@ -4,6 +4,7 @@ class PlanPrintingState implements PdfPrintingState {
   const PlanPrintingState({
     this.tournaments = const [],
     this.printBigPage = false,
+    this.printWithScores = false,
     this.formStatus = FormzSubmissionStatus.initial,
     this.pdfDocument = const SelectionInput.pure(),
     this.openedFile = const SelectionInput.pure(),
@@ -13,6 +14,8 @@ class PlanPrintingState implements PdfPrintingState {
   final List<models.TournamentPlan> tournaments;
 
   final bool printBigPage;
+
+  final bool printWithScores;
 
   @override
   final FormzSubmissionStatus formStatus;
@@ -29,6 +32,7 @@ class PlanPrintingState implements PdfPrintingState {
   PlanPrintingState copyWith({
     List<models.TournamentPlan>? tournaments,
     bool? printBigPage,
+    bool? printWithScores,
     FormzSubmissionStatus? formStatus,
     SelectionInput<pw.Document>? pdfDocument,
     SelectionInput<File>? openedFile,
@@ -37,6 +41,7 @@ class PlanPrintingState implements PdfPrintingState {
     return PlanPrintingState(
       tournaments: tournaments ?? this.tournaments,
       printBigPage: printBigPage ?? this.printBigPage,
+      printWithScores: printWithScores ?? this.printWithScores,
       formStatus: formStatus ?? this.formStatus,
       pdfDocument: pdfDocument ?? this.pdfDocument,
       openedFile: openedFile ?? this.openedFile,

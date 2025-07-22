@@ -125,8 +125,15 @@ class _PlanPrintingPageScaffold extends StatelessWidget {
                         l10n.matchPlanPrintPages,
                         style: const TextStyle(fontSize: 22),
                       ),
-                      const Divider(height: 25, indent: 20, endIndent: 20),
+                      const Divider(height: 25, indent: 50, endIndent: 50),
                       const _PlanPrintingPageFormatOptions(),
+                      const SizedBox(height: 30),
+                      Text(
+                        l10n.result(2),
+                        style: const TextStyle(fontSize: 22),
+                      ),
+                      const Divider(height: 25, indent: 50, endIndent: 50),
+                      const _PlanPrintingResultOption(),
                       const SizedBox(height: 30),
                       const OpenPdfButton<PlanPrintingCubit,
                           PlanPrintingState>(),
@@ -138,7 +145,7 @@ class _PlanPrintingPageScaffold extends StatelessWidget {
                         l10n.preview,
                         style: const TextStyle(fontSize: 22),
                       ),
-                      const Divider(height: 25, indent: 20, endIndent: 20),
+                      const Divider(height: 25, indent: 50, endIndent: 50),
                       if (state.pdfDocument.value == null) ...[
                         const SizedBox(height: 30),
                         Text(
@@ -212,6 +219,33 @@ class _PlanPrintingPageFormatOptions extends StatelessWidget {
                 onChanged: (_) => cubit.printBigPageToggled(),
               ),
             ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _PlanPrintingResultOption extends StatelessWidget {
+  const _PlanPrintingResultOption();
+
+  @override
+  Widget build(BuildContext context) {
+    var cubit = context.read<PlanPrintingCubit>();
+    var l10n = AppLocalizations.of(context)!;
+
+    return BlocBuilder<PlanPrintingCubit, PlanPrintingState>(
+      builder: (context, state) {
+        return SizedBox(
+          width: 700,
+          child: CheckboxListTile(
+            value: state.printWithScores,
+            title: Text(l10n.matchPlanPrintScores),
+            secondary: HelpTooltipIcon(
+              helpText: l10n.showScoresHelp,
+            ),
+            onChanged: (_) => cubit.scorePrintingToggled(),
+            controlAffinity: ListTileControlAffinity.leading,
           ),
         );
       },

@@ -11,12 +11,15 @@ abstract class TournamentPlan<T extends models.Tournament>
     extends pw.StatelessWidget {
   TournamentPlan({
     required this.tPlan,
+    required this.showScores,
     required this.l10n,
   }) {
     _widgets = layoutPlan();
   }
 
   final models.TournamentPlan tPlan;
+
+  final bool showScores;
 
   final AppLocalizations l10n;
 

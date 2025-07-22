@@ -16,6 +16,7 @@ import 'package:pdf/widgets.dart' as pw;
 class DoubleEliminationPlan extends TournamentPlan<models.DoubleElimination> {
   DoubleEliminationPlan({
     required super.tPlan,
+    required super.showScores,
     required super.l10n,
     this.placeholders = const {},
   });
@@ -29,6 +30,7 @@ class DoubleEliminationPlan extends TournamentPlan<models.DoubleElimination> {
     SingleEliminationPlan winnerBracket = SingleEliminationPlan(
       tPlan: tPlan,
       rounds: tournament.winnerRounds,
+      showScores: showScores,
       l10n: l10n,
       placeholders: placeholders,
     );
@@ -59,6 +61,7 @@ class DoubleEliminationPlan extends TournamentPlan<models.DoubleElimination> {
                 MatchCard(
                   competition: tPlan.competition,
                   match: match,
+                  showScore: showScores,
                   l10n: l10n,
                   placeholders: loserPlaceholders,
                 ),
@@ -203,6 +206,7 @@ class DoubleEliminationPlan extends TournamentPlan<models.DoubleElimination> {
     MatchCard finalMatchCard = MatchCard(
       competition: tPlan.competition,
       match: tournament.finalMatch,
+      showScore: showScores,
       l10n: l10n,
     );
 

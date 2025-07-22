@@ -17,6 +17,7 @@ class ConsolationEliminationPlan
     extends TournamentPlan<models.SingleEliminationWithConsolation> {
   ConsolationEliminationPlan({
     required super.tPlan,
+    required super.showScores,
     required super.l10n,
     this.placeholders = const {},
   });
@@ -165,6 +166,7 @@ class ConsolationEliminationPlan
     SingleEliminationPlan plan = SingleEliminationPlan(
       tPlan: tPlan,
       rounds: bracket.rounds,
+      showScores: showScores,
       l10n: l10n,
       placeholders: placeholders,
     );

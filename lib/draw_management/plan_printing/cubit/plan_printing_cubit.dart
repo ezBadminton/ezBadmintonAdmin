@@ -49,6 +49,11 @@ class PlanPrintingCubit extends Cubit<PlanPrintingState> with PdfPrintingCubit {
     ));
   }
 
+  void scorePrintingToggled() {
+    emit(state.copyWith(printWithScores: !state.printWithScores));
+    _generatePdf();
+  }
+
   void _generatePdf() {
     if (state.tournaments.isEmpty) {
       emit(state.copyWith(pdfDocument: const SelectionInput.dirty()));
@@ -62,22 +67,27 @@ class PlanPrintingCubit extends Cubit<PlanPrintingState> with PdfPrintingCubit {
         models.SingleElimination _ => SingleEliminationPlan(
             tPlan: t,
             l10n: l10n,
+            showScores: state.printWithScores,
           ),
         models.RoundRobin _ => RoundRobinPlan(
             tPlan: t,
             l10n: l10n,
+            showScores: state.printWithScores,
           ),
         models.DoubleElimination _ => DoubleEliminationPlan(
             tPlan: t,
             l10n: l10n,
+            showScores: state.printWithScores,
           ),
         models.SingleEliminationWithConsolation _ => ConsolationEliminationPlan(
             tPlan: t,
             l10n: l10n,
+            showScores: state.printWithScores,
           ),
         models.GroupKnockout _ => GroupKnockOutPlan(
             tPlan: t,
             l10n: l10n,
+            showScores: state.printWithScores,
           ),
       };
 

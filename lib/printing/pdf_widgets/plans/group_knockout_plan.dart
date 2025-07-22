@@ -15,6 +15,7 @@ import 'package:ez_badminton_admin_app/widgets/tournament_brackets/group_knockou
 class GroupKnockOutPlan extends TournamentPlan<models.GroupKnockout> {
   GroupKnockOutPlan({
     required super.tPlan,
+    required super.showScores,
     required super.l10n,
   });
 
@@ -40,6 +41,7 @@ class GroupKnockOutPlan extends TournamentPlan<models.GroupKnockout> {
     List<RoundRobinPlan> groupPlans = groups
         .mapIndexed((index, g) => RoundRobinPlan(
               tPlan: tPlan.copyWith(tournament: g),
+              showScores: showScores,
               title: pw.Text(l10n.groupNumber(index + 1)),
               l10n: l10n,
             ))
@@ -81,17 +83,20 @@ class GroupKnockOutPlan extends TournamentPlan<models.GroupKnockout> {
     TournamentPlan knockOutPlan = switch (tournament.knockoutPhase) {
       models.SingleElimination singleElimination => SingleEliminationPlan(
           tPlan: tPlan.copyWith(tournament: singleElimination),
+          showScores: showScores,
           l10n: l10n,
           placeholders: placeholders,
         ),
       models.DoubleElimination doubleElimination => DoubleEliminationPlan(
           tPlan: tPlan.copyWith(tournament: doubleElimination),
+          showScores: showScores,
           l10n: l10n,
           placeholders: placeholders,
         ),
       models.SingleEliminationWithConsolation consolationElimination =>
         ConsolationEliminationPlan(
           tPlan: tPlan.copyWith(tournament: consolationElimination),
+          showScores: showScores,
           l10n: l10n,
           placeholders: placeholders,
         ),

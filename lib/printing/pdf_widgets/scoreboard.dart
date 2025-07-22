@@ -2,10 +2,15 @@ import 'package:ez_badminton_admin_app/printing/pdf_widgets/slot_label.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+/// Displays the score of a single match in a tabular form.
+/// The teams are in two rows with the scores of the sets in the columns.
+/// If [showScore] is false, the cells of the table are left empty even if
+/// the match already has a score recorded.
 class Scoreboard extends pw.StatelessWidget {
   Scoreboard({
     required this.competition,
     required this.match,
+    this.showScore = false,
     this.height = 84,
     this.scoreFieldWidth = 37,
     this.textStyle,
@@ -15,6 +20,8 @@ class Scoreboard extends pw.StatelessWidget {
 
   final Competition? competition;
   final TournamentMatch? match;
+
+  final bool showScore;
 
   final double height;
   final double scoreFieldWidth;
@@ -50,9 +57,11 @@ class Scoreboard extends pw.StatelessWidget {
     int slotIndex = slot == match?.slot1 ? 0 : 1;
     List<pw.Widget> scoreNumbers = [];
 
-    for (var set in match?.sets ?? []) {
-      int score = slotIndex == 0 ? set.team1Points : set.team2Points;
-      scoreNumbers.add(pw.Text(score.toString()));
+    if (showScore) {
+      for (var set in match?.sets ?? []) {
+        int score = slotIndex == 0 ? set.team1Points : set.team2Points;
+        scoreNumbers.add(pw.Text(score.toString()));
+      }
     }
 
     pw.Widget slotLabel = slot == null
@@ -80,6 +89,9 @@ class Scoreboard extends pw.StatelessWidget {
                 border: pw.Border(
                   left: pw.BorderSide(),
                 ),
+              ),
+              child: pw.Center(
+                child: scoreNumbers.elementAtOrNull(i),
               ),
             ),
         ],
