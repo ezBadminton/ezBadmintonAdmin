@@ -203,6 +203,17 @@ List<GroupQualification> orderGroupQualifications(
     ));
   }
 
+  Map<int, int> preSeeds = preseedGroups(groupPhase.groups);
+  qualifications.sort((GroupQualification a, GroupQualification b) {
+    if (a.place != b.place) {
+      return a.place.compareTo(b.place);
+    }
+    if (a.group == b.group) {
+      return 0;
+    }
+    return preSeeds[a.group]!.compareTo(preSeeds[b.group]!);
+  });
+
   int firstRoundSize = nextPowerOfTwo(qualifications.length);
 
   List<GroupQualification> pool = List.of(qualifications);
@@ -395,4 +406,29 @@ List<(int, int)> arrangeSeeds(int rounds) {
   }
 
   return seedMatchups;
+}
+
+Map<int, int> preseedGroups(List<RoundRobin> groups) {
+  Map<RoundRobin, int> indices = {
+    for (final (i, group) in groups.indexed) group: i,
+  };
+
+  final preSeededGroups = groups.sorted((RoundRobin a, RoundRobin b) {
+    int sizeA = a.entries.length;
+    int sizeB = b.entries.length;
+
+    if (sizeA < sizeB) {
+      return 1;
+    } else if (sizeB < sizeA) {
+      return -1;
+    } else {
+      return indices[a]!.compareTo(indices[b]!);
+    }
+  });
+
+  Map<int, int> preSeeds = {
+    for (final (i, group) in preSeededGroups.indexed) indices[group]!: i,
+  };
+
+  return preSeeds;
 }
