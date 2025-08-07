@@ -5,6 +5,8 @@ import 'package:formz/formz.dart';
 
 part 'match_queue_settings_state.dart';
 
+/// Manages match queue settings. At the time the only setting is the player
+/// rest time.
 class MatchQueueSettingsCubit
     extends CollectionQuerierCubit<MatchQueueSettingsState> {
   MatchQueueSettingsCubit({
@@ -43,26 +45,6 @@ class MatchQueueSettingsCubit
 
     TournamentEvent? updatedTournament =
         await querier.updateModel(tournamentWithUpdatedRestTime);
-    if (updatedTournament == null) {
-      emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
-      return;
-    }
-
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.success));
-  }
-
-  void queueModeChanged(QueueMode queueMode) async {
-    if (state.formStatus == FormzSubmissionStatus.inProgress) {
-      return;
-    }
-
-    emit(state.copyWith(formStatus: FormzSubmissionStatus.inProgress));
-
-    TournamentEvent tournamentWithUpdatedQueueMode =
-        state.tournament.copyWith(queueMode: queueMode);
-
-    TournamentEvent? updatedTournament =
-        await querier.updateModel(tournamentWithUpdatedQueueMode);
     if (updatedTournament == null) {
       emit(state.copyWith(formStatus: FormzSubmissionStatus.failure));
       return;

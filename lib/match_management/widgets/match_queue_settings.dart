@@ -1,3 +1,4 @@
+import 'package:ez_badminton_admin_app/settings/cubit/local_preferences_cubit.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/match_queue_settings_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/cross_fade_drawer/cross_fade_drawer.dart';
@@ -29,7 +30,6 @@ class _MatchQueueSettingsState extends State<MatchQueueSettings> {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    var cubit = context.read<MatchQueueSettingsCubit>();
 
     return CrossFadeDrawer(
       controller: _controller,
@@ -48,19 +48,7 @@ class _MatchQueueSettingsState extends State<MatchQueueSettings> {
                 const _RestTimeInput(),
                 const SizedBox(height: 25),
                 _SectionTitle(l10n.courtModeSetting),
-                for (QueueMode queueMode in [
-                  QueueMode.manual,
-                  QueueMode.autoCourtAssignment,
-                ])
-                  RadioListTile(
-                    value: queueMode,
-                    groupValue: state.queueMode,
-                    onChanged: (_) => cubit.queueModeChanged(queueMode),
-                    title: Text(l10n.courtMode(queueMode.toString())),
-                    secondary: HelpTooltipIcon(
-                      helpText: l10n.courtModeHelp(queueMode.toString()),
-                    ),
-                  ),
+                const _QueueModeInput(),
               ],
             ),
           );
@@ -223,5 +211,37 @@ class _RestTimeInputState extends State<_RestTimeInput> {
     if (!_focusNode.hasFocus) {
       cubit.playerRestTimeChanged(_controller.text);
     }
+  }
+}
+
+class _QueueModeInput extends StatelessWidget {
+  const _QueueModeInput();
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+    final LocalPreferencesCubit cubit = BlocProvider.of(context);
+
+    return BlocBuilder<LocalPreferencesCubit, LocalPreferencesState>(
+      builder: (context, state) {
+        return Column(
+          children: [
+            for (QueueMode queueMode in [
+              QueueMode.manual,
+              QueueMode.autoCourtAssignment,
+            ])
+              RadioListTile(
+                value: queueMode,
+                groupValue: state.queueMode,
+                onChanged: (_) => cubit.queueModeChanged(queueMode),
+                title: Text(l10n.courtMode(queueMode.toString())),
+                secondary: HelpTooltipIcon(
+                  helpText: l10n.courtModeHelp(queueMode.toString()),
+                ),
+              ),
+          ],
+        );
+      },
+    );
   }
 }

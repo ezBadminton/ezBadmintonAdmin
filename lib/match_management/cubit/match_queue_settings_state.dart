@@ -20,9 +20,6 @@ class MatchQueueSettingsState extends CollectionQuerierState {
   int get playerRestTime =>
       getCollection<TournamentEvent>().first.playerRestTime;
 
-  /// The mode that the match queuing follows. See [QueueMode].
-  QueueMode get queueMode => getCollection<TournamentEvent>().first.queueMode;
-
   MatchQueueSettingsState copyWith({
     LoadingStatus? loadingStatus,
     FormzSubmissionStatus? formStatus,

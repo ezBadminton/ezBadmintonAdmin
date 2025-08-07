@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:authentication_repository/authentication_repository.dart';
 import 'package:ez_badminton_admin_app/constants.dart';
+import 'package:ez_badminton_admin_app/settings/cubit/local_preferences_cubit.dart';
 import 'package:logger/logger.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/utils/test_environment.dart';
@@ -383,11 +384,18 @@ class _AppState extends State<App> {
           ),
         ),
       ],
-      child: BlocProvider(
-        create: (_) => AuthenticationBloc(
-          authenticationRepository: _authenticationRepository,
-          userRepository: _userRepository,
-        ),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (_) => AuthenticationBloc(
+              authenticationRepository: _authenticationRepository,
+              userRepository: _userRepository,
+            ),
+          ),
+          BlocProvider(
+            create: (_) => LocalPreferencesCubit(),
+          ),
+        ],
         child: const AppView(),
       ),
     );

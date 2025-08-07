@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:ez_badminton_admin_app/court_management/cubit/cubit/court_cubit.dart';
+import 'package:ez_badminton_admin_app/settings/cubit/local_preferences_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:model_repository/model_repository.dart';
@@ -186,10 +187,8 @@ class _CourtAssignmentButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<MatchQueueCubit, MatchQueueState>(
-      buildWhen: (previous, current) =>
-          current.loadingStatus != LoadingStatus.loading &&
-          previous.queueMode != current.queueMode,
+    return BlocBuilder<LocalPreferencesCubit, LocalPreferencesState>(
+      buildWhen: (previous, current) => previous.queueMode != current.queueMode,
       builder: (context, state) {
         return switch (state.queueMode) {
           QueueMode.manual => _ManualCourtAssignmentButton(match: match),
@@ -568,10 +567,8 @@ class _BackToWaitlistButton extends StatelessWidget {
 
     var match = context.readMatch();
 
-    return BlocBuilder<MatchQueueCubit, MatchQueueState>(
-      buildWhen: (previous, current) =>
-          current.loadingStatus != LoadingStatus.loading &&
-          previous.queueMode != current.queueMode,
+    return BlocBuilder<LocalPreferencesCubit, LocalPreferencesState>(
+      buildWhen: (previous, current) => previous.queueMode != current.queueMode,
       builder: (context, state) {
         if (state.queueMode == QueueMode.auto) {
           return const SizedBox();
