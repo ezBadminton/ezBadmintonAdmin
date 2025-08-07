@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
-import 'package:model_repository/model_repository.dart';
+import 'package:ez_badminton_admin_app/settings/models/queue_mode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 part 'local_preferences_state.dart';
@@ -12,7 +12,7 @@ part 'local_preferences_state.dart';
 ///
 /// The cubit makes a best effort to persist the preferences using
 /// the shared_preferences plugin but will update them in its state regardless
-/// of whether the persistence succeeds. If persisting fails a setting might be 
+/// of whether the persistence succeeds. If persisting fails a setting might be
 /// lost after restarting the client but that is as unlikely as it is tolerable
 /// because these settings are only stored for convenience in the first place.
 class LocalPreferencesCubit extends Cubit<LocalPreferencesState> {

@@ -1,5 +1,5 @@
 import 'package:ez_badminton_admin_app/settings/cubit/local_preferences_cubit.dart';
-import 'package:model_repository/model_repository.dart';
+import 'package:ez_badminton_admin_app/settings/models/queue_mode.dart';
 import 'package:ez_badminton_admin_app/match_management/cubit/match_queue_settings_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/cross_fade_drawer/cross_fade_drawer.dart';
 import 'package:ez_badminton_admin_app/widgets/cross_fade_drawer/cross_fade_drawer_controller.dart';

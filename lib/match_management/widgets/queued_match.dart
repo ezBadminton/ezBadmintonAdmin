@@ -15,6 +15,7 @@ import 'package:ez_badminton_admin_app/widgets/countdown/countdown.dart';
 import 'package:ez_badminton_admin_app/widgets/match_info/match_info.dart';
 import 'package:ez_badminton_admin_app/widgets/match_label/match_label.dart';
 import 'package:ez_badminton_admin_app/widgets/minutes_timer/minutes_timer.dart';
+import 'package:ez_badminton_admin_app/settings/models/queue_mode.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ez_badminton_admin_app/l10n/l10n.dart';
