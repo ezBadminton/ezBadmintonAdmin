@@ -1,3 +1,4 @@
+import 'package:ez_badminton_admin_app/competition_management/view/competition_list_page.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_filter/cubit/competition_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_filter/registration_count_predicate_producer.dart';
@@ -25,7 +26,8 @@ class CompetitionFilter extends StatelessWidget {
       children: [
         const CompetitionFilterMenus(),
         const SizedBox(height: 3),
-        FilterChips<CompetitionFilterCubit>(expanded: expanded),
+        FilterChips<CompetitionFilterCubit,
+            PredicateFilterCubit<CompetitionListPage>>(expanded: expanded),
       ],
     );
   }
@@ -53,7 +55,8 @@ class CompetitionFilterMenus extends StatelessWidget {
     return BlocConsumer<CompetitionFilterCubit, CompetitionFilterState>(
       listenWhen: (_, current) => current.filterPredicate != null,
       listener: (context, state) {
-        var listFilter = context.read<PredicateFilterCubit>();
+        final PredicateFilterCubit<CompetitionListPage> listFilter =
+            BlocProvider.of(context);
         listFilter.consumePredicate(state.filterPredicate!);
       },
       buildWhen: (previous, current) =>

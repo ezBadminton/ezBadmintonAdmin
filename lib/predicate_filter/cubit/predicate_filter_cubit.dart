@@ -1,4 +1,4 @@
-import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate_producers.dart';
@@ -7,7 +7,9 @@ import "package:collection/collection.dart";
 
 part 'predicate_filter_state.dart';
 
-class PredicateFilterCubit extends Cubit<PredicateFilterState> {
+/// The generic paramtere [T] is only used to created distinct types of this
+/// cubit which differentiates the for [BlocProvider.of] calls
+class PredicateFilterCubit<T> extends Cubit<PredicateFilterState> {
   /// A predicate filter consisting of multiple [FilterPredicate]s.
   ///
   /// This cubit combines multiple predicates into a filter for different types
@@ -89,9 +91,10 @@ class PredicateFilterCubit extends Cubit<PredicateFilterState> {
     conjunctionPredicates = conjunctionPredicates ?? [];
 
     Iterable<Predicate> disjunctionPredicates = disjunctionGroups.values.map(
-        (disjunctionGroup) => disjunctionGroup
-            .map((p) => p.function!)
-            .reduce(_predicateDisjunction));
+      (disjunctionGroup) => disjunctionGroup
+          .map((p) => p.function!)
+          .reduce(_predicateDisjunction),
+    );
 
     List<Predicate> resultPredicates = conjunctionPredicates.toList()
       ..addAll(disjunctionPredicates);
@@ -102,8 +105,9 @@ class PredicateFilterCubit extends Cubit<PredicateFilterState> {
   Map<Type, Predicate> _createTypeFilters(
     Map<Type, List<FilterPredicate>> typePredicates,
   ) {
-    return typePredicates
-        .map((type, predicates) => MapEntry(type, _createFilter(predicates)));
+    return typePredicates.map(
+      (type, predicates) => MapEntry(type, _createFilter(predicates)),
+    );
   }
 
   // Make predicate lists unmodifiable

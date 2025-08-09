@@ -12,6 +12,7 @@ import 'package:ez_badminton_admin_app/match_management/cubit/match_court_assign
 import 'package:ez_badminton_admin_app/match_management/result_entering/widgets/match_scan_listener.dart';
 import 'package:ez_badminton_admin_app/match_management/view/match_management_page.dart';
 import 'package:ez_badminton_admin_app/player_management/view/player_list_page.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/result_management/view/result_management_page.dart';
 import 'package:ez_badminton_admin_app/settings/view/settings_page.dart';
 import 'package:ez_badminton_admin_app/tournament_plans/cubit/tournament_plan_cubit.dart';
@@ -168,6 +169,11 @@ class _HomePageState extends State<HomePage>
             assignEndpoint: context.read(),
             unassignEndpoint: context.read(),
           ),
+        ),
+        BlocProvider(
+          // Provide this predicate filter to all tabs because it affects the
+          // competition lists on multiple of them
+          create: (context) => PredicateFilterCubit<CompetitionListPage>(),
         ),
       ],
       child: BlocBuilder<TabNavigationCubit, TabNavigationState>(

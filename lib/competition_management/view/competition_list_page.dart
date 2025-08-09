@@ -26,7 +26,6 @@ class CompetitionListPage extends StatelessWidget {
     var l10n = AppLocalizations.of(context)!;
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => PredicateFilterCubit()),
         BlocProvider(
           create: (context) => CompetitionFilterCubit(
             ageGroupRepository: context.read<ModelStore<AgeGroup>>(),
@@ -109,9 +108,11 @@ class _CompetitionListWithControls extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
-    return BlocListener<PredicateFilterCubit, PredicateFilterState>(
+    return BlocListener<PredicateFilterCubit<CompetitionListPage>,
+        PredicateFilterState>(
       listener: (context, state) {
-        context.read<CompetitionListCubit>().filterChanged(state.filters);
+        final CompetitionListCubit cubit = BlocProvider.of(context);
+        cubit.filterChanged(state.filters);
       },
       child: BlocBuilder<CompetitionListCubit, CompetitionListState>(
         buildWhen: (previous, current) =>

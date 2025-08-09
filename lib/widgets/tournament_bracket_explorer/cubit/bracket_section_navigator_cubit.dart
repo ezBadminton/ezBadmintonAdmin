@@ -1,4 +1,4 @@
-import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:ez_badminton_admin_app/utils/animated_transformation_controller/animated_transformation_controller.dart';
 import 'package:flutter/material.dart';

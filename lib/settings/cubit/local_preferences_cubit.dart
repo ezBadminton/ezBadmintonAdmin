@@ -1,4 +1,4 @@
-import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:ez_badminton_admin_app/settings/models/queue_mode.dart';
 import 'package:shared_preferences/shared_preferences.dart';

@@ -24,7 +24,7 @@ class PlayerFilter extends StatelessWidget {
         children: [
           PlayerFilterMenus(),
           SizedBox(height: 3),
-          FilterChips<PlayerFilterCubit>(),
+          FilterChips<PlayerFilterCubit, PredicateFilterCubit>(),
         ],
       ),
     );

@@ -14,8 +14,13 @@ class FilterPredicate {
   /// filter unless the predicate has a non-empty [disjunction] string.
   /// All filters (of a type) with a matching [disjunction] string get combined
   /// in a disjunction before being conjoined.
-  const FilterPredicate(this.function, this.type, this.name, this.domain,
-      [this.disjunction]);
+  const FilterPredicate(
+    this.function,
+    this.type,
+    this.name,
+    this.domain, [
+    this.disjunction,
+  ]);
 
   final Predicate? function;
   final Type type;

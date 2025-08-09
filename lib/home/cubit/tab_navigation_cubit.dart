@@ -1,4 +1,4 @@
-import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_state.dart';
 
 class TabNavigationCubit extends Cubit<TabNavigationState> {

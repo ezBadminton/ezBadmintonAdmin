@@ -1,3 +1,5 @@
+import 'package:ez_badminton_admin_app/competition_management/view/competition_list_page.dart';
+import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/draw_management/plan_printing/view/plan_printing_page.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_selection_list/competition_selection_list.dart';
@@ -22,9 +24,12 @@ class DrawManagementPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final PredicateFilterCubit<CompetitionListPage> filterCubit =
+        BlocProvider.of(context);
     return BlocProvider(
       create: (context) => CompetitionSelectionCubit(
         competitionStore: context.read<ModelStore<Competition>>(),
+        filterPredicate: filterCubit.state.filters[Competition],
       ),
       child: const _DrawManagementPageScaffold(),
     );
@@ -37,34 +42,12 @@ class _DrawManagementPageScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
+    final CompetitionSelectionCubit cubit = BlocProvider.of(context);
     return TabNavigationBackButtonBuilder(
       builder: (context, backButton) => Scaffold(
         appBar: AppBar(
           title: Text(l10n.drawManagement),
           leading: backButton,
-        ),
-        body: BlocListener<TabNavigationCubit, TabNavigationState>(
-          listenWhen: (previous, current) =>
-              current.selectedIndex == 3 &&
-              current.tabChangeReason is Competition,
-          listener: (context, state) {
-            var cubit = context.read<CompetitionSelectionCubit>();
-            cubit.competitionSelected(state.tabChangeReason as Competition);
-          },
-          child: BlocProvider(
-            create: (context) => SimpleCubit<CrossFadeDrawerController>(
-              CrossFadeDrawerController(),
-            ),
-            child: BlocBuilder<CompetitionSelectionCubit,
-                CompetitionSelectionState>(
-              buildWhen: (previous, current) =>
-                  previous.loadingStatus != current.loadingStatus,
-              builder: (context, state) => LoadingScreen(
-                loadingStatus: state.loadingStatus,
-                builder: (context) => const _DrawManagementPanels(),
-              ),
-            ),
-          ),
         ),
         floatingActionButton: Padding(
           padding: const EdgeInsets.only(right: 80, bottom: 40),
@@ -86,6 +69,35 @@ class _DrawManagementPageScaffold extends StatelessWidget {
                 child: const Icon(Icons.print),
               );
             },
+          ),
+        ),
+        body: BlocListener<TabNavigationCubit, TabNavigationState>(
+          listenWhen: (previous, current) =>
+              current.selectedIndex == 3 &&
+              current.tabChangeReason is Competition,
+          listener: (context, state) {
+            var cubit = context.read<CompetitionSelectionCubit>();
+            cubit.competitionSelected(state.tabChangeReason as Competition);
+          },
+          child: BlocProvider(
+            create: (context) => SimpleCubit<CrossFadeDrawerController>(
+              CrossFadeDrawerController(),
+            ),
+            child: BlocListener<PredicateFilterCubit<CompetitionListPage>,
+                PredicateFilterState>(
+              listener: (context, state) {
+                cubit.filterChanged(state.filters[Competition]);
+              },
+              child: BlocBuilder<CompetitionSelectionCubit,
+                  CompetitionSelectionState>(
+                buildWhen: (previous, current) =>
+                    previous.loadingStatus != current.loadingStatus,
+                builder: (context, state) => LoadingScreen(
+                  loadingStatus: state.loadingStatus,
+                  builder: (context) => const _DrawManagementPanels(),
+                ),
+              ),
+            ),
           ),
         ),
       ),

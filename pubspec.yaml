@@ -36,7 +36,6 @@ dependencies:
     path: packages/pocketbase_provider
   model_repository:
     path: packages/model_repository
-  bloc: ^9.0.0
   equatable: ^2.0.3
   flutter:
     sdk: flutter

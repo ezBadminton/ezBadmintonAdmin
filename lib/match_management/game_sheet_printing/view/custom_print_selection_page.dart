@@ -140,7 +140,7 @@ class _SelectionFilter extends StatelessWidget {
         children: [
           PlayerFilterMenus(useStatusFilter: false),
           SizedBox(height: 3),
-          FilterChips<PlayerFilterCubit>(expanded: false),
+          FilterChips<PlayerFilterCubit, PredicateFilterCubit>(expanded: false),
         ],
       ),
     );

@@ -1,4 +1,4 @@
-import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// A cubit that maintains a map of [T] objets to a bool value.
 ///

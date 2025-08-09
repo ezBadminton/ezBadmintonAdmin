@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 
 part 'interactive_view_blocker_state.dart';
