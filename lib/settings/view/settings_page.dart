@@ -1,6 +1,7 @@
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_state.dart';
 import 'package:ez_badminton_admin_app/home/widgets/navigation_tab.dart';
+import 'package:ez_badminton_admin_app/settings/view/hint_settings.dart';
 import 'package:ez_badminton_admin_app/settings/view/info_screen_settings.dart';
 import 'package:ez_badminton_admin_app/settings/view/version_display.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,7 @@ class _SettingsPageState extends State<SettingsPage>
     with TickerProviderStateMixin<SettingsPage> {
   late final List<GlobalKey<NavigatorState>> navigatorKeys;
   late final List<AnimationController> switchAnimationControllers;
-  final int numTabs = 2;
+  final int numTabs = 3;
   late List<NavigationTab> tabs;
   late List<Widget> tabViews;
 
@@ -51,13 +52,20 @@ class _SettingsPageState extends State<SettingsPage>
       tabs = [
         NavigationTab(
           index: 0,
+          label: l10n.hints,
+          root: const HintSettingsPage(),
+          unselectedIcon: Icons.person_outline,
+          selectedIcon: Icons.person,
+        ),
+        NavigationTab(
+          index: 1,
           label: l10n.infoscreens,
           root: const InfoScreenSettingsPage(),
           unselectedIcon: Icons.person_outline,
           selectedIcon: Icons.person,
         ),
         NavigationTab(
-          index: 1,
+          index: 2,
           label: l10n.version,
           root: const VersionDisplayPage(),
           unselectedIcon: Icons.person_outline,

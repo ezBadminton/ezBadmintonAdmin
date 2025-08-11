@@ -5,6 +5,7 @@ import 'package:ez_badminton_admin_app/court_management/view/court_list_page.dar
 import 'package:ez_badminton_admin_app/draw_management/view/draw_management_page.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_cubit.dart';
 import 'package:ez_badminton_admin_app/home/cubit/tab_navigation_state.dart';
+import 'package:ez_badminton_admin_app/home/widgets/competition_navigation_tab_icon.dart';
 import 'package:ez_badminton_admin_app/home/widgets/court_navigation_tab_icon.dart';
 import 'package:ez_badminton_admin_app/home/widgets/navigation_tab.dart';
 import 'package:ez_badminton_admin_app/home/widgets/result_navigation_tab_icon.dart';
@@ -76,6 +77,9 @@ class _HomePageState extends State<HomePage>
           root: const CompetitionListPage(),
           unselectedIcon: BadmintonIcons.badminton_rackets_crossed,
           selectedIcon: BadmintonIcons.badminton_rackets_crossed,
+          iconBuilder: (icon, isSelected) => CompetitionNavigationTabIcon(
+            icon: icon,
+          ),
         ),
         NavigationTab(
           index: 2,

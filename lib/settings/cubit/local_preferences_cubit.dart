@@ -21,6 +21,10 @@ class LocalPreferencesCubit extends Cubit<LocalPreferencesState> {
     _queueModePreference = _QueueModePreference(
       sharedPreferences: _preferenceStore,
     );
+    _competitionFilterNotificationPreference =
+        _CompetitionFilterNotificationPreference(
+      sharedPreferences: _preferenceStore,
+    );
 
     _loadLocalPreferences();
   }
@@ -28,11 +32,17 @@ class LocalPreferencesCubit extends Cubit<LocalPreferencesState> {
   late final SharedPreferencesAsync _preferenceStore;
 
   late final _QueueModePreference _queueModePreference;
+  late final _CompetitionFilterNotificationPreference
+      _competitionFilterNotificationPreference;
 
   void _loadLocalPreferences() async {
     final QueueMode queueMode = await _queueModePreference.load();
+    final bool showNotification =
+        await _competitionFilterNotificationPreference.load();
+
     emit(state.copyWith(
       queueMode: queueMode,
+      showGlobalCompetitionFilterNotification: showNotification,
     ));
   }
 
@@ -41,6 +51,13 @@ class LocalPreferencesCubit extends Cubit<LocalPreferencesState> {
       queueMode: mode,
     ));
     _queueModePreference.save(mode);
+  }
+
+  void competitionFilterNotificationPreferenceChanged(bool showNotification) {
+    emit(state.copyWith(
+      showGlobalCompetitionFilterNotification: showNotification,
+    ));
+    _competitionFilterNotificationPreference.save(showNotification);
   }
 }
 
@@ -104,5 +121,26 @@ class _QueueModePreference extends _LocalPreference<QueueMode, String> {
   @override
   QueueMode? unmarshal(String name) {
     return QueueMode.values.firstWhereOrNull((mode) => mode.name == name);
+  }
+}
+
+class _CompetitionFilterNotificationPreference
+    extends _LocalPreference<bool, bool> {
+  _CompetitionFilterNotificationPreference({required super.sharedPreferences});
+
+  @override
+  String get key => 'showCompetitionFilterNotification';
+
+  @override
+  bool get defaultValue => true;
+
+  @override
+  bool marshal(bool showNotification) {
+    return showNotification;
+  }
+
+  @override
+  bool? unmarshal(bool showNotification) {
+    return showNotification;
   }
 }

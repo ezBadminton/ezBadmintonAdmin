@@ -365,6 +365,7 @@
   "multiPagePlanHelp": "Der Spielplan wird ggf. auf mehrere Seiten aufgeteilt und kann nach dem Drucken ausgeschnitten und zusammengesetzt werden",
   "bigPagePlanHelp": "Der Spielplan wird auf einer einzelnen Seite erstellt. Die Seitengröße folgt dem Format des Plans. Hinweis: Die Schrift kann beim Drucken größerer Pläne eine unlesbare Größe bekommen.",
   "showScoresHelp": "Die Pläne können mit oder ohne die Spielergebnisse erstellt werden.",
+  "hints": "Hinweise",
   "infoscreens": "Informationsbildschirme",
   "infoscreenCredentials": "Infobildschirm-Zugänge",
   "infoscreenHelp": "Mit dem Infobildschirm-Client für ezBadminton kann man als Turnierveranstalter den Zuschauern und Teilnehmern auf Bildschirmen in der Halle die aktuellen Spielstände zeigen. Die Zugangsdaten, mit denen man sich in dem Client anmelden kann, werden hier registriert. Idealerweise erstellt man einen Zugang pro Bildschirm.",
@@ -372,5 +373,9 @@
   "reallyDeleteInfoscreenUser": "Zugang wirklich löschen?",
   "version": "Version",
   "clientVersion": "Client-Version",
-  "serverVersion": "Server-Version"
+  "serverVersion": "Server-Version",
+  "globalCompetitionFilterHint": "Globaler Disziplinen-Filter",
+  "globalCompetitionFilterActive": "Info: Der Disziplinen-Filter ist auch auf dieser Seite aktiv.",
+  "doNotShowAgain": "Nicht erneut anzeigen",
+  "showHint": "Diesen Hinweis zeigen"
 }

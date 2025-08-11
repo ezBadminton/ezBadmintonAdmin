@@ -365,6 +365,7 @@
   "multiPagePlanHelp": "The match plan is distributed across multiple pages if needed. After printing the plan can be cut out and pieced together.",
   "bigPagePlanHelp": "The plan is put onto a single page. The page size follows the format of the plan. Note: The text can get an unreadable size when printing large plans.",
   "showScoresHelp": "The plans can be created with and without the match results.",
+  "hints": "Hints",
   "infoscreens": "Information screens",
   "infoscreenCredentials": "Info Screen Logins",
   "infoscreenHelp": "By using the info-screen-client for ezBadminton, the tournament administration can use public screens to display the standings to the viewers and players in the venue. The login credentials for logging in with this client have to be created here. Ideally one login is created per screen.",
@@ -372,5 +373,9 @@
   "reallyDeleteInfoscreenUser": "Really delete login?",
   "version": "Version",
   "clientVersion": "Client version",
-  "serverVersion": "Server version"
+  "serverVersion": "Server version",
+  "globalCompetitionFilterHint": "Global Competition Filter",
+  "globalCompetitionFilterActive": "Hint: The competition filter is active on this page as well",
+  "doNotShowAgain": "Do not show again",
+  "showHint": "Show this hint"
 }
