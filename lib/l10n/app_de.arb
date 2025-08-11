@@ -95,6 +95,7 @@
   "reallyDeletePlayer": "Spieler wirklich löschen?",
   "confirm": "Bestätigen",
   "nPlayersShown": "{count, plural, other{{count} Spieler angezeigt}}",
+  "nCompetitionsShown": "{count, plural, =1{Eine Disziplin angezeigt} other{{count} Disziplinen angezeigt}}",
   "ofN": "von {number}",
   "nSubjectsSelected": "{count, plural, =0{Keine {subject} ausgewählt} other{{count} {subject} ausgewählt}}",
   "categorizationHint": "Kategorisierung der Disziplinen in {category}. Die selbe Disziplin (z.B. Mixed) kann so mehrfach für verschiedene Spielergruppen ausgetragen werden.",

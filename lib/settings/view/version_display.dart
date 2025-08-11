@@ -22,73 +22,75 @@ class VersionDisplayPage extends StatelessWidget {
             .read<AuthenticationRepository<OrganizerAuthCollectionName>>()
             .pocketBase,
       ),
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: SizedBox(
-          width: 600,
-          child: BlocBuilder<VersionGetCubit, VersionGetState>(
-            builder: (context, state) {
-              return Column(
-                children: [
-                  const SizedBox(height: 40),
-                  Text(
-                    l10n.version,
-                    style: const TextStyle(fontSize: 22),
-                  ),
-                  const Divider(height: 25, indent: 20, endIndent: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Align(
-                          alignment: AlignmentDirectional.centerEnd,
-                          child: Padding(
-                            padding: const EdgeInsetsDirectional.only(
-                              end: 7,
-                            ),
-                            child: Text('${l10n.clientVersion}:'),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Text(
-                          state.clientVersion,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Align(
-                          alignment: AlignmentDirectional.centerEnd,
-                          child: Padding(
-                            padding: const EdgeInsetsDirectional.only(
-                              end: 7,
-                            ),
-                            child: Text(
-                              '${l10n.serverVersion}:',
+      child: Scaffold(
+        body: Align(
+          alignment: Alignment.topCenter,
+          child: SizedBox(
+            width: 600,
+            child: BlocBuilder<VersionGetCubit, VersionGetState>(
+              builder: (context, state) {
+                return Column(
+                  children: [
+                    const SizedBox(height: 40),
+                    Text(
+                      l10n.version,
+                      style: const TextStyle(fontSize: 22),
+                    ),
+                    const Divider(height: 25, indent: 20, endIndent: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Align(
+                            alignment: AlignmentDirectional.centerEnd,
+                            child: Padding(
+                              padding: const EdgeInsetsDirectional.only(
+                                end: 7,
+                              ),
+                              child: Text('${l10n.clientVersion}:'),
                             ),
                           ),
                         ),
-                      ),
-                      Expanded(
-                        child: Text(
-                          state.serverVersion,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
+                        Expanded(
+                          child: Text(
+                            state.clientVersion,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              );
-            },
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Align(
+                            alignment: AlignmentDirectional.centerEnd,
+                            child: Padding(
+                              padding: const EdgeInsetsDirectional.only(
+                                end: 7,
+                              ),
+                              child: Text(
+                                '${l10n.serverVersion}:',
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            state.serverVersion,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ),
