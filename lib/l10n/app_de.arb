@@ -379,6 +379,8 @@
   "globalCompetitionFilterHint": "Globaler Disziplinen-Filter",
   "globalCompetitionFilterActive": "Info: Der Disziplinen-Filter ist auch auf dieser Seite aktiv.",
   "qualificationOverrideAvailable": "Info: Gruppenphase beendet. Auf Wunsch können Änderungen an den Qualifikationen jetzt gemacht werden.",
+  "qualificationOverride": "Qualifikationen überschreiben",
+  "qualificationOverrideExplanation": "Bevor die KO-Phase beginnt, kannst du die Qualifikationen bearbeiten, wenn die automatische Bestimmung nicht passt. Nutze drag-and-drop, um die Teilnehmer im Turnierbaum zu verschieben. Du kannst auch nicht Qualifizierte von den Gruppen in den KO-Baum ziehen.",
   "doNotShowAgain": "Nicht erneut anzeigen",
   "showHint": "Diesen Hinweis zeigen"
 }

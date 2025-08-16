@@ -5,6 +5,7 @@ import 'package:ez_badminton_admin_app/tournament_plans/cubit/tournament_plan_cu
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
 import 'package:ez_badminton_admin_app/widgets/labeled_checkbox/labeled_checkbox.dart';
 import 'package:ez_badminton_admin_app/widgets/speech_bubble/speech_bubble.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:model_repository/model_repository.dart';
@@ -143,10 +144,7 @@ class _DrawNavigationTabIconState extends State<DrawNavigationTabIcon> {
     return state.runningTournaments.values.where((tPlan) {
       if (tPlan.tournament is GroupKnockout) {
         final groupKnockout = tPlan.tournament as GroupKnockout;
-        final hasTies = groupKnockout.groupPhase.hasTies;
-        final groupsEnded = groupKnockout.groupPhase.groupPhaseEnded;
-        final koStarted = groupKnockout.knockoutStarted;
-        return !hasTies && groupsEnded && !koStarted;
+        return isQualificationOverrideAvailable(groupKnockout);
       } else {
         return false;
       }

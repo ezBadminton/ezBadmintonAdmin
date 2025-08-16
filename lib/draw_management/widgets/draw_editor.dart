@@ -1,5 +1,6 @@
 import 'package:ez_badminton_admin_app/draw_management/cubit/qualification_override_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/utils.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/cubit/tournament_plan_context_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:model_repository/model_repository.dart';
@@ -126,11 +127,9 @@ class _InteractiveDraw extends StatelessWidget {
               bool qualificationOverrideEnabled = false;
               if (tPlan.tournament is GroupKnockout) {
                 final groupKnockout = tPlan.tournament as GroupKnockout;
-                final hasTies = groupKnockout.groupPhase.hasTies;
-                final groupsEnded = groupKnockout.groupPhase.groupPhaseEnded;
-                final koStarted = groupKnockout.knockoutStarted;
-                qualificationOverrideEnabled =
-                    !hasTies && groupsEnded && !koStarted;
+                qualificationOverrideEnabled = isQualificationOverrideAvailable(
+                  groupKnockout,
+                );
               }
 
               if (!tPlan.started) {

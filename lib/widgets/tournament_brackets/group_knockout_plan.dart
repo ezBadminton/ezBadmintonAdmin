@@ -2,12 +2,14 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:ez_badminton_admin_app/utils/powers_of_two.dart';
+import 'package:ez_badminton_admin_app/widgets/info_card/info_card.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_bracket_explorer/bracket_section.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/consolation_elimination_tree.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/double_elimination_tree.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/round_robin_plan.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/sectioned_bracket.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_brackets/single_eliminiation_tree.dart';
+import 'package:ez_badminton_admin_app/widgets/tournament_brackets/utils.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:flutter/material.dart';
 import 'package:ez_badminton_admin_app/l10n/l10n.dart';
@@ -81,7 +83,7 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
         ),
     };
 
-    return Row(
+    Widget knockOutPlan = Row(
       children: [
         for (Widget groupPlan in groupPlans) ...[
           groupPlan,
@@ -89,6 +91,34 @@ class GroupKnockoutPlan extends StatelessWidget implements SectionedBracket {
         ],
         const SizedBox(width: bracket_sizes.groupKnockoutEliminationGap),
         eliminationTree,
+      ],
+    );
+
+    final qualificationOverrideAvailable = isQualificationOverrideAvailable(
+      tournament,
+    );
+
+    return Column(
+      children: [
+        if (qualificationOverrideAvailable) ...[
+          SizedBox(
+            width: 380,
+            child: InfoCard(
+              child: Column(
+                children: [
+                  Text(
+                    l10n.qualificationOverride,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(l10n.qualificationOverrideExplanation),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 50),
+        ],
+        knockOutPlan,
       ],
     );
   }

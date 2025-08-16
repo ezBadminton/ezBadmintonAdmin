@@ -379,6 +379,8 @@
   "globalCompetitionFilterHint": "Global Competition Filter",
   "globalCompetitionFilterActive": "Hint: The competition filter is active on this page as well",
   "qualificationOverrideAvailable": "Hint: Group phase finished. Manual changes to the qualifications can be made now if needed.",
+  "qualificationOverride": "Qualification Override",
+  "qualificationOverrideExplanation": "Before the k.o. phase begins you can change the qualifications if the automatic determination doesn't fit the needs. Use drag-and-drop to move participants in the bracket. You can also drag participants who did not qualify from the groups to the k.o. bracket.",
   "doNotShowAgain": "Do not show again",
   "showHint": "Show this hint"
 }

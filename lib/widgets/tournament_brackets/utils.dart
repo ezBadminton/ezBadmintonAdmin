@@ -32,3 +32,13 @@ List<int> getRankIndices(List<List<Team>> ranks) {
 
   return rankIndices;
 }
+
+/// The qualification override feature is only available when the
+/// [groupKnockout] has finished its group phase and not started its K.O. phase
+bool isQualificationOverrideAvailable(GroupKnockout groupKnockout) {
+  final hasTies = groupKnockout.groupPhase.hasTies;
+  final groupsEnded = groupKnockout.groupPhase.groupPhaseEnded;
+  final koStarted = groupKnockout.knockoutStarted;
+  final qualificationOverrideAvailable = !hasTies && groupsEnded && !koStarted;
+  return qualificationOverrideAvailable;
+}
