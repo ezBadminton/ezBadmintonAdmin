@@ -367,6 +367,7 @@
   "bigPagePlanHelp": "Der Spielplan wird auf einer einzelnen Seite erstellt. Die Seitengröße folgt dem Format des Plans. Hinweis: Die Schrift kann beim Drucken größerer Pläne eine unlesbare Größe bekommen.",
   "showScoresHelp": "Die Pläne können mit oder ohne die Spielergebnisse erstellt werden.",
   "hints": "Hinweise",
+  "hintSettings": "Welche Hinweise sollen gezeigt werden?",
   "infoscreens": "Informationsbildschirme",
   "infoscreenCredentials": "Infobildschirm-Zugänge",
   "infoscreenHelp": "Mit dem Infobildschirm-Client für ezBadminton kann man als Turnierveranstalter den Zuschauern und Teilnehmern auf Bildschirmen in der Halle die aktuellen Spielstände zeigen. Die Zugangsdaten, mit denen man sich in dem Client anmelden kann, werden hier registriert. Idealerweise erstellt man einen Zugang pro Bildschirm.",
@@ -377,6 +378,7 @@
   "serverVersion": "Server-Version",
   "globalCompetitionFilterHint": "Globaler Disziplinen-Filter",
   "globalCompetitionFilterActive": "Info: Der Disziplinen-Filter ist auch auf dieser Seite aktiv.",
+  "qualificationOverrideAvailable": "Info: Gruppenphase beendet. Auf Wunsch können Änderungen an den Qualifikationen jetzt gemacht werden.",
   "doNotShowAgain": "Nicht erneut anzeigen",
   "showHint": "Diesen Hinweis zeigen"
 }

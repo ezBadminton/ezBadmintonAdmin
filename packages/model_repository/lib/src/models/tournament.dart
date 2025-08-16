@@ -227,6 +227,9 @@ class GroupPhase {
 
   bool get groupPhaseEnded => groups.every((group) => group.matchesEnded);
 
+  bool get hasTies =>
+      crossGroupTies.isNotEmpty || groups.any((group) => group.ties.isNotEmpty);
+
   factory GroupPhase.fromJson(Map<String, dynamic> json) =>
       _$GroupPhaseFromJson(json);
 }

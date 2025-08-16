@@ -126,9 +126,11 @@ class _InteractiveDraw extends StatelessWidget {
               bool qualificationOverrideEnabled = false;
               if (tPlan.tournament is GroupKnockout) {
                 final groupKnockout = tPlan.tournament as GroupKnockout;
+                final hasTies = groupKnockout.groupPhase.hasTies;
                 final groupsEnded = groupKnockout.groupPhase.groupPhaseEnded;
                 final koStarted = groupKnockout.knockoutStarted;
-                qualificationOverrideEnabled = groupsEnded && !koStarted;
+                qualificationOverrideEnabled =
+                    !hasTies && groupsEnded && !koStarted;
               }
 
               if (!tPlan.started) {

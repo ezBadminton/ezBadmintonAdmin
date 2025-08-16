@@ -16,21 +16,22 @@ class HintSettingsPage extends StatelessWidget {
         alignment: Alignment.topCenter,
         child: SizedBox(
           width: 600,
-          child: Column(
-            children: [
-              const SizedBox(height: 40),
-              Text(
-                l10n.globalCompetitionFilterHint,
-                style: const TextStyle(fontSize: 22),
-              ),
-              const Divider(height: 25, indent: 20, endIndent: 20),
-              BlocBuilder<LocalPreferencesCubit, LocalPreferencesState>(
-                builder: (context, state) {
-                  final value = state.showGlobalCompetitionFilterNotification;
-                  return CheckboxListTile(
-                    value: value,
+          child: BlocBuilder<LocalPreferencesCubit, LocalPreferencesState>(
+            builder: (context, state) {
+              return Column(
+                children: [
+                  const SizedBox(height: 40),
+                  Text(
+                    l10n.hintSettings,
+                    style: const TextStyle(fontSize: 22),
+                  ),
+                  const Divider(height: 25, indent: 20, endIndent: 20),
+                  CheckboxListTile(
+                    value: state.showGlobalCompetitionFilterNotification,
                     onChanged: (_) => preferencesCubit
-                        .competitionFilterNotificationPreferenceChanged(!value),
+                        .competitionFilterNotificationPreferenceChanged(
+                      !state.showGlobalCompetitionFilterNotification,
+                    ),
                     controlAffinity: ListTileControlAffinity.leading,
                     title: RichText(
                       text: TextSpan(
@@ -52,10 +53,39 @@ class HintSettingsPage extends StatelessWidget {
                       ),
                     ),
                     subtitle: Text(l10n.showHint),
-                  );
-                },
-              )
-            ],
+                  ),
+                  const SizedBox(height: 12),
+                  CheckboxListTile(
+                    value: state.showQualificationOverrideNotification,
+                    onChanged: (_) => preferencesCubit
+                        .qualificatinoOverrideNotificationPreferenceChanged(
+                      !state.showQualificationOverrideNotification,
+                    ),
+                    controlAffinity: ListTileControlAffinity.leading,
+                    title: RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: '“ ',
+                            style: TextStyle(fontSize: 23),
+                          ),
+                          TextSpan(
+                            text: l10n.qualificationOverrideAvailable,
+                            style: TextStyle(fontStyle: FontStyle.italic),
+                          ),
+                          TextSpan(
+                            text: ' ”',
+                            style: TextStyle(fontSize: 23),
+                          ),
+                        ],
+                        style: DefaultTextStyle.of(context).style,
+                      ),
+                    ),
+                    subtitle: Text(l10n.showHint),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),

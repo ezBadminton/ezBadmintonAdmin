@@ -26,6 +26,11 @@ class LocalPreferencesCubit extends Cubit<LocalPreferencesState> {
       sharedPreferences: _preferenceStore,
     );
 
+    _qualificationOverrideNotificationPreference =
+        _QualificationOverrideNotificationPreference(
+      sharedPreferences: _preferenceStore,
+    );
+
     _loadLocalPreferences();
   }
 
@@ -34,15 +39,22 @@ class LocalPreferencesCubit extends Cubit<LocalPreferencesState> {
   late final _QueueModePreference _queueModePreference;
   late final _CompetitionFilterNotificationPreference
       _competitionFilterNotificationPreference;
+  late final _QualificationOverrideNotificationPreference
+      _qualificationOverrideNotificationPreference;
 
   void _loadLocalPreferences() async {
     final QueueMode queueMode = await _queueModePreference.load();
-    final bool showNotification =
+    final bool showCompetitionFilterNotification =
         await _competitionFilterNotificationPreference.load();
+    final bool showQualificationOverrideNotification =
+        await _qualificationOverrideNotificationPreference.load();
 
     emit(state.copyWith(
       queueMode: queueMode,
-      showGlobalCompetitionFilterNotification: showNotification,
+      showGlobalCompetitionFilterNotification:
+          showCompetitionFilterNotification,
+      showQualificationOverrideNotification:
+          showQualificationOverrideNotification,
     ));
   }
 
@@ -58,6 +70,15 @@ class LocalPreferencesCubit extends Cubit<LocalPreferencesState> {
       showGlobalCompetitionFilterNotification: showNotification,
     ));
     _competitionFilterNotificationPreference.save(showNotification);
+  }
+
+  void qualificatinoOverrideNotificationPreferenceChanged(
+    bool showNotification,
+  ) {
+    emit(state.copyWith(
+      showQualificationOverrideNotification: showNotification,
+    ));
+    _qualificationOverrideNotificationPreference.save(showNotification);
   }
 }
 
@@ -124,12 +145,8 @@ class _QueueModePreference extends _LocalPreference<QueueMode, String> {
   }
 }
 
-class _CompetitionFilterNotificationPreference
-    extends _LocalPreference<bool, bool> {
-  _CompetitionFilterNotificationPreference({required super.sharedPreferences});
-
-  @override
-  String get key => 'showCompetitionFilterNotification';
+abstract class _BoolPreference extends _LocalPreference<bool, bool> {
+  _BoolPreference({required super.sharedPreferences});
 
   @override
   bool get defaultValue => true;
@@ -143,4 +160,20 @@ class _CompetitionFilterNotificationPreference
   bool? unmarshal(bool showNotification) {
     return showNotification;
   }
+}
+
+class _CompetitionFilterNotificationPreference extends _BoolPreference {
+  _CompetitionFilterNotificationPreference({required super.sharedPreferences});
+
+  @override
+  String get key => 'showCompetitionFilterNotification';
+}
+
+class _QualificationOverrideNotificationPreference extends _BoolPreference {
+  _QualificationOverrideNotificationPreference({
+    required super.sharedPreferences,
+  });
+
+  @override
+  String get key => 'showQualificationOverrideNotification';
 }
