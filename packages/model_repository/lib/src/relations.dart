@@ -1,33 +1,13 @@
 import 'package:model_repository/model_repository.dart';
 
-abstract class Relation {
-  /// Takes the string IDs of the relation,
-  /// looks them up in the model repository
-  /// and pupulates its mutable model field
-  /// with them.
-  expandRelation();
-}
-
-class SingleRelation<M extends Model> implements Relation {
+class SingleRelation<M extends Model> {
   SingleRelation({this.relationId = ""});
 
-  SingleRelation.fromModel(this.model) : relationId = model?.id ?? "";
+  SingleRelation.fromModel(M? model) : relationId = model?.id ?? "";
 
   final String relationId;
 
-  M? model;
-
-  @override
-  expandRelation() {
-    if (relationId == "") {
-      return;
-    }
-
-    var modelRepo = ModelRepository.instance;
-    var modelStore = modelRepo.findStore<M>()!;
-
-    model = modelStore.getModel(relationId);
-  }
+  M? get model => ModelRepository.instance.models[relationId] as M?;
 
   factory SingleRelation.fromJson(String relationId) {
     return SingleRelation<M>(relationId: relationId);
@@ -38,28 +18,18 @@ class SingleRelation<M extends Model> implements Relation {
   }
 }
 
-class MultiRelation<M extends Model> implements Relation {
+class MultiRelation<M extends Model> {
   MultiRelation({this.relationIds = const []});
 
-  MultiRelation.fromModels(this.models)
+  MultiRelation.fromModels(List<M> models)
       : relationIds = models.map((e) => e.id).toList();
 
   final List<String> relationIds;
 
-  List<M> models = const [];
-
-  @override
-  expandRelation() {
-    if (relationIds.isEmpty) {
-      return;
-    }
-
-    var modelRepo = ModelRepository.instance;
-    var modelStore = modelRepo.findStore<M>()!;
-
-    models =
-        relationIds.map((e) => modelStore.getModel(e)).whereType<M>().toList();
-  }
+  List<M> get models => relationIds
+      .map((id) => ModelRepository.instance.models[id])
+      .whereType<M>()
+      .toList();
 
   factory MultiRelation.fromJson(List relationIds) {
     List<String> stringIds = relationIds.cast<String>();

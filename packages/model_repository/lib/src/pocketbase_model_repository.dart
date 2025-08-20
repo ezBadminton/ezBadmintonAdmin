@@ -2,7 +2,6 @@
 import 'dart:async';
 
 import 'package:authentication_repository/authentication_repository.dart';
-import 'package:collection/collection.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:pocketbase_provider/pocketbase_provider.dart';
 
@@ -53,11 +52,11 @@ class PocketbaseModelRepository extends ModelRepository {
 
     await Future.wait(loadFutures);
 
-    var allModels = _stores.values
-        .expand((store) => store.getList())
-        .toList()
-        .cast<Model>();
-    expandRelations(allModels);
+    var allModels =
+        _stores.values.expand((store) => store.getList()).cast<Model>();
+    models = {
+      for (final model in allModels) model.id: model,
+    };
 
     _isLoaded = true;
     _controller.add(RepositoryEvent.loaded);
@@ -65,141 +64,23 @@ class PocketbaseModelRepository extends ModelRepository {
 
   _resetModels() {
     _isLoaded = false;
-    reverseRelations.clear();
+    models.clear();
     _controller.add(RepositoryEvent.reset);
   }
 
   @override
   created(Model model) {
-    expandRelations([model]);
+    models[model.id] = model;
   }
 
   @override
   updated(Model model) {
-    expandRelations([model]);
-    var relMap = reverseRelations[model.id];
-    if (relMap == null) {
-      return;
-    }
-    var relations = relMap.values.expand((e) => e);
-    for (final relation in relations) {
-      switch (relation) {
-        case SingleRelation r:
-          r.model = model;
-        case MultiRelation r:
-          var i = r.models.indexWhere((e) => e.id == model.id);
-          r.models[i] = model;
-      }
-    }
+    models[model.id] = model;
   }
 
   @override
   deleted(Model model) {
-    reverseRelations.remove(model.id);
-    _resetReverseRelations(model);
-  }
-
-  @override
-  expandRelations(List<dynamic> models) {
-    for (final model in models) {
-      if (model is Model) {
-        _resetReverseRelations(model);
-      }
-    }
-
-    for (final model in models) {
-      var relations = <Relation>[];
-      switch (model) {
-        case Competition m:
-          relations.add(m.ageGroupRel);
-          relations.add(m.playingLevelRel);
-          relations.add(m.registrationsRel);
-          relations.add(m.seedsRel);
-          relations.add(m.drawRel);
-          relations.add(m.tournamentModeSettingsRel);
-          relations.add(m.matchesRel);
-          relations.add(m.tieBreakersRel);
-          relations.add(m.planRel);
-        case Court m:
-          relations.add(m.gymnasiumRel);
-        case Player m:
-          relations.add(m.clubRel);
-        case Team m:
-          relations.add(m.playersRel);
-        case TieBreaker m:
-          relations.add(m.tieBreakerRankingRel);
-        case Registration m:
-          relations.add(m.competitionRel);
-          relations.add(m.teamRel);
-        case WithdrawalPreview m:
-          for (var e in m.changesRel.entries) {
-            relations.add(e.key);
-            relations.add(e.value);
-          }
-        case Schedule m:
-          relations.add(m.roundQueueRel);
-        case ScheduledRound m:
-          relations.add(m.competitionRel);
-          relations.add(m.matchesRel);
-        case ScheduledMatch m:
-          relations.add(m.matchRel);
-          for (var MapEntry(key: playerRel, value: block)
-              in m.blockingPlayersRel.entries) {
-            relations.add(playerRel);
-            relations.add(block.blockingMatchRel);
-          }
-        case TournamentPlan m:
-          relations.add(m.competitionRel);
-          var t = m.tournament;
-          relations.add(t.editableRel);
-          relations.addAll(t.entriesRel.flattened.map((slot) => slot.teamRel));
-          relations
-              .addAll(t.finalRankingRel.flattened.map((slot) => slot.teamRel));
-          relations.addAll(t.relations);
-        case TournamentMatch m:
-          relations.add(m.courtRel);
-          relations.add(m.withdrawnTeamsRel);
-          relations.add(m.winnerRel);
-          relations.add(m.slot1.teamRel);
-          relations.add(m.slot2.teamRel);
-      }
-
-      for (final relation in relations) {
-        relation.expandRelation();
-      }
-
-      if (model is Model) {
-        _addReverseRelations(model.id, relations);
-      }
-    }
-  }
-
-  _addReverseRelations(String modelId, List<Relation> relations) {
-    for (final relation in relations) {
-      switch (relation) {
-        case SingleRelation m:
-          _addReverseRelation(m.relationId, modelId, relation);
-        case MultiRelation m:
-          for (final id in m.relationIds) {
-            _addReverseRelation(id, modelId, relation);
-          }
-      }
-    }
-  }
-
-  _addReverseRelation(String childId, String parentId, Relation relation) {
-    if (childId == "") {
-      return;
-    }
-    var relMap = reverseRelations.putIfAbsent(childId, () => {});
-    var relList = relMap.putIfAbsent(parentId, () => []);
-    relList.add(relation);
-  }
-
-  _resetReverseRelations(Model model) {
-    for (final relMap in reverseRelations.values) {
-      relMap.remove(model.id);
-    }
+    models.remove(model.id);
   }
 
   _initStores() {

@@ -21,8 +21,7 @@ class Court extends Model with _$Court {
     required String id,
     required DateTime created,
     required DateTime updated,
-    @JsonKey(name: 'gymnasium')
-    required SingleRelation<Gymnasium> gymnasiumRel,
+    @JsonKey(name: 'gymnasium') required SingleRelation<Gymnasium> gymnasiumRel,
     required String name,
     required int positionX,
     required int positionY,

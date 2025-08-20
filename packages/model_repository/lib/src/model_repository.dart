@@ -21,10 +21,8 @@ abstract class ModelRepository {
   updated(Model model);
   deleted(Model model);
 
-  expandRelations(List<dynamic> models);
-
-  /// child ID -> parent ID -> relations from parent to child
-  Map<String, Map<String, List<Relation>>> reverseRelations = {};
+  /// All currently loaded models mapped by their id
+  Map<String, Model> models = {};
 }
 
 enum RepositoryEvent {

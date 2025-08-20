@@ -30,7 +30,6 @@ class ApiEndpointRepository<M> {
     var url = (pathParams == null) ? this.url : parameterizeUrl(pathParams);
     Map<String, dynamic> result = await pocketBase.send(url.toString());
     M object = unmarshaller!(result);
-    modelRepository!.expandRelations([object]);
     return object;
   }
 

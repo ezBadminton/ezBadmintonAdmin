@@ -241,17 +241,10 @@ mixin RoundRobinTies {
 
   List<List<Team>> get ties => Tournament._unwrapTeams(tiesRel);
   List<List<Team>> get unbrokenTies => Tournament._unwrapTeams(unbrokenTiesRel);
-
-  List<Relation> get relations => [
-        ...roundsRel,
-        ...tiesRel.flattened.map((slot) => slot.teamRel),
-        ...unbrokenTiesRel.flattened.map((slot) => slot.teamRel),
-      ];
 }
 
 abstract class MatchRoundList {
   List<List<TournamentMatch>> get rounds;
-  List<Relation> get relations;
 }
 
 mixin DefaultRounds {
@@ -262,7 +255,6 @@ mixin DefaultRounds {
 
 mixin DefaultRoundsRelations {
   List<MultiRelation<TournamentMatch>> get roundsRel;
-  List<Relation> get relations => roundsRel;
 }
 
 mixin ConsolationRounds {
@@ -275,13 +267,6 @@ mixin ConsolationRounds {
     return _rounds!;
   }
 
-  List<Relation> get relations {
-    if (_relations == null) {
-      _collectRelations();
-    }
-    return _relations!;
-  }
-
   ConsolationBracket bracketOfMatch(TournamentMatch match) {
     if (_bracketMap == null) {
       _makeRounds();
@@ -290,7 +275,6 @@ mixin ConsolationRounds {
   }
 
   List<List<TournamentMatch>>? _rounds;
-  List<Relation>? _relations;
   Map<TournamentMatch, ConsolationBracket>? _bracketMap;
 
   _makeRounds() {
@@ -321,20 +305,6 @@ mixin ConsolationRounds {
     _rounds = groupedRounds;
     _bracketMap = bracketMap;
   }
-
-  _collectRelations() {
-    var stack = <ConsolationBracket>[mainBracket];
-    var relations = <Relation>[];
-
-    for (int l = 1; l > 0; l = stack.length) {
-      var current = stack[l - 1];
-      stack = stack.sublist(0, l - 1);
-      stack.addAll(current.consolations);
-      relations.addAll(current.roundsRel);
-    }
-
-    _relations = relations;
-  }
 }
 
 mixin DoubleEliminationRounds {
@@ -354,12 +324,6 @@ mixin DoubleEliminationRounds {
     }
     return _rounds!;
   }
-
-  List<Relation> get relations => [
-        ...winnerRoundsRel,
-        ...loserRoundsRel,
-        finalMatchRel,
-      ];
 
   List<List<TournamentMatch>>? _rounds;
 
@@ -393,18 +357,6 @@ mixin GroupKnockoutRounds {
     _rounds ??= _makeRounds();
     return _rounds!;
   }
-
-  List<Relation> get relations => [
-        ...groupPhase.crossGroupTiesRel.flattened.map((slot) => slot.teamRel),
-        ...groupPhase.unbrokenCrossGroupTiesRel.flattened
-            .map((slot) => slot.teamRel),
-        for (final g in groupPhase.groups) ...[
-          ...g.relations,
-          ...g.entriesRel.flattened.map((slot) => slot.teamRel),
-          ...g.finalRankingRel.flattened.map((slot) => slot.teamRel),
-        ],
-        ...knockoutPhase.relations,
-      ];
 
   List<List<TournamentMatch>>? _rounds;
 
