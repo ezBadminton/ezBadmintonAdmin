@@ -22,7 +22,7 @@ class CourtCubit extends CollectionQuerierCubit<CourtState> {
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    CollectionUpdateEvent<Model>? updateEvent,
+    List<CollectionUpdateEvent<Model>>? updateEvents,
   ) {
     var updatedState = state.copyWith(
       loadingStatus: LoadingStatus.done,

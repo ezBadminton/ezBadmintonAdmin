@@ -55,9 +55,9 @@ class RoundSelectionCubit extends CollectionQuerierCubit<RoundSelectionState> {
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    CollectionUpdateEvent<Model>? updateEvent,
+    List<CollectionUpdateEvent<Model>>? updateEvents,
   ) {
-    if (updateEvent == null || state.round == null) {
+    if (updateEvents == null || state.round == null) {
       return;
     }
     setSelectedRound(state.round!);

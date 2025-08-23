@@ -1,4 +1,5 @@
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
+import 'package:ez_badminton_admin_app/utils/list_extension/list_extension.dart';
 import 'package:ez_badminton_admin_app/widgets/loading_screen/loading_screen.dart';
 import 'package:model_repository/model_repository.dart';
 
@@ -27,9 +28,9 @@ class MatchContextCubit extends CollectionQuerierCubit<MatchContextState> {
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    CollectionUpdateEvent<Model>? updateEvent,
+    List<CollectionUpdateEvent<Model>>? updateEvents,
   ) {
-    if (updateEvent == null) {
+    if (updateEvents == null) {
       emit(state.copyWith(
         loadingStatus: LoadingStatus.done,
         collections: collections,
@@ -37,15 +38,19 @@ class MatchContextCubit extends CollectionQuerierCubit<MatchContextState> {
     }
   }
 
-  void _onMatchUpdate(CollectionUpdateEvent<TournamentMatch> event) {
-    if (event.model == state._match) {
-      emit(state.copyWith(match: event.model));
+  void _onMatchUpdate(List<CollectionUpdateEvent<TournamentMatch>> events) {
+    TournamentMatch? updatedMatch = events.latestVersion(state._match!);
+    if (updatedMatch != null) {
+      emit(state.copyWith(match: updatedMatch));
     }
   }
 
-  void _onScheduledMatchUpdate(CollectionUpdateEvent<ScheduledMatch> event) {
-    if (event.model == state._scheduledMatch) {
-      emit(state.copyWith(scheduledMatch: event.model));
+  void _onScheduledMatchUpdate(
+    List<CollectionUpdateEvent<ScheduledMatch>> events,
+  ) {
+    ScheduledMatch? updatedMatch = events.latestVersion(state._scheduledMatch!);
+    if (updatedMatch != null) {
+      emit(state.copyWith(scheduledMatch: updatedMatch));
     }
   }
 }

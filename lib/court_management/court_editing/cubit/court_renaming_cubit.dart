@@ -1,3 +1,4 @@
+import 'package:ez_badminton_admin_app/utils/list_extension/list_extension.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
@@ -78,8 +79,9 @@ class CourtRenamingCubit extends CollectionQuerierCubit<CourtRenamingState> {
     ));
   }
 
-  void _onCourtCollectionUpdate(CollectionUpdateEvent<Court> event) {
-    if (event.model != state.court || event.updateType != UpdateType.update) {
+  void _onCourtCollectionUpdate(List<CollectionUpdateEvent<Court>> events) {
+    CollectionUpdateEvent<Court>? event = events.latestUpdate(state.court);
+    if (event == null || event.updateType != UpdateType.update) {
       return;
     }
 
@@ -88,5 +90,5 @@ class CourtRenamingCubit extends CollectionQuerierCubit<CourtRenamingState> {
 
   @override
   void onCollectionUpdate(List<List<Model>> collections,
-      CollectionUpdateEvent<Model>? updateEvent) {}
+      List<CollectionUpdateEvent<Model>>? updateEvents) {}
 }

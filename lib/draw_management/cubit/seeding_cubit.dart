@@ -87,24 +87,29 @@ class SeedingCubit extends CollectionQuerierCubit<SeedingState> {
   }
 
   void _onCompetitionCollectionUpdate(
-    CollectionUpdateEvent<Competition> event,
+    List<CollectionUpdateEvent<Competition>> events,
   ) {
-    if (event.model == state.competition) {
-      emit(state.copyWith(competition: event.model));
+    Competition? updatedCompetition = events.latestVersion(state.competition);
+    if (updatedCompetition != null) {
+      emit(state.copyWith(competition: updatedCompetition));
     }
   }
 
   void _onPlayerCollectionUpdate(
-    CollectionUpdateEvent<Player> event,
+    List<CollectionUpdateEvent<Player>> events,
   ) {
-    List<Player> players =
-        state.competition.registrations.expand((team) => team.players).toList();
-    if (players.contains(event.model)) {
+    Set<Player> players =
+        state.competition.registrations.expand((team) => team.players).toSet();
+
+    bool registeredPlayerUpdated = events.any(
+      (event) => players.contains(event.model),
+    );
+    if (registeredPlayerUpdated) {
       emit(state);
     }
   }
 
   @override
   void onCollectionUpdate(List<List<Model>> collections,
-      CollectionUpdateEvent<Model>? updateEvent) {}
+      List<CollectionUpdateEvent<Model>>? updateEvents) {}
 }

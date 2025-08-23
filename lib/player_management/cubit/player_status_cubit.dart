@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:ez_badminton_admin_app/utils/list_extension/list_extension.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/widgets/dialog_listener/cubit_mixin/dialog_cubit.dart';
@@ -87,17 +88,16 @@ class PlayerStatusCubit extends CollectionQuerierCubit<PlayerStatusState>
     return FormzSubmissionStatus.success;
   }
 
-  void _onPlayerUpdated(CollectionUpdateEvent<Player> event) {
-    if (event.model != state.player) {
-      return;
+  void _onPlayerUpdated(List<CollectionUpdateEvent<Player>> events) {
+    Player? updatedPlayer = events.latestVersion(state.player);
+    if (updatedPlayer != null) {
+      emit(state.copyWith(player: updatedPlayer));
     }
-
-    emit(state.copyWith(player: event.model));
   }
 
   @override
   void onCollectionUpdate(List<List<Model>> collections,
-      CollectionUpdateEvent<Model>? updateEvent) {}
+      List<CollectionUpdateEvent<Model>>? updateEvents) {}
 }
 
 enum StatusChangeDirection {

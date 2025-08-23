@@ -186,7 +186,7 @@ abstract class CollectionQuerierCubit<S> extends Cubit<S> {
   /// [BlocProvider].
   void subscribeToCollectionUpdates<M extends Model>(
     ModelStore<M> store,
-    void Function(CollectionUpdateEvent<M> updateEvent)? listener,
+    void Function(List<CollectionUpdateEvent<M>> updateEvents)? listener,
   ) {
     StreamSubscription subscription = store.updateStream.listen(listener);
     collectionUpdateSubscriptions.add(subscription);
@@ -207,14 +207,14 @@ abstract class CollectionQuerierCubit<S> extends Cubit<S> {
   /// The [collections] list is always the full list of collections, not just
   /// the updated ones.
   ///
-  /// The [updateEvent] contains the details about what was updated.
+  /// The [updateEvents] contain the details about what was updated.
   /// It is null on the intial load.
   ///
   /// The implementation should emit a new state here that is derived from
   /// the updates.
   void onCollectionUpdate(
     List<List<Model>> collections,
-    CollectionUpdateEvent<Model>? updateEvent,
+    List<CollectionUpdateEvent<Model>>? updateEvents,
   );
 
   /// Gets called when the initial collection load fails
@@ -247,10 +247,12 @@ abstract class CollectionQuerierCubit<S> extends Cubit<S> {
     }
   }
 
-  void _notifyCollectionUpdate([CollectionUpdateEvent<Model>? updateEvent]) {
+  void _notifyCollectionUpdate([
+    List<CollectionUpdateEvent<Model>>? updateEvents,
+  ]) {
     List<List<Model>> collections =
         querier.modelStores.map((r) => r.getList()).toList();
-    onCollectionUpdate(collections, updateEvent);
+    onCollectionUpdate(collections, updateEvents);
   }
 }
 

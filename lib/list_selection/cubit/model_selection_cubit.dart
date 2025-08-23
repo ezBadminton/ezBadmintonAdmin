@@ -21,9 +21,9 @@ class ModelSelectionCubit<M extends Model>
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    CollectionUpdateEvent<Model>? updateEvent,
+    List<CollectionUpdateEvent<Model>>? updateEvents,
   ) {
-    if (updateEvent == null) {
+    if (updateEvents == null) {
       List<M> models = collections.firstWhere((c) => c is List<M>) as List<M>;
       ModelSelectionState<M> updatedState = state.copyWith(
         displayModels: models,
@@ -76,17 +76,23 @@ class ModelSelectionCubit<M extends Model>
   }
 
   void _onCollectionUpdate(
-    CollectionUpdateEvent<M> event,
+    List<CollectionUpdateEvent<M>> events,
   ) {
     List<M> selected = List.of(state.selectedModels);
+    bool selectedUpdated = false;
+    for (final event in events) {
+      if (!selected.contains(event.model)) {
+        return;
+      }
 
-    if (!selected.contains(event.model)) {
-      return;
+      selected.removeWhere((c) => c.id == event.model.id);
+      if (event.updateType != UpdateType.delete) {
+        selected.add(event.model);
+      }
+      selectedUpdated = true;
     }
-
-    selected.removeWhere((c) => c.id == event.model.id);
-    selected.add(event.model);
-
-    emit(state.copyWith(selectedModels: selected));
+    if (selectedUpdated) {
+      emit(state.copyWith(selectedModels: selected));
+    }
   }
 }

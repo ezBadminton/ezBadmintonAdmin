@@ -17,7 +17,7 @@ class TournamentPlanCubit extends CollectionQuerierCubit<TournamentPlanState> {
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    CollectionUpdateEvent<Model>? updateEvent,
+    List<CollectionUpdateEvent<Model>>? updateEvents,
   ) {
     var drawnTournaments = <Competition, TournamentPlan>{};
     var runningTournaments = <Competition, TournamentPlan>{};

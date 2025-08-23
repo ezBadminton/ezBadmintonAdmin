@@ -48,27 +48,34 @@ class PocketbaseModelStore<M extends Model> extends ModelStore<M> {
   @override
   bool get isLoaded => _isLoaded;
 
-  Future<void> Function()? _unsubscribe;
+  Future<void> Function()? _unsubscribeCollectionUpdates;
+  Future<void> Function()? _unsubscripeUnitOfWorkEnds;
+
+  final Map<String, List<CollectionUpdateEvent<M>>> _inProgressUnitsOfWork = {};
 
   @override
-  final StreamController<CollectionUpdateEvent<M>> updateStreamController =
-      StreamController.broadcast();
+  final StreamController<List<CollectionUpdateEvent<M>>>
+      updateStreamController = StreamController.broadcast();
 
   @override
-  Stream<CollectionUpdateEvent<M>> get updateStream async* {
+  Stream<List<CollectionUpdateEvent<M>>> get updateStream async* {
     yield* updateStreamController.stream;
   }
 
   @override
   Future<void> load() async {
-    if (_unsubscribe != null) {
-      await _unsubscribe!();
-    }
+    await _unsubscribeCollectionUpdates?.call();
+    await _unsubscripeUnitOfWorkEnds?.call();
     await _fetchCollection();
-    _unsubscribe = await _pocketBase.collection(_collectionName).subscribe(
-          '*',
-          _handleCollectionUpdate,
-        );
+    _unsubscribeCollectionUpdates =
+        await _pocketBase.collection(_collectionName).subscribe(
+              '*',
+              _handleCollectionUpdate,
+            );
+    _unsubscripeUnitOfWorkEnds = await _pocketBase.realtime.subscribe(
+      "unitOfWorkEnd",
+      _handleUnitOfWorkEnd,
+    );
   }
 
   Future<void> _fetchCollection() async {
@@ -93,7 +100,9 @@ class PocketbaseModelStore<M extends Model> extends ModelStore<M> {
       return;
     }
 
-    M model = _modelConstructor(realtimeEvent.record!.toJson());
+    RecordModel record = realtimeEvent.record!;
+    String? unitOfWork = record.data["unitOfWork"];
+    M model = _modelConstructor(record.toJson());
 
     CollectionUpdateEvent<M> updateEvent = switch (realtimeEvent.action) {
       "create" => CollectionUpdateEvent.create(model),
@@ -102,8 +111,32 @@ class PocketbaseModelStore<M extends Model> extends ModelStore<M> {
       _ => throw Exception("Unknown realtime event type"),
     };
 
-    _applyCollectionUpdate(updateEvent);
-    emitUpdateEvent(updateEvent);
+    if (unitOfWork == null) {
+      _applyCollectionUpdate(updateEvent);
+      emitUpdateEvents([updateEvent]);
+    } else {
+      List<CollectionUpdateEvent<M>> unitOfWorkUpdates =
+          _inProgressUnitsOfWork.putIfAbsent(unitOfWork, () => []);
+      unitOfWorkUpdates.add(updateEvent);
+    }
+  }
+
+  void _handleUnitOfWorkEnd(
+    // forced to use dynamic here because the pocketbase SDK does not export
+    // the actual SseMessage class for some reason
+    dynamic message,
+  ) {
+    Map<String, dynamic> jsonData = message.jsonData();
+    String unitOfWorkId = jsonData["unitOfWork"];
+    List<CollectionUpdateEvent<M>>? unitOfWorkUpdates =
+        _inProgressUnitsOfWork.remove(unitOfWorkId);
+    if (unitOfWorkUpdates == null || unitOfWorkUpdates.isEmpty) {
+      return;
+    }
+    for (final update in unitOfWorkUpdates) {
+      _applyCollectionUpdate(update);
+    }
+    emitUpdateEvents(unitOfWorkUpdates);
   }
 
   void _applyCollectionUpdate(CollectionUpdateEvent<M> event) {
@@ -207,8 +240,8 @@ class PocketbaseModelStore<M extends Model> extends ModelStore<M> {
     }
   }
 
-  void emitUpdateEvent(CollectionUpdateEvent<M> event) {
-    updateStreamController.add(event);
+  void emitUpdateEvents(List<CollectionUpdateEvent<M>> events) {
+    updateStreamController.add(events);
   }
 
   @override

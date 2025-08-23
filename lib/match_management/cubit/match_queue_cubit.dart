@@ -22,7 +22,7 @@ class MatchQueueCubit extends CollectionQuerierCubit<MatchQueueState> {
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    CollectionUpdateEvent<Model>? updateEvent,
+    List<CollectionUpdateEvent<Model>>? updateEvents,
   ) {
     MatchQueueState updatedState = state.copyWith(
       collections: collections,

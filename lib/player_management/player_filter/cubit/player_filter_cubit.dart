@@ -53,7 +53,7 @@ class PlayerFilterCubit extends CollectionQuerierCubit<PlayerFilterState>
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    CollectionUpdateEvent<Model>? updateEvent,
+    List<CollectionUpdateEvent<Model>>? updateEvents,
   ) {
     PlayerFilterState updatedState = state.copyWith(
       collections: collections,

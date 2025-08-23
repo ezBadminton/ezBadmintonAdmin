@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_sorter/comparators/competition_comparator.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/predicate/filter_predicate.dart';
+import 'package:ez_badminton_admin_app/utils/list_extension/list_extension.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
@@ -31,7 +32,7 @@ class CompetitionSelectionCubit
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    CollectionUpdateEvent<Model>? updateEvent,
+    List<CollectionUpdateEvent<Model>>? updateEvents,
   ) {
     CompetitionSelectionState updatedState = state.copyWith(
       collections: collections,
@@ -90,18 +91,18 @@ class CompetitionSelectionCubit
   }
 
   void _onCompetitionCollectionUpdate(
-    CollectionUpdateEvent<Competition>? event,
+    List<CollectionUpdateEvent<Competition>> events,
   ) {
-    if (event == null || event.model != state.selectedCompetition.value) {
+    CollectionUpdateEvent<Competition>? event = events.latestUpdate(
+      state.selectedCompetition.value,
+    );
+    if (event == null) {
       return;
     }
-
     switch (event.updateType) {
       case UpdateType.update:
         emit(state.copyWith(
-          selectedCompetition: SelectionInput.dirty(
-            value: event.model,
-          ),
+          selectedCompetition: SelectionInput.dirty(value: event.model),
         ));
         break;
       case UpdateType.delete:

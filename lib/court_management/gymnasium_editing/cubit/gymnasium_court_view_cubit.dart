@@ -28,32 +28,37 @@ class GymnasiumCourtViewCubit extends CollectionQuerierCubit<
     }
   }
 
-  _onGymnasiumCollectionUpdate(CollectionUpdateEvent<Gymnasium> event) {
-    if (!state.containsKey(event.model)) {
-      return;
-    }
-
+  _onGymnasiumCollectionUpdate(List<CollectionUpdateEvent<Gymnasium>> events) {
     Map<Gymnasium, GymnasiumCourtViewController> updatedControllers =
         Map.of(state);
+    bool controllersDidUpdate = false;
+    for (final event in events) {
+      if (!state.containsKey(event.model)) {
+        return;
+      }
 
-    GymnasiumCourtViewController controller = state[event.model]!;
+      GymnasiumCourtViewController controller = state[event.model]!;
 
-    switch (event.updateType) {
-      case UpdateType.update:
-        controller.gymnasium = event.model;
-        break;
-      case UpdateType.delete:
-        controller.dispose();
-        updatedControllers.remove(event.model);
-        break;
-      default:
-        break;
+      switch (event.updateType) {
+        case UpdateType.update:
+          controller.gymnasium = event.model;
+          controllersDidUpdate = true;
+          break;
+        case UpdateType.delete:
+          controller.dispose();
+          updatedControllers.remove(event.model);
+          controllersDidUpdate = true;
+          break;
+        default:
+          break;
+      }
     }
-
-    emit(updatedControllers);
+    if (controllersDidUpdate) {
+      emit(updatedControllers);
+    }
   }
 
   @override
   void onCollectionUpdate(List<List<Model>> collections,
-      CollectionUpdateEvent<Model>? updateEvent) {}
+      List<CollectionUpdateEvent<Model>>? updateEvents) {}
 }

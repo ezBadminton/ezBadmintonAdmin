@@ -1,4 +1,5 @@
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
+import 'package:ez_badminton_admin_app/utils/list_extension/list_extension.dart';
 import 'package:model_repository/model_repository.dart';
 
 part 'player_state.dart';
@@ -19,20 +20,15 @@ class PlayerCubit extends CollectionQuerierCubit<PlayerState> {
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    CollectionUpdateEvent<Model>? updateEvent,
+    List<CollectionUpdateEvent<Model>>? updateEvents,
   ) {
-    bool doUpdate = updateEvent != null &&
-        (updateEvent.model == state.player ||
-            updateEvent.model == state.player.club);
-    if (!doUpdate) {
+    if (updateEvents == null) {
       return;
     }
-
-    switch (updateEvent.model) {
-      case Player p:
-        emit(PlayerState(p));
-      case Club _:
-        emit(PlayerState(state.player));
+    Player? updatedPlayer = updateEvents.latestVersion(state.player);
+    Club? updatedClub = updateEvents.latestVersion(state.player.club);
+    if (updatedPlayer != null || updatedClub != null) {
+      emit(PlayerState(updatedPlayer ?? state.player));
     }
   }
 }

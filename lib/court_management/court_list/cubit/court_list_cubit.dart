@@ -21,7 +21,7 @@ class CourtListCubit extends CollectionQuerierCubit<CourtListState> {
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    CollectionUpdateEvent<Model>? updateEvent,
+    List<CollectionUpdateEvent<Model>>? updateEvents,
   ) {
     CourtListState updatedState = state.copyWith(
       collections: collections,

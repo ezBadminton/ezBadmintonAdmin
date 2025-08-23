@@ -45,10 +45,10 @@ class PartnerRegistrationCubit
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    CollectionUpdateEvent<Model>? updateEvent,
+    List<CollectionUpdateEvent<Model>>? updateEvents,
   ) {
-    bool doUpdate =
-        updateEvent == null || updateEvent is CollectionUpdateEvent<Player>;
+    bool doUpdate = updateEvents == null ||
+        updateEvents.any((update) => update is CollectionUpdateEvent<Player>);
     if (!doUpdate) {
       return;
     }
@@ -121,22 +121,28 @@ class PartnerRegistrationCubit
 
   // If the currently selected partner is registered to another team
   // remove the selection to avoid double registrations
-  void _onTeamCollectionUpdate(CollectionUpdateEvent<Team> event) {
+  void _onTeamCollectionUpdate(List<CollectionUpdateEvent<Team>> events) {
     if (state.partner.value == null) {
       return;
     }
 
-    bool partnerWasUpdated = event.model.players.contains(state.partner.value);
-    if (partnerWasUpdated) {
+    bool partnerTeamUpdated = events.any(
+      (event) => event.model.players.contains(state.partner.value),
+    );
+    if (partnerTeamUpdated) {
       partnerChanged(null);
+      return;
     }
   }
 
-  void _onPlayerCollectionUpdate(CollectionUpdateEvent<Player> event) {
+  void _onPlayerCollectionUpdate(List<CollectionUpdateEvent<Player>> events) {
     if (state.partner.value == null) {
       return;
     }
-    if (event.model == state.partner.value) {
+    bool partnerUpdated = events.any(
+      (event) => event.model == state.partner.value,
+    );
+    if (partnerUpdated) {
       partnerChanged(null);
     }
   }

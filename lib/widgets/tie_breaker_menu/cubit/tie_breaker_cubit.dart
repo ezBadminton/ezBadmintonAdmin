@@ -108,16 +108,18 @@ class TieBreakerCubit extends CollectionQuerierCubit<TieBreakerState> {
     return tieBreakerSelection;
   }
 
-  void handleCompetitionUpdate(CollectionUpdateEvent<Competition> event) {
-    if (event.model != competition) {
-      return;
+  void handleCompetitionUpdate(
+    List<CollectionUpdateEvent<Competition>> events,
+  ) {
+    Competition? updatedCompetition = events.latestVersion(competition);
+    if (updatedCompetition != null) {
+      emit(state.copyWith(
+        tieBreaker: _getOrCreateTieBreaker(state.tiedTeams, competition),
+      ));
     }
-    emit(state.copyWith(
-      tieBreaker: _getOrCreateTieBreaker(state.tiedTeams, competition),
-    ));
   }
 
   @override
   void onCollectionUpdate(List<List<Model>> collections,
-      CollectionUpdateEvent<Model>? updateEvent) {}
+      List<CollectionUpdateEvent<Model>>? updateEvents) {}
 }

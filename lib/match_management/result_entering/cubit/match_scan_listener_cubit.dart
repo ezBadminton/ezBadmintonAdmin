@@ -48,7 +48,7 @@ class MatchScanListenerCubit
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    CollectionUpdateEvent<Model>? updateEvent,
+    List<CollectionUpdateEvent<Model>>? updateEvents,
   ) {
     MatchScanListenerState updatedState = state.copyWith(
       collections: collections,

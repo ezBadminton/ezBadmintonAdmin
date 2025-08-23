@@ -30,7 +30,7 @@ class CompetitionAddingCubit
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    CollectionUpdateEvent<Model>? updateEvent,
+    List<CollectionUpdateEvent<Model>>? updateEvents,
   ) {
     if (state.formStatus == FormzSubmissionStatus.success) {
       return;

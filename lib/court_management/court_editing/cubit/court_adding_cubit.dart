@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:ez_badminton_admin_app/utils/list_extension/list_extension.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:formz/formz.dart';
@@ -139,10 +140,11 @@ class CourtAddingCubit extends CollectionQuerierCubit<CourtAddingState> {
   }
 
   void _onGymnasiumCollectionUpdate(
-    CollectionUpdateEvent<Gymnasium> event,
+    List<CollectionUpdateEvent<Gymnasium>> events,
   ) {
-    if (event.model != state.gymnasium ||
-        event.updateType != UpdateType.update) {
+    CollectionUpdateEvent<Gymnasium>? event =
+        events.latestUpdate(state.gymnasium);
+    if (event == null || event.updateType != UpdateType.update) {
       return;
     }
 
@@ -151,5 +153,5 @@ class CourtAddingCubit extends CollectionQuerierCubit<CourtAddingState> {
 
   @override
   void onCollectionUpdate(List<List<Model>> collections,
-      CollectionUpdateEvent<Model>? updateEvent) {}
+      List<CollectionUpdateEvent<Model>>? updateEvents) {}
 }

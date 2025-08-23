@@ -7,18 +7,17 @@ abstract class ModelStore<M extends Model> {
   /// Streams a [M] object whenever it is updated
   ///
   /// This happens when the [M] object was created, updated or deleted.
-  Stream<CollectionUpdateEvent<M>> get updateStream;
+  Stream<List<CollectionUpdateEvent<M>>> get updateStream;
 
   ModelRepository get repository;
 
   @protected
-  StreamController<CollectionUpdateEvent<M>> get updateStreamController;
+  StreamController<List<CollectionUpdateEvent<M>>> get updateStreamController;
 
   Stream<void> get loadStream;
   bool get isLoaded;
 
-  /// Triggers the initial collection load the should eventually complete
-  /// the [loadCompleter].
+  /// Triggers the initial collection load
   Future<void> load();
 
   /// Returns a single collection member by [id].
@@ -33,8 +32,6 @@ abstract class ModelStore<M extends Model> {
   ///
   /// An exception is thrown when this method is called before [isLoaded]
   /// becomes true.
-  ///
-  /// The FutureOr is a Future when the [loadCompleter] is not completed yet.
   List<M> getList();
 
   /// Adds a new instance of [M] to the [M]-collection.

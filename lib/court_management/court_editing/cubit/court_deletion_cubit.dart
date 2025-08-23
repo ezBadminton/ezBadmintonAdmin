@@ -31,5 +31,5 @@ class CourtDeletionCubit extends CollectionQuerierCubit<CourtDeletionState> {
 
   @override
   void onCollectionUpdate(List<List<Model>> collections,
-      CollectionUpdateEvent<Model>? updateEvent) {}
+      List<CollectionUpdateEvent<Model>>? updateEvents) {}
 }

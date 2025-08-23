@@ -26,7 +26,7 @@ class GymnasiumSelectionCubit
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    CollectionUpdateEvent<Model>? updateEvent,
+    List<CollectionUpdateEvent<Model>>? updateEvents,
   ) {
     GymnasiumSelectionState updatedState = state.copyWith(
       collections: collections,
@@ -82,10 +82,15 @@ class GymnasiumSelectionCubit
     return courtsOfGym;
   }
 
-  void _onGymnasiumCollectionUpdate(CollectionUpdateEvent<Gymnasium> event) {
-    Gymnasium updatedGymnasium = event.model;
+  void _onGymnasiumCollectionUpdate(
+    List<CollectionUpdateEvent<Gymnasium>> events,
+  ) {
+    if (events.isEmpty) {
+      return;
+    }
+    Gymnasium updatedGymnasium = events.last.model;
 
-    switch (event.updateType) {
+    switch (events.last.updateType) {
       case UpdateType.create:
         _selectGymnasium(updatedGymnasium);
         break;

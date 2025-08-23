@@ -163,5 +163,5 @@ class CourtNumberingCubit extends CollectionQuerierCubit<CourtNumberingState>
 
   @override
   void onCollectionUpdate(List<List<Model>> collections,
-      CollectionUpdateEvent<Model>? updateEvent) {}
+      List<CollectionUpdateEvent<Model>>? updateEvents) {}
 }

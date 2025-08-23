@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:model_repository/model_repository.dart';
 
 extension MoveableItem<T> on List<T> {
@@ -33,5 +34,26 @@ extension ModelReplacement<M extends Model> on List<M> {
         this[index] = replacement;
       }
     }
+  }
+}
+
+extension ModelUpdateUtils on List<CollectionUpdateEvent> {
+  /// Returns the latest version the [model] (equality by id) according to
+  /// this list of updates. If none of the updates contains the [model] null
+  /// is returned.
+  M? latestVersion<M extends Model>(M? model) {
+    if (model == null) {
+      return null;
+    }
+    return lastWhereOrNull((updateEvent) => updateEvent.model == model)?.model
+        as M;
+  }
+
+  CollectionUpdateEvent<M>? latestUpdate<M extends Model>(M? model) {
+    if (model == null) {
+      return null;
+    }
+    return lastWhereOrNull((updateEvent) => updateEvent.model == model)
+        as CollectionUpdateEvent<M>;
   }
 }

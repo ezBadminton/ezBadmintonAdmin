@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:ez_badminton_admin_app/utils/list_extension/list_extension.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/input_models/models.dart';
@@ -35,7 +36,7 @@ class UniqueCompetitionFilterCubit
   @override
   void onCollectionUpdate(
     List<List<Model>> collections,
-    CollectionUpdateEvent<Model>? updateEvent,
+    List<CollectionUpdateEvent<Model>>? updateEvents,
   ) {
     UniqueCompetitionFilterState updatedState = state.copyWith(
       collections: collections,
@@ -109,12 +110,13 @@ class UniqueCompetitionFilterCubit
   }
 
   void _onCompetitionCollectionUpdate(
-    CollectionUpdateEvent<Competition>? event,
+    List<CollectionUpdateEvent<Competition>> events,
   ) {
-    if (event == null || event.model != state.competition.value) {
+    CollectionUpdateEvent<Competition>? event =
+        events.latestUpdate(state.competition.value);
+    if (event == null) {
       return;
     }
-
     switch (event.updateType) {
       case UpdateType.update:
         emit(state.copyWith(
