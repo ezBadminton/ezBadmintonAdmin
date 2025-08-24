@@ -377,7 +377,7 @@
   "version": "Version",
   "clientVersion": "Client-Version",
   "serverVersion": "Server-Version",
-  "globalCompetitionFilterHint": "Globaler Disziplinen-Filter",
+  "globalCompetitionFilterHint": "Diese Liste wird durch den Filter im Disziplinen-Tab ebenfalls gefiltert.\nBenutze ihn, wenn du bessere Übersicht brauchst.",
   "globalCompetitionFilterActive": "Info: Der Disziplinen-Filter ist auch auf dieser Seite aktiv.",
   "qualificationOverrideAvailable": "Info: Gruppenphase beendet. Auf Wunsch können Änderungen an den Qualifikationen jetzt gemacht werden.",
   "qualificationOverride": "Qualifikationen überschreiben",

@@ -6,11 +6,13 @@ class HelpTooltipIcon extends StatelessWidget {
     super.key,
     required this.helpText,
     this.icon = Icons.help_outline,
+    this.size = 21.0,
   });
 
   final String helpText;
 
   final IconData icon;
+  final double size;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +21,7 @@ class HelpTooltipIcon extends StatelessWidget {
       child: Icon(
         icon,
         color: Theme.of(context).colorScheme.onSurface.withOpacity(.5),
-        size: 21,
+        size: size,
       ),
     );
   }

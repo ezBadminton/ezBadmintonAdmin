@@ -377,7 +377,7 @@
   "version": "Version",
   "clientVersion": "Client version",
   "serverVersion": "Server version",
-  "globalCompetitionFilterHint": "Global Competition Filter",
+  "globalCompetitionFilterHint": "This list is filtered by the filter from the Competitions Tab as well.\nUse it in case you need a better overview.",
   "globalCompetitionFilterActive": "Hint: The competition filter is active on this page as well",
   "qualificationOverrideAvailable": "Hint: Group phase finished. Manual changes to the qualifications can be made now if needed.",
   "qualificationOverride": "Qualification Override",

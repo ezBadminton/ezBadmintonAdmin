@@ -1,4 +1,5 @@
 import 'package:ez_badminton_admin_app/l10n/l10n.dart';
+import 'package:ez_badminton_admin_app/widgets/help_tooltip_icon/help_tooltip_icon.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/widgets/choice_chip_tab/choice_chip_tab.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_label/competition_label.dart';
@@ -50,9 +51,20 @@ class CompetitionSelectionList extends StatelessWidget {
               child: Column(
                 children: [
                   const SizedBox(height: 7),
-                  Text(
-                    l10n.nCompetitionsShown(selectable.length),
-                    style: TextStyle(fontSize: 13),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.nCompetitionsShown(selectable.length),
+                        style: TextStyle(fontSize: 13),
+                      ),
+                      const SizedBox(width: 5),
+                      HelpTooltipIcon(
+                        helpText: l10n.globalCompetitionFilterHint,
+                        size: 18,
+                      ),
+                    ],
                   ),
                   Text(
                     l10n.ofN(competitions.length),
