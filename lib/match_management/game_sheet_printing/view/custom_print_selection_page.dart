@@ -54,7 +54,9 @@ class CustomPrintSelectionPage extends StatelessWidget {
             playingLevelPredicateProducer: PlayingLevelPredicateProducer(),
             competitionTypePredicateProducer:
                 CompetitionTypePredicateProducer(),
-            statusPredicateProducer: StatusPredicateProducer(),
+            statusPredicateProducer: StatusPredicateProducer(
+              playerListCubit: context.read(),
+            ),
             searchPredicateProducer: SearchPredicateProducer(),
             playingLevelStore: context.read<ModelStore<PlayingLevel>>(),
             ageGroupStore: context.read<ModelStore<AgeGroup>>(),

@@ -7,6 +7,7 @@ class PlayerListState extends CollectionQuerierState
     this.loadingStatus = LoadingStatus.loading,
     this.filteredPlayers = const [],
     this.competitionRegistrations = const {},
+    this.playersLookingForTeam = const {},
     this.filters = const {},
     this.sortingComparator = const CreationDateComparator(),
     this.collections = const [],
@@ -16,6 +17,7 @@ class PlayerListState extends CollectionQuerierState
   final LoadingStatus loadingStatus;
   final List<Player> filteredPlayers;
   final Map<Player, List<Registration>> competitionRegistrations;
+  final Set<Player> playersLookingForTeam;
 
   final Map<Type, Predicate> filters;
   @override
@@ -28,6 +30,7 @@ class PlayerListState extends CollectionQuerierState
     LoadingStatus? loadingStatus,
     List<Player>? filteredPlayers,
     Map<Player, List<Registration>>? competitionRegistrations,
+    Set<Player>? playersLookingForTeam,
     Map<Type, Predicate>? filters,
     ListSortingComparator<Player>? sortingComparator,
     List<List<Model>>? collections,
@@ -37,6 +40,8 @@ class PlayerListState extends CollectionQuerierState
       filteredPlayers: filteredPlayers ?? this.filteredPlayers,
       competitionRegistrations:
           competitionRegistrations ?? this.competitionRegistrations,
+      playersLookingForTeam:
+          playersLookingForTeam ?? this.playersLookingForTeam,
       filters: filters ?? this.filters,
       sortingComparator: sortingComparator ?? this.sortingComparator,
       collections: collections ?? this.collections,

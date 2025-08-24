@@ -4,7 +4,7 @@ class SingleRelation<M extends Model> {
   SingleRelation({this.relationId = ""}) : _model = null;
 
   SingleRelation.fromModel(M? model)
-      : relationId = model?.id ?? "",
+      : relationId = "",
         _model = model;
 
   final M? _model;
@@ -25,7 +25,7 @@ class MultiRelation<M extends Model> {
   MultiRelation({this.relationIds = const []}) : _models = null;
 
   MultiRelation.fromModels(List<M> models)
-      : relationIds = models.map((e) => e.id).toList(),
+      : relationIds = [],
         _models = models;
 
   final List<M>? _models;

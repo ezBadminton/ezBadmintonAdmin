@@ -4,6 +4,7 @@ enum FilterGroup {
   ageGroup,
   playingLevel,
   playerStatus,
+  playerMetaStatus,
   genderCategory,
   competitionType,
   playerSearch,

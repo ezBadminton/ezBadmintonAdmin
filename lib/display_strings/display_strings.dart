@@ -201,6 +201,8 @@ String filterChipGroup(AppLocalizations l10n, FilterGroup filterGroup) {
       return l10n.category;
     case FilterGroup.playerStatus:
       return l10n.status;
+    case FilterGroup.playerMetaStatus:
+      return l10n.metaStatus;
     case FilterGroup.playerSearch:
       return '';
     case FilterGroup.moreRegistrations:
@@ -232,6 +234,7 @@ String filterChip(
     case FilterGroup.genderCategory:
       return l10n.genderCategory(filterName);
     case FilterGroup.playerStatus:
+    case FilterGroup.playerMetaStatus:
       return l10n.playerStatus(filterName);
     case FilterGroup.playerSearch:
       return '';

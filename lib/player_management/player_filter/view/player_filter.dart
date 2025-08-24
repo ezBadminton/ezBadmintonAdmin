@@ -120,7 +120,7 @@ class PlayerFilterMenus extends StatelessWidget {
               ],
               if (useStatusFilter) ...[
                 FilterPopoverMenu(
-                  filterMenu: _StatusFilterForm(backgroudContext: context),
+                  filterMenu: _StatusFilterForm(backgroundContext: context),
                   buttonText: l10n.status,
                 ),
                 const SizedBox(width: 30),
@@ -133,7 +133,8 @@ class PlayerFilterMenus extends StatelessWidget {
     );
   }
 
-  // Sets all filters so that only the [competition]
+  /// Sets all filters so that only the players with a registration for the
+  /// given [competition] are shown
   static void _filterForCompetition(
     Competition competition,
     BuildContext context,
@@ -251,33 +252,59 @@ class _SearchClearButton extends StatelessWidget {
 }
 
 class _StatusFilterForm extends StatelessWidget {
+  static final List<PlayerMetaStatus> _statusList = [
+    for (final PlayerStatus status in PlayerStatus.values)
+      PlayerMetaStatus.fromStatus(status),
+  ];
+
+  static final List<PlayerMetaStatus> _metaStatusList = [
+    for (final MetaStatus status in MetaStatus.values)
+      PlayerMetaStatus.fromMetaStatus(status),
+  ];
+
   const _StatusFilterForm({
-    required this.backgroudContext,
+    required this.backgroundContext,
   });
 
-  final BuildContext backgroudContext;
+  final BuildContext backgroundContext;
 
   @override
   Widget build(BuildContext context) {
     AppLocalizations l10n = AppLocalizations.of(context)!;
-    PlayerFilterCubit cubit = backgroudContext.read<PlayerFilterCubit>();
+    PlayerFilterCubit cubit = backgroundContext.read<PlayerFilterCubit>();
     StatusPredicateProducer predicateProducer =
         cubit.getPredicateProducer<StatusPredicateProducer>();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: PlayerStatus.values
-          .map(
-            (playerStatus) => FilterCheckbox<PlayerFilterCubit,
-                PlayerFilterState, PlayerStatus>(
-              backgroundContext: backgroudContext,
-              checkboxValue: playerStatus,
+
+    return IntrinsicWidth(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final status in _statusList)
+            FilterCheckbox<PlayerFilterCubit, PlayerFilterState,
+                PlayerMetaStatus>(
+              backgroundContext: backgroundContext,
+              checkboxValue: status,
               predicateProducer: predicateProducer,
               toggledValuesGetter: () => predicateProducer.statusList,
               onToggle: predicateProducer.statusToggled,
-              label: l10n.playerStatus(playerStatus.name),
+              label: l10n.playerStatus(status.name),
             ),
-          )
-          .toList(),
+          const Divider(
+            thickness: 2.0,
+            color: Colors.grey,
+          ),
+          for (final status in _metaStatusList)
+            FilterCheckbox<PlayerFilterCubit, PlayerFilterState,
+                PlayerMetaStatus>(
+              backgroundContext: backgroundContext,
+              checkboxValue: status,
+              predicateProducer: predicateProducer,
+              toggledValuesGetter: () => predicateProducer.statusList,
+              onToggle: predicateProducer.statusToggled,
+              label: l10n.playerStatus(status.name),
+            ),
+        ],
+      ),
     );
   }
 }

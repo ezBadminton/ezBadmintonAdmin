@@ -13,6 +13,7 @@ import 'package:ez_badminton_admin_app/home/widgets/result_navigation_tab_icon.d
 import 'package:ez_badminton_admin_app/match_management/cubit/match_court_assignment_cubit.dart';
 import 'package:ez_badminton_admin_app/match_management/result_entering/widgets/match_scan_listener.dart';
 import 'package:ez_badminton_admin_app/match_management/view/match_management_page.dart';
+import 'package:ez_badminton_admin_app/player_management/cubit/player_list_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/view/player_list_page.dart';
 import 'package:ez_badminton_admin_app/predicate_filter/cubit/predicate_filter_cubit.dart';
 import 'package:ez_badminton_admin_app/result_management/view/result_management_page.dart';
@@ -175,6 +176,16 @@ class _HomePageState extends State<HomePage>
           create: (context) => MatchCourtAssignmentCubit(
             assignEndpoint: context.read(),
             unassignEndpoint: context.read(),
+          ),
+        ),
+        BlocProvider(
+          create: (_) => PlayerListCubit(
+            playerStore: context.read<ModelStore<Player>>(),
+            competitoinStore: context.read<ModelStore<Competition>>(),
+            registrationStore: context.read<ModelStore<Registration>>(),
+            playingLevelStore: context.read<ModelStore<PlayingLevel>>(),
+            ageGroupStore: context.read<ModelStore<AgeGroup>>(),
+            clubStore: context.read<ModelStore<Club>>(),
           ),
         ),
         BlocProvider(

@@ -52,11 +52,15 @@ class PlayerListCubit extends CollectionQuerierCubit<PlayerListState>
     );
 
     if (doPlayerUpdate) {
-      var playerCompetitions = mapCompetitionRegistrations(
+      final playerCompetitions = mapCompetitionRegistrations(
         updatedState.getCollection<Registration>(),
+      );
+      final playersLookingForTeam = _getPlayersLookingForTeam(
+        playerCompetitions,
       );
       updatedState = updatedState.copyWith(
         competitionRegistrations: playerCompetitions,
+        playersLookingForTeam: playersLookingForTeam,
         filteredPlayers: _sortPlayers(updatedState.getCollection<Player>()),
       );
     }
@@ -105,5 +109,20 @@ class PlayerListCubit extends CollectionQuerierCubit<PlayerListState>
   List<Player> _sortPlayers(List<Player> players) {
     Comparator<Player> comparator = state.sortingComparator.comparator;
     return players.sorted(comparator);
+  }
+
+  Set<Player> _getPlayersLookingForTeam(
+    Map<Player, List<Registration>> playerRegistrations,
+  ) {
+    return playerRegistrations.keys.where((player) {
+      final registrations = playerRegistrations[player]!;
+      return registrations.any(
+        (registration) {
+          final currentTeamSize = registration.team.players.length;
+          final wantedTeamSize = registration.competition.teamSize;
+          return currentTeamSize < wantedTeamSize;
+        },
+      );
+    }).toSet();
   }
 }

@@ -37,7 +37,9 @@ class PlayerListPage extends StatelessWidget {
             playingLevelPredicateProducer: PlayingLevelPredicateProducer(),
             competitionTypePredicateProducer:
                 CompetitionTypePredicateProducer(),
-            statusPredicateProducer: StatusPredicateProducer(),
+            statusPredicateProducer: StatusPredicateProducer(
+              playerListCubit: context.read(),
+            ),
             searchPredicateProducer: SearchPredicateProducer(),
             playingLevelStore: context.read<ModelStore<PlayingLevel>>(),
             ageGroupStore: context.read<ModelStore<AgeGroup>>(),
@@ -59,16 +61,6 @@ class PlayerListPage extends StatelessWidget {
           create: (context) => UniqueCompetitionFilterCubit(
             tournamentRepository: context.read<ModelStore<TournamentEvent>>(),
             competitionRepository: context.read<ModelStore<Competition>>(),
-          ),
-        ),
-        BlocProvider(
-          create: (_) => PlayerListCubit(
-            playerStore: context.read<ModelStore<Player>>(),
-            competitoinStore: context.read<ModelStore<Competition>>(),
-            registrationStore: context.read<ModelStore<Registration>>(),
-            playingLevelStore: context.read<ModelStore<PlayingLevel>>(),
-            ageGroupStore: context.read<ModelStore<AgeGroup>>(),
-            clubStore: context.read<ModelStore<Club>>(),
           ),
         ),
         BlocProvider(
