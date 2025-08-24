@@ -360,7 +360,7 @@ class _PlayerBlockingInfo extends StatelessWidget {
     var planStore = context.read<ModelStore<TournamentPlan>>();
 
     var blocks = match.blockingPlayers;
-    var blockingMatches = <MatchContext>[];
+    var blockingMatches = <MatchContext>{};
     for (var block in blocks.values) {
       if (block.blockingMatch != null) {
         var match = block.blockingMatch!;
@@ -375,7 +375,7 @@ class _PlayerBlockingInfo extends StatelessWidget {
         showDialog(
           context: context,
           builder: (context) => _PlayerBlockingDialog(
-            matches: blockingMatches,
+            matches: blockingMatches.toList(),
           ),
         );
       },
