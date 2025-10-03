@@ -220,7 +220,7 @@ class _ViewControlBar extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 10.0),
                         child: CompetitionLabel(
                           competition: competition,
-                          abbreviated: true,
+                          nameMode: CompetitionLabelNameMode.abbreviated,
                           textStyle: TextStyle(fontSize: compact ? 14 : 16),
                           playingLevelMaxWidth: 100,
                         ),

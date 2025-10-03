@@ -41,7 +41,7 @@ class MatchInfo extends StatelessWidget {
       children: [
         CompetitionLabel(
           competition: tPlan.competition,
-          abbreviated: true,
+          nameMode: CompetitionLabelNameMode.abbreviated,
           playingLevelMaxWidth: playingLevelMaxWidth,
           textStyle: textStyle,
           dividerPadding: 3,

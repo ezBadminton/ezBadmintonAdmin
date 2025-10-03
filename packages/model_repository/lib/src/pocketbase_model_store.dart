@@ -171,7 +171,7 @@ class PocketbaseModelStore<M extends Model> extends ModelStore<M> {
   List<M> getList() {
     if (!isLoaded) {
       throw Exception(
-        "Can't get model list. The store is not loaded yet.",
+        "Can't get model list. The store is not loaded yet.a $M",
       );
     }
 
@@ -298,4 +298,6 @@ const Map<Type, String> _collectionNames = {
   TournamentPlan: 'tournament_plans',
   TournamentMatch: 'tournament_matches',
   InfoscreenUser: 'infoscreen_users',
+  StartingFeeMassDiscount: 'starting_fee_mass_discounts',
+  StartingFeePayment: 'starting_fee_payments',
 };

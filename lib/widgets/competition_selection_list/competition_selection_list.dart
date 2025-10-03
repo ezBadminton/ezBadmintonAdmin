@@ -90,7 +90,7 @@ class CompetitionSelectionList extends StatelessWidget {
                         width: 210,
                         child: CompetitionLabel(
                           competition: competition,
-                          abbreviated: true,
+                          nameMode: CompetitionLabelNameMode.abbreviated,
                           playingLevelMaxWidth: 100,
                         ),
                       ),

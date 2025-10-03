@@ -63,6 +63,20 @@ class ModelSelectionCubit<M extends Model>
     emit(state.copyWith(selectedModels: selected));
   }
 
+  /// If the [toggledModels] are already the exact selection, the selection is
+  /// cleared. Otherwise the [toggledModels] become the selection.
+  void multipleModelsToggled(List<M> toggledModels) {
+    bool sameLengthAsSelection =
+        state.selectedModels.length == toggledModels.length;
+    bool alreadySelected = sameLengthAsSelection &&
+        state.selectedModels.every((model) => toggledModels.contains(model));
+    if (alreadySelected) {
+      emit(state.copyWith(selectedModels: []));
+    } else {
+      emit(state.copyWith(selectedModels: toggledModels));
+    }
+  }
+
   // Remove selected items that are no longer in the display list
   ModelSelectionState<M> _updateSelection(
     ModelSelectionState<M> updatedState,

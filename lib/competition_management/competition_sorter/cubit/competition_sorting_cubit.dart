@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_sorter/comparators/competition_comparator.dart';
 import 'package:ez_badminton_admin_app/competition_management/models/competition_category.dart';
@@ -20,4 +21,50 @@ class CompetitionSortingCubit extends ListSortingCubit<Competition> {
           ],
           defaultComparator: const CompetitionComparator(),
         );
+
+  factory CompetitionSortingCubit.withDefaultComparators(BuildContext context) {
+    return CompetitionSortingCubit(
+      ageGroupComparator: const CompetitionComparator<AgeGroup>(
+        criteria: [
+          AgeGroup,
+          PlayingLevel,
+          CompetitionDiscipline,
+          TournamentModeSettings,
+        ],
+      ),
+      playingLevelComparator: const CompetitionComparator<PlayingLevel>(
+        criteria: [
+          PlayingLevel,
+          AgeGroup,
+          CompetitionDiscipline,
+          TournamentModeSettings,
+        ],
+      ),
+      categoryComparator: const CompetitionComparator<CompetitionDiscipline>(
+        criteria: [
+          CompetitionDiscipline,
+          AgeGroup,
+          PlayingLevel,
+          TournamentModeSettings,
+        ],
+      ),
+      registrationComparator: const CompetitionComparator<Team>(
+        criteria: [
+          Team,
+          AgeGroup,
+          PlayingLevel,
+          CompetitionDiscipline,
+          TournamentModeSettings,
+        ],
+      ),
+      modeComparator: const CompetitionComparator<TournamentModeSettings>(
+        criteria: [
+          TournamentModeSettings,
+          AgeGroup,
+          PlayingLevel,
+          CompetitionDiscipline,
+        ],
+      ),
+    );
+  }
 }

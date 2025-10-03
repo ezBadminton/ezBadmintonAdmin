@@ -10,7 +10,7 @@ class ExpansionRadioCubit extends Cubit<ExpansionRadioState> {
           selected: null,
         ));
 
-  void expand(ExpansionTileController controller, Object selected) {
+  void expand(ExpansibleController controller, Object selected) {
     if (state.controller == controller) {
       return;
     }
@@ -27,7 +27,7 @@ class ExpansionRadioCubit extends Cubit<ExpansionRadioState> {
     emit(ExpansionRadioState(controller: null, selected: null));
   }
 
-  void dispose(ExpansionTileController controller) {
+  void dispose(ExpansibleController controller) {
     if (state.controller == controller) {
       emit(ExpansionRadioState(
         controller: null,

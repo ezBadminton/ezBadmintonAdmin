@@ -186,3 +186,24 @@ class QualificationOverrideResetEndpoint extends ApiEndpointRepository {
     required super.modelRepository,
   }) : super(url: "/qualificationoverride/competition");
 }
+
+class StartingFeeEndpoint extends ApiEndpointRepository {
+  StartingFeeEndpoint({
+    required super.pocketBase,
+    required super.modelRepository,
+  }) : super(url: "/startingfees");
+}
+
+class StartingFeePaymentEndpoint extends ApiEndpointRepository {
+  StartingFeePaymentEndpoint({
+    required super.pocketBase,
+    required super.modelRepository,
+  }) : super(url: "/startingfees/player");
+}
+
+class StartingFeeMassDiscountEndpoint extends ApiEndpointRepository {
+  StartingFeeMassDiscountEndpoint({
+    required super.pocketBase,
+    required super.modelRepository,
+  }) : super(url: "/startingfees/massdiscount");
+}

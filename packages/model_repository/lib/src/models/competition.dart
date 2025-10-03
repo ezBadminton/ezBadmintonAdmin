@@ -37,6 +37,7 @@ class Competition extends Model with _$Competition {
     required int rngSeed,
     @JsonKey(readValue: Competition._planId, includeToJson: false)
     required SingleRelation<TournamentPlan> planRel,
+    required int startingFee,
   }) = _Competition;
 
   AgeGroup? get ageGroup => ageGroupRel.model;
@@ -76,6 +77,7 @@ class Competition extends Model with _$Competition {
       tieBreakersRel: MultiRelation(),
       rngSeed: Random().nextInt(1 << 32),
       planRel: SingleRelation(),
+      startingFee: 0,
     );
   }
 

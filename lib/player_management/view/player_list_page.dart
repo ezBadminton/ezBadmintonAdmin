@@ -1,5 +1,6 @@
 import 'package:ez_badminton_admin_app/list_selection/cubit/model_selection_cubit.dart';
 import 'package:ez_badminton_admin_app/player_management/cubit/expansion_radio_cubit.dart';
+import 'package:ez_badminton_admin_app/player_management/starting_fees/view/starting_fee_list.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/player_management/player_sorter/comparators/team_comparator.dart';
 import 'package:ez_badminton_admin_app/player_management/player_sorter/cubit/unique_competition_filter_cubit.dart';
@@ -83,31 +84,64 @@ class _PlayerListPageScaffold extends StatelessWidget {
     AppLocalizations l10n = AppLocalizations.of(context)!;
 
     return TabNavigationBackButtonBuilder(
-      builder: (context, backButton) => Scaffold(
-        appBar: AppBar(
-          title: Text(l10n.playerManagement),
-          leading: backButton,
-        ),
-        body: const Align(
-          alignment: Alignment.topCenter,
-          child: Padding(
-            padding: EdgeInsets.only(top: 8.0),
-            child: _PlayerListWithFilter(),
+      builder: (context, backButton) => DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          appBar: AppBar(
+            titleSpacing: 0,
+            title: TabBar(
+              isScrollable: true,
+              tabs: [
+                Tab(
+                  child: Text(
+                    l10n.playerManagement,
+                    style: TextStyle(fontSize: 20),
+                  ),
+                ),
+                Tab(text: l10n.startingFee(2)),
+              ],
+              indicatorSize: TabBarIndicatorSize.label,
+            ),
+            leading: backButton,
+          ),
+          body: TabBarView(
+            children: [
+              _PlayerListScaffold(),
+              StartingFeeList(),
+            ],
           ),
         ),
-        floatingActionButton: Padding(
-          padding: const EdgeInsets.only(right: 80, bottom: 40),
-          child: FloatingActionButton.extended(
-            onPressed: () {
-              var listCubit = context.read<PlayerListCubit>();
-              if (listCubit.state.loadingStatus == LoadingStatus.done) {
-                Navigator.of(context).push(PlayerEditingPage.route());
-              }
-            },
-            icon: const Icon(Icons.person_add_alt_1),
-            label: Text(l10n.add),
-            heroTag: 'player_add_button',
-          ),
+      ),
+    );
+  }
+}
+
+class _PlayerListScaffold extends StatelessWidget {
+  const _PlayerListScaffold();
+
+  @override
+  Widget build(BuildContext context) {
+    AppLocalizations l10n = AppLocalizations.of(context)!;
+    return Scaffold(
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(right: 80, bottom: 40),
+        child: FloatingActionButton.extended(
+          onPressed: () {
+            var listCubit = context.read<PlayerListCubit>();
+            if (listCubit.state.loadingStatus == LoadingStatus.done) {
+              Navigator.of(context).push(PlayerEditingPage.route());
+            }
+          },
+          icon: const Icon(Icons.person_add_alt_1),
+          label: Text(l10n.add),
+          heroTag: 'player_add_button',
+        ),
+      ),
+      body: const Align(
+        alignment: Alignment.topCenter,
+        child: Padding(
+          padding: EdgeInsets.only(top: 8.0),
+          child: _PlayerListWithFilter(),
         ),
       ),
     );

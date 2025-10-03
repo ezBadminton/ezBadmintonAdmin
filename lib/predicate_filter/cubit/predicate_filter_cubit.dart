@@ -7,7 +7,7 @@ import "package:collection/collection.dart";
 
 part 'predicate_filter_state.dart';
 
-/// The generic paramtere [T] is only used to created distinct types of this
+/// The generic paramtere [T] is only used to create distinct types of this
 /// cubit which differentiates the for [BlocProvider.of] calls
 class PredicateFilterCubit<T> extends Cubit<PredicateFilterState> {
   /// A predicate filter consisting of multiple [FilterPredicate]s.

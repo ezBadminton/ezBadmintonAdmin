@@ -2,6 +2,7 @@ import 'package:model_repository/model_repository.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 // ignore: unused_import
 import 'package:flutter/foundation.dart';
+import 'package:model_repository/src/models/starting_fee_mass_discount.dart';
 
 part 'generated/tournament_event.freezed.dart';
 part 'generated/tournament_event.g.dart';
@@ -30,7 +31,13 @@ class TournamentEvent extends Model with _$TournamentEvent {
     required bool dontReprintGameSheets,
     required bool printQrCodes,
     required int playerRestTime,
+    required String feeCurrency,
+    @JsonKey(name: 'startingFeeMassDiscounts')
+    required MultiRelation<StartingFeeMassDiscount> startingFeeMassDiscountRel,
   }) = _TournamentEvent;
+
+  List<StartingFeeMassDiscount> get startingFeeMassDiscounts =>
+      startingFeeMassDiscountRel.models;
 
   factory TournamentEvent.fromJson(Map<String, dynamic> json) =>
       _$TournamentEventFromJson(json);
@@ -44,7 +51,8 @@ class TournamentEvent extends Model with _$TournamentEvent {
         usePlayingLevels: false,
         dontReprintGameSheets: true,
         printQrCodes: true,
-        playerRestTime: 20,
+        playerRestTime: 5,
+        feeCurrency: "",
+        startingFeeMassDiscountRel: MultiRelation.fromModels([]),
       );
 }
-

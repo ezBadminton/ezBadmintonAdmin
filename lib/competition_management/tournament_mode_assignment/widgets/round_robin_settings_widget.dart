@@ -53,7 +53,7 @@ class _PassesInputStepper extends StatelessWidget {
       helpText: l10n.roundRobinPassesHelp,
       child: IntegerStepper(
         onChanged: cubit.passesChanged,
-        initialValue: cubit.state.settings.passes,
+        value: cubit.state.settings.passes,
         minValue: 1,
         maxValue: constants.roundRobinMaxPasses,
       ),

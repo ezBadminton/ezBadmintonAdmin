@@ -74,7 +74,7 @@ class NumConsolationRoundsStepper<C extends ConsolationSettingsHandler>
             '$numConsolationRounds ${l10n.match(numConsolationRounds)}',
           ),
           child: IntegerStepper(
-            initialValue: numConsolationRounds,
+            value: numConsolationRounds,
             onChanged: settingsCubit.numConsolationRoundsChanged,
           ),
         );

@@ -50,12 +50,7 @@ class CompetitionListPage extends StatelessWidget {
           ),
         ),
         BlocProvider(
-          create: (context) => CompetitionListCubit(
-            competitionRepository: context.read<ModelStore<Competition>>(),
-            tournamentRepository: context.read<ModelStore<TournamentEvent>>(),
-            ageGroupRepository: context.read<ModelStore<AgeGroup>>(),
-            playingLevelRepository: context.read<ModelStore<PlayingLevel>>(),
-          ),
+          create: CompetitionListCubit.fromContext,
         ),
         BlocProvider(
           create: (context) => ModelSelectionCubit<Competition>(
@@ -143,7 +138,9 @@ class _CompetitionListWithControls extends StatelessWidget {
                           SizedBox(height: 12),
                           CompetitionFilter(),
                           SizedBox(height: 12),
-                          CompetitionSelectionOptions(),
+                          CompetitionSelectionOptions(
+                            optionButtons: CompetitionSelectionOptionButtons(),
+                          ),
                           SizedBox(height: 25),
                           Expanded(
                             child: CompetitionList(),

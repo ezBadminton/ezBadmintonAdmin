@@ -8,7 +8,7 @@ class CompetitionLabel extends StatelessWidget {
   const CompetitionLabel({
     super.key,
     required this.competition,
-    this.abbreviated = false,
+    this.nameMode = CompetitionLabelNameMode.full,
     this.playingLevelMaxWidth = 240,
     this.textStyle,
     this.dividerPadding = 10,
@@ -18,7 +18,7 @@ class CompetitionLabel extends StatelessWidget {
   });
 
   final Competition competition;
-  final bool abbreviated;
+  final CompetitionLabelNameMode nameMode;
   final double playingLevelMaxWidth;
 
   final TextStyle? textStyle;
@@ -42,6 +42,21 @@ class CompetitionLabel extends StatelessWidget {
       ),
     );
 
+    final String? categoryName = switch (nameMode) {
+      CompetitionLabelNameMode.full => display_strings.competitionGenderAndType(
+          l10n,
+          competition.genderCategory,
+          competition.type,
+        ),
+      CompetitionLabelNameMode.abbreviated =>
+        display_strings.competitionGenderAndTypeAbbreviation(
+          l10n,
+          competition.genderCategory,
+          competition.type,
+        ),
+      CompetitionLabelNameMode.none => null,
+    };
+
     return Tooltip(
       message: display_strings.competitionLabel(l10n, competition),
       waitDuration: const Duration(milliseconds: 500),
@@ -60,7 +75,7 @@ class CompetitionLabel extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              divider,
+              if (competition.ageGroup != null || categoryName != null) divider,
             ],
             if (competition.ageGroup != null) ...[
               ConstrainedBox(
@@ -73,25 +88,55 @@ class CompetitionLabel extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              divider,
+              if (categoryName != null) divider,
             ],
-            Text(
-              abbreviated
-                  ? display_strings.competitionGenderAndTypeAbbreviation(
-                      l10n,
-                      competition.genderCategory,
-                      competition.type,
-                    )
-                  : display_strings.competitionGenderAndType(
-                      l10n,
-                      competition.genderCategory,
-                      competition.type,
-                    ),
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
+            if (categoryName != null)
+              Text(
+                categoryName,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
           ],
         ),
       ),
     );
   }
+}
+
+class TwoLineCompetitionLabel extends StatelessWidget {
+  const TwoLineCompetitionLabel({
+    super.key,
+    required this.competition,
+  });
+
+  final Competition competition;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          display_strings.competitionCategory(
+            l10n,
+            competition,
+          ),
+        ),
+        CompetitionLabel(
+          competition: competition,
+          nameMode: CompetitionLabelNameMode.none,
+          dividerPadding: 6,
+          dividerSize: 6,
+          textStyle: TextStyle(fontSize: 12),
+        ),
+      ],
+    );
+  }
+}
+
+enum CompetitionLabelNameMode {
+  full,
+  abbreviated,
+  none,
 }

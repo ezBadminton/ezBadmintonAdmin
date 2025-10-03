@@ -1,4 +1,6 @@
 import 'package:collection/collection.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/competition_management/competition_sorter/comparators/competition_comparator.dart';
@@ -25,6 +27,15 @@ class CompetitionListCubit extends CollectionQuerierCubit<CompetitionListState>
           ],
           CompetitionListState(),
         );
+
+  factory CompetitionListCubit.fromContext(BuildContext context) {
+    return CompetitionListCubit(
+      competitionRepository: RepositoryProvider.of(context),
+      ageGroupRepository: RepositoryProvider.of(context),
+      playingLevelRepository: RepositoryProvider.of(context),
+      tournamentRepository: RepositoryProvider.of(context),
+    );
+  }
 
   @override
   void onCollectionUpdate(

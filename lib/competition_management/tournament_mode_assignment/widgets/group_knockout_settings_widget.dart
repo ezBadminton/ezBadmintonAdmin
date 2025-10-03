@@ -71,7 +71,7 @@ class _NumGroupsInputStepper extends StatelessWidget {
       helpText: l10n.numGroupsHelp,
       child: IntegerStepper(
         onChanged: cubit.numGroupsChanged,
-        initialValue: cubit.state.settings.numGroups,
+        value: cubit.state.settings.numGroups,
         minValue: constants.minGroups,
         maxValue: constants.maxGroups,
       ),
@@ -92,7 +92,7 @@ class _NumQualificationsInputStepper extends StatelessWidget {
       helpText: l10n.numQualificationsHelp,
       child: IntegerStepper(
         onChanged: cubit.numQualificationsChanged,
-        initialValue: cubit.state.settings.numQualifications,
+        value: cubit.state.settings.numQualifications,
         minValue: constants.minQualificationsPerGroup,
         maxValue: constants.maxQualificationsPerGroup,
       ),

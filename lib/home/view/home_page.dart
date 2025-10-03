@@ -179,14 +179,7 @@ class _HomePageState extends State<HomePage>
           ),
         ),
         BlocProvider(
-          create: (_) => PlayerListCubit(
-            playerStore: context.read<ModelStore<Player>>(),
-            competitoinStore: context.read<ModelStore<Competition>>(),
-            registrationStore: context.read<ModelStore<Registration>>(),
-            playingLevelStore: context.read<ModelStore<PlayingLevel>>(),
-            ageGroupStore: context.read<ModelStore<AgeGroup>>(),
-            clubStore: context.read<ModelStore<Club>>(),
-          ),
+          create: PlayerListCubit.fromContext,
         ),
         BlocProvider(
           // Provide this predicate filter to all tabs because it affects the

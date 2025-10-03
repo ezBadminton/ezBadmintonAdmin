@@ -6,6 +6,6 @@ class ExpansionRadioState {
     required this.selected,
   });
 
-  final ExpansionTileController? controller;
+  final ExpansibleController? controller;
   final Object? selected;
 }

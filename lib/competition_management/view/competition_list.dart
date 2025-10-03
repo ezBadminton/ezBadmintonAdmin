@@ -21,49 +21,7 @@ class CompetitionList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => CompetitionSortingCubit(
-        ageGroupComparator: const CompetitionComparator<AgeGroup>(
-          criteria: [
-            AgeGroup,
-            PlayingLevel,
-            CompetitionDiscipline,
-            TournamentModeSettings,
-          ],
-        ),
-        playingLevelComparator: const CompetitionComparator<PlayingLevel>(
-          criteria: [
-            PlayingLevel,
-            AgeGroup,
-            CompetitionDiscipline,
-            TournamentModeSettings,
-          ],
-        ),
-        categoryComparator: const CompetitionComparator<CompetitionDiscipline>(
-          criteria: [
-            CompetitionDiscipline,
-            AgeGroup,
-            PlayingLevel,
-            TournamentModeSettings,
-          ],
-        ),
-        registrationComparator: const CompetitionComparator<Team>(
-          criteria: [
-            Team,
-            AgeGroup,
-            PlayingLevel,
-            CompetitionDiscipline,
-            TournamentModeSettings,
-          ],
-        ),
-        modeComparator: const CompetitionComparator<TournamentModeSettings>(
-          criteria: [
-            TournamentModeSettings,
-            AgeGroup,
-            PlayingLevel,
-            CompetitionDiscipline,
-          ],
-        ),
-      ),
+      create: CompetitionSortingCubit.withDefaultComparators,
       child: const _CompetitionList(),
     );
   }
@@ -158,7 +116,7 @@ class _CompetitionListHeader extends StatelessWidget {
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 150),
                           width: useAgeGroups ? 200 : 0,
-                          child: _SortableColumnHeader<
+                          child: SortableCompetitionColumnHeader<
                               CompetitionComparator<AgeGroup>>(
                             width: 0,
                             title: l10n.ageGroup(1),
@@ -167,13 +125,13 @@ class _CompetitionListHeader extends StatelessWidget {
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 150),
                           width: usePlayingLevels ? 200 : 0,
-                          child: _SortableColumnHeader<
+                          child: SortableCompetitionColumnHeader<
                               CompetitionComparator<PlayingLevel>>(
                             width: 0,
                             title: l10n.playingLevel(1),
                           ),
                         ),
-                        _SortableColumnHeader<
+                        SortableCompetitionColumnHeader<
                             CompetitionComparator<CompetitionDiscipline>>(
                           width: 150,
                           title: l10n.competition(1),
@@ -182,7 +140,8 @@ class _CompetitionListHeader extends StatelessWidget {
                           flex: 1,
                           child: Container(),
                         ),
-                        _SortableColumnHeader<CompetitionComparator<Team>>(
+                        SortableCompetitionColumnHeader<
+                            CompetitionComparator<Team>>(
                           width: 110,
                           title: l10n.registrations,
                         ),
@@ -190,7 +149,7 @@ class _CompetitionListHeader extends StatelessWidget {
                           flex: 1,
                           child: Container(),
                         ),
-                        _SortableColumnHeader<
+                        SortableCompetitionColumnHeader<
                             CompetitionComparator<TournamentModeSettings>>(
                           width: 150,
                           title: l10n.tournamentMode,
@@ -606,11 +565,12 @@ class _MissingCategoriesHint extends StatelessWidget {
   }
 }
 
-class _SortableColumnHeader<
+class SortableCompetitionColumnHeader<
         ComparatorType extends ListSortingComparator<Competition>>
     extends SortableColumnHeader<Competition, ComparatorType,
         CompetitionSortingCubit, CompetitionListCubit, CompetitionListState> {
-  const _SortableColumnHeader({
+  const SortableCompetitionColumnHeader({
+    super.key,
     required super.width,
     required super.title,
   });

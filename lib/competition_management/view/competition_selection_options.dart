@@ -13,11 +13,66 @@ import 'package:ez_badminton_admin_app/l10n/l10n.dart';
 import 'package:formz/formz.dart';
 
 class CompetitionSelectionOptions extends StatelessWidget {
-  const CompetitionSelectionOptions({super.key});
+  const CompetitionSelectionOptions({
+    super.key,
+    required this.optionButtons,
+  });
+
+  final Widget optionButtons;
 
   @override
   Widget build(BuildContext context) {
     var l10n = AppLocalizations.of(context)!;
+    return BlocBuilder<ModelSelectionCubit<Competition>,
+        ModelSelectionState<Competition>>(
+      builder: (context, state) {
+        int numSelected = state.selectedModels.length;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 100),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withOpacity(numSelected == 0 ? 0 : .25),
+            ),
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 25.0,
+              vertical: 5.0,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  l10n.nSubjectsSelected(
+                    numSelected,
+                    l10n.competition(numSelected),
+                  ),
+                  style: TextStyle(
+                    color: numSelected == 0
+                        ? Theme.of(context).disabledColor
+                        : null,
+                  ),
+                ),
+                const SizedBox(width: 40),
+                Expanded(child: optionButtons),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class CompetitionSelectionOptionButtons extends StatelessWidget {
+  const CompetitionSelectionOptionButtons({super.key});
+
+  @override
+  Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => CompetitionDeletionCubit(
         competitionRepository: context.read<ModelStore<Competition>>(),
@@ -34,58 +89,7 @@ class CompetitionSelectionOptions extends StatelessWidget {
         },
         builder: (context, state) {
           int numSelected = state.selectedModels.length;
-          return AnimatedContainer(
-            duration: const Duration(milliseconds: 100),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withOpacity(numSelected == 0 ? 0 : .25),
-              ),
-              borderRadius: const BorderRadius.all(Radius.circular(10)),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 25.0,
-                vertical: 5.0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    l10n.nSubjectsSelected(
-                      numSelected,
-                      l10n.competition(numSelected),
-                    ),
-                    style: TextStyle(
-                      color: numSelected == 0
-                          ? Theme.of(context).disabledColor
-                          : null,
-                    ),
-                  ),
-                  const SizedBox(width: 40),
-                  const Expanded(child: _CompetitionSelectionOptionButtons()),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _CompetitionSelectionOptionButtons extends StatelessWidget {
-  const _CompetitionSelectionOptionButtons();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<ModelSelectionCubit<Competition>,
-        ModelSelectionState<Competition>>(
-      builder: (context, state) {
-        int numSelected = state.selectedModels.length;
-        return AnimatedOpacity(
+          return AnimatedOpacity(
             duration: const Duration(milliseconds: 100),
             opacity: numSelected == 0 ? 0.0 : 1.0,
             child: Row(
@@ -101,8 +105,10 @@ class _CompetitionSelectionOptionButtons extends StatelessWidget {
                   selectedCompetitions: state.selectedModels,
                 ),
               ],
-            ));
-      },
+            ),
+          );
+        },
+      ),
     );
   }
 }

@@ -175,5 +175,16 @@ class PocketbaseModelRepository extends ModelRepository {
       modelConstructor: InfoscreenUser.fromJson,
       pocketBase: _pbProvider.pocketBase,
     );
+    _stores[StartingFeeMassDiscount] =
+        PocketbaseModelStore<StartingFeeMassDiscount>(
+      repository: this,
+      modelConstructor: StartingFeeMassDiscount.fromJson,
+      pocketBase: _pbProvider.pocketBase,
+    );
+    _stores[StartingFeePayment] = PocketbaseModelStore<StartingFeePayment>(
+      repository: this,
+      modelConstructor: StartingFeePayment.fromJson,
+      pocketBase: _pbProvider.pocketBase,
+    );
   }
 }

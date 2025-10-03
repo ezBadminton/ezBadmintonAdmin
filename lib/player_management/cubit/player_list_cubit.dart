@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:model_repository/model_repository.dart';
 import 'package:ez_badminton_admin_app/collection_queries/collection_querier.dart';
 import 'package:ez_badminton_admin_app/list_sorting/comparator/list_sorting_comparator.dart';
@@ -32,6 +33,17 @@ class PlayerListCubit extends CollectionQuerierCubit<PlayerListState>
           ],
           const PlayerListState(),
         );
+
+  factory PlayerListCubit.fromContext(BuildContext context) {
+    return PlayerListCubit(
+      playerStore: RepositoryProvider.of(context),
+      competitoinStore: RepositoryProvider.of(context),
+      registrationStore: RepositoryProvider.of(context),
+      playingLevelStore: RepositoryProvider.of(context),
+      ageGroupStore: RepositoryProvider.of(context),
+      clubStore: RepositoryProvider.of(context),
+    );
+  }
 
   @override
   void onCollectionUpdate(

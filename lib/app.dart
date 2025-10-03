@@ -222,6 +222,12 @@ class _AppState extends State<App> {
           value: _modelRepository.findStore<InfoscreenUser>(),
         ),
         RepositoryProvider.value(
+          value: _modelRepository.findStore<StartingFeeMassDiscount>(),
+        ),
+        RepositoryProvider.value(
+          value: _modelRepository.findStore<StartingFeePayment>(),
+        ),
+        RepositoryProvider.value(
           value: WithdrawalPreviewEndpoint(
             pocketBase: _pocketBaseProvider.pocketBase,
             modelRepository: _modelRepository,
@@ -379,6 +385,24 @@ class _AppState extends State<App> {
         ),
         RepositoryProvider.value(
           value: QualificationOverrideResetEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
+          value: StartingFeeEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
+          value: StartingFeePaymentEndpoint(
+            pocketBase: _pocketBaseProvider.pocketBase,
+            modelRepository: _modelRepository,
+          ),
+        ),
+        RepositoryProvider.value(
+          value: StartingFeeMassDiscountEndpoint(
             pocketBase: _pocketBaseProvider.pocketBase,
             modelRepository: _modelRepository,
           ),

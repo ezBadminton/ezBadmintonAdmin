@@ -62,7 +62,7 @@ class ScoringSettingsWidget<C extends TournamentModeSettingsCubit<S>,
                   2 * settingsState.settings.winningSets - 1,
                 ),
                 child: IntegerStepper(
-                  initialValue: settingsState.settings.winningSets,
+                  value: settingsState.settings.winningSets,
                   onChanged: settingsCubit.winningSetsChanged,
                   minValue: 1,
                   maxValue: 3,
