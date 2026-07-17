@@ -1,4 +1,6 @@
+import 'package:ez_badminton_admin_app/assets/badminton_icons_icons.dart';
 import 'package:ez_badminton_admin_app/match_management/result_entering/view/result_input_dialog.dart';
+import 'package:ez_badminton_admin_app/utils/timer/timer_cubit.dart';
 import 'package:ez_badminton_admin_app/tournament_plans/cubit/tournament_plan_cubit.dart';
 import 'package:ez_badminton_admin_app/widgets/tournament_context/tournament_context.dart';
 import 'package:model_repository/model_repository.dart';
@@ -237,7 +239,18 @@ class MatchupCard extends StatelessWidget {
                 ],
               ),
             ),
-            if (showResult) _Scoreline(),
+            if (showResult)
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  _Scoreline(),
+                  if (match.court != null && match.winner == null)
+                    _CourtBadge(
+                      courtName: match.court!.name,
+                      startTime: match.startTime,
+                    ),
+                ],
+              ),
           ],
         ),
       ),
@@ -356,6 +369,88 @@ class _Scoreline extends StatelessWidget {
       style: TextStyle(
         fontSize: 17,
         fontWeight: isWinner! ? FontWeight.bold : FontWeight.normal,
+      ),
+    );
+  }
+}
+
+/// Shows which court a running match is being played on, overlaid on top of
+/// the (still empty) result field. Uses the same court icon (with the same
+/// blue background) as the auto-assignment button in the match queue, with
+/// the court's name as a separate label underneath. If the match has already
+/// been started, additionally shows how long ago that was, in minutes.
+class _CourtBadge extends StatelessWidget {
+  const _CourtBadge({
+    required this.courtName,
+    this.startTime,
+  });
+
+  final String courtName;
+  final DateTime? startTime;
+
+  @override
+  Widget build(BuildContext context) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+        color: Theme.of(context).primaryColorLight,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: const Icon(
+                BadmintonIcons.badminton_court_outline,
+                size: 22,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              courtName,
+              style:
+                  const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+              softWrap: false,
+            ),
+            if (startTime != null) ...[
+              const SizedBox(height: 1),
+              _RunningSinceLabel(startTime: startTime!),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _RunningSinceLabel extends StatelessWidget {
+  const _RunningSinceLabel({required this.startTime});
+
+  final DateTime startTime;
+
+  @override
+  Widget build(BuildContext context) {
+    var l10n = AppLocalizations.of(context)!;
+
+    return BlocProvider(
+      create: (context) => TimerCubit(timestamp: startTime),
+      child: BlocBuilder<TimerCubit, TimerState>(
+        buildWhen: (previous, current) => previous.minutes != current.minutes,
+        builder: (context, state) {
+          return Text(
+            l10n.nMinutes(state.minutes),
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.normal),
+            textAlign: TextAlign.center,
+            softWrap: false,
+          );
+        },
       ),
     );
   }
