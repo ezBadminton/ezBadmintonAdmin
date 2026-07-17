@@ -33,11 +33,15 @@ class PlanPrintingPage extends StatelessWidget {
     var planCubit = context.read<TournamentPlanCubit>();
     var l10n = AppLocalizations.of(context)!;
 
+    TournamentEvent tournamentEvent =
+        context.read<ModelStore<TournamentEvent>>().getList().first;
+
     return MultiBlocProvider(
       providers: [
         BlocProvider(
           create: (context) => PlanPrintingCubit(
             l10n: l10n,
+            tournamentTitle: tournamentEvent.title,
           ),
         ),
         BlocProvider(

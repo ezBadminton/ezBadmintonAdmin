@@ -11,6 +11,7 @@ class RoundRobinPlan extends TournamentPlan {
   RoundRobinPlan({
     required super.tPlan,
     required super.l10n,
+    super.tournamentTitle,
     this.title,
   });
 

@@ -21,9 +21,14 @@ part 'plan_printing_state.dart';
 class PlanPrintingCubit extends Cubit<PlanPrintingState> with PdfPrintingCubit {
   PlanPrintingCubit({
     required this.l10n,
+    this.tournamentTitle,
   }) : super(const PlanPrintingState());
 
   final AppLocalizations l10n;
+
+  /// The title of the tournament (`TournamentEvent.title`), printed in the
+  /// top left corner of every generated plan page.
+  final String? tournamentTitle;
 
   void tournamentsChanged(List<models.TournamentPlan> tournaments) {
     emit(state.copyWith(tournaments: tournaments));
@@ -62,22 +67,27 @@ class PlanPrintingCubit extends Cubit<PlanPrintingState> with PdfPrintingCubit {
         models.SingleElimination _ => SingleEliminationPlan(
             tPlan: t,
             l10n: l10n,
+            tournamentTitle: tournamentTitle,
           ),
         models.RoundRobin _ => RoundRobinPlan(
             tPlan: t,
             l10n: l10n,
+            tournamentTitle: tournamentTitle,
           ),
         models.DoubleElimination _ => DoubleEliminationPlan(
             tPlan: t,
             l10n: l10n,
+            tournamentTitle: tournamentTitle,
           ),
         models.SingleEliminationWithConsolation _ => ConsolationEliminationPlan(
             tPlan: t,
             l10n: l10n,
+            tournamentTitle: tournamentTitle,
           ),
         models.GroupKnockout _ => GroupKnockOutPlan(
             tPlan: t,
             l10n: l10n,
+            tournamentTitle: tournamentTitle,
           ),
       };
 

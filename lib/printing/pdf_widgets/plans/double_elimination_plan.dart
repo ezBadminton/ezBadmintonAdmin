@@ -17,6 +17,7 @@ class DoubleEliminationPlan extends TournamentPlan<models.DoubleElimination> {
   DoubleEliminationPlan({
     required super.tPlan,
     required super.l10n,
+    super.tournamentTitle,
     this.placeholders = const {},
   });
 

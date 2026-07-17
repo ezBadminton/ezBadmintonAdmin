@@ -12,6 +12,7 @@ abstract class TournamentPlan<T extends models.Tournament>
   TournamentPlan({
     required this.tPlan,
     required this.l10n,
+    this.tournamentTitle,
   }) {
     _widgets = layoutPlan();
   }
@@ -19,6 +20,11 @@ abstract class TournamentPlan<T extends models.Tournament>
   final models.TournamentPlan tPlan;
 
   final AppLocalizations l10n;
+
+  /// The title of the tournament (`TournamentEvent.title`), shown in the
+  /// top left corner of every generated page. `null`/empty means no title
+  /// is displayed.
+  final String? tournamentTitle;
 
   late final List<TournamentPlanWidget> _widgets;
   List<TournamentPlanWidget> get widgets => List.unmodifiable(_widgets);
@@ -29,6 +35,28 @@ abstract class TournamentPlan<T extends models.Tournament>
   final pw.EdgeInsets _planPadding = const pw.EdgeInsets.all(1);
   final pw.EdgeInsets _pagePadding =
       const pw.EdgeInsets.all(0.7 * PdfPageFormat.cm);
+
+  /// Extra top space reserved for the [TournamentPlanHeader] (title), so the
+  /// normal page content doesn't overlap with it. Only applied when
+  /// [tournamentTitle] is actually shown.
+  final double _titleHeaderHeight = 1.0 * PdfPageFormat.cm;
+
+  bool get _hasTitleHeader =>
+      tournamentTitle != null && tournamentTitle!.isNotEmpty;
+
+  /// The padding around the plan content on each page, with extra top space
+  /// added when a [tournamentTitle] header is shown.
+  pw.EdgeInsets get _contentPadding {
+    if (!_hasTitleHeader) {
+      return _pagePadding;
+    }
+    return pw.EdgeInsets.fromLTRB(
+      _pagePadding.left,
+      _pagePadding.top + _titleHeaderHeight,
+      _pagePadding.right,
+      _pagePadding.bottom,
+    );
+  }
 
   /// Returns the boundary size of the plan widget.
   PdfPoint layoutSize() {
@@ -65,8 +93,8 @@ abstract class TournamentPlan<T extends models.Tournament>
     PdfPageFormat format = _getPageFormat(planSize);
 
     PdfPoint planPageSize = format.availableDimension.translate(
-      -_pagePadding.horizontal,
-      -_pagePadding.vertical,
+      -_contentPadding.horizontal,
+      -_contentPadding.vertical,
     );
 
     int numColumns = (planSize.x / planPageSize.x).ceil();
@@ -87,7 +115,7 @@ abstract class TournamentPlan<T extends models.Tournament>
         );
 
         pw.Widget planPart = pw.Padding(
-          padding: _pagePadding,
+          padding: _contentPadding,
           child: pw.ConstrainedBox(
             constraints: pw.BoxConstraints.tight(planPageSize),
             child: pw.FittedBox(
@@ -117,6 +145,17 @@ abstract class TournamentPlan<T extends models.Tournament>
           ),
         );
 
+        List<pw.Widget> pageChildren = [planPart, pageLabel];
+        if (tournamentTitle != null && tournamentTitle!.isNotEmpty) {
+          pageChildren.add(
+            pw.Positioned(
+              left: 0,
+              top: 0,
+              child: TournamentPlanHeader(title: tournamentTitle!),
+            ),
+          );
+        }
+
         pw.Page page = pw.Page(
           pageFormat: format,
           build: (pw.Context context) => pw.DefaultTextStyle(
@@ -126,10 +165,7 @@ abstract class TournamentPlan<T extends models.Tournament>
             ),
             child: pw.Stack(
               overflow: pw.Overflow.visible,
-              children: [
-                planPart,
-                pageLabel,
-              ],
+              children: pageChildren,
             ),
           ),
         );
@@ -143,10 +179,10 @@ abstract class TournamentPlan<T extends models.Tournament>
 
   pw.Page _generateBigPage() {
     double pageMargin = 0.65;
-    pw.EdgeInsets planPadding = const pw.EdgeInsets.only(
+    pw.EdgeInsets planPadding = pw.EdgeInsets.only(
       left: 1,
       right: 1,
-      top: 1,
+      top: 1 + (_hasTitleHeader ? _titleHeaderHeight : 0),
       bottom: 24,
     );
     PdfPoint planSize = layoutSize().translate(
@@ -174,6 +210,17 @@ abstract class TournamentPlan<T extends models.Tournament>
       ),
     );
 
+    List<pw.Widget> pageChildren = [plan, pageLabel];
+    if (tournamentTitle != null && tournamentTitle!.isNotEmpty) {
+      pageChildren.add(
+        pw.Positioned(
+          left: 0,
+          top: 0,
+          child: TournamentPlanHeader(title: tournamentTitle!),
+        ),
+      );
+    }
+
     pw.Page page = pw.Page(
       pageFormat: format,
       build: (pw.Context context) => pw.DefaultTextStyle(
@@ -182,10 +229,7 @@ abstract class TournamentPlan<T extends models.Tournament>
           fontBold: PdfFonts().interBold,
         ),
         child: pw.Stack(
-          children: [
-            plan,
-            pageLabel,
-          ],
+          children: pageChildren,
         ),
       ),
     );
@@ -202,8 +246,8 @@ abstract class TournamentPlan<T extends models.Tournament>
     );
 
     PdfPoint landscapeSize = landscape.availableDimension.translate(
-      -_pagePadding.horizontal,
-      -_pagePadding.vertical,
+      -_contentPadding.horizontal,
+      -_contentPadding.vertical,
     );
 
     PdfPageFormat portrait = PdfPageFormat.a4.copyWith(
@@ -214,8 +258,8 @@ abstract class TournamentPlan<T extends models.Tournament>
     );
 
     PdfPoint portraitSize = portrait.availableDimension.translate(
-      -_pagePadding.horizontal,
-      -_pagePadding.vertical,
+      -_contentPadding.horizontal,
+      -_contentPadding.vertical,
     );
 
     int landscapeNumPages = (planSize.x / landscapeSize.x).ceil() *
@@ -308,5 +352,32 @@ class TournamentPlanPageLabel extends pw.StatelessWidget {
       ],
       pw.SizedBox(width: 0.85 * PdfPageFormat.cm),
     ]);
+  }
+}
+
+/// Shows the tournament's title in the top left corner of a plan page.
+class TournamentPlanHeader extends pw.StatelessWidget {
+  TournamentPlanHeader({required this.title});
+
+  final String title;
+
+  @override
+  pw.Widget build(pw.Context context) {
+    return pw.Padding(
+      padding: const pw.EdgeInsets.only(
+        left: 0.3 * PdfPageFormat.cm,
+        top: 0.3 * PdfPageFormat.cm,
+        // CSS "margin-bottom: 5px" equivalent (5px @ 96dpi = 3.75pt,
+        // the pdf package's raw unit is already points).
+        bottom: 3.75,
+      ),
+      child: pw.Text(
+        title,
+        style: pw.TextStyle(
+          fontSize: 14,
+          fontWeight: pw.FontWeight.bold,
+        ),
+      ),
+    );
   }
 }
