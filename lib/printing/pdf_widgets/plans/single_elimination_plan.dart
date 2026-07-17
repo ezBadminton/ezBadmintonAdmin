@@ -15,6 +15,7 @@ class SingleEliminationPlan extends TournamentPlan {
     required super.tPlan,
     List<List<models.TournamentMatch>>? rounds,
     required super.l10n,
+    super.tournamentTitle,
     this.placeholders = const {},
   }) : _rounds = rounds;
 

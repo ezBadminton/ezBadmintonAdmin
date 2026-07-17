@@ -370,5 +370,8 @@
   "reallyDeleteInfoscreenUser": "Really delete login?",
   "version": "Version",
   "clientVersion": "Client version",
-  "serverVersion": "Server version"
+  "serverVersion": "Server version",
+  "general": "General",
+  "tournament": "Tournament",
+  "tournamentTitle": "Tournament title"
 }

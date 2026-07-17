@@ -16,6 +16,7 @@ class GroupKnockOutPlan extends TournamentPlan<models.GroupKnockout> {
   GroupKnockOutPlan({
     required super.tPlan,
     required super.l10n,
+    super.tournamentTitle,
   });
 
   models.GroupKnockout get tournament =>
