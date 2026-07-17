@@ -370,5 +370,8 @@
   "reallyDeleteInfoscreenUser": "Zugang wirklich löschen?",
   "version": "Version",
   "clientVersion": "Client-Version",
-  "serverVersion": "Server-Version"
+  "serverVersion": "Server-Version",
+  "general": "Allgemein",
+  "tournament": "Turnier",
+  "tournamentTitle": "Turniertitel"
 }
