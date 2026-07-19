@@ -294,5 +294,10 @@ class PocketbaseModelRepository extends ModelRepository {
       modelConstructor: InfoscreenUser.fromJson,
       pocketBase: _pbProvider.pocketBase,
     );
+    _stores[CertificateTemplate] = PocketbaseModelStore<CertificateTemplate>(
+      repository: this,
+      modelConstructor: CertificateTemplate.fromJson,
+      pocketBase: _pbProvider.pocketBase,
+    );
   }
 }

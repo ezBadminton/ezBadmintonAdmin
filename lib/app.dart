@@ -222,6 +222,9 @@ class _AppState extends State<App> {
           value: _modelRepository.findStore<InfoscreenUser>(),
         ),
         RepositoryProvider.value(
+          value: _modelRepository.findStore<CertificateTemplate>(),
+        ),
+        RepositoryProvider.value(
           value: WithdrawalPreviewEndpoint(
             pocketBase: _pocketBaseProvider.pocketBase,
             modelRepository: _modelRepository,

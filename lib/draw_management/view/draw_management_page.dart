@@ -83,6 +83,7 @@ class _DrawManagementPageScaffold extends StatelessWidget {
                     initiallySelectedForPrint,
                   ));
                 },
+                heroTag: 'draw_management_print_button',
                 child: const Icon(Icons.print),
               );
             },
