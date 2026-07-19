@@ -1,3 +1,4 @@
+import 'package:ez_badminton_admin_app/result_management/certificate_printing/view/certificate_printing_page.dart';
 import 'package:ez_badminton_admin_app/result_management/widgets/result_explorer.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_selection_list/competition_selection_list.dart';
 import 'package:ez_badminton_admin_app/widgets/competition_selection_list/cubit/competition_selection_cubit.dart';
@@ -34,6 +35,24 @@ class _ResultManagementPageScaffold extends StatelessWidget {
         appBar: AppBar(
           title: Text(l10n.resultManagement),
           leading: backButton,
+        ),
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.only(right: 80, bottom: 40),
+          child: BlocBuilder<CompetitionSelectionCubit,
+              CompetitionSelectionState>(
+            builder: (context, state) {
+              return FloatingActionButton(
+                onPressed: () {
+                  Navigator.of(context).push(CertificatePrintingPage.route(
+                    state.selectedCompetition.value,
+                  ));
+                },
+                tooltip: l10n.certificatePrinting,
+                heroTag: 'certificate_printing_button',
+                child: const Icon(Icons.workspace_premium),
+              );
+            },
+          ),
         ),
         body: BlocBuilder<CompetitionSelectionCubit, CompetitionSelectionState>(
           builder: (context, state) {

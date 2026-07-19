@@ -31,6 +31,9 @@ class PdfFonts {
       _loadFont('fonts/Inter/Inter-Bold.ttf').then(
         (font) => interBold = font,
       ),
+      _loadFont('fonts/NK_Mono.ttf').then(
+        (font) => monotypeCorsiva = font,
+      ),
     ]);
   }
 
@@ -38,6 +41,7 @@ class PdfFonts {
 
   late final pw.Font interNormal;
   late final pw.Font interBold;
+  late final pw.Font monotypeCorsiva;
 
   Future<pw.Font> _loadFont(String assetKey) async {
     final ByteData binaryFont = await rootBundle.load(assetKey);

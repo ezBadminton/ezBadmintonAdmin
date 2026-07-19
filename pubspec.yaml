@@ -153,3 +153,6 @@ flutter:
         - asset: fonts/Inter/Inter-Regular.ttf
         - asset: fonts/Inter/Inter-Bold.ttf
           weight: 700
+    - family: Monotype Corsiva
+      fonts:
+        - asset: fonts/NK_Mono.ttf

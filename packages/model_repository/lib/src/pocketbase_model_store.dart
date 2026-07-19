@@ -265,4 +265,5 @@ const Map<Type, String> _collectionNames = {
   TournamentPlan: 'tournament_plans',
   TournamentMatch: 'tournament_matches',
   InfoscreenUser: 'infoscreen_users',
+  CertificateTemplate: 'certificate_templates',
 };
