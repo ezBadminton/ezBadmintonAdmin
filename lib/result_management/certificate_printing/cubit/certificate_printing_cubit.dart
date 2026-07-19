@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
+import 'package:collection/collection.dart';
 import 'package:ez_badminton_admin_app/display_strings/display_strings.dart'
     as display_strings;
 import 'package:ez_badminton_admin_app/input_models/models.dart';
@@ -149,12 +150,22 @@ class CertificatePrintingCubit extends Cubit<CertificatePrintingState>
   /// players), it's "OwnLastName / PartnerLastName" - i.e. each player's
   /// certificate lists their own last name first, followed by their
   /// partner's.
+  ///
+  /// Defensively falls back to just the player's own name if no distinct
+  /// partner can be found (e.g. unexpected team data), instead of crashing.
   String _playerNameForCertificate(models.Player player, models.Team team) {
     if (team.players.length <= 1) {
       return '${player.firstName} ${player.lastName}';
     }
 
-    models.Player partner = team.players.firstWhere((p) => p.id != player.id);
+    models.Player? partner = team.players.firstWhereOrNull(
+      (p) => p.id != player.id,
+    );
+
+    if (partner == null) {
+      return '${player.firstName} ${player.lastName}';
+    }
+
     return '${player.lastName} / ${partner.lastName}';
   }
 
